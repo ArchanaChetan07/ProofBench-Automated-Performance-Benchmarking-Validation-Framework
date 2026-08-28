@@ -282,15 +282,28 @@ class Validator:
             f"operator(s) of record: {sorted(x for x in ops if x)} "
             "(skill is documented, not eliminated)")
 
-        if systems_compared and not any(
-            l.get("system") == c.get("baseline") for l in ledgers
-        ):
-            add("LC-2.7", "Tuning-budget parity", "fatal", False,
-                f"the baseline `{c.get('baseline')}` has no tuning ledger: this is the "
-                "untuned-baseline failure the requirement targets")
-        else:
+        # A baseline may be a *derived* comparator -- "the best of the tuned
+        # alternatives at each cell" -- which has no ledger of its own but
+        # inherits one from each constituent. The requirement is that nothing
+        # in the comparison went untuned, so the check follows the derivation
+        # rather than insisting on a literal ledger for the baseline's name.
+        tuned_systems = {l.get("system") for l in ledgers}
+        derived = (c.get("supporting", {}) or {}).get("baseline_derived_from") or []
+        baseline = c.get("baseline")
+        if baseline in tuned_systems:
             add("LC-2.7", "Tuning-budget parity", "fatal", True,
-                "the baseline was tuned under the same budget")
+                f"the baseline `{baseline}` was tuned under the same budget")
+        elif derived:
+            missing = [d for d in derived if d not in tuned_systems]
+            add("LC-2.7", "Tuning-budget parity", "fatal", not missing,
+                f"the derived baseline `{baseline}` draws on {missing}, which have no "
+                f"tuning ledger" if missing
+                else f"the derived baseline `{baseline}` is composed of tuned systems "
+                     f"({', '.join(sorted(derived))}), each with its own ledger")
+        else:
+            add("LC-2.7", "Tuning-budget parity", "fatal", False,
+                f"the baseline `{baseline}` has no tuning ledger and declares no "
+                "derivation: this is the untuned-baseline failure the requirement targets")
 
     # ---- LC-3 -------------------------------------------------------------
 

@@ -202,7 +202,9 @@ def md_to_html(md: str) -> str:
             return
         head, body = rows[0], rows[2:] if len(rows) > 2 else []
         out.append('<div class="scroll"><table><thead><tr>')
-        out += [f"<th>{c}</th>" for c in head]
+        # extend, not `out +=`: augmented assignment inside a closure rebinds
+        # the name as local and shadows the enclosing list.
+        out.extend(f"<th>{c}</th>" for c in head)
         out.append("</tr></thead><tbody>")
         for r in body:
             out.append("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>")

@@ -84,11 +84,22 @@ def _run(cmd: list[str], timeout: int = 20) -> str | None:
     return out.stdout.strip() or None
 
 
-def git_state(repo: str | os.PathLike | None = None) -> dict[str, Any]:
+# What counts as "the code that ran". Output directories are deliberately
+# excluded: a run writes artifacts, so a tree checked after a run is always
+# dirty, and a dirtiness check that always fires teaches people to ignore it.
+SOURCE_PATHS = ("src", "pyproject.toml", "tests", "configs")
+
+
+def git_state(
+    repo: str | os.PathLike | None = None, paths: tuple[str, ...] = SOURCE_PATHS
+) -> dict[str, Any]:
     """Commit, dirtiness and remote of the repository that produced a result.
 
-    A dirty tree is not an error, but the validator downgrades any claim
-    produced from one: the commit no longer identifies the code that ran.
+    ``dirty`` is evaluated over ``paths`` only. The claim being made is about
+    the code that produced a number, and an uncommitted artifact file is not
+    that. A dirty *source* tree is not an error either, but the validator
+    downgrades any claim produced from one, because the pinned commit then
+    fails to identify what actually ran.
     """
     cwd = str(repo) if repo else os.getcwd()
     exe = shutil.which("git")
@@ -104,10 +115,12 @@ def git_state(repo: str | os.PathLike | None = None) -> dict[str, Any]:
             return None
         return r.stdout.strip() if r.returncode == 0 else None
 
-    status = g("status", "--porcelain")
+    status = g("status", "--porcelain", "--", *paths)
     return {
         "commit": g("rev-parse", "HEAD"),
         "dirty": bool(status) if status is not None else None,
+        "dirty_scope": list(paths),
+        "dirty_files": status.splitlines()[:20] if status else [],
         "branch": g("rev-parse", "--abbrev-ref", "HEAD"),
         "remote": g("config", "--get", "remote.origin.url"),
         "describe": g("describe", "--always", "--dirty", "--tags"),

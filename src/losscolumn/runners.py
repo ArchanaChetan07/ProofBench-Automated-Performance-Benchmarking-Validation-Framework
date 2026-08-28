@@ -35,6 +35,26 @@ def _prereg(thrust: str, prereg_dir: Path):
     return load_prereg(thrust, prereg_dir)
 
 
+def _analysis_params(pre: Any, **fallback: Any) -> dict[str, Any]:
+    """Read the analysis parameters out of the sealed protocol.
+
+    This is what makes LC-4 more than a filing requirement. The MDE, the FDR
+    level and the replicate count are *inputs to the sweep*, taken from the
+    seal, so an analysis that silently used a different effect size than the
+    one registered is not merely detected after the fact -- it cannot happen,
+    because there is only one place those numbers live.
+    """
+    if pre is None:
+        return dict(fallback)
+    return {
+        "mde": pre.mde,
+        "q_level": pre.q_level,
+        "replicates": pre.replicates,
+        **{k: v for k, v in fallback.items()
+           if k not in ("mde", "q_level", "replicates")},
+    }
+
+
 # --------------------------------------------------------------------------
 # Thrust I
 # --------------------------------------------------------------------------
@@ -44,11 +64,10 @@ def run_thrust_one(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
     from losscolumn.core.provenance import Provenance
     from losscolumn.thrusts.overlap.sweep import RECOMMENDED, run_overlap_sweep
 
-    grid: dict[str, Any] = (
-        dict(micro_batches=(1, 4), seq_lens=(512, 2048), world_sizes=(8, 32), replicates=11)
-        if quick
-        else {}
-    )
+    pre = _prereg("I", prereg_dir)
+    grid: dict[str, Any] = _analysis_params(pre)
+    if quick:
+        grid.update(micro_batches=(1, 4), seq_lens=(512, 2048), world_sizes=(8, 32))
     res = run_overlap_sweep(**grid)
     env, lc = res.throughput, res.loss_column
     assert lc is not None
@@ -118,7 +137,7 @@ def run_thrust_one(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
         envelope=env,
         comparisons=res.comparisons,
         loss_column=lc,
-        prereg=_prereg("I", prereg_dir),
+        prereg=pre,
         repro=reproduction(
             "losscolumn run thrust1",
             hardware="8x A100 80GB (measured path) / calibratable model (this artifact)",
@@ -132,6 +151,7 @@ def run_thrust_one(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
             r.describe(): r.attribution or "unattributed" for r in lc.regions
         },
         supporting={
+            "baseline_derived_from": [k for k in res.configs if k != RECOMMENDED],
             "cliffs": {k: v.to_dict() for k, v in res.cliffs.items()},
             "cliff_adjacency": res.adjacency,
             "per_config": res.per_config_summary(),
@@ -186,8 +206,14 @@ def run_thrust_two(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
     from losscolumn.thrusts.engines.audit import run_engine_audit
     from losscolumn.thrusts.engines.workloads import standard_workloads
 
+    pre = _prereg("II", prereg_dir)
+    params = _analysis_params(pre)
     wl = standard_workloads(n=120 if quick else 400)
-    res = run_engine_audit(workloads=wl, n_trials=12 if quick else 40, replicates=11)
+    res = run_engine_audit(
+        workloads=wl,
+        n_trials=12 if quick else (pre.tuning_budget_trials if pre else 40),
+        **params,
+    )
     env, lc = res.envelope, res.loss_column
     assert lc is not None
 
@@ -241,7 +267,7 @@ def run_thrust_two(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
         envelope=env,
         comparisons=res.comparisons,
         loss_column=lc,
-        prereg=_prereg("II", prereg_dir),
+        prereg=pre,
         repro=reproduction(
             "losscolumn run thrust2",
             hardware="8x H100 (measured path) / calibratable model (this artifact)",
@@ -254,6 +280,9 @@ def run_thrust_two(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
         evidence_note=SIMULATED_NOTE if res.evidence_class == "simulated" else "",
         attributions={r.describe(): r.attribution or "unattributed" for r in lc.regions},
         supporting={
+            "baseline_derived_from": sorted(
+                {k.split("|")[0] for k in res.ledgers} - {res.method}
+            ),
             "workloads": {k: w.summary() for k, w in res.workloads.items()},
             "default_to_tuned": res.default_gaps,
             "frontier_comparisons": {
@@ -340,12 +369,11 @@ def _crossover_html(res: Any) -> str:
 def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> dict[str, Path]:
     from losscolumn.thrusts.kernel.sweep import run_kernel_sweep
 
-    grid: dict[str, Any] = (
-        dict(head_dims=(32, 64), seq_lens=(128, 512), batches=(1,), dtypes=("float16",),
-             replicates=11, iters=8)
-        if quick
-        else {}
-    )
+    pre = _prereg("III", prereg_dir)
+    grid: dict[str, Any] = _analysis_params(pre)
+    if quick:
+        grid.update(head_dims=(32, 64), seq_lens=(128, 512), batches=(1,),
+                    dtypes=("float16",), iters=8)
     res = run_kernel_sweep(**grid)
     env, lc = res.envelope, res.loss_column
     assert lc is not None
@@ -383,7 +411,7 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
         envelope=env,
         comparisons=res.comparisons,
         loss_column=lc,
-        prereg=_prereg("III", prereg_dir),
+        prereg=pre,
         repro=reproduction(
             "losscolumn run thrust3",
             hardware=res.device,
