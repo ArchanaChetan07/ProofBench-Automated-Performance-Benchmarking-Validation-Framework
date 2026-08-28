@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "losscolumn"
+version = "0.1.0"
+description = "A reporting standard, and its reference implementation, for falsifiable performance claims in LLM training and inference systems."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Archana Suresh Patil" }]
+keywords = ["benchmarking", "reproducibility", "llm-systems", "attention", "fsdp", "inference"]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering",
+]
+
+# Core is intentionally near-dependency-free: the analysis layer must be
+# installable on a login node with no CUDA, no torch, and no network.
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+torch = ["torch>=2.1"]
+triton = ["triton>=3.0; platform_system!='Windows'", "triton-windows>=3.0; platform_system=='Windows'"]
+plots = ["matplotlib>=3.7"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5"]
+all = ["losscolumn[torch,plots,dev]"]
+
+[project.scripts]
+losscolumn = "losscolumn.cli.main:main"
+lc = "losscolumn.cli.main:main"
+
+[project.urls]
+Homepage = "https://github.com/ArchanaChetan07/losscolumn"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+losscolumn = ["spec/*.json", "report/assets/*.css"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+  "gpu: requires a CUDA device",
+  "triton: requires a working Triton install",
+  "slow: long-running sweep",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
