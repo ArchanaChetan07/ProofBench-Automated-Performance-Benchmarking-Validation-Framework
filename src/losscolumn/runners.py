@@ -35,6 +35,31 @@ def _prereg(thrust: str, prereg_dir: Path):
     return load_prereg(thrust, prereg_dir)
 
 
+QUICK_NOTE = (
+    "Reduced-grid smoke run. This artifact is deliberately NOT conforming: it drops "
+    "registered factor levels, which the standard treats as the selection it exists to "
+    "prevent. It is published so the failure mode is visible, and so the deviation "
+    "machinery is exercised on a case where the deviation is real."
+)
+
+
+def _declare_quick(pre: Any, grid: dict[str, Any]) -> None:
+    """Record a reduced grid as a declared deviation rather than a silent one.
+
+    A smoke run is a legitimate thing to do and an illegitimate thing to
+    publish quietly. Declaring it turns the protocol check from a fatal
+    "levels were dropped" into a warning that names who dropped them and why,
+    which is the distinction the deviation mechanism exists to draw.
+    """
+    if pre is None:
+        return
+    pre.declare_deviation(
+        "factors",
+        {k: list(v) for k, v in grid.items() if isinstance(v, (tuple, list))},
+        "reduced grid for a smoke run; not a publishable measurement",
+    )
+
+
 def _analysis_params(pre: Any, **fallback: Any) -> dict[str, Any]:
     """Read the analysis parameters out of the sealed protocol.
 
@@ -68,6 +93,7 @@ def run_thrust_one(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
     grid: dict[str, Any] = _analysis_params(pre)
     if quick:
         grid.update(micro_batches=(1, 4), seq_lens=(512, 2048), world_sizes=(8, 32))
+        _declare_quick(pre, grid)
     res = run_overlap_sweep(**grid)
     env, lc = res.throughput, res.loss_column
     assert lc is not None
@@ -146,7 +172,10 @@ def run_thrust_one(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
             image="ghcr.io/archanachetan07/losscolumn:0.1.0",
         ),
         evidence_class=res.evidence_class,
-        evidence_note=SIMULATED_NOTE if res.evidence_class == "simulated" else "",
+        evidence_note=(
+            (SIMULATED_NOTE if res.evidence_class == "simulated" else "")
+            + (("  " + QUICK_NOTE) if quick else "")
+        ).strip(),
         attributions={
             r.describe(): r.attribution or "unattributed" for r in lc.regions
         },
@@ -208,6 +237,8 @@ def run_thrust_two(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
 
     pre = _prereg("II", prereg_dir)
     params = _analysis_params(pre)
+    if quick:
+        _declare_quick(pre, {"workload": ["chat", "rag", "summarize", "agentic"]})
     wl = standard_workloads(n=120 if quick else 400)
     res = run_engine_audit(
         workloads=wl,
@@ -277,7 +308,10 @@ def run_thrust_two(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> di
         ),
         parity=res.parity,
         evidence_class=res.evidence_class,
-        evidence_note=SIMULATED_NOTE if res.evidence_class == "simulated" else "",
+        evidence_note=(
+            (SIMULATED_NOTE if res.evidence_class == "simulated" else "")
+            + (("  " + QUICK_NOTE) if quick else "")
+        ).strip(),
         attributions={r.describe(): r.attribution or "unattributed" for r in lc.regions},
         supporting={
             "baseline_derived_from": sorted(
@@ -374,6 +408,7 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
     if quick:
         grid.update(head_dims=(32, 64), seq_lens=(128, 512), batches=(1,),
                     dtypes=("float16",), iters=8)
+        _declare_quick(pre, grid)
     res = run_kernel_sweep(**grid)
     env, lc = res.envelope, res.loss_column
     assert lc is not None
@@ -420,7 +455,9 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
             image="ghcr.io/archanachetan07/losscolumn:0.1.0",
         ),
         evidence_class=res.evidence_class,
-        evidence_note=res.envelope.meta.get("fallback_reason", ""),
+        evidence_note=(
+            res.envelope.meta.get("fallback_reason", "") + (("  " + QUICK_NOTE) if quick else "")
+        ).strip(),
         attributions={r.describe(): r.attribution or "unattributed" for r in lc.regions},
         supporting={
             "correctness": res.correctness.to_dict(),
