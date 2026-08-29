@@ -1,6 +1,6 @@
 # Reproduction with a loss map: a from-scratch attention kernel
 
-> A faithful from-scratch implementation of the FlashAttention algorithm (flash_torch (portable)), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median -197.4% across the swept envelope; best -54.1% at head_dim=128, seq_len=512, batch=4, dtype=float16; worst -1253.9% at head_dim=32, seq_len=2048, batch=1, dtype=bfloat16.
+> A faithful from-scratch implementation of the FlashAttention algorithm (flash_torch (portable)), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median -230.9% across the swept envelope; best -46.9% at head_dim=128, seq_len=128, batch=4, dtype=float16; worst -1470.8% at head_dim=32, seq_len=512, batch=1, dtype=float16.
 
 `lc-thrust3-attention-loss-map` -- thrust III -- reimplementation vs reference -- standard LC-1.0
 
@@ -10,11 +10,11 @@ _Where this result does not hold. Published above the wins, by requirement LC-1.
 
 ### Loss column -- reimplementation vs reference (attention_throughput, TFLOP/s)
 
-reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1253.9% on attention_throughput.
+reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.
 
 | # | Where it loses | Cells | Median | Worst | max q | Attributed to |
 |---|----------------|-------|--------|-------|-------|---------------|
-| 1 | the entire envelope | 36/36 (100% of envelope) | +197.4% | +1253.9% | 0.000488 | the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate |
+| 1 | the entire envelope | 36/36 (100% of envelope) | +230.9% | +1470.8% | 0.000488 | the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate |
 
 - Envelope: 36 cells. Losses 36, wins 0, ties 0, inconclusive 0, missing 0.
 - Decision rule: regression >= 10.0% (pre-registered MDE) and Benjamini-Hochberg q <= 0.05.
@@ -91,7 +91,7 @@ reimplementation loses to reference on 100% of the swept envelope (36/36 cells),
 losscolumn run thrust3
 ```
 
-- Repository: `local checkout` at commit `222dec09b09b51d0386d4ad7b96147460cfc0554` (**dirty tree**)
+- Repository: `local checkout` at commit `87e209643ccb4cda209ac714c3eed4f6d84bf714`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: NVIDIA T1000 8GB (sm_75, 9 GB)
 - Estimated runtime: 220 min (~$704.00)
@@ -100,7 +100,7 @@ losscolumn run thrust3
 
 ### Conformance -- `lc-thrust3-attention-loss-map` against LC-1.0
 
-**FAIL** -- 1 fatal, 0 warning(s).
+**PASS** -- 0 fatal, 0 warning(s).
 
 | Rule | Requirement | Result | Finding |
 |------|-------------|--------|---------|
@@ -130,8 +130,8 @@ losscolumn run thrust3
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:a0bdfe6` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust3` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `222dec09b09b` |
-| `LC-5.4` | One-command reproduction | FAIL | the producing working tree was dirty; the pinned commit does not identify the code that ran |
+| `LC-5.3` | One-command reproduction | pass | pinned to `87e209643ccb` |
+| `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: NVIDIA T1000 8GB (sm_75, 9 GB) |
 | `LC-5.7` | One-command reproduction | pass | ~220 min |
@@ -143,6 +143,6 @@ losscolumn run thrust3
 
 ## Provenance
 
-- Captured: `2026-08-28T23:05:12Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-29T02:06:14Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
 - Packages: `torch=2.6.0+cu124`, `numpy=1.26.4`, `transformers=5.12.1`

@@ -6,7 +6,7 @@
   "thrust": "I",
   "method": "full_shard/tp1",
   "baseline": "best_of_swept",
-  "created_at": "2026-08-29T01:56:57Z",
+  "created_at": "2026-08-29T02:14:23Z",
   "evidence_class": "simulated",
   "evidence_note": "Produced by the package's calibratable model, not by measurement on the target hardware. The model's parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.",
   "authors": [
@@ -51,7 +51,7 @@
     "inconclusive_fraction": 0.020833333333333332,
     "win_fraction": 0.0,
     "n_unrunnable": 8,
-    "envelope_digest": "sha256:530e97a6e305c322874b225c8f0ef58e623607456c6b28d1ab9daec8d361468a",
+    "envelope_digest": "sha256:da515b0a5647a6aa4dd76118fada37b20f94be92d57e5d477efbb509454ebe69",
     "factor_levels": {
       "micro_batch": [
         1,
@@ -219,8 +219,8 @@
   "reproduction": {
     "command": "losscolumn run thrust1",
     "repo": "local checkout",
-    "commit": "222dec09b09b51d0386d4ad7b96147460cfc0554",
-    "dirty": true,
+    "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+    "dirty": false,
     "container_image": "ghcr.io/archanachetan07/losscolumn:0.1.0",
     "hardware": "8x A100 80GB (measured path) / calibratable model (this artifact)",
     "estimated_runtime_min": 120,
@@ -1905,28 +1905,24 @@
   },
   "parity": null,
   "provenance": {
-    "captured_at": "2026-08-29T01:56:45Z",
+    "captured_at": "2026-08-29T02:14:10Z",
     "host": "Archana-PC",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "cpu_count": 24,
     "git": {
-      "commit": "222dec09b09b51d0386d4ad7b96147460cfc0554",
-      "dirty": true,
+      "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+      "dirty": false,
       "dirty_scope": [
         "src",
         "pyproject.toml",
         "tests",
         "configs"
       ],
-      "dirty_files": [
-        "M src/losscolumn/core/cliffs.py",
-        " M src/losscolumn/core/pareto.py",
-        "?? tests/"
-      ],
+      "dirty_files": [],
       "branch": "master",
       "remote": null,
-      "describe": "222dec0-dirty"
+      "describe": "87e2096-dirty"
     },
     "gpu": {
       "available": true,
@@ -2093,28 +2089,24 @@
       "best_of_swept": 1.0
     },
     "provenance": {
-      "captured_at": "2026-08-29T01:56:45Z",
+      "captured_at": "2026-08-29T02:14:10Z",
       "host": "Archana-PC",
       "platform": "Windows-10-10.0.26200-SP0",
       "python": "3.11.5",
       "cpu_count": 24,
       "git": {
-        "commit": "222dec09b09b51d0386d4ad7b96147460cfc0554",
-        "dirty": true,
+        "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+        "dirty": false,
         "dirty_scope": [
           "src",
           "pyproject.toml",
           "tests",
           "configs"
         ],
-        "dirty_files": [
-          "M src/losscolumn/core/cliffs.py",
-          " M src/losscolumn/core/pareto.py",
-          "?? tests/"
-        ],
+        "dirty_files": [],
         "branch": "master",
         "remote": null,
-        "describe": "222dec0-dirty"
+        "describe": "87e2096-dirty"
       },
       "gpu": {
         "available": true,
@@ -5475,5 +5467,5 @@
       "best_of_swept": []
     }
   },
-  "digest": "sha256:2e489c23e5c97af206ae71528475f0354ef26cbf2ef066f48d0c1764e6f7dc01"
+  "digest": "sha256:6563c4b31db5c48daef68d279acb74ccfbbc8f644b383331e19d6caac06e4d58"
 }

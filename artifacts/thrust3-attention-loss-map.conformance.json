@@ -2,8 +2,8 @@
   "kind": "conformance_report",
   "claim_id": "lc-thrust3-attention-loss-map",
   "standard_version": "LC-1.0",
-  "grade": "non-conforming",
-  "n_fatal": 1,
+  "grade": "conforming",
+  "n_fatal": 0,
   "n_warnings": 0,
   "findings": [
     {
@@ -219,15 +219,15 @@
       "requirement": "One-command reproduction",
       "severity": "fatal",
       "passed": true,
-      "message": "pinned to `222dec09b09b`",
+      "message": "pinned to `87e209643ccb`",
       "detail": {}
     },
     {
       "rule": "LC-5.4",
       "requirement": "One-command reproduction",
       "severity": "fatal",
-      "passed": false,
-      "message": "the producing working tree was dirty; the pinned commit does not identify the code that ran",
+      "passed": true,
+      "message": "producing tree was clean",
       "detail": {}
     },
     {

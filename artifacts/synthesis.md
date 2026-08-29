@@ -4,11 +4,17 @@ For every claim tested, whether it survived. A null result is reported with the 
 
 | Claim | Thrust | Evidence | Verdict | Basis | Conformance |
 |-------|--------|----------|---------|-------|-------------|
-| The overlap envelope: where the recommended sharding configuration breaks down | I | simulated | **did not survive** | regresses over 25% of the swept envelope | non-conforming (1F/1W) |
-| The equal-tuning audit: engine differences that survive budget parity | II | simulated | **did not survive** | regresses over 75% of the swept envelope | non-conforming (1F/2W) |
-| Reproduction with a loss map: a from-scratch attention kernel | III | measured | **did not survive** | regresses over 100% of the swept envelope | non-conforming (1F/0W) |
+| Reproduction with a loss map: a from-scratch attention kernel | III | measured | **did not hold** | regresses over 100% of the swept envelope | conforming (0F/0W) |
+| The overlap envelope: where the recommended sharding configuration breaks down | I | simulated | **did not hold** | regresses over 25% of the swept envelope | conforming-with-warnings (0F/1W) |
+| The equal-tuning audit: engine differences that survive budget parity | II | simulated | **did not hold** | regresses over 75% of the swept envelope | conforming-with-warnings (0F/2W) |
 
-## Loss columns, side by side
+## Loss columns
+
+### Reproduction with a loss map: a from-scratch attention kernel
+
+reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.
+
+1. **head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=['float16', 'bfloat16']** -- +1470.8%; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate
 
 ### The overlap envelope: where the recommended sharding configuration breaks down
 
@@ -25,9 +31,3 @@ vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), acros
 1. **workload=['chat', 'rag', 'agentic'], latency_budget_ms=[10, 15, 25, 50, 100]** -- +107.7%; vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency; rag has 15% prefix reuse, which the alternative caches and vllm does not at its tuned settings; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings
 2. **workload=['chat', 'agentic'], latency_budget_ms=[10, 15, 25, 50, 100, 250]** -- +94.8%; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings
 3. **workload=['chat', 'summarize', 'agentic'], latency_budget_ms=[10, 15, 25]** -- +94.8%; vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings
-
-### Reproduction with a loss map: a from-scratch attention kernel
-
-reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1253.9% on attention_throughput.
-
-1. **head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=['float16', 'bfloat16']** -- +1253.9%; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate

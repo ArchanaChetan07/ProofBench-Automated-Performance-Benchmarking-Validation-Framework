@@ -1,90 +1,332 @@
 <title>The Loss Column</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
 <style>
-:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
---loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
---ok:#047857;--code:#f5f5f4;}
-:root:not([data-theme="light"]){}
+:root{
+  --bg:#f6f7f6; --surface:#ffffff; --sunk:#eef1ef;
+  --ink:#151a19; --muted:#5d6b68; --faint:#8a9793; --rule:#dbe1de;
+  --loss:#a52b1e; --loss-bg:#fdf2f0; --loss-rule:#e8c4bd;
+  --ok:#1c6b57; --warn:#8a5a12; --link:#1c4f6b;
+  --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Helvetica,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --measure:68ch;
+}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
---bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
---loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
---ok:#6ee7b7;--code:#1c1917;}}
-:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
---panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
---warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+  --bg:#0d1110; --surface:#141918; --sunk:#1a201e;
+  --ink:#e6ebe8; --muted:#93a29e; --faint:#6d7c78; --rule:#252d2a;
+  --loss:#ff7d6e; --loss-bg:#1d1310; --loss-rule:#4a2a24;
+  --ok:#5fd0ad; --warn:#d9a441; --link:#7fc2e0;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d1110; --surface:#141918; --sunk:#1a201e;
+  --ink:#e6ebe8; --muted:#93a29e; --faint:#6d7c78; --rule:#252d2a;
+  --loss:#ff7d6e; --loss-bg:#1d1310; --loss-rule:#4a2a24;
+  --ok:#5fd0ad; --warn:#d9a441; --link:#7fc2e0;
+}
+
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
-font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
-.wrap{max-width:900px;margin:0 auto}
-header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
-.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
-text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
-h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
-letter-spacing:-.01em}
-h3{font-size:15px;margin:24px 0 8px}
-.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
-padding:2px 0 2px 16px;margin:18px 0}
-.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
-.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
-.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
-padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
-.banner b{letter-spacing:.06em;font-size:11.5px}
-.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
-padding:18px 20px;margin:8px 0 4px}
-.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
-.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
-text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
-.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
-table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
-th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
-th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
-color:var(--muted)}
-tr:hover td{background:var(--panel)}
-code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
-code{font-size:12.5px}
-figure{margin:20px 0;padding:0}
-figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
-border-radius:6px}
-figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
-.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-ul{padding-left:20px}li{margin:4px 0}
-.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
-.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
-background:var(--panel)}
-.stat b{display:block;font-size:21px;letter-spacing:-.02em}
-.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
-color:var(--muted)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:400 16px/1.62 var(--sans);-webkit-font-smoothing:antialiased}
+.page{max-width:1080px;margin:0 auto;padding:0 28px 96px}
+
+/* Marginal rule identifiers, after the proposal's own section markers. */
+.band{display:grid;grid-template-columns:92px minmax(0,1fr);gap:0 28px;
+  padding-top:44px;margin-top:44px;border-top:1px solid var(--rule)}
+.band .mark{font:500 11px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);padding-top:6px}
+.band .body{min-width:0}
+@media (max-width:720px){.band{grid-template-columns:1fr;gap:8px}
+  .band .mark{padding-top:0}}
+
+header.masthead{padding:72px 0 0}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:20px}
+h1{font:600 clamp(38px,6.2vw,64px)/1.04 var(--serif);letter-spacing:-.022em;
+  margin:0 0 20px;text-wrap:balance}
+.thesis{font:400 clamp(18px,2.1vw,21px)/1.5 var(--serif);
+  max-width:46ch;margin:0 0 28px}
+.byline{display:flex;flex-wrap:wrap;gap:10px 22px;font:400 12.5px/1 var(--mono);
+  color:var(--muted);padding-bottom:32px;border-bottom:2px solid var(--ink)}
+
+h2{font:600 clamp(22px,2.6vw,28px)/1.2 var(--serif);letter-spacing:-.015em;
+  margin:0 0 14px;text-wrap:balance}
+h3{font:600 17px/1.3 var(--serif);margin:0 0 10px}
+p{margin:0 0 14px;max-width:var(--measure)}
+a{color:var(--link)}
+ul{margin:0 0 14px;padding-left:20px;max-width:var(--measure)}
+li{margin:5px 0}
+code{font:400 13px/1 var(--mono);background:var(--sunk);padding:2px 5px;border-radius:3px}
+
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin:0 0 20px}
+.readout div{background:var(--surface);padding:16px 18px}
+.readout b{display:block;font:600 30px/1 var(--mono);letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;margin-bottom:7px}
+.readout span{font:500 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted)}
+
+.scroll{overflow-x:auto;margin:0 0 18px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;
+  font-variant-numeric:tabular-nums}
+th{font:500 10.5px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);text-align:left;padding:0 14px 9px 0;
+  border-bottom:1px solid var(--ink);white-space:nowrap}
+td{padding:12px 14px 12px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td .sub{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+
+.chip{display:inline-block;font:500 10.5px/1 var(--mono);letter-spacing:.09em;
+  text-transform:uppercase;padding:5px 8px;border:1px solid currentColor;
+  border-radius:2px;white-space:nowrap}
+.t-ok{color:var(--ok)} .t-warn{color:var(--warn)} .t-loss{color:var(--loss)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+
+/* The loss column is the thesis of the page, so it takes the only saturated
+   surface and the only heavy border on it. */
+.losspanel{border:1px solid var(--loss-rule);border-left:3px solid var(--loss);
+  background:var(--loss-bg);padding:22px 24px;margin:0 0 4px}
+.losspanel h3{color:var(--loss)}
+.losspanel p{max-width:none}
+.regions{list-style:none;padding:0;margin:14px 0 0;max-width:none}
+.regions li{padding:12px 0 0;border-top:1px solid var(--loss-rule);margin:12px 0 0}
+.where{font:500 13px/1.5 var(--mono);word-break:break-word;display:block}
+.why{display:block;color:var(--muted);font-size:13.5px;line-height:1.5;margin-top:5px}
+.sev{color:var(--loss);font-weight:600;font-variant-numeric:tabular-nums}
+
+figure{margin:20px 0 0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;
+  border:1px solid var(--rule)}
+figcaption{font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:10px;
+  max-width:var(--measure)}
+
+.callout{border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);
+  padding:20px 0;margin:0}
+.callout p:last-child{margin-bottom:0}
+pre{background:var(--sunk);border:1px solid var(--rule);padding:14px 16px;
+  overflow-x:auto;font:400 13px/1.6 var(--mono);margin:0 0 16px}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--rule);
+  font:400 12.5px/1.6 var(--mono);color:var(--faint);max-width:var(--measure)}
+:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<div class="wrap">
-<header><div class="kicker">Research artifact &middot; machine-learning systems</div><h1>The Loss Column</h1><div class="headline">Establishing falsifiable performance claims in LLM training and inference systems, by making every result report the conditions under which it fails.</div><div class="meta"><span>standard <code>LC-1.0</code></span><span>losscolumn <code>0.1.0</code></span><span>3 claim(s)</span></div></header>
-<div class="stat"><div><b>3</b><span>claims audited</span></div><div><b>108</b><span>cells measured</span></div><div><b>7</b><span>loss regions</span></div><div><b>0/3</b><span>conforming</span></div></div>
-<h2>The reporting standard</h2>
-<p>The durable output of this project is not any single measurement but a reporting standard that the three artifacts jointly demonstrate. Each requirement targets a specific documented failure mode rather than expressing a general preference for rigour, and each is implemented as an executable conformance rule rather than as prose.</p>
-<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>What it forecloses</th></tr></thead><tbody><tr><td><code>LC-1</code></td><td><b>Loss column</b></td><td>Selective reporting. Every claim names the regions where it underperforms, at equal prominence to the wins, with an attributed cause.</td></tr><tr><td><code>LC-2</code></td><td><b>Tuning-budget parity</b></td><td>The untuned baseline. An append-only ledger records trials, search procedure, operator and hardware for every system, and the certificate is derived from it.</td></tr><tr><td><code>LC-3</code></td><td><b>Envelope, not point</b></td><td>Overgeneralisation from one configuration. Results are surfaces; a headline must carry its own best, worst and median.</td></tr><tr><td><code>LC-4</code></td><td><b>Pre-registration</b></td><td>Post-hoc selection of the favourable comparison. The protocol is hashed and sealed before collection, and the analysis is verified against the seal.</td></tr><tr><td><code>LC-5</code></td><td><b>One-command reproduction</b></td><td>Unfalsifiability by inaccessibility. Pinned commit, pinned image, documented hardware, one command.</td></tr></tbody></table></div>
-<h2>Verdicts</h2>
-<div class="scroll"><table><thead><tr><th>Claim</th><th>Thrust</th><th>Evidence</th><th>Verdict</th><th>Basis</th><th>Conformance</th></tr></thead><tbody><tr><td><b>The overlap envelope: where the recommended sharding configuration breaks down</b><br><span style='color:var(--muted)'>full_shard/tp1 vs best_of_swept</span></td><td>I</td><td><span class="tag warn">simulated</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 25% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr><tr><td><b>The equal-tuning audit: engine differences that survive budget parity</b><br><span style='color:var(--muted)'>vllm vs best_alternative</span></td><td>II</td><td><span class="tag warn">simulated</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 75% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr><tr><td><b>Reproduction with a loss map: a from-scratch attention kernel</b><br><span style='color:var(--muted)'>reimplementation vs reference</span></td><td>III</td><td><span class="tag pass">measured</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 100% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr></tbody></table></div>
-<h2>Loss columns</h2>
-<h3>The overlap envelope: where the recommended sharding configuration breaks down</h3>
-<div class="loss"><p>full_shard/tp1 loses to best_of_swept on 25% of the swept envelope (12/48 cells), across 3 region(s); worst measurable case +258.1% on cluster_throughput, and cannot run at all in 8 cell(s).</p><ul>
-<li><b>micro_batch=[2, 4, 8], seq_len=[8192], checkpointing=[False], world_size=[8, 32]</b> &mdash; worst cannot run; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
-<li><b>micro_batch=[8], seq_len=[2048, 8192], checkpointing=[False], world_size=[8, 32]</b> &mdash; worst cannot run; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
-<li><b>micro_batch=[1, 2], seq_len=[512], checkpointing=[False, True], world_size=[32]</b> &mdash; worst +258.1%; overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1</li>
+<div class="page">
+<header class="masthead"><div class="eyebrow">Research artifact &middot; machine-learning systems</div><h1>The Loss&nbsp;Column</h1><p class="thesis">Performance claims in ML systems are largely unfalsifiable. This is what it takes to make one falsifiable: every result reports the conditions under which it fails.</p><div class="byline"><span>standard LC-1.0</span><span>losscolumn 0.1.0</span><span>3 claims audited</span><span>Archana Suresh Patil</span></div></header>
+<div class="band"><div class="mark">Summary</div><div class="body"><div class="readout"><div><b>3</b><span>claims audited</span></div><div><b>108</b><span>cells measured</span></div><div><b>7</b><span>loss regions</span></div><div><b>3/3</b><span>conforming</span></div><div><b>3/3</b><span>re-derived</span></div></div><p>Every loss column below was recomputed from the claim's own published envelope rather than read out of the claim. A claim whose artifact does not contain enough data to reproduce its own conclusion is not reproducible, whatever its conformance report says.</p></div></div>
+<div class="band"><div class="mark">Thrust III</div><div class="body"><h2>Reproduction with a loss map: a from-scratch attention kernel</h2><div class="chips"><span class="chip t-loss">did not hold</span><span class="chip t-ok">measured evidence</span><span class="chip t-ok">conforming</span></div><div class="losspanel"><h3>Loss column</h3><p>reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.</p><ul class="regions">
+<li><span class="where">head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=[&#x27;float16&#x27;, &#x27;bfloat16&#x27;]</span><span class="why"><span class="sev">+1470.8%</span> &mdash; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate</span></li>
 </ul>
 </div>
-<h3>The equal-tuning audit: engine differences that survive budget parity</h3>
-<div class="loss"><p>vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), across 3 region(s); worst measurable case +107.7% on attainable_throughput, and cannot run at all in 1 cell(s).</p><ul>
-<li><b>workload=[&#x27;chat&#x27;, &#x27;rag&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100]</b> &mdash; worst +107.7%; vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency; rag has 15% prefix reuse, which the alternative caches and vllm does not at its tuned settings; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
-<li><b>workload=[&#x27;chat&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100, 250]</b> &mdash; worst +94.8%; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
-<li><b>workload=[&#x27;chat&#x27;, &#x27;summarize&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25]</b> &mdash; worst +94.8%; vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 274" width="550" height="274" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="reimplementation vs reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="550" height="274" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">reimplementation vs reference</text><text x="0" y="42" font-size="12" fill="#57534e">attention_throughput (TFLOP/s); higher is better</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">batch=1</text><text x="88" y="193.0" font-size="11" text-anchor="end" fill="#44403c">128</text><g><title>head_dim=32, seq_len=128, batch=1, dtype=bfloat16
+verdict: loss
+effect: +251.8% (95% CI +229.7..+279.3)
+q=0.000488  n=11/11</title><rect x="96" y="166" width="45" height="45" fill="#d9858a" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+252</text></g><g><title>head_dim=64, seq_len=128, batch=1, dtype=bfloat16
+verdict: loss
+effect: +477.8% (95% CI +340.8..+548.3)
+q=0.000488  n=11/11</title><rect x="142" y="166" width="45" height="45" fill="#cb5e68" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+478</text></g><g><title>head_dim=128, seq_len=128, batch=1, dtype=bfloat16
+verdict: loss
+effect: +146.2% (95% CI +144.1..+148.4)
+q=0.000488  n=11/11</title><rect x="188" y="166" width="45" height="45" fill="#e3a1a2" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+146</text></g><text x="88" y="147.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>head_dim=32, seq_len=512, batch=1, dtype=float16
+verdict: loss
+effect: +1470.8% (95% CI +1275.9..+1833.1)
+q=0.000488  n=11/11</title><rect x="96" y="120" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1471</text></g><g><title>head_dim=64, seq_len=512, batch=1, dtype=bfloat16
+verdict: loss
+effect: +1112.2% (95% CI +1087.7..+1179.4)
+q=0.000488  n=11/11</title><rect x="142" y="120" width="45" height="45" fill="#b62436" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1112</text></g><g><title>head_dim=128, seq_len=512, batch=1, dtype=bfloat16
+verdict: loss
+effect: +770.0% (95% CI +741.3..+807.9)
+q=0.000488  n=11/11</title><rect x="188" y="120" width="45" height="45" fill="#c03e4c" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+770</text></g><text x="88" y="101.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>head_dim=32, seq_len=2048, batch=1, dtype=bfloat16
+verdict: loss
+effect: +1383.2% (95% CI +1172.0..+1913.5)
+q=0.000488  n=11/11</title><rect x="96" y="74" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1383</text></g><g><title>head_dim=64, seq_len=2048, batch=1, dtype=bfloat16
+verdict: loss
+effect: +1005.0% (95% CI +959.6..+1100.5)
+q=0.000488  n=11/11</title><rect x="142" y="74" width="45" height="45" fill="#b92b3c" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1005</text></g><g><title>head_dim=128, seq_len=2048, batch=1, dtype=bfloat16
+verdict: loss
+effect: +630.0% (95% CI +604.6..+652.4)
+q=0.000488  n=11/11</title><rect x="188" y="74" width="45" height="45" fill="#c54c58" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+630</text></g><rect x="96" y="74" width="137" height="137" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><text x="119.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">32</text><text x="165.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">64</text><text x="211.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">128</text><text x="165.0" y="248" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">head_dim</text><text transform="translate(22,143.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text x="388" y="62" font-size="12" font-weight="600" fill="#292524">batch=4</text><text x="380" y="193.0" font-size="11" text-anchor="end" fill="#44403c">128</text><g><title>head_dim=32, seq_len=128, batch=4, dtype=float16
+verdict: loss
+effect: +131.8% (95% CI +131.2..+132.2)
+q=0.000488  n=11/11</title><rect x="388" y="166" width="45" height="45" fill="#e5a5a7" stroke="#ffffff" stroke-width="1"/><text x="411.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+132</text></g><g><title>head_dim=64, seq_len=128, batch=4, dtype=float16
+verdict: loss
+effect: +177.3% (95% CI +146.5..+197.8)
+q=0.000488  n=11/11</title><rect x="434" y="166" width="45" height="45" fill="#e0979a" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+177</text></g><g><title>head_dim=128, seq_len=128, batch=4, dtype=bfloat16
+verdict: loss
+effect: +70.9% (95% CI +67.4..+80.9)
+q=0.000488  n=11/11</title><rect x="480" y="166" width="45" height="45" fill="#eebdbb" stroke="#ffffff" stroke-width="1"/><text x="503.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+71</text></g><text x="380" y="147.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>head_dim=32, seq_len=512, batch=4, dtype=bfloat16
+verdict: loss
+effect: +255.4% (95% CI +237.3..+274.7)
+q=0.000488  n=11/11</title><rect x="388" y="120" width="45" height="45" fill="#d98489" stroke="#ffffff" stroke-width="1"/><text x="411.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+255</text></g><g><title>head_dim=64, seq_len=512, batch=4, dtype=bfloat16
+verdict: loss
+effect: +163.8% (95% CI +159.1..+168.7)
+q=0.000488  n=11/11</title><rect x="434" y="120" width="45" height="45" fill="#e29b9e" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+164</text></g><g><title>head_dim=128, seq_len=512, batch=4, dtype=bfloat16
+verdict: loss
+effect: +140.3% (95% CI +121.1..+157.9)
+q=0.000488  n=11/11</title><rect x="480" y="120" width="45" height="45" fill="#e4a2a4" stroke="#ffffff" stroke-width="1"/><text x="503.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+140</text></g><text x="380" y="101.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>head_dim=32, seq_len=2048, batch=4, dtype=float16
+verdict: loss
+effect: +498.5% (95% CI +340.2..+669.4)
+q=0.000488  n=11/11</title><rect x="388" y="74" width="45" height="45" fill="#ca5b66" stroke="#ffffff" stroke-width="1"/><text x="411.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+498</text></g><g><title>head_dim=64, seq_len=2048, batch=4, dtype=float16
+verdict: loss
+effect: +135.7% (95% CI +131.5..+142.3)
+q=0.000488  n=11/11</title><rect x="434" y="74" width="45" height="45" fill="#e5a4a5" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+136</text></g><g><title>head_dim=128, seq_len=2048, batch=4, dtype=bfloat16
+verdict: loss
+effect: +122.1% (95% CI +120.6..+123.3)
+q=0.000488  n=11/11</title><rect x="480" y="74" width="45" height="45" fill="#e6a9a9" stroke="#ffffff" stroke-width="1"/><text x="503.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+122</text></g><rect x="388" y="74" width="137" height="137" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="400" cy="86" r="9" fill="#7f1d1d"/><text x="400" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><text x="411.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">32</text><text x="457.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">64</text><text x="503.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">128</text><text x="457.0" y="248" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">head_dim</text><text transform="translate(314,143.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><g transform="translate(0,254)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1314% .. tie .. loss 1314%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Re-derived from the published envelope: 36 losing cells, matching the published column. Crossed cells are configurations that cannot run at all; hatched cells are inconclusive at the pre-registered effect size; dashed outlines mark the extracted loss regions.</figcaption></figure>
+</div></div>
+<div class="band"><div class="mark">Thrust I</div><div class="body"><h2>The overlap envelope: where the recommended sharding configuration breaks down</h2><div class="chips"><span class="chip t-loss">did not hold</span><span class="chip t-warn">simulated evidence</span><span class="chip t-ok">conforming-with-warnings</span></div><div class="losspanel"><h3>Loss column</h3><p>full_shard/tp1 loses to best_of_swept on 25% of the swept envelope (12/48 cells), across 3 region(s); worst measurable case +258.1% on cluster_throughput, and cannot run at all in 8 cell(s).</p><ul class="regions">
+<li><span class="where">micro_batch=[2, 4, 8], seq_len=[8192], checkpointing=[False], world_size=[8, 32]</span><span class="why"><span class="sev">cannot run</span> &mdash; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</span></li>
+<li><span class="where">micro_batch=[8], seq_len=[2048, 8192], checkpointing=[False], world_size=[8, 32]</span><span class="why"><span class="sev">cannot run</span> &mdash; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</span></li>
+<li><span class="where">micro_batch=[1, 2], seq_len=[512], checkpointing=[False, True], world_size=[32]</span><span class="why"><span class="sev">+258.1%</span> &mdash; overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1</span></li>
 </ul>
-<p style='font-size:13px'>2 cell(s) could not be measured for either system and are excluded from the comparison rather than counted as wins.</p>
 </div>
-<h3>Reproduction with a loss map: a from-scratch attention kernel</h3>
-<div class="loss"><p>reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1253.9% on attention_throughput.</p><ul>
-<li><b>head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=[&#x27;float16&#x27;, &#x27;bfloat16&#x27;]</b> &mdash; worst +1253.9%; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate</li>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 642 274" width="642" height="274" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="full_shard/tp1 vs best_of_swept"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="642" height="274" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">full_shard/tp1 vs best_of_swept</text><text x="0" y="42" font-size="12" fill="#57534e">cluster_throughput (tok/s); higher is better</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">world_size=8</text><text x="88" y="193.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>micro_batch=1, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.3..+0.3)
+q=0.875  n=11/11</title><rect x="96" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=2, seq_len=512, checkpointing=True, world_size=8
+verdict: tie
+effect: +0.2% (95% CI -0.0..+0.4)
+q=0.191  n=11/11</title><rect x="142" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=4, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.1% (95% CI -0.3..+0.1)
+q=0.886  n=11/11</title><rect x="188" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=8, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.2..+0.2)
+q=0.818  n=11/11</title><rect x="234" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="257.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><text x="88" y="147.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>micro_batch=1, seq_len=2048, checkpointing=False, world_size=8
+verdict: tie
+effect: +0.0% (95% CI -0.3..+0.3)
+q=0.818  n=11/11</title><rect x="96" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=2, seq_len=2048, checkpointing=True, world_size=8
+verdict: tie
+effect: +0.1% (95% CI -0.0..+0.3)
+q=0.234  n=11/11</title><rect x="142" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=4, seq_len=2048, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.1% (95% CI -0.4..+0.1)
+q=0.886  n=11/11</title><rect x="188" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=8, seq_len=2048, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~101 GB/rank against 80 GB HBM</title><rect x="234" y="120" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M246 132L267 153M267 132L246 153" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="88" y="101.0" font-size="11" text-anchor="end" fill="#44403c">8192</text><g><title>micro_batch=1, seq_len=8192, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.3..+0.2)
+q=0.818  n=11/11</title><rect x="96" y="74" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=2, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~101 GB/rank against 80 GB HBM</title><rect x="142" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M154 86L175 107M175 86L154 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=4, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~187 GB/rank against 80 GB HBM</title><rect x="188" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M200 86L221 107M221 86L200 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=8, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~359 GB/rank against 80 GB HBM</title><rect x="234" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M246 86L267 107M267 86L246 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="142" y="74" width="137" height="45" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="154" cy="86" r="9" fill="#7f1d1d"/><text x="154" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="234" y="74" width="45" height="91" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="246" cy="86" r="9" fill="#7f1d1d"/><text x="246" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="119.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">1</text><text x="165.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">2</text><text x="211.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">4</text><text x="257.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">8</text><text x="188.0" y="248" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">micro_batch</text><text transform="translate(22,143.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text x="434" y="62" font-size="12" font-weight="600" fill="#292524">world_size=32</text><text x="426" y="193.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>micro_batch=1, seq_len=512, checkpointing=False, world_size=32
+verdict: loss
+effect: +258.1% (95% CI +257.1..+259.0)
+q=0.00244  n=11/11</title><rect x="434" y="166" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+258</text></g><g><title>micro_batch=2, seq_len=512, checkpointing=False, world_size=32
+verdict: loss
+effect: +83.0% (95% CI +82.6..+83.3)
+q=0.00244  n=11/11</title><rect x="480" y="166" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="503.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+83</text></g><g><title>micro_batch=4, seq_len=512, checkpointing=False, world_size=32
+verdict: inconclusive
+effect: +4.7% (95% CI +4.4..+5.1)
+q=0.00244  n=11/11</title><rect x="526" y="166" width="45" height="45" fill="#fafaf9" stroke="#ffffff" stroke-width="1"/><rect x="526" y="166" width="45" height="45" fill="url(#hatch)" opacity="0.85"/></g><g><title>micro_batch=8, seq_len=512, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.6% (95% CI +0.4..+0.7)
+q=0.00434  n=11/11</title><rect x="572" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="595.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+1</text></g><text x="426" y="147.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>micro_batch=1, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +2.5% (95% CI +2.3..+2.8)
+q=0.00244  n=11/11</title><rect x="434" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+3</text></g><g><title>micro_batch=2, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.7% (95% CI +0.4..+1.1)
+q=0.0071  n=11/11</title><rect x="480" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="503.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+1</text></g><g><title>micro_batch=4, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.4% (95% CI +0.2..+0.7)
+q=0.0163  n=11/11</title><rect x="526" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="549.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=8, seq_len=2048, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~91 GB/rank against 80 GB HBM</title><rect x="572" y="120" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M584 132L605 153M605 132L584 153" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="426" y="101.0" font-size="11" text-anchor="end" fill="#44403c">8192</text><g><title>micro_batch=1, seq_len=8192, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.3% (95% CI +0.1..+0.5)
+q=0.0481  n=11/11</title><rect x="434" y="74" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="457.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=2, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~91 GB/rank against 80 GB HBM</title><rect x="480" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M492 86L513 107M513 86L492 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=4, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~177 GB/rank against 80 GB HBM</title><rect x="526" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M538 86L559 107M559 86L538 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=8, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~349 GB/rank against 80 GB HBM</title><rect x="572" y="74" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M584 86L605 107M605 86L584 107" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="480" y="74" width="137" height="45" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="492" cy="86" r="9" fill="#7f1d1d"/><text x="492" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="572" y="74" width="45" height="91" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="584" cy="86" r="9" fill="#7f1d1d"/><text x="584" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><rect x="434" y="166" width="91" height="45" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="446" cy="178" r="9" fill="#7f1d1d"/><text x="446" y="182" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><text x="457.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">1</text><text x="503.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">2</text><text x="549.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">4</text><text x="595.0" y="228" font-size="11" text-anchor="middle" fill="#44403c">8</text><text x="526.0" y="248" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">micro_batch</text><text transform="translate(360,143.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><g transform="translate(0,254)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 83% .. tie .. loss 83%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Re-derived from the published envelope: 12 losing cells, matching the published column. Crossed cells are configurations that cannot run at all; hatched cells are inconclusive at the pre-registered effect size; dashed outlines mark the extracted loss regions.</figcaption></figure>
+</div></div>
+<div class="band"><div class="mark">Thrust II</div><div class="body"><h2>The equal-tuning audit: engine differences that survive budget parity</h2><div class="chips"><span class="chip t-loss">did not hold</span><span class="chip t-warn">simulated evidence</span><span class="chip t-ok">conforming-with-warnings</span></div><div class="losspanel"><h3>Loss column</h3><p>vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), across 3 region(s); worst measurable case +107.7% on attainable_throughput, and cannot run at all in 1 cell(s).</p><ul class="regions">
+<li><span class="where">workload=[&#x27;chat&#x27;, &#x27;rag&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100]</span><span class="why"><span class="sev">+107.7%</span> &mdash; vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency; rag has 15% prefix reuse, which the alternative caches and vllm does not at its tuned settings; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</span></li>
+<li><span class="where">workload=[&#x27;chat&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100, 250]</span><span class="why"><span class="sev">+94.8%</span> &mdash; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</span></li>
+<li><span class="where">workload=[&#x27;chat&#x27;, &#x27;summarize&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25]</span><span class="why"><span class="sev">+94.8%</span> &mdash; vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</span></li>
 </ul>
+<p style="font-size:13px;color:var(--muted);margin-top:14px">2 cell(s) could not be measured for either system and are excluded from the comparison rather than counted as wins.</p>
 </div>
-<h2>How to read a null result</h2><p>Three of the verdicts above are distinct and are not interchangeable. <b>Survived</b> means the sweep had the power to detect a regression at the pre-registered effect size and found none. <b>Undetermined</b> means it did not have that power &mdash; an exact paired sign-flip test over <i>r</i> replicates cannot produce a p-value below 2<sup>&minus;r</sup>, so a sweep with too few replicates will report an empty loss column no matter how large the true regression is. Every loss column in this project carries the arithmetic that distinguishes the two, and the validator treats an undetectable design as a conformance failure rather than as a clean result.</p>
-<footer>Generated by <code>losscolumn run all</code>. Every figure and every number on the linked artifact pages is regenerable from the pinned commit and container image recorded in each claim.</footer></div>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396 320" width="396" height="320" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="vllm vs best_alternative"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="396" height="320" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">vllm vs best_alternative</text><text x="0" y="42" font-size="12" fill="#57534e">attainable_throughput (tok/s); higher is better</text><text x="88" y="239.0" font-size="11" text-anchor="end" fill="#44403c">chat</text><g><title>workload=chat, latency_budget_ms=10
+verdict: loss
+effect: +94.8% (95% CI +94.7..+94.9)
+q=0.000488  n=11/11</title><rect x="96" y="212" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+95</text></g><g><title>workload=chat, latency_budget_ms=15
+verdict: loss
+effect: +75.1% (95% CI +75.0..+75.1)
+q=0.000488  n=11/11</title><rect x="142" y="212" width="45" height="45" fill="#be3948" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+75</text></g><g><title>workload=chat, latency_budget_ms=25
+verdict: loss
+effect: +17.9% (95% CI +17.9..+17.9)
+q=0.000488  n=11/11</title><rect x="188" y="212" width="45" height="45" fill="#eab4b3" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+18</text></g><g><title>workload=chat, latency_budget_ms=50
+verdict: loss
+effect: +17.9% (95% CI +17.9..+17.9)
+q=0.000488  n=11/11</title><rect x="234" y="212" width="45" height="45" fill="#eab4b3" stroke="#ffffff" stroke-width="1"/><text x="257.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+18</text></g><g><title>workload=chat, latency_budget_ms=100
+verdict: loss
+effect: +17.9% (95% CI +17.9..+17.9)
+q=0.000488  n=11/11</title><rect x="280" y="212" width="45" height="45" fill="#eab4b3" stroke="#ffffff" stroke-width="1"/><text x="303.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+18</text></g><g><title>workload=chat, latency_budget_ms=250
+verdict: loss
+effect: +17.9% (95% CI +17.9..+17.9)
+q=0.000488  n=11/11</title><rect x="326" y="212" width="45" height="45" fill="#eab4b3" stroke="#ffffff" stroke-width="1"/><text x="349.0" y="239.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+18</text></g><text x="88" y="193.0" font-size="11" text-anchor="end" fill="#44403c">rag</text><g><title>workload=rag, latency_budget_ms=10
+verdict: missing
+vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency</title><rect x="96" y="166" width="45" height="45" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M108 178L129 199M129 178L108 199" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>workload=rag, latency_budget_ms=15
+verdict: missing
+vllm cannot meet a 15 ms/token normalised p99 budget on rag at any measured concurrency</title><rect x="142" y="166" width="45" height="45" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M154 178L175 199M175 178L154 199" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>workload=rag, latency_budget_ms=25
+verdict: loss
+effect: +107.7% (95% CI +67.5..+154.6)
+q=0.000488  n=11/11</title><rect x="188" y="166" width="45" height="45" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+108</text></g><g><title>workload=rag, latency_budget_ms=50
+verdict: loss
+effect: +10.5% (95% CI +10.5..+10.5)
+q=0.000488  n=11/11</title><rect x="234" y="166" width="45" height="45" fill="#f2c8c5" stroke="#ffffff" stroke-width="1"/><text x="257.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+10</text></g><g><title>workload=rag, latency_budget_ms=100
+verdict: loss
+effect: +5.8% (95% CI +5.8..+5.8)
+q=0.000488  n=11/11</title><rect x="280" y="166" width="45" height="45" fill="#f7d5d1" stroke="#ffffff" stroke-width="1"/><text x="303.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+6</text></g><g><title>workload=rag, latency_budget_ms=250
+verdict: tie
+effect: +4.5% (95% CI +4.5..+4.5)
+q=0.000488  n=11/11</title><rect x="326" y="166" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="349.0" y="193.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+4</text></g><text x="88" y="147.0" font-size="11" text-anchor="end" fill="#44403c">summarize</text><g><title>workload=summarize, latency_budget_ms=10
+verdict: loss
+vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency</title><rect x="96" y="120" width="45" height="45" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M108 132L129 153M129 132L108 153" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>workload=summarize, latency_budget_ms=15
+verdict: loss
+effect: +33.6% (95% CI +21.6..+46.8)
+q=0.000488  n=11/11</title><rect x="142" y="120" width="45" height="45" fill="#dc8d91" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+34</text></g><g><title>workload=summarize, latency_budget_ms=25
+verdict: loss
+effect: +11.0% (95% CI +11.0..+11.0)
+q=0.000488  n=11/11</title><rect x="188" y="120" width="45" height="45" fill="#f1c7c4" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+11</text></g><g><title>workload=summarize, latency_budget_ms=50
+verdict: tie
+effect: +4.8% (95% CI +4.8..+4.8)
+q=0.000488  n=11/11</title><rect x="234" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="257.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+5</text></g><g><title>workload=summarize, latency_budget_ms=100
+verdict: tie
+effect: +4.8% (95% CI +4.8..+4.8)
+q=0.000488  n=11/11</title><rect x="280" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="303.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+5</text></g><g><title>workload=summarize, latency_budget_ms=250
+verdict: tie
+effect: +3.5% (95% CI +3.5..+3.5)
+q=0.000488  n=11/11</title><rect x="326" y="120" width="45" height="45" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="349.0" y="147.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+3</text></g><text x="88" y="101.0" font-size="11" text-anchor="end" fill="#44403c">agentic</text><g><title>workload=agentic, latency_budget_ms=10
+verdict: loss
+effect: +74.5% (95% CI +40.5..+94.4)
+q=0.000488  n=11/11</title><rect x="96" y="74" width="45" height="45" fill="#be3a49" stroke="#ffffff" stroke-width="1"/><text x="119.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+74</text></g><g><title>workload=agentic, latency_budget_ms=15
+verdict: loss
+effect: +61.0% (95% CI +61.0..+61.1)
+q=0.000488  n=11/11</title><rect x="142" y="74" width="45" height="45" fill="#c7535f" stroke="#ffffff" stroke-width="1"/><text x="165.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+61</text></g><g><title>workload=agentic, latency_budget_ms=25
+verdict: loss
+effect: +8.3% (95% CI +8.3..+8.3)
+q=0.000488  n=11/11</title><rect x="188" y="74" width="45" height="45" fill="#f4ceca" stroke="#ffffff" stroke-width="1"/><text x="211.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+8</text></g><g><title>workload=agentic, latency_budget_ms=50
+verdict: loss
+effect: +8.6% (95% CI +8.6..+8.6)
+q=0.000488  n=11/11</title><rect x="234" y="74" width="45" height="45" fill="#f4cdca" stroke="#ffffff" stroke-width="1"/><text x="257.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+9</text></g><g><title>workload=agentic, latency_budget_ms=100
+verdict: loss
+effect: +8.6% (95% CI +8.6..+8.6)
+q=0.000488  n=11/11</title><rect x="280" y="74" width="45" height="45" fill="#f4cdca" stroke="#ffffff" stroke-width="1"/><text x="303.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+9</text></g><g><title>workload=agentic, latency_budget_ms=250
+verdict: loss
+effect: +8.6% (95% CI +8.6..+8.6)
+q=0.000488  n=11/11</title><rect x="326" y="74" width="45" height="45" fill="#f4cdca" stroke="#ffffff" stroke-width="1"/><text x="349.0" y="101.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+9</text></g><rect x="96" y="74" width="229" height="183" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="96" y="74" width="275" height="183" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><rect x="96" y="74" width="137" height="183" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><text x="119.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">10</text><text x="165.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">15</text><text x="211.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">25</text><text x="257.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">50</text><text x="303.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">100</text><text x="349.0" y="274" font-size="11" text-anchor="middle" fill="#44403c">250</text><text x="234.0" y="294" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">latency_budget_ms</text><text transform="translate(22,166.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">workload</text><g transform="translate(0,300)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 95% .. tie .. loss 95%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Re-derived from the published envelope: 18 losing cells, matching the published column. Crossed cells are configurations that cannot run at all; hatched cells are inconclusive at the pre-registered effect size; dashed outlines mark the extracted loss regions.</figcaption></figure>
+</div></div>
+<div class="band"><div class="mark">Verdicts</div><div class="body"><h2>What survived</h2><p>A null result is reported with the same prominence as a refutation. If the audited claims hold under controlled comparison, that is a substantive finding about the evidentiary health of the field, and the artifacts remain useful as reference measurements.</p><div class="scroll"><table><thead><tr><th>Claim</th><th>Verdict</th><th>Basis</th><th>Conformance</th></tr></thead><tbody><tr><td><strong>Reproduction with a loss map: a from-scratch attention kernel</strong><span class='sub'>reimplementation vs reference</span></td><td><span class="chip t-loss">did not hold</span></td><td>regresses over 100% of the swept envelope</td><td><span class="t-ok">conforming</span><span class='sub'>0 fatal, 0 warning</span></td></tr><tr><td><strong>The overlap envelope: where the recommended sharding configuration breaks down</strong><span class='sub'>full_shard/tp1 vs best_of_swept</span></td><td><span class="chip t-loss">did not hold</span></td><td>regresses over 25% of the swept envelope</td><td><span class="t-ok">conforming-with-warnings</span><span class='sub'>0 fatal, 1 warning</span></td></tr><tr><td><strong>The equal-tuning audit: engine differences that survive budget parity</strong><span class='sub'>vllm vs best_alternative</span></td><td><span class="chip t-loss">did not hold</span></td><td>regresses over 75% of the swept envelope</td><td><span class="t-ok">conforming-with-warnings</span><span class='sub'>0 fatal, 2 warning</span></td></tr></tbody></table></div></div></div>
+<div class="band"><div class="mark">The standard</div><div class="body"><h2>Five requirements, each an executable rule</h2><p>The durable output is not any single measurement but a reporting standard the three artifacts jointly demonstrate. Each requirement targets a specific documented failure mode rather than expressing a general preference for rigour, and each is implemented as a rule a program can check &mdash; against any claim document, not only ones this package produced.</p><div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>What it forecloses</th></tr></thead><tbody><tr><td><code>LC-1</code></td><td><strong>Loss column</strong><span class='sub'>Every claim names the regions where it underperforms, at equal prominence to the wins, with an attributed cause.</span></td><td>Selective reporting</td></tr><tr><td><code>LC-2</code></td><td><strong>Tuning-budget parity</strong><span class='sub'>An append-only ledger records trials, search procedure, operator and hardware for every system; the certificate is derived from it, not asserted.</span></td><td>The untuned baseline</td></tr><tr><td><code>LC-3</code></td><td><strong>Envelope, not point</strong><span class='sub'>Results are surfaces. A headline must carry its own best, worst and median.</span></td><td>Overgeneralisation</td></tr><tr><td><code>LC-4</code></td><td><strong>Pre-registration</strong><span class='sub'>The protocol is hashed and sealed before collection, and the analysis reads its effect size and FDR level from that seal.</span></td><td>Post-hoc selection</td></tr><tr><td><code>LC-5</code></td><td><strong>One-command reproduction</strong><span class='sub'>Pinned commit, pinned image, documented hardware, one command.</span></td><td>Unfalsifiability by inaccessibility</td></tr></tbody></table></div><pre>losscolumn validate anyones-claim.json</pre></div></div>
+<div class="band"><div class="mark">LC-1.8</div><div class="body"><h2>How to read an empty loss column</h2><div class="callout"><p>The most dangerous artifact this standard can produce is a conforming, well-formatted, entirely <em>empty</em> loss column produced by a sweep that could never have found anything.</p><p>An exact paired sign-flip test over <code>r</code> replicates cannot produce a p-value below <code>2⁻ʳ</code>, however large the true effect. Benjamini&ndash;Hochberg over <code>m</code> cells rejects the most extreme one only if its p-value is at most <code>q/m</code>. Together those force <code>r &ge; log₂(m/q)</code> &mdash; ten replicates for a 48-cell sweep at q&nbsp;=&nbsp;0.05.</p><p>A sweep at five replicates reports an empty loss column against a <strong>+171% regression</strong>. That is not hypothetical: it happened while building this package, and the rule exists because of it. Every loss column carries the arithmetic separating <em>we looked and found nothing</em> from <em>we could not have found anything</em>, and the validator treats an undetectable design as a conformance failure rather than a clean result.</p></div></div></div>
+<div class="band"><div class="mark">Reproduce</div><div class="body"><h2>Running it</h2><p>Requirement LC-5 would be hollow if this project's own artifacts were not produced the way it demands of everyone else. Each claim records the invocation that made it, the commit, the container image and the hardware.</p><pre>losscolumn doctor
+losscolumn prereg seal I &amp;&amp; losscolumn prereg seal II &amp;&amp; losscolumn prereg seal III
+losscolumn run all
+losscolumn validate artifacts/*.claim.json</pre><p>The protocols are sealed before any data is collected, and the analysis reads its effect size, FDR level and replicate count out of the seal &mdash; so an analysis departing from what was registered cannot run silently.</p></div></div>
+<footer>Generated by <code>losscolumn run all</code>. Claims marked <em>simulated</em> come from calibratable models whose parameters are the quantities a microbenchmark measures; the analysis path is identical on measured and modelled data. A conforming claim can still be wrong &mdash; but it can be shown to be wrong, which is the point.</footer></div>

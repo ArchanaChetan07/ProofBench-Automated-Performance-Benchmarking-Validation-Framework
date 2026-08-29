@@ -69,7 +69,7 @@ vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), acros
 
 ## Where each engine wins
 
-<p>Attainment-curve comparison, budget by budget. The crossover is the latency budget at which the ordering flips; where there is no single crossover, the two frontiers interleave and no ordering statement is available at all.</p><div class="scroll"><table><thead><tr><th>Comparison</th><th>Budgets vLLM wins</th><th>Best</th><th>Worst</th><th>Crossover</th></tr></thead><tbody><tr><td>agentic vs sglang</td><td>3%</td><td>+16%</td><td>-51%</td><td>no single crossover</td></tr><tr><td>agentic vs trtllm</td><td>44%</td><td>+2035%</td><td>-8%</td><td>no single crossover</td></tr><tr><td>chat vs sglang</td><td>0%</td><td>-6%</td><td>-75%</td><td>7.6 ms/token</td></tr><tr><td>chat vs trtllm</td><td>0%</td><td>-15%</td><td>-94%</td><td>7.5 ms/token</td></tr><tr><td>rag vs sglang</td><td>0%</td><td>-2%</td><td>-47%</td><td>19.3 ms/token</td></tr><tr><td>rag vs trtllm</td><td>0%</td><td>-8%</td><td>-53%</td><td>19.0 ms/token</td></tr><tr><td>summarize vs sglang</td><td>0%</td><td>-3%</td><td>-48%</td><td>9.3 ms/token</td></tr><tr><td>summarize vs trtllm</td><td>0%</td><td>-7%</td><td>-49%</td><td>9.9 ms/token</td></tr></tbody></table></div>
+<p>Attainment-curve comparison, budget by budget. The crossover is the latency budget at which the ordering flips; where there is no single crossover, the two frontiers interleave and no ordering statement is available at all.</p><div class="scroll"><table><thead><tr><th>Comparison</th><th>Budgets vLLM wins</th><th>Best</th><th>Worst</th><th>Crossover</th></tr></thead><tbody><tr><td>agentic vs sglang</td><td>3%</td><td>+16%</td><td>-51%</td><td>no single crossover</td></tr><tr><td>agentic vs trtllm</td><td>44%</td><td>+2035%</td><td>-8%</td><td>no single crossover</td></tr><tr><td>chat vs sglang</td><td>0%</td><td>-6%</td><td>-75%</td><td>no single crossover</td></tr><tr><td>chat vs trtllm</td><td>0%</td><td>-15%</td><td>-94%</td><td>no single crossover</td></tr><tr><td>rag vs sglang</td><td>0%</td><td>-2%</td><td>-47%</td><td>no single crossover</td></tr><tr><td>rag vs trtllm</td><td>0%</td><td>-8%</td><td>-53%</td><td>no single crossover</td></tr><tr><td>summarize vs sglang</td><td>0%</td><td>-3%</td><td>-48%</td><td>no single crossover</td></tr><tr><td>summarize vs trtllm</td><td>0%</td><td>-7%</td><td>-49%</td><td>no single crossover</td></tr></tbody></table></div>
 
 ## Tuning-budget parity
 
@@ -111,7 +111,7 @@ Status: **PARITY HELD** (3 finding(s))
 losscolumn run thrust2
 ```
 
-- Repository: `local checkout` at commit `222dec09b09b51d0386d4ad7b96147460cfc0554` (**dirty tree**)
+- Repository: `local checkout` at commit `87e209643ccb4cda209ac714c3eed4f6d84bf714`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: 8x H100 (measured path) / calibratable model (this artifact)
 - Estimated runtime: 80 min (~$2000.00)
@@ -120,7 +120,7 @@ losscolumn run thrust2
 
 ### Conformance -- `lc-thrust2-equal-tuning-audit` against LC-1.0
 
-**FAIL** -- 1 fatal, 2 warning(s).
+**PASS (with warnings)** -- 0 fatal, 2 warning(s).
 
 | Rule | Requirement | Result | Finding |
 |------|-------------|--------|---------|
@@ -157,8 +157,8 @@ losscolumn run thrust2
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:a0bdfe6` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust2` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `222dec09b09b` |
-| `LC-5.4` | One-command reproduction | FAIL | the producing working tree was dirty; the pinned commit does not identify the code that ran |
+| `LC-5.3` | One-command reproduction | pass | pinned to `87e209643ccb` |
+| `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: 8x H100 (measured path) / calibratable model (this artifact) |
 | `LC-5.7` | One-command reproduction | pass | ~80 min |
@@ -170,6 +170,6 @@ losscolumn run thrust2
 
 ## Provenance
 
-- Captured: `2026-08-29T01:56:57Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-29T02:14:23Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
 - Packages: `torch=2.6.0+cu124`, `numpy=1.26.4`, `transformers=5.12.1`
