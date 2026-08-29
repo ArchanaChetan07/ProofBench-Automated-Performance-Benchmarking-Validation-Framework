@@ -286,8 +286,7 @@ def run_sparse_sweep(
         ok, why = is_applicable(pattern, density)
         if not ok:
             for env in (latency, throughput, memory):
-                env.mark_missing(METHOD, cell, why)
-                env.mark_missing(BASELINE, cell, why)
+                env.mark_inapplicable(cell, why)
             continue
 
         seq_q = seq if phase == "prefill" else 1

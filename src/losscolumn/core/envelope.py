@@ -121,6 +121,7 @@ class Envelope:
     metric: Metric
     data: dict[str, np.ndarray] = field(default_factory=dict)
     missing: dict[str, dict[Cell, str]] = field(default_factory=dict)
+    inapplicable: dict[Cell, str] = field(default_factory=dict)
     replicates: int = 0
     interleaved: bool = False
     workload: str | None = None
@@ -206,6 +207,34 @@ class Envelope:
         self.missing.setdefault(system, {})[tuple(cell)] = reason
         self.data[system][tuple(cell)] = np.nan
 
+    def mark_inapplicable(self, cell: Cell, reason: str) -> None:
+        """Record that a cell is not a configuration, for any system.
+
+        Distinct from missing, and the distinction is load-bearing. A cell that
+        went out of memory is a *failed measurement*: something was attempted
+        and did not work, it counts against coverage, and in the loss column it
+        counts against the system that failed. A cell like ``dense`` attention
+        at 25% density was never a configuration at all -- the factor lattice is
+        a product space and this corner of it does not denote anything.
+
+        Conflating the two corrupts both numbers. Counting inapplicable corners
+        as failures makes a fully-measured sweep look half-finished, which is
+        how a warning about coverage gets ignored; dropping them silently makes
+        the artifact claim a full factorial it never ran.
+        """
+        c = tuple(cell)
+        self.inapplicable[c] = reason
+        for system in self.systems:
+            self.missing.setdefault(system, {})[c] = reason
+            self.data[system][c] = np.nan
+
+    def is_inapplicable(self, cell: Cell) -> bool:
+        return tuple(cell) in self.inapplicable
+
+    def applicable_cells(self) -> list[Cell]:
+        """Cells that denote a real configuration."""
+        return [c for c in self.cells() if not self.is_inapplicable(c)]
+
     # ---- reading ----------------------------------------------------------
 
     def replicates_at(self, system: str, cell: Cell) -> np.ndarray:
@@ -232,9 +261,17 @@ class Envelope:
         return bool(self.replicates_at(system, cell).size)
 
     def coverage(self) -> dict[str, float]:
-        """Fraction of cells with at least one replicate, per system."""
+        """Fraction of *applicable* cells with at least one replicate, per system.
+
+        Inapplicable cells are excluded from the denominator. Coverage answers
+        "of the cells that could have been measured, how many were", and a
+        lattice is not less well covered for having documented holes in it.
+        """
+        cells = self.applicable_cells()
+        if not cells:
+            return dict.fromkeys(self.systems, 0.0)
         return {
-            s: float(np.mean([self.is_measured(s, c) for c in self.cells()]))
+            s: float(np.mean([self.is_measured(s, c) for c in cells]))
             for s in self.systems
         }
 
@@ -329,6 +366,13 @@ class Envelope:
             s: [{"cell": list(c), "reason": r} for c, r in sorted(m.items())]
             for s, m in self.missing.items()
         }
+        # Recorded separately from `missing` so a reader can tell a cell that
+        # failed from a cell that was never a configuration.
+        d["inapplicable"] = [
+            {"cell": list(c), "label": self.label(c), "reason": r}
+            for c, r in sorted(self.inapplicable.items())
+        ]
+        d["n_applicable"] = len(self.applicable_cells())
         return d
 
     @classmethod

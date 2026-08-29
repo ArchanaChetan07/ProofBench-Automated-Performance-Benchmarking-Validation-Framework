@@ -259,6 +259,18 @@ def cmd_standard(args: argparse.Namespace) -> int:
     return 1 if uncaught else 0
 
 
+def cmd_index(args: argparse.Namespace) -> int:
+    """Regenerate the artifact index from the files that exist."""
+    from losscolumn.report.index import summarise, write_index
+
+    p = write_index(Path(args.outdir))
+    s = summarise(Path(args.outdir))
+    print(f"{s['n_claims']} claim(s): {s['n_conforming']} conforming, "
+          f"{s['n_measured']} measured")
+    print(f"  {p}")
+    return 0
+
+
 # --------------------------------------------------------------------------
 # validate / report
 # --------------------------------------------------------------------------
@@ -355,6 +367,10 @@ def build_parser() -> argparse.ArgumentParser:
     st.add_argument("action", choices=["export"])
     st.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS / "standard"))
     st.set_defaults(func=cmd_standard)
+
+    ix = sub.add_parser("index", help="regenerate the artifact index")
+    ix.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS))
+    ix.set_defaults(func=cmd_index)
 
     v = sub.add_parser("validate", help="grade a claim against the standard")
     v.add_argument("claims", nargs="+")

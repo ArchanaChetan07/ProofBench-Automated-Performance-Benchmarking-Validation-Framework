@@ -116,6 +116,7 @@ class LossColumn:
     inconclusive_fraction: float = 0.0
     win_fraction: float = 0.0
     n_unrunnable: int = 0
+    n_inapplicable: int = 0
     envelope_digest: str | None = None
     factor_levels: dict[str, list[Any]] = field(default_factory=dict)
     design_check: dict[str, Any] = field(default_factory=dict)
@@ -204,7 +205,8 @@ class LossColumn:
             f"- Envelope: {self.n_cells} cells. "
             f"Losses {self.counts.get('loss', 0)}, wins {self.counts.get('win', 0)}, "
             f"ties {self.counts.get('tie', 0)}, inconclusive {self.counts.get('inconclusive', 0)}, "
-            f"missing {self.counts.get('missing', 0)}.",
+            f"missing {self.counts.get('missing', 0)}"
+            + (f", inapplicable {self.n_inapplicable}." if self.n_inapplicable else "."),
             f"- Decision rule: regression >= {self.mde_pct:.1f}% (pre-registered MDE) "
             f"and Benjamini-Hochberg q <= {self.q_level:g}.",
         ]
@@ -272,7 +274,16 @@ def extract_loss_column(
 
     loss = codes == _CODES["loss"]
     absorbable = loss | (codes == _CODES["inconclusive"]) | (codes == _CODES["missing"])
-    n_cells = int(np.prod(shape))
+
+    # Cells that are not a configuration leave the denominator entirely. A
+    # lattice is not less well covered for having documented holes in it, and
+    # counting them as failures makes a fully-measured sweep read as half
+    # finished -- which is how a real coverage warning gets ignored.
+    inapplicable = np.zeros(shape, dtype=bool)
+    for c in getattr(env, "inapplicable", {}):
+        inapplicable[tuple(c)] = True
+    n_inapplicable = int(inapplicable.sum())
+    n_cells = int(np.prod(shape)) - n_inapplicable
 
     if weights is None:
         weights = np.ones(shape, dtype=float)
@@ -300,6 +311,12 @@ def extract_loss_column(
     regions = _prune_redundant(regions, env, loss)
     leftover = int(np.sum(loss & ~covered))
     counts = verdict_counts(comparisons)
+    # "missing" must mean a measurement that was attempted and failed. Cells
+    # that were never a configuration are reported under their own name, so a
+    # reader can tell an out-of-memory regime from a corner of the lattice that
+    # does not denote anything.
+    counts["missing"] = max(counts.get("missing", 0) - n_inapplicable, 0)
+    counts["inapplicable"] = n_inapplicable
     lc = LossColumn(
         metric=env.metric.name,
         unit=env.metric.unit,
@@ -312,6 +329,7 @@ def extract_loss_column(
         ),
         counts=counts,
         n_cells=n_cells,
+        n_inapplicable=n_inapplicable,
         loss_fraction=counts.get("loss", 0) / n_cells if n_cells else 0.0,
         weighted_loss_fraction=float(weights[loss].sum()),
         inconclusive_fraction=counts.get("inconclusive", 0) / n_cells if n_cells else 0.0,

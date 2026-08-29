@@ -289,3 +289,56 @@ class TestEquivalenceIsEstablished:
         gt = planted_region(planted=None, replicates=3, seed=42)
         cmps, lc, _ = _extract(gt)
         assert lc.underpowered
+
+
+class TestInapplicableCells:
+    """A hole in the lattice is not a failed measurement.
+
+    The distinction is load-bearing in both directions. Counting inapplicable
+    corners as failures makes a fully-measured sweep read as half finished,
+    which is how a genuine coverage warning gets ignored; dropping them
+    silently makes the artifact claim a full factorial it never ran.
+    """
+
+    def _env_with_hole(self):
+        gt = planted_region(planted={"seq_len": [2048]}, regression=0.30, seed=77)
+        env = gt.envelope
+        holes = [c for c in env.cells() if env.coords(c)["dtype"] == "bf16"
+                 and env.coords(c)["seq_len"] == 128]
+        for c in holes:
+            env.mark_inapplicable(c, "not a configuration")
+        return gt, env, holes
+
+    def test_coverage_ignores_inapplicable_cells(self):
+        _, env, holes = self._env_with_hole()
+        assert all(v == 1.0 for v in env.coverage().values()), env.coverage()
+        assert len(env.applicable_cells()) == env.n_cells - len(holes)
+
+    def test_loss_column_counts_them_apart_from_missing(self):
+        gt, env, holes = self._env_with_hole()
+        cmps = compare_cells(env, "method", "baseline", mde=0.05, q=0.05, seed=0)
+        lc = extract_loss_column(env, cmps, method="method", baseline="baseline",
+                                 mde=0.05, q_level=0.05)
+        assert lc.n_inapplicable == len(holes)
+        assert lc.counts["inapplicable"] == len(holes)
+        assert lc.counts["missing"] == 0, "an inapplicable cell is not a failure"
+        assert lc.n_cells == env.n_cells - len(holes)
+
+    def test_fractions_use_the_applicable_denominator(self):
+        gt, env, holes = self._env_with_hole()
+        cmps = compare_cells(env, "method", "baseline", mde=0.05, q=0.05, seed=0)
+        lc = extract_loss_column(env, cmps, method="method", baseline="baseline",
+                                 mde=0.05, q_level=0.05)
+        assert lc.loss_fraction == lc.counts["loss"] / lc.n_cells
+
+    def test_a_real_failure_still_counts_as_missing(self):
+        """The symmetric check: an OOM must not be laundered into a hole."""
+        gt, env, _ = self._env_with_hole()
+        oom = next(c for c in env.cells()
+                   if env.coords(c)["seq_len"] == 2048 and env.coords(c)["batch"] == 8)
+        env.mark_missing("method", oom, "CUDA out of memory")
+        cmps = compare_cells(env, "method", "baseline", mde=0.05, q=0.05, seed=0)
+        lc = extract_loss_column(env, cmps, method="method", baseline="baseline",
+                                 mde=0.05, q_level=0.05)
+        assert env.coverage()["method"] < 1.0
+        assert lc.counts["inapplicable"] > 0
