@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import partial
 from typing import Any
 
@@ -44,6 +44,7 @@ from losscolumn.core.losscolumn import LossColumn, extract_loss_column
 from losscolumn.core.provenance import Provenance
 from losscolumn.core.stats import CellComparison, compare_cells
 from losscolumn.thrusts.kernel.bench import (
+    MeasurementLock,
     clock_stability,
     device_description,
     free_memory,
@@ -130,15 +131,35 @@ def _factors(seq_lens, batches, patterns, densities, phases) -> tuple[Factor, ..
     )
 
 
+# Correctness is checked at a reduced batch and head count. Attention is
+# independent across both -- they are pure parallel axes, carrying no data
+# between lanes -- so a kernel correct at (1, 2) is correct at (8, 8) for the
+# same sequence, pattern, density and phase, which are the axes correctness can
+# actually vary along.
+#
+# This is not a convenience. The fp64 ground truth at the largest registered
+# cell (batch 8, 8 heads, 4096 tokens) needs 8.6 GB for the score matrix alone
+# on an 8.6 GB card, so checking at full shape does not fail cleanly -- it
+# thrashes, and a sweep that would take half an hour runs for ten hours instead.
+# The artifact records the reduced check shape rather than implying the suite
+# ran at the timed shape.
+CHECK_BATCH = 1
+CHECK_HEADS = 2
+
+
 def _check_correctness(impl, q, k, v, layout, causal, spec: ShapeSpec) -> CorrectnessResult:
     """Correctness against fp64 ground truth for the same sparse pattern.
 
-    Runs before any timing, every cell, exactly as the protocol registers. A
+    Runs before any timing, at every cell, exactly as the protocol registers. A
     shape that fails here is never timed: its loss is that it is wrong, and a
     speed number for a wrong kernel is worse than no number.
     """
     import torch
 
+    q = q[:CHECK_BATCH, :CHECK_HEADS].contiguous()
+    k = k[:CHECK_BATCH, :CHECK_HEADS].contiguous()
+    v = v[:CHECK_BATCH, :CHECK_HEADS].contiguous()
+    spec = replace(spec, batch=CHECK_BATCH, heads=CHECK_HEADS)
     res = CorrectnessResult(shape=spec, passed=False)
     try:
         out = impl(q, k, v, layout, causal=causal)
@@ -188,11 +209,14 @@ def run_sparse_sweep(
     mde: float = 0.10,
     q_level: float = 0.05,
     seed: int = 20260101,
+    exclusive: bool = True,
 ) -> SparseSweepResult:
     """Run the registered lattice for one implementation."""
     import torch
 
     impl, impl_label = select(implementation)
+    lock = MeasurementLock(f"thrust3 sweep [{implementation}]", strict=exclusive)
+    lock.__enter__()
     factors = _factors(seq_lens, batches, patterns, densities, phases)
 
     def _alloc(metric: Metric, systems: list[str]) -> Envelope:
@@ -232,13 +256,23 @@ def run_sparse_sweep(
         [METHOD, BASELINE],
     )
 
-    suite = CorrectnessSuite(implementation=impl_label, device=device_description(device))
+    suite = CorrectnessSuite(
+        implementation=impl_label,
+        device=device_description(device),
+        note=(
+            f"Checked at batch={CHECK_BATCH}, heads={CHECK_HEADS} rather than at the "
+            "timed shape. Attention carries no data between batch or head lanes, so "
+            "correctness cannot vary along those axes; sequence length, pattern, "
+            "density and phase -- the axes it can vary along -- are checked at their "
+            "measured values."
+        ),
+    )
     result = SparseSweepResult(
         implementation=implementation,
         latency=latency, throughput=throughput, memory=memory,
         correctness=suite,
         device=device_description(device),
-        clocks={"before": clock_stability(device)},
+        clocks={"before": clock_stability(device), "exclusivity": lock.state},
         limits=device_limits(),
     )
 
@@ -309,6 +343,7 @@ def run_sparse_sweep(
         memory.put(BASELINE, cell, [_peak(run_reference)] * replicates)
         del q, k, v
 
+    lock.__exit__(None, None, None)
     result.clocks["after"] = clock_stability(device)
     result.comparisons = compare_cells(latency, METHOD, BASELINE, mde=mde, q=q_level,
                                        seed=seed, paired=True)

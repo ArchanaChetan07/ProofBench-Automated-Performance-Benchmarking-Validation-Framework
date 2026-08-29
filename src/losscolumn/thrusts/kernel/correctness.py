@@ -217,6 +217,7 @@ class CorrectnessSuite:
     results: list[CorrectnessResult] = field(default_factory=list)
     implementation: str = ""
     device: str = ""
+    note: str = ""
 
     @property
     def n_passed(self) -> int:
@@ -233,6 +234,7 @@ class CorrectnessSuite:
         return {
             "implementation": self.implementation,
             "device": self.device,
+            "note": self.note,
             "n_shapes": len(self.results),
             "n_passed": self.n_passed,
             "all_passed": self.all_passed,

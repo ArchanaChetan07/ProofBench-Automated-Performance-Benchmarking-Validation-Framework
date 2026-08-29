@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import gc
 from collections.abc import Callable
+from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -200,3 +201,170 @@ def clock_stability(device: str = "cuda", samples: int = 5) -> dict[str, Any]:
         }
     except Exception:
         return {"available": False}
+
+
+# --------------------------------------------------------------------------
+# measurement exclusivity
+# --------------------------------------------------------------------------
+
+_LOCK_ENV = "LC_MEASUREMENT_LOCK"
+
+
+def _lock_path() -> Path:
+    import os
+    import tempfile
+
+    override = os.environ.get(_LOCK_ENV)
+    if override:
+        return Path(override)
+    return Path(tempfile.gettempdir()) / "losscolumn-measurement.lock"
+
+
+def _pid_alive(pid: int) -> bool:
+    import os
+
+    if pid == os.getpid():
+        return True
+    try:
+        if os.name == "nt":
+            import subprocess
+
+            out = subprocess.run(
+                ["tasklist", "/FI", f"PID eq {pid}", "/NH"],
+                capture_output=True, text=True, timeout=15, check=False,
+            )
+            return str(pid) in out.stdout
+        os.kill(pid, 0)
+        return True
+    except Exception:
+        return False
+
+
+def competing_gpu_memory() -> list[dict[str, Any]]:
+    """Other processes holding *substantial* GPU memory, where that is knowable.
+
+    Deliberately narrow. On Windows under WDDM ``nvidia-smi
+    --query-compute-apps`` lists every graphics context on the machine -- the
+    desktop compositor, every browser tab -- and reports ``N/A`` for their
+    memory, so treating that list as "competing compute jobs" produces dozens
+    of false positives and the guard gets switched off, which is worse than not
+    having one. Only processes with a reported allocation above the threshold
+    are returned; where memory is unknowable this reports nothing and the lock
+    below does the real work.
+    """
+    import os
+    import shutil
+    import subprocess
+
+    exe = shutil.which("nvidia-smi")
+    if exe is None:
+        return []
+    try:
+        out = subprocess.run(
+            [exe, "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=15, check=False,
+        )
+    except Exception:
+        return []
+    if out.returncode != 0:
+        return []
+    me = os.getpid()
+    procs: list[dict[str, Any]] = []
+    for line in out.stdout.splitlines():
+        parts = [x.strip() for x in line.split(",")]
+        if len(parts) < 2 or not parts[0].isdigit() or int(parts[0]) == me:
+            continue
+        try:
+            mb = float(parts[1])
+        except ValueError:
+            continue  # [N/A] under WDDM: unknowable, not zero
+        if mb >= 512:
+            procs.append({"pid": int(parts[0]), "used_memory_mb": mb})
+    return procs
+
+
+class MeasurementLock:
+    """An exclusive lock held for the duration of a timing run.
+
+    Two benchmark processes sharing one device do not each get half the
+    machine in a way that averages out. They interleave at the scheduler,
+    contend for L2 and memory bandwidth, and hold each other's clocks down, so
+    every timing either produces is wrong by an amount that depends on what the
+    other one happened to be doing. Nothing downstream can detect it: the
+    replicates stay self-consistent and the intervals stay tight.
+
+    This exists because it happened here. A calibration run was launched while
+    a sweep was still going; both had to be discarded and re-run.
+
+    A lock file rather than a GPU query, because the hazard is specifically
+    *another measurement*, and that is knowable exactly, on every platform,
+    without depending on what nvidia-smi can see.
+    """
+
+    def __init__(self, purpose: str = "measurement", *, strict: bool = True) -> None:
+        self.purpose = purpose
+        self.strict = strict
+        self.path = _lock_path()
+        self.acquired = False
+        self.state: dict[str, Any] = {}
+
+    def __enter__(self) -> MeasurementLock:
+        import json
+        import os
+
+        holder = None
+        if self.path.exists():
+            try:
+                holder = json.loads(self.path.read_text(encoding="utf-8"))
+            except Exception:
+                holder = None
+            if holder and _pid_alive(int(holder.get("pid", -1))) \
+                    and int(holder.get("pid", -1)) != os.getpid():
+                msg = (
+                    f"another losscolumn measurement is running: pid {holder.get('pid')} "
+                    f"({holder.get('purpose')}, started {holder.get('started')}). "
+                    "Timings taken now would be contended and not comparable to timings "
+                    "taken alone. Wait for it, or set strict=False to record the "
+                    "condition and measure anyway."
+                )
+                if self.strict:
+                    raise RuntimeError(msg)
+                self.state["contended_by"] = holder
+            else:
+                # A stale lock from a killed run is not a reason to refuse.
+                self.path.unlink(missing_ok=True)
+
+        self.path.write_text(
+            json.dumps({
+                "pid": os.getpid(),
+                "purpose": self.purpose,
+                "started": _utcnow(),
+            }),
+            encoding="utf-8",
+        )
+        self.acquired = True
+        self.state.update({
+            "exclusive": "contended_by" not in self.state,
+            "lock": str(self.path),
+            "competing_gpu_memory": competing_gpu_memory(),
+        })
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        import json
+        import os
+
+        if not self.acquired:
+            return
+        try:
+            held = json.loads(self.path.read_text(encoding="utf-8"))
+            if int(held.get("pid", -1)) == os.getpid():
+                self.path.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+
+def _utcnow() -> str:
+    from datetime import datetime, timezone
+
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
