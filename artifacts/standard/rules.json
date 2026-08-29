@@ -1,0 +1,337 @@
+{
+  "standard": "LC-1.0",
+  "digest": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
+  "n_rules": 47,
+  "n_fatal": 28,
+  "rules": [
+    {
+      "id": "LC-0.1",
+      "requirement": "Standard version",
+      "severity": "fatal",
+      "summary": "The claim declares the standard revision it is graded against.",
+      "forecloses": "grading an artifact against rules it was never written for"
+    },
+    {
+      "id": "LC-0.2",
+      "requirement": "Evidence class",
+      "severity": "fatal",
+      "summary": "evidence_class is one of measured, simulated, mixed.",
+      "forecloses": "a modelled number being read as a measured one"
+    },
+    {
+      "id": "LC-0.3",
+      "requirement": "Evidence class",
+      "severity": "fatal",
+      "summary": "A simulated or mixed claim states what was modelled and what measured.",
+      "forecloses": "an unexplained simulation passing as evidence"
+    },
+    {
+      "id": "LC-1.1",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "A loss column is present.",
+      "forecloses": "selective reporting"
+    },
+    {
+      "id": "LC-1.2",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "If any cell lost, at least one region describes where.",
+      "forecloses": "acknowledging losses without locating them"
+    },
+    {
+      "id": "LC-1.3",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "The column does not declare itself incomplete.",
+      "forecloses": "publishing a column known to be partial"
+    },
+    {
+      "id": "LC-1.4",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "The column is in the main body, not an appendix.",
+      "forecloses": "burying adverse regimes"
+    },
+    {
+      "id": "LC-1.5",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "summary": "Every loss region carries an attributed cause.",
+      "forecloses": "a location without a mechanism"
+    },
+    {
+      "id": "LC-1.6",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "summary": "Cells that could not be measured are accounted for.",
+      "forecloses": "an out-of-memory regime vanishing from the record"
+    },
+    {
+      "id": "LC-1.7",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "summary": "The inconclusive fraction is stated and tolerable.",
+      "forecloses": "an underdetermined envelope reading as a settled one"
+    },
+    {
+      "id": "LC-1.8",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "The design is capable of declaring a loss if one exists.",
+      "forecloses": "an empty loss column produced by an underpowered sweep"
+    },
+    {
+      "id": "LC-1.9",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "summary": "Every region's statistical support meets the claim's own thresholds.",
+      "forecloses": "a region asserted as a loss on evidence weaker than the claim declares"
+    },
+    {
+      "id": "LC-2.1",
+      "requirement": "Tuning-budget parity",
+      "severity": "fatal",
+      "summary": "A tuned comparison ships a parity certificate.",
+      "forecloses": "the untuned baseline"
+    },
+    {
+      "id": "LC-2.2",
+      "requirement": "Tuning-budget parity",
+      "severity": "fatal",
+      "summary": "The parity certificate reports no violation.",
+      "forecloses": "a comparison known to be unfair"
+    },
+    {
+      "id": "LC-2.3",
+      "requirement": "Tuning-budget parity",
+      "severity": "fatal",
+      "summary": "At least two systems were tuned under the budget.",
+      "forecloses": "calling a single-system measurement a comparison"
+    },
+    {
+      "id": "LC-2.4",
+      "requirement": "Tuning-budget parity",
+      "severity": "warning",
+      "summary": "Trial counts are equal across systems.",
+      "forecloses": "unequal effort presented as equal"
+    },
+    {
+      "id": "LC-2.5",
+      "requirement": "Tuning-budget parity",
+      "severity": "warning",
+      "summary": "No system was still improving when its budget ended.",
+      "forecloses": "a lower bound reported as an optimum"
+    },
+    {
+      "id": "LC-2.6",
+      "requirement": "Tuning-budget parity",
+      "severity": "info",
+      "summary": "The operators of record are named.",
+      "forecloses": "an undocumented skill confound"
+    },
+    {
+      "id": "LC-2.7",
+      "requirement": "Tuning-budget parity",
+      "severity": "fatal",
+      "summary": "The baseline was tuned, or derives from systems that were.",
+      "forecloses": "the untuned baseline, in its most direct form"
+    },
+    {
+      "id": "LC-2.8",
+      "requirement": "Tuning-budget parity",
+      "severity": "fatal",
+      "summary": "The declared tuning state of each arm matches its ledger.",
+      "forecloses": "a tuned configuration presented as library defaults"
+    },
+    {
+      "id": "LC-3.1",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "summary": "At least two factors were swept.",
+      "forecloses": "a point estimate supporting a general claim"
+    },
+    {
+      "id": "LC-3.2",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "summary": "The envelope meets the minimum cell count.",
+      "forecloses": "a surface asserted from too few samples"
+    },
+    {
+      "id": "LC-3.3",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "summary": "The headline reports best, worst and median.",
+      "forecloses": "a single number as a headline"
+    },
+    {
+      "id": "LC-3.4",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "summary": "The headline range is non-degenerate.",
+      "forecloses": "a point estimate dressed as a range"
+    },
+    {
+      "id": "LC-3.5",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "summary": "The worst case names the conditions that produce it.",
+      "forecloses": "an unlocatable worst case"
+    },
+    {
+      "id": "LC-3.6",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "summary": "The headline avoids unbounded superlatives.",
+      "forecloses": "'up to 2x faster'"
+    },
+    {
+      "id": "LC-3.7",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "summary": "The headline's extremes are consistent with the loss column.",
+      "forecloses": "a summary the artifact's own measurements do not support"
+    },
+    {
+      "id": "LC-4.1",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "summary": "A pre-registration document is present.",
+      "forecloses": "post-hoc selection of the favourable comparison"
+    },
+    {
+      "id": "LC-4.2",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "summary": "The protocol was sealed.",
+      "forecloses": "a protocol written after the data"
+    },
+    {
+      "id": "LC-4.3",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "summary": "The normative fields still hash to the seal.",
+      "forecloses": "editing the protocol after sealing"
+    },
+    {
+      "id": "LC-4.4",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "summary": "The results were verified against the protocol.",
+      "forecloses": "a seal nobody checked"
+    },
+    {
+      "id": "LC-4.5",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "summary": "No fatal protocol deviation was found.",
+      "forecloses": "analysing under different parameters than were registered"
+    },
+    {
+      "id": "LC-4.6",
+      "requirement": "Pre-registration",
+      "severity": "warning",
+      "summary": "No deviation from the sealed protocol was declared.",
+      "forecloses": "undisclosed drift from the plan"
+    },
+    {
+      "id": "LC-4.7",
+      "requirement": "Pre-registration",
+      "severity": "warning",
+      "summary": "The seal carries an external anchor.",
+      "forecloses": "ordering resting on the author's own clock"
+    },
+    {
+      "id": "LC-5.1",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "summary": "A reproduction command is given.",
+      "forecloses": "unfalsifiability by inaccessibility"
+    },
+    {
+      "id": "LC-5.2",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "summary": "Reproduction is one command, not a pipeline.",
+      "forecloses": "a recipe only its author can follow"
+    },
+    {
+      "id": "LC-5.3",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "summary": "A commit is pinned.",
+      "forecloses": "an unversioned result"
+    },
+    {
+      "id": "LC-5.4",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "summary": "The producing source tree was clean.",
+      "forecloses": "a pinned commit that does not identify the code that ran"
+    },
+    {
+      "id": "LC-5.5",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "summary": "A container image is pinned.",
+      "forecloses": "an irreproducible software environment"
+    },
+    {
+      "id": "LC-5.6",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "summary": "The hardware is documented.",
+      "forecloses": "a result that cannot be situated"
+    },
+    {
+      "id": "LC-5.7",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "summary": "A runtime estimate is given.",
+      "forecloses": "a reproducer unable to budget for the attempt"
+    },
+    {
+      "id": "LC-Q1",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "summary": "Replicate count meets the floor.",
+      "forecloses": "an underpowered design"
+    },
+    {
+      "id": "LC-Q2",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "summary": "Measurements were interleaved.",
+      "forecloses": "drift confounded with the effect"
+    },
+    {
+      "id": "LC-Q3",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "summary": "Per-system cell coverage is high.",
+      "forecloses": "a sparse envelope described as full"
+    },
+    {
+      "id": "LC-Q4",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "summary": "Measurement noise is small relative to the claimed effect.",
+      "forecloses": "an effect indistinguishable from the noise floor"
+    },
+    {
+      "id": "LC-Q5",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "summary": "Limitations are stated.",
+      "forecloses": "a claim presented without its bounds"
+    },
+    {
+      "id": "LC-Q6",
+      "requirement": "Measurement quality",
+      "severity": "fatal",
+      "summary": "Equivalence is established somewhere when the design has the power to.",
+      "forecloses": "an inverted or broken equivalence test, which makes every tie look inconclusive"
+    }
+  ]
+}

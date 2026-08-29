@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://losscolumn.org/schema/LC-1.0/claim.json",
+  "title": "Conforming performance claim",
+  "type": "object",
+  "required": [
+    "kind",
+    "standard_version",
+    "id",
+    "title",
+    "method",
+    "baseline",
+    "evidence_class",
+    "headline",
+    "loss_column",
+    "reproduction"
+  ],
+  "properties": {
+    "kind": {
+      "const": "claim"
+    },
+    "standard_version": {
+      "const": "LC-1.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "thrust": {
+      "type": "string"
+    },
+    "method": {
+      "type": "string"
+    },
+    "baseline": {
+      "type": "string"
+    },
+    "evidence_class": {
+      "enum": [
+        "measured",
+        "simulated",
+        "mixed"
+      ]
+    },
+    "evidence_note": {
+      "type": "string"
+    },
+    "loss_column_placement": {
+      "enum": [
+        "main",
+        "appendix"
+      ]
+    },
+    "headline": {
+      "type": "object",
+      "required": [
+        "statement",
+        "best_pct",
+        "worst_pct",
+        "median_pct"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "best_pct": {
+          "type": "number"
+        },
+        "worst_pct": {
+          "type": "number"
+        },
+        "median_pct": {
+          "type": "number"
+        },
+        "conditions_best": {
+          "type": "object"
+        },
+        "conditions_worst": {
+          "type": "object"
+        }
+      }
+    },
+    "loss_column": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://losscolumn.org/schema/LC-1.0/loss-column.json",
+      "title": "Loss column",
+      "type": "object",
+      "required": [
+        "metric",
+        "method",
+        "baseline",
+        "mde_pct",
+        "q_level",
+        "regions",
+        "counts",
+        "n_cells",
+        "design_check"
+      ],
+      "properties": {
+        "metric": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        },
+        "baseline": {
+          "type": "string"
+        },
+        "mde_pct": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "q_level": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "bounds",
+              "n_cells",
+              "n_loss",
+              "worst_regression_pct"
+            ],
+            "properties": {
+              "bounds": {
+                "type": "object"
+              },
+              "n_cells": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "n_loss": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "frac_of_envelope": {
+                "type": "number"
+              },
+              "median_regression_pct": {
+                "type": "number"
+              },
+              "worst_regression_pct": {
+                "type": "number"
+              },
+              "max_q": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "attribution": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "missing_reasons": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "counts": {
+          "type": "object",
+          "required": [
+            "loss",
+            "win",
+            "tie",
+            "inconclusive",
+            "missing"
+          ],
+          "properties": {
+            "loss": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "win": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "tie": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "inconclusive": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "missing": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "n_cells": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "design_check": {
+          "type": "object",
+          "required": [
+            "can_reject",
+            "replicates",
+            "n_tests"
+          ],
+          "properties": {
+            "can_reject": {
+              "type": "boolean"
+            },
+            "replicates": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "n_tests": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "min_replicates": {
+              "type": "integer"
+            },
+            "p_floor": {
+              "type": "number"
+            },
+            "message": {
+              "type": "string"
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "n_unrunnable": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "reproduction": {
+      "type": "object",
+      "required": [
+        "command",
+        "hardware"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repo": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dirty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "container_image": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hardware": {
+          "type": "string"
+        },
+        "estimated_runtime_min": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "envelope": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "prereg": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "parity": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "supporting": {
+      "type": "object"
+    },
+    "digest": {
+      "type": "string"
+    }
+  }
+}

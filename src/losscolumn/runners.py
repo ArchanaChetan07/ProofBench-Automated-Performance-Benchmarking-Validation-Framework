@@ -8,15 +8,18 @@ its documentation.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
+from losscolumn.core.provenance import Provenance, utcnow
 from losscolumn.pipeline import assemble, md_to_html, publish, reproduction
 from losscolumn.report.heatmap import frontier_svg, loss_map_svg
-from losscolumn.report.render import Figure
+from losscolumn.report.render import Figure, render_page
 from losscolumn.report.timeline import overlap_bar_svg, step_timeline_svg
+from losscolumn.version import STANDARD_VERSION
 
 SIMULATED_NOTE = (
     "Produced by the package's calibratable model, not by measurement on the target "
@@ -614,3 +617,64 @@ def run_all(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> dict[str,
     for k, v in write_synthesis(outdir=outdir).items():
         out[f"synthesis.{k}"] = v
     return out
+
+
+# --------------------------------------------------------------------------
+# calibration
+# --------------------------------------------------------------------------
+
+
+def run_calibration(*, outdir: Path, prereg_dir: Path, quick: bool = False,
+                    **_: Any) -> dict[str, Path]:
+    """Check a simulated thrust's predicted loss map against measurement.
+
+    This is the step that turns "here is a simulation" into "here is how far
+    the simulation can be trusted, and where it cannot be checked at all". It
+    publishes a calibration report rather than a claim: a calibration study is
+    evidence *about* a claim, and giving it the same document type would invite
+    it to be cited as though it were a result of its own.
+    """
+    from losscolumn.thrusts.overlap.calibrate import run_thrust_one_calibration
+
+    outdir.mkdir(parents=True, exist_ok=True)
+    cal = run_thrust_one_calibration(
+        seq_lens=(512, 1024) if quick else (512, 1024, 2048),
+        replicates=5 if quick else 11,
+        iters=3 if quick else 5,
+    )
+
+    payload = cal.to_dict()
+    payload["kind"] = "calibration-report"
+    payload["standard_version"] = STANDARD_VERSION
+    payload["calibrates"] = "thrust1"
+    payload["generated_at"] = utcnow()
+    payload["command"] = "losscolumn calibrate thrust1"
+    payload["provenance"] = Provenance.capture().to_dict()
+
+    stem = "calibration-thrust1-compute"
+    jpath = outdir / f"{stem}.json"
+    jpath.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+
+    md = cal.to_markdown()
+    mpath = outdir / f"{stem}.md"
+    mpath.write_text(md, encoding="utf-8")
+
+    html = render_page(
+        title="Calibration -- Thrust I compute model",
+        subtitle=(
+            "How far the simulated overlap envelope can be trusted, and which half "
+            "of the model remains unchecked"
+        ),
+        body=md_to_html(md),
+        meta={
+            "Device": cal.device,
+            "Verdict": cal.result.verdict(),
+            "Cells compared": str(cal.result.n_compared),
+            "False wins": str(cal.result.n_false_win),
+        },
+    )
+    hpath = outdir / f"{stem}.html"
+    hpath.write_text(html, encoding="utf-8")
+
+    print(cal.to_markdown())
+    return {"calibration": jpath, "markdown": mpath, "html": hpath}

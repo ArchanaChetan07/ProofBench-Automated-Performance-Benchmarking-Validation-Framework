@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://losscolumn.org/schema/LC-1.0/envelope.json",
+  "title": "Measurement envelope",
+  "type": "object",
+  "required": [
+    "kind",
+    "factors",
+    "metric",
+    "systems",
+    "replicates"
+  ],
+  "properties": {
+    "kind": {
+      "const": "envelope"
+    },
+    "factors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "levels"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "levels": {
+            "type": "array",
+            "minItems": 1
+          },
+          "ordered": {
+            "type": "boolean"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "log_scale": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "required": [
+        "name",
+        "unit",
+        "higher_is_better"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "higher_is_better": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "replicates": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "interleaved": {
+      "type": "boolean"
+    },
+    "workload": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "data": {
+      "type": "object"
+    },
+    "missing": {
+      "type": "object"
+    },
+    "coverage": {
+      "type": "object"
+    },
+    "meta": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}

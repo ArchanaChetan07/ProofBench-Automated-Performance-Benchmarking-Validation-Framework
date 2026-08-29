@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://losscolumn.org/schema/LC-1.0/preregistration.json",
+  "title": "Pre-registration seal",
+  "type": "object",
+  "required": [
+    "title",
+    "hypotheses",
+    "metrics",
+    "factors",
+    "systems",
+    "mde",
+    "q_level",
+    "replicates",
+    "sealed_at",
+    "seal_hash",
+    "normative_hash"
+  ],
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "hypotheses": {
+      "type": "object"
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "unit",
+          "higher_is_better"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "higher_is_better": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "factors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "levels"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "levels": {
+            "type": "array",
+            "minItems": 1
+          },
+          "ordered": {
+            "type": "boolean"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "log_scale": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "mde": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "q_level": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "alpha": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "replicates": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "interleaved": {
+      "type": "boolean"
+    },
+    "decision_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclusion_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stopping_rule": {
+      "type": "string"
+    },
+    "sealed_at": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "seal_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "normative_hash": {
+      "type": "string"
+    },
+    "anchor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deviations": {
+      "type": "array"
+    }
+  }
+}

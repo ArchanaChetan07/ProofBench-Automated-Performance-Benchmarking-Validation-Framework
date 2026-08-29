@@ -174,6 +174,91 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_calibrate(args: argparse.Namespace) -> int:
+    """Measure a subset of a simulated thrust and score the model against it."""
+    from losscolumn.runners import run_calibration
+
+    paths = run_calibration(
+        outdir=Path(args.outdir), prereg_dir=Path(args.prereg_dir), quick=args.quick
+    )
+    print()
+    for k, v in paths.items():
+        print(f"  {k:14s} {v}")
+    return 0
+
+
+def cmd_standard(args: argparse.Namespace) -> int:
+    """Export the frozen standard: schemas, rule registry, coverage matrix, corpus.
+
+    These are the documents another implementer needs, and they are generated
+    from the same registry the validator grades against rather than maintained
+    alongside it. A rule table that can disagree with the code is worse than no
+    rule table.
+    """
+    from losscolumn.spec import registry, schema
+    from losscolumn.validate import adversarial as adv
+
+    out = Path(args.outdir)
+    out.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+
+    schema_dir = out / "schema"
+    written += schema.export(schema_dir)
+
+    reg_json = out / "rules.json"
+    reg_json.write_text(json.dumps(registry.to_dict(), indent=2), encoding="utf-8")
+    reg_md = out / "rules.md"
+    reg_md.write_text(registry.to_markdown(), encoding="utf-8")
+    written += [reg_json, reg_md]
+
+    results = adv.run_corpus()
+    cov = adv.coverage()
+    matrix = out / "validator-coverage.md"
+    matrix.write_text(adv.coverage_markdown(), encoding="utf-8")
+    written.append(matrix)
+
+    corpus = out / "adversarial-corpus.json"
+    corpus.write_text(
+        json.dumps(
+            {
+                "standard": registry.compute_digest(),
+                "n_defects": len(adv.CORPUS),
+                "n_caught": sum(1 for r in results if r.caught),
+                "defects": [
+                    {
+                        "name": d.name,
+                        "description": d.description,
+                        "expect_fail": list(d.expect_fail),
+                        "severity": d.severity,
+                        "base": d.base,
+                        "document": d.build(),
+                    }
+                    for d in adv.CORPUS
+                ],
+            },
+            indent=2, default=str,
+        ),
+        encoding="utf-8",
+    )
+    written.append(corpus)
+
+    uncaught = [r.defect for r in results if not r.caught]
+    both = sum(1 for v in cov.values() if v["passing_case"] and v["failing_case"])
+    print(f"LC-1.0  {registry.N_RULES} rules ({registry.N_FATAL} fatal)")
+    print(f"  registry digest  {registry.compute_digest()}")
+    print(f"  schema digest    {schema.schema_digest()}")
+    print(f"  frozen           {'YES' if registry.compute_digest() == registry.FROZEN_DIGEST else 'NO -- DIGEST MISMATCH'}")
+    print(f"  corpus           {len(adv.CORPUS)} defects, "
+          f"{len(adv.CORPUS) - len(uncaught)} caught")
+    print(f"  coverage         {both}/{len(cov)} rules have a passing and a failing case")
+    if uncaught:
+        print(f"  UNCAUGHT         {uncaught}", file=sys.stderr)
+    print()
+    for w in written:
+        print(f"  {w}")
+    return 1 if uncaught else 0
+
+
 # --------------------------------------------------------------------------
 # validate / report
 # --------------------------------------------------------------------------
@@ -254,6 +339,22 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--quick", action="store_true",
                    help="reduced grid for smoke testing; artifacts are labelled as such")
     r.set_defaults(func=cmd_run)
+
+    cal = sub.add_parser(
+        "calibrate", help="score a simulated thrust's predictions against measurement"
+    )
+    cal.add_argument("what", choices=["thrust1"], help="which simulated thrust to check")
+    cal.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS))
+    cal.add_argument("--prereg-dir", default=str(DEFAULT_ARTIFACTS / "prereg"))
+    cal.add_argument("--quick", action="store_true", help="reduced grid, for a smoke test")
+    cal.set_defaults(func=cmd_calibrate)
+
+    st = sub.add_parser(
+        "standard", help="export the frozen standard and its coverage matrix"
+    )
+    st.add_argument("action", choices=["export"])
+    st.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS / "standard"))
+    st.set_defaults(func=cmd_standard)
 
     v = sub.add_parser("validate", help="grade a claim against the standard")
     v.add_argument("claims", nargs="+")

@@ -453,3 +453,35 @@ def render_html(
         f"command above; if it is not, that is a bug and a conformance failure.</footer></div>"
     )
     return "\n".join(out)
+
+
+def render_page(
+    *,
+    title: str,
+    subtitle: str = "",
+    body: str,
+    meta: dict[str, str] | None = None,
+    banner: str = "",
+) -> str:
+    """A standalone page for a document that is not a claim.
+
+    A calibration study is evidence *about* a claim rather than a claim, and
+    giving it the claim document type would invite it to be cited as a result
+    of its own. It gets the same stylesheet and none of the conformance
+    furniture.
+    """
+    out: list[str] = [f"<title>{_e(title)}</title>", f"<style>{_CSS}</style>",
+                      '<div class="wrap">']
+    if banner:
+        out.append(f'<div class="banner">{banner}</div>')
+    out.append(f"<h1>{_e(title)}</h1>")
+    if subtitle:
+        out.append(f'<p class="lede">{_e(subtitle)}</p>')
+    if meta:
+        cells = "".join(
+            f"<span><b>{_e(k)}</b> <code>{_e(v)}</code></span>" for k, v in meta.items()
+        )
+        out.append(f'<div class="meta">{cells}</div>')
+    out.append(body)
+    out.append("</div>")
+    return "\n".join(out)
