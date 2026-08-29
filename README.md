@@ -208,11 +208,26 @@ checker that has never been shown a non-conforming document is a rubber stamp.
 
 ## Status and honesty
 
-This is a research instrument, not a benchmark result. The artifacts in
-`artifacts/` are produced from the calibratable models plus real single-GPU
-measurement for Thrust III, and they say so on their front pages. The numbers
-that would appear in a paper come from the funded allocation; the analysis,
-the standard and the conformance machinery are what is finished here.
+This is a research instrument, not a benchmark result. Thrusts I and II run
+their calibratable models here and are stamped `evidence_class="simulated"`;
+Thrust III is measured, running the Triton FlashAttention kernel against
+`torch.nn.functional.scaled_dot_product_attention` on the local GPU. Every
+artifact says which it is on its own front page.
+
+Thrust III's measured result on an sm_75 device: the kernel passes 18/18
+correctness shapes and loses to the reference on **1 of 18 cells** (+33% at
+`head_dim=128, seq_len=128, batch=1`, a launch-bound corner). The protocol
+registers `bfloat16`, which needs Ampere, so the run declares a deviation
+against the seal rather than quietly dropping the level.
+
+The numbers that would appear in a paper come from the funded allocation on
+Hopper, where the FA-3 mechanisms this kernel cannot express actually exist.
+The analysis, the standard and the conformance machinery are what is finished
+here.
+
+If Triton fails to import under Anaconda on Windows, see
+[`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md) — the cause is a stale bundled
+Visual C++ redistributable, not the Triton package.
 
 ## License
 

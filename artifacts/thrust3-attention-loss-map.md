@@ -1,6 +1,6 @@
 # Reproduction with a loss map: a from-scratch attention kernel
 
-> A faithful from-scratch implementation of the FlashAttention algorithm (triton_flash_fwd), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median +0.9% across the swept envelope; best +34.6% at head_dim=32, seq_len=512, batch=1, dtype=float16; worst -32.4% at head_dim=128, seq_len=128, batch=1, dtype=float16.
+> A faithful from-scratch implementation of the FlashAttention algorithm (triton_flash_fwd), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median +1.2% across the swept envelope; best +34.6% at head_dim=32, seq_len=512, batch=1, dtype=float16; worst -32.7% at head_dim=128, seq_len=128, batch=1, dtype=float16.
 
 `lc-thrust3-attention-loss-map` -- thrust III -- reimplementation vs reference -- standard LC-1.0
 
@@ -10,11 +10,11 @@ _Where this result does not hold. Published above the wins, by requirement LC-1.
 
 ### Loss column -- reimplementation vs reference (attention_throughput, TFLOP/s)
 
-reimplementation loses to reference on 6% of the swept envelope (1/18 cells), across 1 region(s); worst measurable case +32.4% on attention_throughput.
+reimplementation loses to reference on 6% of the swept envelope (1/18 cells), across 1 region(s); worst measurable case +32.7% on attention_throughput.
 
 | # | Where it loses | Cells | Median | Worst | max q | Attributed to |
 |---|----------------|-------|--------|-------|-------|---------------|
-| 1 | head_dim=128 and seq_len=128 and batch=1 | 1/1 (6% of envelope) | +32.4% | +32.4% | 0.00146 | launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it |
+| 1 | head_dim=128 and seq_len=128 and batch=1 | 1/1 (6% of envelope) | +32.7% | +32.7% | 0.00146 | launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it |
 
 - Envelope: 18 cells. Losses 1, wins 6, ties 11, inconclusive 0, missing 0.
 - Decision rule: regression >= 10.0% (pre-registered MDE) and Benjamini-Hochberg q <= 0.05.
@@ -75,7 +75,7 @@ reimplementation loses to reference on 6% of the swept envelope (1/18 cells), ac
 losscolumn run thrust3
 ```
 
-- Repository: `local checkout` at commit `42abc7aae0149cfac6c070afa1b1bf8d5e926ae2` (**dirty tree**)
+- Repository: `local checkout` at commit `5cdf7c5f9b9c11f21a3557e68aba01fed3460911`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: NVIDIA T1000 8GB (sm_75, 9 GB)
 - Estimated runtime: 220 min (~$704.00)
@@ -84,7 +84,7 @@ losscolumn run thrust3
 
 ### Conformance -- `lc-thrust3-attention-loss-map` against LC-1.0
 
-**FAIL** -- 1 fatal, 1 warning(s).
+**PASS (with warnings)** -- 0 fatal, 1 warning(s).
 
 | Rule | Requirement | Result | Finding |
 |------|-------------|--------|---------|
@@ -114,8 +114,8 @@ losscolumn run thrust3
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:a0bdfe6` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust3` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `42abc7aae014` |
-| `LC-5.4` | One-command reproduction | FAIL | the producing working tree was dirty; the pinned commit does not identify the code that ran |
+| `LC-5.3` | One-command reproduction | pass | pinned to `5cdf7c5f9b9c` |
+| `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: NVIDIA T1000 8GB (sm_75, 9 GB) |
 | `LC-5.7` | One-command reproduction | pass | ~220 min |
@@ -127,6 +127,6 @@ losscolumn run thrust3
 
 ## Provenance
 
-- Captured: `2026-08-29T02:48:26Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-29T02:53:15Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
 - Packages: `torch=2.6.0+cu124`, `triton=3.2.0`, `numpy=1.26.4`, `transformers=5.12.1`

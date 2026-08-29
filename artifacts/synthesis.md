@@ -4,7 +4,7 @@ For every claim tested, whether it survived. A null result is reported with the 
 
 | Claim | Thrust | Evidence | Verdict | Basis | Conformance |
 |-------|--------|----------|---------|-------|-------------|
-| Reproduction with a loss map: a from-scratch attention kernel | III | measured | **did not hold** | regresses over 100% of the swept envelope | conforming (0F/0W) |
+| Reproduction with a loss map: a from-scratch attention kernel | III | measured | **held with exceptions** | holds over 94% of the envelope; 1 cell(s) regress | conforming-with-warnings (0F/1W) |
 | The overlap envelope: where the recommended sharding configuration breaks down | I | simulated | **did not hold** | regresses over 25% of the swept envelope | conforming-with-warnings (0F/1W) |
 | The equal-tuning audit: engine differences that survive budget parity | II | simulated | **did not hold** | regresses over 75% of the swept envelope | conforming-with-warnings (0F/2W) |
 
@@ -12,9 +12,9 @@ For every claim tested, whether it survived. A null result is reported with the 
 
 ### Reproduction with a loss map: a from-scratch attention kernel
 
-reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.
+reimplementation loses to reference on 6% of the swept envelope (1/18 cells), across 1 region(s); worst measurable case +32.7% on attention_throughput.
 
-1. **head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=['float16', 'bfloat16']** -- +1470.8%; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate
+1. **head_dim=[128], seq_len=[128], batch=[1], dtype=['float16']** -- +32.7%; launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it
 
 ### The overlap envelope: where the recommended sharding configuration breaks down
 

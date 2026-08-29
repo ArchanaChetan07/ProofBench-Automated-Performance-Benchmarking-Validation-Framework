@@ -111,7 +111,7 @@ Status: **PARITY HELD** (3 finding(s))
 losscolumn run thrust2
 ```
 
-- Repository: `local checkout` at commit `87e209643ccb4cda209ac714c3eed4f6d84bf714`
+- Repository: `local checkout` at commit `5cdf7c5f9b9c11f21a3557e68aba01fed3460911`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: 8x H100 (measured path) / calibratable model (this artifact)
 - Estimated runtime: 80 min (~$2000.00)
@@ -157,7 +157,7 @@ losscolumn run thrust2
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:a0bdfe6` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust2` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `87e209643ccb` |
+| `LC-5.3` | One-command reproduction | pass | pinned to `5cdf7c5f9b9c` |
 | `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: 8x H100 (measured path) / calibratable model (this artifact) |
@@ -170,6 +170,6 @@ losscolumn run thrust2
 
 ## Provenance
 
-- Captured: `2026-08-29T02:14:23Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-29T02:55:17Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
-- Packages: `torch=2.6.0+cu124`, `numpy=1.26.4`, `transformers=5.12.1`
+- Packages: `torch=2.6.0+cu124`, `triton=3.2.0`, `numpy=1.26.4`, `transformers=5.12.1`

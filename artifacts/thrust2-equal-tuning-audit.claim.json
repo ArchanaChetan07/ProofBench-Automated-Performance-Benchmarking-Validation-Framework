@@ -6,7 +6,7 @@
   "thrust": "II",
   "method": "vllm",
   "baseline": "best_alternative",
-  "created_at": "2026-08-29T02:14:29Z",
+  "created_at": "2026-08-29T02:55:18Z",
   "evidence_class": "simulated",
   "evidence_note": "Produced by the package's calibratable model, not by measurement on the target hardware. The model's parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.",
   "authors": [
@@ -47,7 +47,7 @@
     "inconclusive_fraction": 0.0,
     "win_fraction": 0.0,
     "n_unrunnable": 1,
-    "envelope_digest": "sha256:09b8ecf1d08c88b0e9f14d22c26974487bbce5f6ae6c96ad29d5fd663507e6df",
+    "envelope_digest": "sha256:d9f29941849d2a8eec028135ef60de3eeaf0d3aeeb50acef35625e2ee5a23449",
     "factor_levels": {
       "workload": [
         "chat",
@@ -190,7 +190,7 @@
   "reproduction": {
     "command": "losscolumn run thrust2",
     "repo": "local checkout",
-    "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+    "commit": "5cdf7c5f9b9c11f21a3557e68aba01fed3460911",
     "dirty": false,
     "container_image": "ghcr.io/archanachetan07/losscolumn:0.1.0",
     "hardware": "8x H100 (measured path) / calibratable model (this artifact)",
@@ -1128,7 +1128,7 @@
   },
   "parity": {
     "kind": "parity_certificate",
-    "issued_at": "2026-08-29T02:14:28Z",
+    "issued_at": "2026-08-29T02:55:18Z",
     "ok": true,
     "systems": [
       "vllm",
@@ -1200,8 +1200,8 @@
         "trials_per_dim": 6.666666666666667,
         "space_coverage": 0.06944444444444445,
         "still_improving": true,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "vllm",
           "index": 34,
@@ -1216,7 +1216,7 @@
           "objective": 144.6873652457023,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 7477.80475431101,
             "e2e_p99": 4152.174910877124,
@@ -1238,7 +1238,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2399.3412729639986,
               "e2e_p99": 9730.457539592062,
@@ -1259,7 +1259,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 4864.052725581938,
               "e2e_p99": 3747.3099601176614,
@@ -1280,7 +1280,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3437.2344589424065,
               "e2e_p99": 8912.273720902265,
@@ -1301,7 +1301,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6450.9818007322665,
               "e2e_p99": 3566.5786521925897,
@@ -1322,7 +1322,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3568.9450198042528,
               "e2e_p99": 5230.406610428756,
@@ -1343,7 +1343,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3437.2344589424065,
               "e2e_p99": 8912.273720902265,
@@ -1364,7 +1364,7 @@
             "objective": 119.4762948186044,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6174.833606962522,
               "e2e_p99": 4992.727473507989,
@@ -1385,7 +1385,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3568.9450198042528,
               "e2e_p99": 5230.406610428756,
@@ -1406,7 +1406,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3230.206335944644,
               "e2e_p99": 8944.79460299451,
@@ -1427,7 +1427,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3206.043946598906,
               "e2e_p99": 8953.3637275778,
@@ -1448,7 +1448,7 @@
             "objective": 114.86589455202663,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5936.556595185116,
               "e2e_p99": 4780.779574868278,
@@ -1469,7 +1469,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3380.2220063821974,
               "e2e_p99": 8913.926749887,
@@ -1490,7 +1490,7 @@
             "objective": 139.01088912082096,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7184.43027698683,
               "e2e_p99": 4005.515863132551,
@@ -1511,7 +1511,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 4864.052725581938,
               "e2e_p99": 3747.3099601176614,
@@ -1532,7 +1532,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2399.3412729639986,
               "e2e_p99": 9730.457539592062,
@@ -1553,7 +1553,7 @@
             "objective": 138.68919772207465,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7167.804461271123,
               "e2e_p99": 3979.4750618760972,
@@ -1574,7 +1574,7 @@
             "objective": 118.69123360344685,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6134.259680710141,
               "e2e_p99": 4946.350923560039,
@@ -1595,7 +1595,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6445.924130067154,
               "e2e_p99": 3568.0157508412167,
@@ -1616,7 +1616,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2397.593120795603,
               "e2e_p99": 9735.279245613772,
@@ -1637,7 +1637,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6797.627568016233,
               "e2e_p99": 3455.262307377618,
@@ -1658,7 +1658,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1423.9923736181245,
               "e2e_p99": 13031.896111747445,
@@ -1679,7 +1679,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3568.9450198042528,
               "e2e_p99": 5230.406610428756,
@@ -1700,7 +1700,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6797.627568016233,
               "e2e_p99": 3455.262307377618,
@@ -1721,7 +1721,7 @@
             "objective": 143.06270682651365,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7393.838345561292,
               "e2e_p99": 3906.706392780048,
@@ -1742,7 +1742,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5282.339968346244,
               "e2e_p99": 3526.155915559778,
@@ -1763,7 +1763,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6797.627568016233,
               "e2e_p99": 3455.262307377618,
@@ -1784,7 +1784,7 @@
             "objective": 143.06270682651365,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7393.838345561292,
               "e2e_p99": 3906.706392780048,
@@ -1805,7 +1805,7 @@
             "objective": 143.06270682651365,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7393.838345561292,
               "e2e_p99": 3906.706392780048,
@@ -1826,7 +1826,7 @@
             "objective": 143.06270682651365,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7393.838345561292,
               "e2e_p99": 3906.706392780048,
@@ -1847,7 +1847,7 @@
             "objective": 143.06270682651365,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7393.838345561292,
               "e2e_p99": 3906.706392780048,
@@ -1868,7 +1868,7 @@
             "objective": 143.9277277530504,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7438.5447895970265,
               "e2e_p99": 4009.730092876842,
@@ -1889,7 +1889,7 @@
             "objective": 144.56725679494127,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7471.597249304553,
               "e2e_p99": 4123.2819958343425,
@@ -1910,7 +1910,7 @@
             "objective": 119.4762948186044,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6174.833606962522,
               "e2e_p99": 4992.727473507989,
@@ -1931,7 +1931,7 @@
             "objective": 140.49558235685768,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7261.162935158297,
               "e2e_p99": 4168.026668248273,
@@ -1952,7 +1952,7 @@
             "objective": 144.6873652457023,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7477.80475431101,
               "e2e_p99": 4152.174910877124,
@@ -1973,7 +1973,7 @@
             "objective": 144.28080124784447,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7456.792510491722,
               "e2e_p99": 4066.081017185422,
@@ -1994,7 +1994,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5282.339968346244,
               "e2e_p99": 3526.155915559778,
@@ -2015,7 +2015,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6797.627568016233,
               "e2e_p99": 3455.262307377618,
@@ -2036,7 +2036,7 @@
             "objective": 144.6873652457023,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7477.80475431101,
               "e2e_p99": 4152.174910877124,
@@ -2057,7 +2057,7 @@
             "objective": 144.6873652457023,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7477.80475431101,
               "e2e_p99": 4152.174910877124,
@@ -2116,8 +2116,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "sglang",
           "index": 0,
@@ -2131,7 +2131,7 @@
           "objective": 150.29370441186376,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 7767.554378266149,
             "e2e_p99": 3872.1152036651038,
@@ -2152,7 +2152,7 @@
             "objective": 150.29370441186376,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7767.554378266149,
               "e2e_p99": 3872.1152036651038,
@@ -2172,7 +2172,7 @@
             "objective": 149.72510069390248,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7738.167516612615,
               "e2e_p99": 3877.8323395921925,
@@ -2192,7 +2192,7 @@
             "objective": 145.08653088448818,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7498.434632437561,
               "e2e_p99": 3926.007451326962,
@@ -2212,7 +2212,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6706.204543790278,
               "e2e_p99": 3426.2603290118873,
@@ -2232,7 +2232,7 @@
             "objective": 145.08653088448818,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7498.434632437561,
               "e2e_p99": 3926.007451326962,
@@ -2252,7 +2252,7 @@
             "objective": 150.29370441186376,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7767.554378266149,
               "e2e_p99": 3872.1152036651038,
@@ -2272,7 +2272,7 @@
             "objective": 147.87655505541113,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7642.6300566512855,
               "e2e_p99": 3624.8184661690575,
@@ -2292,7 +2292,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5594.024896382682,
               "e2e_p99": 3340.5213592280434,
@@ -2312,7 +2312,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7089.348715089006,
               "e2e_p99": 3312.1234566018097,
@@ -2332,7 +2332,7 @@
             "objective": 149.72510069390248,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7738.167516612615,
               "e2e_p99": 3877.8323395921925,
@@ -2352,7 +2352,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6712.168437913742,
               "e2e_p99": 3424.6784296151986,
@@ -2372,7 +2372,7 @@
             "objective": 143.55557957374106,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7419.311241319871,
               "e2e_p99": 3807.8381826601067,
@@ -2392,7 +2392,7 @@
             "objective": 148.68251185197622,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7684.283918789762,
               "e2e_p99": 3750.129356890471,
@@ -2412,7 +2412,7 @@
             "objective": 149.72510069390248,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7738.167516612615,
               "e2e_p99": 3877.8323395921925,
@@ -2432,7 +2432,7 @@
             "objective": 149.29278835568786,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7715.824534192837,
               "e2e_p99": 3741.5370167993688,
@@ -2452,7 +2452,7 @@
             "objective": 149.72510069390248,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7738.167516612615,
               "e2e_p99": 3877.8323395921925,
@@ -2472,7 +2472,7 @@
             "objective": 144.98885915769472,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7493.386713417557,
               "e2e_p99": 3926.2646470948303,
@@ -2492,7 +2492,7 @@
             "objective": 147.87655505541113,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7642.6300566512855,
               "e2e_p99": 3624.8184661690575,
@@ -2512,7 +2512,7 @@
             "objective": 141.79602809575823,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7328.373222059025,
               "e2e_p99": 3697.4383956747834,
@@ -2532,7 +2532,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7089.348715089006,
               "e2e_p99": 3312.1234566018097,
@@ -2552,7 +2552,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5534.692345911692,
               "e2e_p99": 3363.990595836687,
@@ -2572,7 +2572,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 6712.168437913742,
               "e2e_p99": 3424.6784296151986,
@@ -2592,7 +2592,7 @@
             "objective": 148.68251185197622,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7684.283918789762,
               "e2e_p99": 3750.129356890471,
@@ -2612,7 +2612,7 @@
             "objective": 143.55557957374106,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7419.311241319871,
               "e2e_p99": 3807.8381826601067,
@@ -2632,7 +2632,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5594.024896382682,
               "e2e_p99": 3340.5213592280434,
@@ -2652,7 +2652,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7131.954404671185,
               "e2e_p99": 3304.6239662556663,
@@ -2672,7 +2672,7 @@
             "objective": 150.29370441186376,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7767.554378266149,
               "e2e_p99": 3872.1152036651038,
@@ -2692,7 +2692,7 @@
             "objective": 150.29370441186376,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7767.554378266149,
               "e2e_p99": 3872.1152036651038,
@@ -2712,7 +2712,7 @@
             "objective": 150.29370441186376,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7767.554378266149,
               "e2e_p99": 3872.1152036651038,
@@ -2732,7 +2732,7 @@
             "objective": 147.87655505541113,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7642.6300566512855,
               "e2e_p99": 3624.8184661690575,
@@ -2752,7 +2752,7 @@
             "objective": 149.29278835568786,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7715.824534192837,
               "e2e_p99": 3741.5370167993688,
@@ -2772,7 +2772,7 @@
             "objective": 149.72510069390248,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7738.167516612615,
               "e2e_p99": 3877.8323395921925,
@@ -2792,7 +2792,7 @@
             "objective": 145.08653088448818,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7498.434632437561,
               "e2e_p99": 3926.007451326962,
@@ -2812,7 +2812,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5071.637968419761,
               "e2e_p99": 3588.9296480935154,
@@ -2832,7 +2832,7 @@
             "objective": 141.79602809575823,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7328.373222059025,
               "e2e_p99": 3697.4383956747834,
@@ -2852,7 +2852,7 @@
             "objective": 141.79602809575823,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7328.373222059025,
               "e2e_p99": 3697.4383956747834,
@@ -2872,7 +2872,7 @@
             "objective": 145.08653088448818,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7498.434632437561,
               "e2e_p99": 3926.007451326962,
@@ -2892,7 +2892,7 @@
             "objective": 149.29278835568786,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7715.824534192837,
               "e2e_p99": 3741.5370167993688,
@@ -2912,7 +2912,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5534.692345911692,
               "e2e_p99": 3363.990595836687,
@@ -2932,7 +2932,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5071.637968419761,
               "e2e_p99": 3588.9296480935154,
@@ -2991,8 +2991,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "trtllm",
           "index": 5,
@@ -3006,7 +3006,7 @@
           "objective": 157.1569355627737,
           "outcome": "ok",
           "wall_time_s": 432.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 8122.263322223051,
             "e2e_p99": 3656.1908759766675,
@@ -3027,7 +3027,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3185.728978096642,
               "e2e_p99": 8598.725296496817,
@@ -3047,7 +3047,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7279.943876753336,
               "e2e_p99": 3151.011712579769,
@@ -3067,7 +3067,7 @@
             "objective": 155.83870885610753,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8054.134070455778,
               "e2e_p99": 3541.6165187346137,
@@ -3087,7 +3087,7 @@
             "objective": 155.6996405155137,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8046.946670943036,
               "e2e_p99": 3547.735306637486,
@@ -3107,7 +3107,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5540.608316356375,
               "e2e_p99": 3280.3305289320747,
@@ -3127,7 +3127,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3147,7 +3147,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3561.036874765305,
               "e2e_p99": 8454.6735638689,
@@ -3167,7 +3167,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7279.943876753336,
               "e2e_p99": 3151.011712579769,
@@ -3187,7 +3187,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1477.2436095213232,
               "e2e_p99": 12557.890463696034,
@@ -3207,7 +3207,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5540.608316356375,
               "e2e_p99": 3280.3305289320747,
@@ -3227,7 +3227,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3247,7 +3247,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2505.4519071444743,
               "e2e_p99": 9314.502406395013,
@@ -3267,7 +3267,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3287,7 +3287,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1477.4020292102566,
               "e2e_p99": 12557.882636802044,
@@ -3307,7 +3307,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3185.728978096642,
               "e2e_p99": 8598.725296496817,
@@ -3327,7 +3327,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5540.608316356375,
               "e2e_p99": 3280.3305289320747,
@@ -3347,7 +3347,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2505.4519071444743,
               "e2e_p99": 9314.502406395013,
@@ -3367,7 +3367,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3387,7 +3387,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3562.2893574747195,
               "e2e_p99": 8454.328863318497,
@@ -3407,7 +3407,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7268.977338112211,
               "e2e_p99": 3153.589989476549,
@@ -3427,7 +3427,7 @@
             "objective": 155.6996405155137,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8046.946670943036,
               "e2e_p99": 3547.735306637486,
@@ -3447,7 +3447,7 @@
             "objective": 153.26739163732228,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7921.241968295909,
               "e2e_p99": 3409.9892154954823,
@@ -3467,7 +3467,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 2505.4519071444743,
               "e2e_p99": 9314.502406395013,
@@ -3487,7 +3487,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3185.728978096642,
               "e2e_p99": 8598.725296496817,
@@ -3507,7 +3507,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5540.608316356375,
               "e2e_p99": 3280.3305289320747,
@@ -3527,7 +3527,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7279.943876753336,
               "e2e_p99": 3151.011712579769,
@@ -3547,7 +3547,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3567,7 +3567,7 @@
             "objective": 157.05562572699586,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8117.027376635462,
               "e2e_p99": 3659.6173628144647,
@@ -3587,7 +3587,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3607,7 +3607,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3627,7 +3627,7 @@
             "objective": 153.26739163732228,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7921.241968295909,
               "e2e_p99": 3409.9892154954823,
@@ -3647,7 +3647,7 @@
             "objective": 155.83870885610753,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8054.134070455778,
               "e2e_p99": 3541.6165187346137,
@@ -3667,7 +3667,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3562.2893574747195,
               "e2e_p99": 8454.328863318497,
@@ -3687,7 +3687,7 @@
             "objective": 157.1569355627737,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 8122.263322223051,
               "e2e_p99": 3656.1908759766675,
@@ -3707,7 +3707,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 5540.608316356375,
               "e2e_p99": 3280.3305289320747,
@@ -3727,7 +3727,7 @@
             "objective": 153.26739163732228,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7921.241968295909,
               "e2e_p99": 3409.9892154954823,
@@ -3747,7 +3747,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 7268.977338112211,
               "e2e_p99": 3153.589989476549,
@@ -3767,7 +3767,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3406.516312538521,
               "e2e_p99": 8495.105390900773,
@@ -3787,7 +3787,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3406.516312538521,
               "e2e_p99": 8495.105390900773,
@@ -3807,7 +3807,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 3562.2893574747195,
               "e2e_p99": 8454.328863318497,
@@ -3871,8 +3871,8 @@
         "trials_per_dim": 6.666666666666667,
         "space_coverage": 0.06944444444444445,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:17Z",
         "best": {
           "system": "vllm",
           "index": 0,
@@ -3887,7 +3887,7 @@
           "objective": 81.19314586817804,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 17057.868015445525,
             "e2e_p99": 7560.120189550216,
@@ -3909,7 +3909,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -3930,7 +3930,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4054.911521734167,
               "e2e_p99": 18449.1453728094,
@@ -3951,7 +3951,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -3972,7 +3972,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7823.8132565523365,
               "e2e_p99": 9551.920919838445,
@@ -3993,7 +3993,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4014,7 +4014,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4054.911521734167,
               "e2e_p99": 18449.1453728094,
@@ -4035,7 +4035,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4056,7 +4056,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4054.911521734167,
               "e2e_p99": 18449.1453728094,
@@ -4077,7 +4077,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4098,7 +4098,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7823.8132565523365,
               "e2e_p99": 9551.920919838445,
@@ -4119,7 +4119,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4140,7 +4140,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4054.911521734167,
               "e2e_p99": 18449.1453728094,
@@ -4161,7 +4161,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4054.911521734167,
               "e2e_p99": 18449.1453728094,
@@ -4182,7 +4182,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12408.627776730384,
               "e2e_p99": 7587.79820450215,
@@ -4203,7 +4203,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12408.627776730384,
               "e2e_p99": 7587.79820450215,
@@ -4224,7 +4224,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7021.696514314101,
               "e2e_p99": 13426.13886835959,
@@ -4245,7 +4245,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4266,7 +4266,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7021.696514314101,
               "e2e_p99": 13426.13886835959,
@@ -4287,7 +4287,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4308,7 +4308,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7021.696514314101,
               "e2e_p99": 13426.13886835959,
@@ -4329,7 +4329,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4350,7 +4350,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7823.8132565523365,
               "e2e_p99": 9551.920919838445,
@@ -4371,7 +4371,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7823.8132565523365,
               "e2e_p99": 9551.920919838445,
@@ -4392,7 +4392,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4413,7 +4413,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12408.627776730384,
               "e2e_p99": 7587.79820450215,
@@ -4434,7 +4434,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4455,7 +4455,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4476,7 +4476,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4497,7 +4497,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4518,7 +4518,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4539,7 +4539,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4560,7 +4560,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4581,7 +4581,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4602,7 +4602,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4623,7 +4623,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7021.696514314101,
               "e2e_p99": 13426.13886835959,
@@ -4644,7 +4644,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4665,7 +4665,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4686,7 +4686,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4707,7 +4707,7 @@
             "objective": 81.19314586817804,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17057.868015445525,
               "e2e_p99": 7560.120189550216,
@@ -4728,7 +4728,7 @@
             "objective": 51.74265226406936,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 10870.613814158332,
               "e2e_p99": 11876.371187545628,
@@ -4787,8 +4787,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:17Z",
         "best": {
           "system": "sglang",
           "index": 3,
@@ -4802,7 +4802,7 @@
           "objective": 86.0748286588795,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 18083.460752943993,
             "e2e_p99": 7130.033315048142,
@@ -4823,7 +4823,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8319.471808803617,
               "e2e_p99": 8981.776019958548,
@@ -4843,7 +4843,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8149.68801728932,
               "e2e_p99": 9169.265264789477,
@@ -4863,7 +4863,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12954.223677959686,
               "e2e_p99": 7267.413727022246,
@@ -4883,7 +4883,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -4903,7 +4903,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -4923,7 +4923,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -4943,7 +4943,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -4963,7 +4963,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -4983,7 +4983,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5003,7 +5003,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8319.471808803617,
               "e2e_p99": 8981.776019958548,
@@ -5023,7 +5023,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5043,7 +5043,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -5063,7 +5063,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12954.223677959686,
               "e2e_p99": 7267.413727022246,
@@ -5083,7 +5083,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5103,7 +5103,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12954.223677959686,
               "e2e_p99": 7267.413727022246,
@@ -5123,7 +5123,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5143,7 +5143,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5163,7 +5163,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5183,7 +5183,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5203,7 +5203,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5223,7 +5223,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5243,7 +5243,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -5263,7 +5263,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -5283,7 +5283,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8319.471808803617,
               "e2e_p99": 8981.776019958548,
@@ -5303,7 +5303,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8319.471808803617,
               "e2e_p99": 8981.776019958548,
@@ -5323,7 +5323,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 13176.658763837453,
               "e2e_p99": 7144.408910537796,
@@ -5343,7 +5343,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5363,7 +5363,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5383,7 +5383,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5403,7 +5403,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5423,7 +5423,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5443,7 +5443,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5463,7 +5463,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5483,7 +5483,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5503,7 +5503,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5523,7 +5523,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5543,7 +5543,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 8319.471808803617,
               "e2e_p99": 8981.776019958548,
@@ -5563,7 +5563,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5583,7 +5583,7 @@
             "objective": 84.99490443334123,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 17856.57947240066,
               "e2e_p99": 7220.921283378797,
@@ -5603,7 +5603,7 @@
             "objective": 86.0748286588795,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 18083.460752943993,
               "e2e_p99": 7130.033315048142,
@@ -5662,8 +5662,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:17Z",
         "best": {
           "system": "trtllm",
           "index": 1,
@@ -5677,7 +5677,7 @@
           "objective": 95.71966595546594,
           "outcome": "ok",
           "wall_time_s": 432.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 20109.74462058384,
             "e2e_p99": 6409.258284542801,
@@ -5698,7 +5698,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4402.060881194145,
               "e2e_p99": 16992.223943896537,
@@ -5718,7 +5718,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -5738,7 +5738,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4402.060881194145,
               "e2e_p99": 16992.223943896537,
@@ -5758,7 +5758,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -5778,7 +5778,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -5798,7 +5798,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -5818,7 +5818,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4402.060881194145,
               "e2e_p99": 16992.223943896537,
@@ -5838,7 +5838,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -5858,7 +5858,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -5878,7 +5878,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4402.060881194145,
               "e2e_p99": 16992.223943896537,
@@ -5898,7 +5898,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7682.225931161008,
               "e2e_p99": 12269.652813076129,
@@ -5918,7 +5918,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -5938,7 +5938,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -5958,7 +5958,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7682.225931161008,
               "e2e_p99": 12269.652813076129,
@@ -5978,7 +5978,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -5998,7 +5998,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6018,7 +6018,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6038,7 +6038,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 7682.225931161008,
               "e2e_p99": 12269.652813076129,
@@ -6058,7 +6058,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -6078,7 +6078,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -6098,7 +6098,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6118,7 +6118,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6138,7 +6138,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6158,7 +6158,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -6178,7 +6178,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -6198,7 +6198,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -6218,7 +6218,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6238,7 +6238,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6258,7 +6258,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6278,7 +6278,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6298,7 +6298,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6318,7 +6318,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6338,7 +6338,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6358,7 +6358,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6378,7 +6378,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6398,7 +6398,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 9231.250852545609,
               "e2e_p99": 8092.881622203801,
@@ -6418,7 +6418,7 @@
             "objective": 57.28269584179499,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 12034.52156940271,
               "e2e_p99": 10725.509282538216,
@@ -6438,7 +6438,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 14635.239277678415,
               "e2e_p99": 6430.470419361829,
@@ -6458,7 +6458,7 @@
             "objective": 95.71966595546594,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 20109.74462058384,
               "e2e_p99": 6409.258284542801,
@@ -6478,7 +6478,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 4402.060881194145,
               "e2e_p99": 16992.223943896537,
@@ -6542,8 +6542,8 @@
         "trials_per_dim": 6.666666666666667,
         "space_coverage": 0.06944444444444445,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:17Z",
         "best": {
           "system": "vllm",
           "index": 0,
@@ -6558,7 +6558,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 2079.8030685208737,
             "e2e_p99": 17634.909551128592,
@@ -6580,7 +6580,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2079.8030685208737,
               "e2e_p99": 17634.909551128592,
@@ -6601,7 +6601,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2082.918166083983,
               "e2e_p99": 17463.052508634864,
@@ -6622,7 +6622,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2118.745226778042,
               "e2e_p99": 17451.387607893856,
@@ -6643,7 +6643,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 425.0249360453712,
               "e2e_p99": 88003.40395252408,
@@ -6664,7 +6664,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 355.1054457517981,
               "e2e_p99": 103974.71012287865,
@@ -6685,7 +6685,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 454.0268767685292,
               "e2e_p99": 84038.50437003604,
@@ -6706,7 +6706,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2099.5389154248655,
               "e2e_p99": 17615.21518890105,
@@ -6727,7 +6727,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 436.7368852543481,
               "e2e_p99": 86339.41305701213,
@@ -6748,7 +6748,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 436.7091239281426,
               "e2e_p99": 86341.68231362478,
@@ -6769,7 +6769,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 349.7396302060043,
               "e2e_p99": 105127.58979225994,
@@ -6790,7 +6790,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 381.4755287791912,
               "e2e_p99": 98795.52325036863,
@@ -6811,7 +6811,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 371.28638665563284,
               "e2e_p99": 100720.91870717911,
@@ -6832,7 +6832,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2121.3932590005115,
               "e2e_p99": 17495.833369379623,
@@ -6853,7 +6853,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2090.7438418041424,
               "e2e_p99": 17367.116702869225,
@@ -6874,7 +6874,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 430.8996298030366,
               "e2e_p99": 87161.50847798123,
@@ -6895,7 +6895,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2140.6725954522503,
               "e2e_p99": 17534.71960726726,
@@ -6916,7 +6916,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2170.495674213174,
               "e2e_p99": 17362.631141972495,
@@ -6937,7 +6937,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2134.3540812182764,
               "e2e_p99": 17359.092324704714,
@@ -6958,7 +6958,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2145.6454653465316,
               "e2e_p99": 17447.43661355289,
@@ -6979,7 +6979,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2128.796667498904,
               "e2e_p99": 17343.89558047479,
@@ -7000,7 +7000,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 424.997999292955,
               "e2e_p99": 88005.74391658965,
@@ -7021,7 +7021,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 343.8160061776559,
               "e2e_p99": 106429.43575003711,
@@ -7042,7 +7042,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2106.061964814393,
               "e2e_p99": 17534.03384007906,
@@ -7063,7 +7063,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2129.0930519638277,
               "e2e_p99": 17343.73759695263,
@@ -7084,7 +7084,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2079.8030685208737,
               "e2e_p99": 17634.909551128592,
@@ -7105,7 +7105,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2079.8030685208737,
               "e2e_p99": 17634.909551128592,
@@ -7126,7 +7126,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2079.8030685208737,
               "e2e_p99": 17634.909551128592,
@@ -7147,7 +7147,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2097.073147895549,
               "e2e_p99": 17537.109544552986,
@@ -7168,7 +7168,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2103.962061070539,
               "e2e_p99": 17497.364452637772,
@@ -7189,7 +7189,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2106.895364722872,
               "e2e_p99": 17482.509353034075,
@@ -7210,7 +7210,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2024.4245439767826,
               "e2e_p99": 17740.410123266804,
@@ -7231,7 +7231,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2118.1796734221375,
               "e2e_p99": 17604.811111525334,
@@ -7252,7 +7252,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 370.458142467694,
               "e2e_p99": 100856.54425454992,
@@ -7273,7 +7273,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2110.3634632991916,
               "e2e_p99": 17449.965770935683,
@@ -7294,7 +7294,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2089.8218304731718,
               "e2e_p99": 17623.782293679677,
@@ -7315,7 +7315,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2046.63094384934,
               "e2e_p99": 17698.077152607573,
@@ -7336,7 +7336,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2073.498583675432,
               "e2e_p99": 17420.6313395724,
@@ -7357,7 +7357,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 370.458142467694,
               "e2e_p99": 100856.54425454992,
@@ -7378,7 +7378,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 382.0961807286904,
               "e2e_p99": 94992.6444332185,
@@ -7399,7 +7399,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 371.3493641092141,
               "e2e_p99": 100711.81400618448,
@@ -7458,8 +7458,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:17Z",
         "best": {
           "system": "sglang",
           "index": 0,
@@ -7473,7 +7473,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 2085.1982127521437,
             "e2e_p99": 17203.404971546574,
@@ -7494,7 +7494,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -7514,7 +7514,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2130.6328050533,
               "e2e_p99": 16920.08263208026,
@@ -7534,7 +7534,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2124.0415405857907,
               "e2e_p99": 16971.55964656807,
@@ -7554,7 +7554,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2182.738092200241,
               "e2e_p99": 16869.65698063439,
@@ -7574,7 +7574,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2027.981465336443,
               "e2e_p99": 17319.533343758285,
@@ -7594,7 +7594,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2164.728443393075,
               "e2e_p99": 16979.082478326516,
@@ -7614,7 +7614,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2134.2729312177694,
               "e2e_p99": 16898.024282445745,
@@ -7634,7 +7634,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2198.577956888133,
               "e2e_p99": 16787.029628682692,
@@ -7654,7 +7654,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2095.7424579823605,
               "e2e_p99": 16885.738453340808,
@@ -7674,7 +7674,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2142.0866171514895,
               "e2e_p99": 17109.50344962393,
@@ -7694,7 +7694,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2120.865977865921,
               "e2e_p99": 16987.62399805803,
@@ -7714,7 +7714,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2052.7831631065155,
               "e2e_p99": 17158.544990175506,
@@ -7734,7 +7734,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2114.97893974533,
               "e2e_p99": 17020.40230890676,
@@ -7754,7 +7754,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2197.056577751059,
               "e2e_p99": 16790.177521132155,
@@ -7774,7 +7774,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -7794,7 +7794,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2093.29401861811,
               "e2e_p99": 16899.862814446467,
@@ -7814,7 +7814,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2198.577956888133,
               "e2e_p99": 16787.029628682692,
@@ -7834,7 +7834,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2027.981465336443,
               "e2e_p99": 17319.533343758285,
@@ -7854,7 +7854,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2173.2145750746254,
               "e2e_p99": 16936.21540004588,
@@ -7874,7 +7874,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2063.14956669063,
               "e2e_p99": 17093.99240836729,
@@ -7894,7 +7894,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2149.3732138672303,
               "e2e_p99": 16813.846790995525,
@@ -7914,7 +7914,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2149.675356021813,
               "e2e_p99": 16813.736881526806,
@@ -7934,7 +7934,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2063.14956669063,
               "e2e_p99": 17093.99240836729,
@@ -7954,7 +7954,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2027.981465336443,
               "e2e_p99": 17319.533343758285,
@@ -7974,7 +7974,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -7994,7 +7994,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -8014,7 +8014,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -8034,7 +8034,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2114.97893974533,
               "e2e_p99": 17020.40230890676,
@@ -8054,7 +8054,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2120.865977865921,
               "e2e_p99": 16987.62399805803,
@@ -8074,7 +8074,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2124.0415405857907,
               "e2e_p99": 16971.55964656807,
@@ -8094,7 +8094,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2027.981465336443,
               "e2e_p99": 17319.533343758285,
@@ -8114,7 +8114,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2142.0866171514895,
               "e2e_p99": 17109.50344962393,
@@ -8134,7 +8134,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2085.1982127521437,
               "e2e_p99": 17203.404971546574,
@@ -8154,7 +8154,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2130.6328050533,
               "e2e_p99": 16920.08263208026,
@@ -8174,7 +8174,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2072.459767502574,
               "e2e_p99": 17026.00217235025,
@@ -8194,7 +8194,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2197.056577751059,
               "e2e_p99": 16790.177521132155,
@@ -8214,7 +8214,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2152.674021422158,
               "e2e_p99": 16795.451725104012,
@@ -8234,7 +8234,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2052.7831631065155,
               "e2e_p99": 17158.544990175506,
@@ -8254,7 +8254,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2064.6653463438306,
               "e2e_p99": 17087.69862439285,
@@ -8274,7 +8274,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2124.0415405857907,
               "e2e_p99": 16971.55964656807,
@@ -8333,8 +8333,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:17Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "trtllm",
           "index": 0,
@@ -8348,7 +8348,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 432.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:17Z",
           "detail": {
             "output_throughput": 2157.58425658867,
             "e2e_p99": 16261.618756051681,
@@ -8369,7 +8369,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -8389,7 +8389,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.89602468270897,
               "e2e_p99": 97190.53156870142,
@@ -8409,7 +8409,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 321.7637184393266,
               "e2e_p99": 111432.0440351131,
@@ -8429,7 +8429,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.8293982061829,
               "e2e_p99": 97199.36114999383,
@@ -8449,7 +8449,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.54669292787173,
               "e2e_p99": 97240.11126524363,
@@ -8469,7 +8469,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2279.9944373014346,
               "e2e_p99": 15928.796140601477,
@@ -8489,7 +8489,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -8509,7 +8509,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2326.2996244967767,
               "e2e_p99": 15934.911209522208,
@@ -8529,7 +8529,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 360.87315561606874,
               "e2e_p99": 102344.75450515612,
@@ -8549,7 +8549,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -8569,7 +8569,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 360.8107284616724,
               "e2e_p99": 102354.49303595169,
@@ -8589,7 +8589,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2195.1235133324744,
               "e2e_p99": 16052.768844951397,
@@ -8609,7 +8609,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 321.7637184393266,
               "e2e_p99": 111432.0440351131,
@@ -8629,7 +8629,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 360.54409316538295,
               "e2e_p99": 102399.43811761982,
@@ -8649,7 +8649,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2177.5474100798738,
               "e2e_p99": 16148.063581723665,
@@ -8669,7 +8669,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 321.7074932243656,
               "e2e_p99": 111443.83446792624,
@@ -8689,7 +8689,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 360.87315561606874,
               "e2e_p99": 102344.75450515612,
@@ -8709,7 +8709,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2195.1235133324744,
               "e2e_p99": 16052.768844951397,
@@ -8729,7 +8729,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2289.30928376556,
               "e2e_p99": 16115.753625342433,
@@ -8749,7 +8749,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.89602468270897,
               "e2e_p99": 97190.53156870142,
@@ -8769,7 +8769,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2195.1235133324744,
               "e2e_p99": 16052.768844951397,
@@ -8789,7 +8789,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 321.4651097219635,
               "e2e_p99": 111497.70260325492,
@@ -8809,7 +8809,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.89602468270897,
               "e2e_p99": 97190.53156870142,
@@ -8829,7 +8829,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 386.9551264608609,
               "e2e_p99": 97325.06400678007,
@@ -8849,7 +8849,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -8869,7 +8869,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2177.5474100798738,
               "e2e_p99": 16148.063581723665,
@@ -8889,7 +8889,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2193.457504362948,
               "e2e_p99": 16058.787487541418,
@@ -8909,7 +8909,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2235.292225837348,
               "e2e_p99": 16160.971692617495,
@@ -8929,7 +8929,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2289.30928376556,
               "e2e_p99": 16115.753625342433,
@@ -8949,7 +8949,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 320.9598162403956,
               "e2e_p99": 111608.2542472748,
@@ -8969,7 +8969,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -8989,7 +8989,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2279.9944373014346,
               "e2e_p99": 15928.796140601477,
@@ -9009,7 +9009,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2193.457504362948,
               "e2e_p99": 16058.787487541418,
@@ -9029,7 +9029,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2195.1235133324744,
               "e2e_p99": 16052.768844951397,
@@ -9049,7 +9049,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2326.2996244967767,
               "e2e_p99": 15934.911209522208,
@@ -9069,7 +9069,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2235.292225837348,
               "e2e_p99": 16160.971692617495,
@@ -9089,7 +9089,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 387.54669292787173,
               "e2e_p99": 97240.11126524363,
@@ -9109,7 +9109,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2266.723494671267,
               "e2e_p99": 15991.960524718574,
@@ -9129,7 +9129,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2157.58425658867,
               "e2e_p99": 16261.618756051681,
@@ -9149,7 +9149,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:17Z",
             "detail": {
               "output_throughput": 2325.515337126771,
               "e2e_p99": 15935.303059174585,
@@ -9213,8 +9213,8 @@
         "trials_per_dim": 6.666666666666667,
         "space_coverage": 0.06944444444444445,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "vllm",
           "index": 0,
@@ -9229,7 +9229,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 979.3759191431348,
             "e2e_p99": 316935.79507529165,
@@ -9251,7 +9251,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9272,7 +9272,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 954.0696426118898,
               "e2e_p99": 322836.91088714986,
@@ -9293,7 +9293,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 964.0612752931721,
               "e2e_p99": 320371.9160393907,
@@ -9314,7 +9314,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 988.8837543798618,
               "e2e_p99": 314783.1524812261,
@@ -9335,7 +9335,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.23334702917872,
               "e2e_p99": 3661625.2264932343,
@@ -9356,7 +9356,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 90.48604937827375,
               "e2e_p99": 3427071.4093708005,
@@ -9377,7 +9377,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 93.552002151422,
               "e2e_p99": 3323517.9663323723,
@@ -9398,7 +9398,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9419,7 +9419,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 90.47240571688238,
               "e2e_p99": 3427519.6300962423,
@@ -9440,7 +9440,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 951.1385969036809,
               "e2e_p99": 323734.74347816216,
@@ -9461,7 +9461,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 961.1057469508104,
               "e2e_p99": 321238.6737498192,
@@ -9482,7 +9482,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 90.47240571688238,
               "e2e_p99": 3427519.6300962423,
@@ -9503,7 +9503,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 943.9926713653473,
               "e2e_p99": 325415.0860594792,
@@ -9524,7 +9524,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 970.5030559998218,
               "e2e_p99": 318980.86700790137,
@@ -9545,7 +9545,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 972.4776802980451,
               "e2e_p99": 318410.24236828,
@@ -9566,7 +9566,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.27165280715565,
               "e2e_p99": 3660168.2345355563,
@@ -9587,7 +9587,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 965.6615683117803,
               "e2e_p99": 320402.7086199093,
@@ -9608,7 +9608,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 965.6615683117803,
               "e2e_p99": 320402.7086199093,
@@ -9629,7 +9629,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 972.4776802980451,
               "e2e_p99": 318410.24236828,
@@ -9650,7 +9650,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.25889436655488,
               "e2e_p99": 3660653.898521449,
@@ -9671,7 +9671,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.25889436655488,
               "e2e_p99": 3660653.898521449,
@@ -9692,7 +9692,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 974.0959134049858,
               "e2e_p99": 318463.623498564,
@@ -9713,7 +9713,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 947.0698486884859,
               "e2e_p99": 324969.8836569249,
@@ -9734,7 +9734,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 963.5479824146214,
               "e2e_p99": 320511.3178852858,
@@ -9755,7 +9755,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9776,7 +9776,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9797,7 +9797,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9818,7 +9818,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 980.903312559352,
               "e2e_p99": 316509.628891326,
@@ -9839,7 +9839,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 981.8805307330634,
               "e2e_p99": 316237.3427527562,
@@ -9860,7 +9860,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 951.1385969036809,
               "e2e_p99": 323734.74347816216,
@@ -9881,7 +9881,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 93.552002151422,
               "e2e_p99": 3323517.9663323723,
@@ -9902,7 +9902,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 979.3759191431348,
               "e2e_p99": 316935.79507529165,
@@ -9923,7 +9923,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 987.7650373088492,
               "e2e_p99": 315081.45090275136,
@@ -9944,7 +9944,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 970.5030559998218,
               "e2e_p99": 318980.86700790137,
@@ -9965,7 +9965,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 90.44508226212758,
               "e2e_p99": 3428416.071547124,
@@ -9986,7 +9986,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 81.1000483798443,
               "e2e_p99": 3792894.493252428,
@@ -10007,7 +10007,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.27165280715565,
               "e2e_p99": 3660168.2345355563,
@@ -10028,7 +10028,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 970.5030559998218,
               "e2e_p99": 318980.86700790137,
@@ -10049,7 +10049,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 81.13700311487516,
               "e2e_p99": 3791374.315792738,
@@ -10070,7 +10070,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.27710992276674,
               "e2e_p99": 3659966.7694079913,
@@ -10129,8 +10129,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "sglang",
           "index": 0,
@@ -10144,7 +10144,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 12.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 1005.4889509695611,
             "e2e_p99": 307976.0394671041,
@@ -10165,7 +10165,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1005.4889509695611,
               "e2e_p99": 307976.0394671041,
@@ -10185,7 +10185,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 938.6734526104393,
               "e2e_p99": 325428.8862061422,
@@ -10205,7 +10205,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 978.9593483060312,
               "e2e_p99": 314380.0891189976,
@@ -10225,7 +10225,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 972.5613855921596,
               "e2e_p99": 316448.19976187684,
@@ -10245,7 +10245,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 972.5613855921596,
               "e2e_p99": 316448.19976187684,
@@ -10265,7 +10265,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 980.0026664600289,
               "e2e_p99": 314285.13864599203,
@@ -10285,7 +10285,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 948.6946873936259,
               "e2e_p99": 322027.9177827919,
@@ -10305,7 +10305,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 998.7300429084195,
               "e2e_p99": 310031.8162245954,
@@ -10325,7 +10325,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 938.6734526104393,
               "e2e_p99": 325428.8862061422,
@@ -10345,7 +10345,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 997.860798283773,
               "e2e_p99": 310048.0743101224,
@@ -10365,7 +10365,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1004.992627143644,
               "e2e_p99": 308097.78091570147,
@@ -10385,7 +10385,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 997.860798283773,
               "e2e_p99": 310048.0743101224,
@@ -10405,7 +10405,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 938.6734526104393,
               "e2e_p99": 325428.8862061422,
@@ -10425,7 +10425,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 998.7300429084195,
               "e2e_p99": 310031.8162245954,
@@ -10445,7 +10445,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 948.6946873936259,
               "e2e_p99": 322027.9177827919,
@@ -10465,7 +10465,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 947.3208003527818,
               "e2e_p99": 322554.7073577476,
@@ -10485,7 +10485,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1004.992627143644,
               "e2e_p99": 308097.78091570147,
@@ -10505,7 +10505,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 980.0026664600289,
               "e2e_p99": 314285.13864599203,
@@ -10525,7 +10525,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 947.3208003527818,
               "e2e_p99": 322554.7073577476,
@@ -10545,7 +10545,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 947.3208003527818,
               "e2e_p99": 322554.7073577476,
@@ -10565,7 +10565,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 982.8565732211448,
               "e2e_p99": 313262.30558986316,
@@ -10585,7 +10585,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 945.347289487639,
               "e2e_p99": 323127.1380605994,
@@ -10605,7 +10605,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 999.2767756002729,
               "e2e_p99": 309893.7792454223,
@@ -10625,7 +10625,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1005.4889509695611,
               "e2e_p99": 307976.0394671041,
@@ -10645,7 +10645,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1005.4889509695611,
               "e2e_p99": 307976.0394671041,
@@ -10665,7 +10665,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1005.4889509695611,
               "e2e_p99": 307976.0394671041,
@@ -10685,7 +10685,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 997.860798283773,
               "e2e_p99": 310048.0743101224,
@@ -10705,7 +10705,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1002.3632422508559,
               "e2e_p99": 308817.3586913363,
@@ -10725,7 +10725,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1004.992627143644,
               "e2e_p99": 308097.78091570147,
@@ -10745,7 +10745,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 954.2281262507523,
               "e2e_p99": 320217.5285902675,
@@ -10765,7 +10765,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 986.6717708887545,
               "e2e_p99": 312181.4611725409,
@@ -10785,7 +10785,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1005.4889509695611,
               "e2e_p99": 307976.0394671041,
@@ -10805,7 +10805,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 945.876886393849,
               "e2e_p99": 323025.4356034243,
@@ -10825,7 +10825,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 999.2767756002729,
               "e2e_p99": 309893.7792454223,
@@ -10845,7 +10845,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 980.1588168149317,
               "e2e_p99": 314257.90010393964,
@@ -10865,7 +10865,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 978.9593483060312,
               "e2e_p99": 314380.0891189976,
@@ -10885,7 +10885,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 945.347289487639,
               "e2e_p99": 323127.1380605994,
@@ -10905,7 +10905,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 952.656987772683,
               "e2e_p99": 320724.78947952297,
@@ -10925,7 +10925,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 978.9593483060312,
               "e2e_p99": 314380.0891189976,
@@ -10945,7 +10945,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 12.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1004.992627143644,
               "e2e_p99": 308097.78091570147,
@@ -11004,8 +11004,8 @@
         "trials_per_dim": 8.0,
         "space_coverage": 0.20833333333333334,
         "still_improving": false,
-        "started_at": "2026-08-29T02:14:28Z",
-        "finished_at": "2026-08-29T02:14:28Z",
+        "started_at": "2026-08-29T02:55:18Z",
+        "finished_at": "2026-08-29T02:55:18Z",
         "best": {
           "system": "trtllm",
           "index": 0,
@@ -11019,7 +11019,7 @@
           "objective": 0.0,
           "outcome": "ok",
           "wall_time_s": 432.0,
-          "started_at": "2026-08-29T02:14:28Z",
+          "started_at": "2026-08-29T02:55:18Z",
           "detail": {
             "output_throughput": 1011.3179049744716,
             "e2e_p99": 302001.12436879,
@@ -11040,7 +11040,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1011.3179049744716,
               "e2e_p99": 302001.12436879,
@@ -11060,7 +11060,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 91.29213822241381,
               "e2e_p99": 3396842.3595498134,
@@ -11080,7 +11080,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1022.2142771729208,
               "e2e_p99": 298895.6216536674,
@@ -11100,7 +11100,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.4169614774916,
               "e2e_p99": 4055362.516035804,
@@ -11120,7 +11120,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.99483878903598,
               "e2e_p99": 3629056.7177930903,
@@ -11140,7 +11140,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.41201327854573,
               "e2e_p99": 4055622.154960581,
@@ -11160,7 +11160,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1046.8406230705943,
               "e2e_p99": 293992.148203779,
@@ -11180,7 +11180,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1066.1848943501072,
               "e2e_p99": 290138.537623645,
@@ -11200,7 +11200,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 91.29213822241381,
               "e2e_p99": 3396842.3595498134,
@@ -11220,7 +11220,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1016.6544026116453,
               "e2e_p99": 300487.83668080985,
@@ -11240,7 +11240,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.40043364896512,
               "e2e_p99": 4056220.205171358,
@@ -11260,7 +11260,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.98928833186531,
               "e2e_p99": 3629258.1829206552,
@@ -11280,7 +11280,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.9763116876422,
               "e2e_p99": 3629743.846906548,
@@ -11300,7 +11300,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 91.2861950522344,
               "e2e_p99": 3397027.9424361363,
@@ -11320,7 +11320,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1070.337266653928,
               "e2e_p99": 289155.95229162177,
@@ -11340,7 +11340,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1050.456441013521,
               "e2e_p99": 293052.88201242365,
@@ -11360,7 +11360,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.40043364896512,
               "e2e_p99": 4056220.205171358,
@@ -11380,7 +11380,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1066.1848943501072,
               "e2e_p99": 290138.537623645,
@@ -11400,7 +11400,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 91.27230904747958,
               "e2e_p99": 3397476.1631615767,
@@ -11420,7 +11420,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.41201327854573,
               "e2e_p99": 4055622.154960581,
@@ -11440,7 +11440,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1020.0830490877823,
               "e2e_p99": 299509.9129699011,
@@ -11460,7 +11460,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1074.4066228898744,
               "e2e_p99": 288169.3490064685,
@@ -11480,7 +11480,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.99483878903598,
               "e2e_p99": 3629056.7177930903,
@@ -11500,7 +11500,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.9503275227194,
               "e2e_p99": 3630715.1748783337,
@@ -11520,7 +11520,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1011.3179049744716,
               "e2e_p99": 302001.12436879,
@@ -11540,7 +11540,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1011.3179049744716,
               "e2e_p99": 302001.12436879,
@@ -11560,7 +11560,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1011.3179049744716,
               "e2e_p99": 302001.12436879,
@@ -11580,7 +11580,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1016.6544026116453,
               "e2e_p99": 300487.83668080985,
@@ -11600,7 +11600,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1020.0830490877823,
               "e2e_p99": 299509.9129699011,
@@ -11620,7 +11620,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1022.2142771729208,
               "e2e_p99": 298895.6216536674,
@@ -11640,7 +11640,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1046.8406230705943,
               "e2e_p99": 293992.148203779,
@@ -11660,7 +11660,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.37725138847536,
               "e2e_p99": 4057416.3055929113,
@@ -11680,7 +11680,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1011.3179049744716,
               "e2e_p99": 302001.12436879,
@@ -11700,7 +11700,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.4169614774916,
               "e2e_p99": 4055362.516035804,
@@ -11720,7 +11720,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1022.2142771729208,
               "e2e_p99": 298895.6216536674,
@@ -11740,7 +11740,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 84.98928833186531,
               "e2e_p99": 3629258.1829206552,
@@ -11760,7 +11760,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1054.706718909396,
               "e2e_p99": 291980.68666846544,
@@ -11780,7 +11780,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 1050.456441013521,
               "e2e_p99": 293052.88201242365,
@@ -11800,7 +11800,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.40043364896512,
               "e2e_p99": 4056220.205171358,
@@ -11820,7 +11820,7 @@
             "objective": 0.0,
             "outcome": "ok",
             "wall_time_s": 432.0,
-            "started_at": "2026-08-29T02:14:28Z",
+            "started_at": "2026-08-29T02:55:18Z",
             "detail": {
               "output_throughput": 75.37725138847536,
               "e2e_p99": 4057416.3055929113,
@@ -11867,16 +11867,16 @@
         }
       }
     ],
-    "digest": "sha256:141984f8c6a5deeb08d09a2d55a611b61b39210e961220b5b8b87361bcf1b72b"
+    "digest": "sha256:b9297d52d7a7abc1a1388d23c1e7791a6cf412942e3f9ccf1dea821d9920eb41"
   },
   "provenance": {
-    "captured_at": "2026-08-29T02:14:23Z",
+    "captured_at": "2026-08-29T02:55:17Z",
     "host": "Archana-PC",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "cpu_count": 24,
     "git": {
-      "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+      "commit": "5cdf7c5f9b9c11f21a3557e68aba01fed3460911",
       "dirty": false,
       "dirty_scope": [
         "src",
@@ -11887,7 +11887,7 @@
       "dirty_files": [],
       "branch": "master",
       "remote": null,
-      "describe": "87e2096-dirty"
+      "describe": "5cdf7c5-dirty"
     },
     "gpu": {
       "available": true,
@@ -11906,7 +11906,7 @@
     },
     "packages": {
       "torch": "2.6.0+cu124",
-      "triton": null,
+      "triton": "3.2.0",
       "numpy": "1.26.4",
       "vllm": null,
       "sglang": null,
@@ -12074,13 +12074,13 @@
       "best_alternative": 0.9166666666666666
     },
     "provenance": {
-      "captured_at": "2026-08-29T02:14:23Z",
+      "captured_at": "2026-08-29T02:55:17Z",
       "host": "Archana-PC",
       "platform": "Windows-10-10.0.26200-SP0",
       "python": "3.11.5",
       "cpu_count": 24,
       "git": {
-        "commit": "87e209643ccb4cda209ac714c3eed4f6d84bf714",
+        "commit": "5cdf7c5f9b9c11f21a3557e68aba01fed3460911",
         "dirty": false,
         "dirty_scope": [
           "src",
@@ -12091,7 +12091,7 @@
         "dirty_files": [],
         "branch": "master",
         "remote": null,
-        "describe": "87e2096-dirty"
+        "describe": "5cdf7c5-dirty"
       },
       "gpu": {
         "available": true,
@@ -12110,7 +12110,7 @@
       },
       "packages": {
         "torch": "2.6.0+cu124",
-        "triton": null,
+        "triton": "3.2.0",
         "numpy": "1.26.4",
         "vllm": null,
         "sglang": null,
@@ -13468,5 +13468,5 @@
       ]
     }
   },
-  "digest": "sha256:58bd5ed413ec77586f72806e6e2e919e14d603ac3757a021cc02d7617c1fbe39"
+  "digest": "sha256:f7a47ac1eafb7651283ea382d5529754a447ddf88b9a9090493857c60b981777"
 }

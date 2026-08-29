@@ -58,7 +58,7 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-si
 color:var(--muted)}
 </style>
 <div class="wrap">
-<header><div class="kicker">Thrust II &middot; conforming claim &middot; LC-1.0</div><h1>The equal-tuning audit: engine differences that survive budget parity</h1><div class="banner"><b>SIMULATED EVIDENCE</b> &mdash; Produced by the package&#x27;s calibratable model, not by measurement on the target hardware. The model&#x27;s parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.</div><div class="headline">Three inference engines, each given an identical 40-trial search from the same procedure against the same traces on the same hardware, compared across their full latency-throughput frontiers on four workload shapes. Median -11.0% across the swept envelope; best -3.5% at workload=summarize, latency_budget_ms=250; worst -inf% at workload=summarize, latency_budget_ms=10.</div><div class="meta"><span><code>lc-thrust2-equal-tuning-audit</code></span><span>vllm vs best_alternative</span><span>2026-08-29T02:14:29Z</span><span class="tag pass">conforming-with-warnings</span></div></header>
+<header><div class="kicker">Thrust II &middot; conforming claim &middot; LC-1.0</div><h1>The equal-tuning audit: engine differences that survive budget parity</h1><div class="banner"><b>SIMULATED EVIDENCE</b> &mdash; Produced by the package&#x27;s calibratable model, not by measurement on the target hardware. The model&#x27;s parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.</div><div class="headline">Three inference engines, each given an identical 40-trial search from the same procedure against the same traces on the same hardware, compared across their full latency-throughput frontiers on four workload shapes. Median -11.0% across the swept envelope; best -3.5% at workload=summarize, latency_budget_ms=250; worst -inf% at workload=summarize, latency_budget_ms=10.</div><div class="meta"><span><code>lc-thrust2-equal-tuning-audit</code></span><span>vllm vs best_alternative</span><span>2026-08-29T02:55:18Z</span><span class="tag pass">conforming-with-warnings</span></div></header>
 <div class="stat"><div><b>75%</b><span>of envelope lost</span></div><div><b>+108%</b><span>worst regression</span></div><div><b>3</b><span>loss regions</span></div><div><b>0%</b><span>inconclusive</span></div><div><b>24</b><span>cells measured</span></div></div>
 <div class="loss"><h2>Loss column</h2><p>vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), across 3 region(s); worst measurable case +107.7% on attainable_throughput, and cannot run at all in 1 cell(s).</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>workload in {chat, rag, agentic} and 10 &lt;= latency_budget_ms &lt;= 100</td><td>13/15 (62%)</td><td><span style="color:var(--loss)">+17.9%</span></td><td><span style="color:var(--loss)"><b>+107.7%</b></span></td><td>0.000488</td><td>vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency; rag has 15% prefix reuse, which the alternative caches and vllm does not at its tuned settings; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</td></tr><tr><td><b>2</b></td><td>workload in {chat, agentic}</td><td>12/12 (50%)</td><td><span style="color:var(--loss)">+17.9%</span></td><td><span style="color:var(--loss)"><b>+94.8%</b></span></td><td>0.000488</td><td>agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</td></tr><tr><td><b>3</b></td><td>workload in {chat, summarize, agentic} and 10 &lt;= latency_budget_ms &lt;= 25</td><td>9/9 (38%)</td><td><span style="color:var(--loss)">+47.3%</span></td><td><span style="color:var(--loss)"><b>+94.8%</b></span></td><td>0.000488</td><td>vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</td></tr></tbody></table></div><ul><li>2 cell(s) could not be measured for either system and are excluded from the comparison rather than counted as wins.</li><li>Decision rule: regression &ge; 5.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 18 loss, 0 win, 4 tie, 0 inconclusive, 2 unmeasurable.</li></ul></div>
 <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 444 352" width="444" height="352" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Where vLLM loses under tuning-budget parity"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="444" height="352" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Where vLLM loses under tuning-budget parity</text><text x="0" y="42" font-size="12" fill="#57534e">Throughput attainable under a normalised p99 latency budget, after every engine received an identical 40-trial search.</text><text x="88" y="267.0" font-size="11" text-anchor="end" fill="#44403c">chat</text><g><title>workload=chat, latency_budget_ms=10
@@ -175,10 +175,10 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
 <div class="scroll"><table><thead><tr><th>System</th><th>Trials</th><th>ok</th><th>Space</th><th>Trials/dim</th><th>Coverage</th><th>Wall-clock</th><th>Budget binding?</th></tr></thead><tbody><tr><td>vllm</td><td>40</td><td>40</td><td>6d / 576</td><td>6.7</td><td>6.9%</td><td>8 min</td><td><span style="color:var(--warn)">yes</span></td></tr><tr><td>sglang</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>8 min</td><td>no</td></tr><tr><td>trtllm</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>288 min</td><td>no</td></tr><tr><td>vllm</td><td>40</td><td>40</td><td>6d / 576</td><td>6.7</td><td>6.9%</td><td>8 min</td><td>no</td></tr><tr><td>sglang</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>8 min</td><td>no</td></tr><tr><td>trtllm</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>288 min</td><td>no</td></tr><tr><td>vllm</td><td>40</td><td>40</td><td>6d / 576</td><td>6.7</td><td>6.9%</td><td>8 min</td><td>no</td></tr><tr><td>sglang</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>8 min</td><td>no</td></tr><tr><td>trtllm</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>288 min</td><td>no</td></tr><tr><td>vllm</td><td>40</td><td>40</td><td>6d / 576</td><td>6.7</td><td>6.9%</td><td>8 min</td><td>no</td></tr><tr><td>sglang</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>8 min</td><td>no</td></tr><tr><td>trtllm</td><td>40</td><td>40</td><td>5d / 192</td><td>8.0</td><td>20.8%</td><td>288 min</td><td>no</td></tr></tbody></table></div>
 <div class="scroll"><table><thead><tr><th>Severity</th><th>Code</th><th>Finding</th></tr></thead><tbody><tr><td><span class="warn">warning</span></td><td><code>PAR-008</code></td><td>[agentic] vllm was still improving when its budget ran out; its measured performance is a lower bound and the comparison understates it</td></tr><tr><td><span class="warn">warning</span></td><td><code>PAR-011</code></td><td>[all 4 groups] equal trial counts explored unequal fractions of each search space: sglang 20.8%, trtllm 20.8%, vllm 6.9%. The engine with the larger space received a sparser search from the same budget, which understates it.</td></tr><tr><td><span class="warn">warning</span></td><td><code>PAR-012</code></td><td>[all 4 groups] equal trials cost very unequal wall-clock: sglang 8 min, trtllm 288 min, vllm 8 min. Under a fixed time budget rather than a fixed trial budget the comparison would come out differently, and a reader choosing under time pressure should know which budget was held constant.</td></tr></tbody></table></div>
 <h2>Pre-registration <span class="tag pass">verified</span></h2><ul><li>Sealed <code>2026-08-28T22:48:06Z</code></li><li>Seal hash <code>sha256:aad2fa03dfc12a8628d665a123351eb5f942000c9cc5be11536f12358a5875dc</code></li><li>Anchor <code>git:a0bdfe6</code></li></ul>
-<h2>Reproduction</h2><pre>losscolumn run thrust2</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>87e209643ccb4cda209ac714c3eed4f6d84bf714</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>8x H100 (measured path) / calibratable model (this artifact)</td></tr><tr><td>Estimated cost</td><td>80 min</td></tr></tbody></table></div>
+<h2>Reproduction</h2><pre>losscolumn run thrust2</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>5cdf7c5f9b9c11f21a3557e68aba01fed3460911</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>8x H100 (measured path) / calibratable model (this artifact)</td></tr><tr><td>Estimated cost</td><td>80 min</td></tr></tbody></table></div>
 <h2>Conformance <span class="tag pass">conforming-with-warnings</span></h2>
-<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>evidence class: simulated</td></tr><tr><td><code>LC-0.3</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>the simulated component is described</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>parity certificate present</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>parity certificate holds</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>12 systems tuned under one budget</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>equal trial budgets (40 per system)</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="warn">warn</span></td><td>budget was binding for [&#x27;vllm&#x27;]: their performance is a lower bound</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>operator(s) of record: [&#x27;A. S. Patil&#x27;] (skill is documented, not eliminated)</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>the derived baseline `best_alternative` is composed of tuned systems (sglang, trtllm), each with its own ledger</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>2 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>24 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-28T22:48:06Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:a0bdfe6`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust2`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `87e209643ccb`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: 8x H100 (measured path) / calibratable model (this artifact)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~80 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="warn">warn</span></td><td>lowest per-system cell coverage is 88%</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>4 limitation(s) stated</td></tr></tbody></table></div>
-<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T02:14:23Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>evidence class: simulated</td></tr><tr><td><code>LC-0.3</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>the simulated component is described</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>parity certificate present</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>parity certificate holds</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>12 systems tuned under one budget</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>equal trial budgets (40 per system)</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="warn">warn</span></td><td>budget was binding for [&#x27;vllm&#x27;]: their performance is a lower bound</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>operator(s) of record: [&#x27;A. S. Patil&#x27;] (skill is documented, not eliminated)</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>the derived baseline `best_alternative` is composed of tuned systems (sglang, trtllm), each with its own ledger</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>2 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>24 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-28T22:48:06Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:a0bdfe6`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust2`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `5cdf7c5f9b9c`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: 8x H100 (measured path) / calibratable model (this artifact)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~80 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="warn">warn</span></td><td>lowest per-system cell coverage is 88%</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>4 limitation(s) stated</td></tr></tbody></table></div>
+<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T02:55:17Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
 <h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (307 KB)</summary><pre>{
  &quot;kind&quot;: &quot;claim&quot;,
  &quot;standard_version&quot;: &quot;LC-1.0&quot;,
@@ -187,7 +187,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
  &quot;thrust&quot;: &quot;II&quot;,
  &quot;method&quot;: &quot;vllm&quot;,
  &quot;baseline&quot;: &quot;best_alternative&quot;,
- &quot;created_at&quot;: &quot;2026-08-29T02:14:29Z&quot;,
+ &quot;created_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
  &quot;evidence_class&quot;: &quot;simulated&quot;,
  &quot;evidence_note&quot;: &quot;Produced by the package&#x27;s calibratable model, not by measurement on the target hardware. The model&#x27;s parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.&quot;,
  &quot;authors&quot;: [
@@ -228,7 +228,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
   &quot;inconclusive_fraction&quot;: 0.0,
   &quot;win_fraction&quot;: 0.0,
   &quot;n_unrunnable&quot;: 1,
-  &quot;envelope_digest&quot;: &quot;sha256:09b8ecf1d08c88b0e9f14d22c26974487bbce5f6ae6c96ad29d5fd663507e6df&quot;,
+  &quot;envelope_digest&quot;: &quot;sha256:d9f29941849d2a8eec028135ef60de3eeaf0d3aeeb50acef35625e2ee5a23449&quot;,
   &quot;factor_levels&quot;: {
    &quot;workload&quot;: [
     &quot;chat&quot;,
@@ -371,7 +371,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
  &quot;reproduction&quot;: {
   &quot;command&quot;: &quot;losscolumn run thrust2&quot;,
   &quot;repo&quot;: &quot;local checkout&quot;,
-  &quot;commit&quot;: &quot;87e209643ccb4cda209ac714c3eed4f6d84bf714&quot;,
+  &quot;commit&quot;: &quot;5cdf7c5f9b9c11f21a3557e68aba01fed3460911&quot;,
   &quot;dirty&quot;: false,
   &quot;container_image&quot;: &quot;ghcr.io/archanachetan07/losscolumn:0.1.0&quot;,
   &quot;hardware&quot;: &quot;8x H100 (measured path) / calibratable model (this artifact)&quot;,
@@ -1309,7 +1309,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
  },
  &quot;parity&quot;: {
   &quot;kind&quot;: &quot;parity_certificate&quot;,
-  &quot;issued_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+  &quot;issued_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
   &quot;ok&quot;: true,
   &quot;systems&quot;: [
    &quot;vllm&quot;,
@@ -1381,8 +1381,8 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
     &quot;trials_per_dim&quot;: 6.666666666666667,
     &quot;space_coverage&quot;: 0.06944444444444445,
     &quot;still_improving&quot;: true,
-    &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
-    &quot;finished_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+    &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
+    &quot;finished_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
     &quot;best&quot;: {
      &quot;system&quot;: &quot;vllm&quot;,
      &quot;index&quot;: 34,
@@ -1397,7 +1397,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
      &quot;objective&quot;: 144.6873652457023,
      &quot;outcome&quot;: &quot;ok&quot;,
      &quot;wall_time_s&quot;: 12.0,
-     &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+     &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
      &quot;detail&quot;: {
       &quot;output_throughput&quot;: 7477.80475431101,
       &quot;e2e_p99&quot;: 4152.174910877124,
@@ -1419,7 +1419,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2399.3412729639986,
        &quot;e2e_p99&quot;: 9730.457539592062,
@@ -1440,7 +1440,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4864.052725581938,
        &quot;e2e_p99&quot;: 3747.3099601176614,
@@ -1461,7 +1461,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3437.2344589424065,
        &quot;e2e_p99&quot;: 8912.273720902265,
@@ -1482,7 +1482,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6450.9818007322665,
        &quot;e2e_p99&quot;: 3566.5786521925897,
@@ -1503,7 +1503,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3568.9450198042528,
        &quot;e2e_p99&quot;: 5230.406610428756,
@@ -1524,7 +1524,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3437.2344589424065,
        &quot;e2e_p99&quot;: 8912.273720902265,
@@ -1545,7 +1545,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 119.4762948186044,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6174.833606962522,
        &quot;e2e_p99&quot;: 4992.727473507989,
@@ -1566,7 +1566,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3568.9450198042528,
        &quot;e2e_p99&quot;: 5230.406610428756,
@@ -1587,7 +1587,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3230.206335944644,
        &quot;e2e_p99&quot;: 8944.79460299451,
@@ -1608,7 +1608,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3206.043946598906,
        &quot;e2e_p99&quot;: 8953.3637275778,
@@ -1629,7 +1629,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 114.86589455202663,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5936.556595185116,
        &quot;e2e_p99&quot;: 4780.779574868278,
@@ -1650,7 +1650,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3380.2220063821974,
        &quot;e2e_p99&quot;: 8913.926749887,
@@ -1671,7 +1671,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 139.01088912082096,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7184.43027698683,
        &quot;e2e_p99&quot;: 4005.515863132551,
@@ -1692,7 +1692,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4864.052725581938,
        &quot;e2e_p99&quot;: 3747.3099601176614,
@@ -1713,7 +1713,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2399.3412729639986,
        &quot;e2e_p99&quot;: 9730.457539592062,
@@ -1734,7 +1734,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 138.68919772207465,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7167.804461271123,
        &quot;e2e_p99&quot;: 3979.4750618760972,
@@ -1755,7 +1755,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 118.69123360344685,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6134.259680710141,
        &quot;e2e_p99&quot;: 4946.350923560039,
@@ -1776,7 +1776,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6445.924130067154,
        &quot;e2e_p99&quot;: 3568.0157508412167,
@@ -1797,7 +1797,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2397.593120795603,
        &quot;e2e_p99&quot;: 9735.279245613772,
@@ -1818,7 +1818,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6797.627568016233,
        &quot;e2e_p99&quot;: 3455.262307377618,
@@ -1839,7 +1839,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 1423.9923736181245,
        &quot;e2e_p99&quot;: 13031.896111747445,
@@ -1860,7 +1860,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3568.9450198042528,
        &quot;e2e_p99&quot;: 5230.406610428756,
@@ -1881,7 +1881,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6797.627568016233,
        &quot;e2e_p99&quot;: 3455.262307377618,
@@ -1902,7 +1902,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.06270682651365,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7393.838345561292,
        &quot;e2e_p99&quot;: 3906.706392780048,
@@ -1923,7 +1923,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5282.339968346244,
        &quot;e2e_p99&quot;: 3526.155915559778,
@@ -1944,7 +1944,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6797.627568016233,
        &quot;e2e_p99&quot;: 3455.262307377618,
@@ -1965,7 +1965,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.06270682651365,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7393.838345561292,
        &quot;e2e_p99&quot;: 3906.706392780048,
@@ -1986,7 +1986,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.06270682651365,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7393.838345561292,
        &quot;e2e_p99&quot;: 3906.706392780048,
@@ -2007,7 +2007,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.06270682651365,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7393.838345561292,
        &quot;e2e_p99&quot;: 3906.706392780048,
@@ -2028,7 +2028,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.06270682651365,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7393.838345561292,
        &quot;e2e_p99&quot;: 3906.706392780048,
@@ -2049,7 +2049,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.9277277530504,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7438.5447895970265,
        &quot;e2e_p99&quot;: 4009.730092876842,
@@ -2070,7 +2070,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.56725679494127,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7471.597249304553,
        &quot;e2e_p99&quot;: 4123.2819958343425,
@@ -2091,7 +2091,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 119.4762948186044,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6174.833606962522,
        &quot;e2e_p99&quot;: 4992.727473507989,
@@ -2112,7 +2112,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 140.49558235685768,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7261.162935158297,
        &quot;e2e_p99&quot;: 4168.026668248273,
@@ -2133,7 +2133,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.6873652457023,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7477.80475431101,
        &quot;e2e_p99&quot;: 4152.174910877124,
@@ -2154,7 +2154,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.28080124784447,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7456.792510491722,
        &quot;e2e_p99&quot;: 4066.081017185422,
@@ -2175,7 +2175,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5282.339968346244,
        &quot;e2e_p99&quot;: 3526.155915559778,
@@ -2196,7 +2196,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6797.627568016233,
        &quot;e2e_p99&quot;: 3455.262307377618,
@@ -2217,7 +2217,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.6873652457023,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7477.80475431101,
        &quot;e2e_p99&quot;: 4152.174910877124,
@@ -2238,7 +2238,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.6873652457023,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7477.80475431101,
        &quot;e2e_p99&quot;: 4152.174910877124,
@@ -2297,8 +2297,8 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
     &quot;trials_per_dim&quot;: 8.0,
     &quot;space_coverage&quot;: 0.20833333333333334,
     &quot;still_improving&quot;: false,
-    &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
-    &quot;finished_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+    &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
+    &quot;finished_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
     &quot;best&quot;: {
      &quot;system&quot;: &quot;sglang&quot;,
      &quot;index&quot;: 0,
@@ -2312,7 +2312,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
      &quot;objective&quot;: 150.29370441186376,
      &quot;outcome&quot;: &quot;ok&quot;,
      &quot;wall_time_s&quot;: 12.0,
-     &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+     &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
      &quot;detail&quot;: {
       &quot;output_throughput&quot;: 7767.554378266149,
       &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2333,7 +2333,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 150.29370441186376,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7767.554378266149,
        &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2353,7 +2353,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.72510069390248,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7738.167516612615,
        &quot;e2e_p99&quot;: 3877.8323395921925,
@@ -2373,7 +2373,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 145.08653088448818,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7498.434632437561,
        &quot;e2e_p99&quot;: 3926.007451326962,
@@ -2393,7 +2393,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6706.204543790278,
        &quot;e2e_p99&quot;: 3426.2603290118873,
@@ -2413,7 +2413,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 145.08653088448818,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7498.434632437561,
        &quot;e2e_p99&quot;: 3926.007451326962,
@@ -2433,7 +2433,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 150.29370441186376,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7767.554378266149,
        &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2453,7 +2453,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 147.87655505541113,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7642.6300566512855,
        &quot;e2e_p99&quot;: 3624.8184661690575,
@@ -2473,7 +2473,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5594.024896382682,
        &quot;e2e_p99&quot;: 3340.5213592280434,
@@ -2493,7 +2493,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7089.348715089006,
        &quot;e2e_p99&quot;: 3312.1234566018097,
@@ -2513,7 +2513,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.72510069390248,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7738.167516612615,
        &quot;e2e_p99&quot;: 3877.8323395921925,
@@ -2533,7 +2533,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6712.168437913742,
        &quot;e2e_p99&quot;: 3424.6784296151986,
@@ -2553,7 +2553,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.55557957374106,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7419.311241319871,
        &quot;e2e_p99&quot;: 3807.8381826601067,
@@ -2573,7 +2573,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 148.68251185197622,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7684.283918789762,
        &quot;e2e_p99&quot;: 3750.129356890471,
@@ -2593,7 +2593,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.72510069390248,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7738.167516612615,
        &quot;e2e_p99&quot;: 3877.8323395921925,
@@ -2613,7 +2613,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.29278835568786,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7715.824534192837,
        &quot;e2e_p99&quot;: 3741.5370167993688,
@@ -2633,7 +2633,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.72510069390248,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7738.167516612615,
        &quot;e2e_p99&quot;: 3877.8323395921925,
@@ -2653,7 +2653,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 144.98885915769472,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7493.386713417557,
        &quot;e2e_p99&quot;: 3926.2646470948303,
@@ -2673,7 +2673,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 147.87655505541113,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7642.6300566512855,
        &quot;e2e_p99&quot;: 3624.8184661690575,
@@ -2693,7 +2693,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 141.79602809575823,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7328.373222059025,
        &quot;e2e_p99&quot;: 3697.4383956747834,
@@ -2713,7 +2713,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7089.348715089006,
        &quot;e2e_p99&quot;: 3312.1234566018097,
@@ -2733,7 +2733,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5534.692345911692,
        &quot;e2e_p99&quot;: 3363.990595836687,
@@ -2753,7 +2753,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 6712.168437913742,
        &quot;e2e_p99&quot;: 3424.6784296151986,
@@ -2773,7 +2773,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 148.68251185197622,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7684.283918789762,
        &quot;e2e_p99&quot;: 3750.129356890471,
@@ -2793,7 +2793,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 143.55557957374106,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7419.311241319871,
        &quot;e2e_p99&quot;: 3807.8381826601067,
@@ -2813,7 +2813,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5594.024896382682,
        &quot;e2e_p99&quot;: 3340.5213592280434,
@@ -2833,7 +2833,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7131.954404671185,
        &quot;e2e_p99&quot;: 3304.6239662556663,
@@ -2853,7 +2853,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 150.29370441186376,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7767.554378266149,
        &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2873,7 +2873,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 150.29370441186376,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7767.554378266149,
        &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2893,7 +2893,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 150.29370441186376,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7767.554378266149,
        &quot;e2e_p99&quot;: 3872.1152036651038,
@@ -2913,7 +2913,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 147.87655505541113,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7642.6300566512855,
        &quot;e2e_p99&quot;: 3624.8184661690575,
@@ -2933,7 +2933,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.29278835568786,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7715.824534192837,
        &quot;e2e_p99&quot;: 3741.5370167993688,
@@ -2953,7 +2953,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.72510069390248,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7738.167516612615,
        &quot;e2e_p99&quot;: 3877.8323395921925,
@@ -2973,7 +2973,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 145.08653088448818,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7498.434632437561,
        &quot;e2e_p99&quot;: 3926.007451326962,
@@ -2993,7 +2993,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5071.637968419761,
        &quot;e2e_p99&quot;: 3588.9296480935154,
@@ -3013,7 +3013,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 141.79602809575823,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7328.373222059025,
        &quot;e2e_p99&quot;: 3697.4383956747834,
@@ -3033,7 +3033,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 141.79602809575823,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7328.373222059025,
        &quot;e2e_p99&quot;: 3697.4383956747834,
@@ -3053,7 +3053,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 145.08653088448818,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7498.434632437561,
        &quot;e2e_p99&quot;: 3926.007451326962,
@@ -3073,7 +3073,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 149.29278835568786,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7715.824534192837,
        &quot;e2e_p99&quot;: 3741.5370167993688,
@@ -3093,7 +3093,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5534.692345911692,
        &quot;e2e_p99&quot;: 3363.990595836687,
@@ -3113,7 +3113,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5071.637968419761,
        &quot;e2e_p99&quot;: 3588.9296480935154,
@@ -3172,8 +3172,8 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
     &quot;trials_per_dim&quot;: 8.0,
     &quot;space_coverage&quot;: 0.20833333333333334,
     &quot;still_improving&quot;: false,
-    &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
-    &quot;finished_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+    &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
+    &quot;finished_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
     &quot;best&quot;: {
      &quot;system&quot;: &quot;trtllm&quot;,
      &quot;index&quot;: 5,
@@ -3187,7 +3187,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
      &quot;objective&quot;: 157.1569355627737,
      &quot;outcome&quot;: &quot;ok&quot;,
      &quot;wall_time_s&quot;: 432.0,
-     &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+     &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
      &quot;detail&quot;: {
       &quot;output_throughput&quot;: 8122.263322223051,
       &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3208,7 +3208,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3185.728978096642,
        &quot;e2e_p99&quot;: 8598.725296496817,
@@ -3228,7 +3228,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7279.943876753336,
        &quot;e2e_p99&quot;: 3151.011712579769,
@@ -3248,7 +3248,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 155.83870885610753,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8054.134070455778,
        &quot;e2e_p99&quot;: 3541.6165187346137,
@@ -3268,7 +3268,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 155.6996405155137,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8046.946670943036,
        &quot;e2e_p99&quot;: 3547.735306637486,
@@ -3288,7 +3288,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5540.608316356375,
        &quot;e2e_p99&quot;: 3280.3305289320747,
@@ -3308,7 +3308,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3328,7 +3328,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3561.036874765305,
        &quot;e2e_p99&quot;: 8454.6735638689,
@@ -3348,7 +3348,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7279.943876753336,
        &quot;e2e_p99&quot;: 3151.011712579769,
@@ -3368,7 +3368,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 1477.2436095213232,
        &quot;e2e_p99&quot;: 12557.890463696034,
@@ -3388,7 +3388,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5540.608316356375,
        &quot;e2e_p99&quot;: 3280.3305289320747,
@@ -3408,7 +3408,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3428,7 +3428,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2505.4519071444743,
        &quot;e2e_p99&quot;: 9314.502406395013,
@@ -3448,7 +3448,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3468,7 +3468,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 1477.4020292102566,
        &quot;e2e_p99&quot;: 12557.882636802044,
@@ -3488,7 +3488,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3185.728978096642,
        &quot;e2e_p99&quot;: 8598.725296496817,
@@ -3508,7 +3508,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5540.608316356375,
        &quot;e2e_p99&quot;: 3280.3305289320747,
@@ -3528,7 +3528,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2505.4519071444743,
        &quot;e2e_p99&quot;: 9314.502406395013,
@@ -3548,7 +3548,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3568,7 +3568,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3562.2893574747195,
        &quot;e2e_p99&quot;: 8454.328863318497,
@@ -3588,7 +3588,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7268.977338112211,
        &quot;e2e_p99&quot;: 3153.589989476549,
@@ -3608,7 +3608,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 155.6996405155137,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8046.946670943036,
        &quot;e2e_p99&quot;: 3547.735306637486,
@@ -3628,7 +3628,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 153.26739163732228,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7921.241968295909,
        &quot;e2e_p99&quot;: 3409.9892154954823,
@@ -3648,7 +3648,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 2505.4519071444743,
        &quot;e2e_p99&quot;: 9314.502406395013,
@@ -3668,7 +3668,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3185.728978096642,
        &quot;e2e_p99&quot;: 8598.725296496817,
@@ -3688,7 +3688,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5540.608316356375,
        &quot;e2e_p99&quot;: 3280.3305289320747,
@@ -3708,7 +3708,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7279.943876753336,
        &quot;e2e_p99&quot;: 3151.011712579769,
@@ -3728,7 +3728,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3748,7 +3748,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.05562572699586,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8117.027376635462,
        &quot;e2e_p99&quot;: 3659.6173628144647,
@@ -3768,7 +3768,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3788,7 +3788,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3808,7 +3808,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 153.26739163732228,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7921.241968295909,
        &quot;e2e_p99&quot;: 3409.9892154954823,
@@ -3828,7 +3828,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 155.83870885610753,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8054.134070455778,
        &quot;e2e_p99&quot;: 3541.6165187346137,
@@ -3848,7 +3848,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3562.2893574747195,
        &quot;e2e_p99&quot;: 8454.328863318497,
@@ -3868,7 +3868,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 157.1569355627737,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 8122.263322223051,
        &quot;e2e_p99&quot;: 3656.1908759766675,
@@ -3888,7 +3888,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 5540.608316356375,
        &quot;e2e_p99&quot;: 3280.3305289320747,
@@ -3908,7 +3908,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 153.26739163732228,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7921.241968295909,
        &quot;e2e_p99&quot;: 3409.9892154954823,
@@ -3928,7 +3928,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7268.977338112211,
        &quot;e2e_p99&quot;: 3153.589989476549,
@@ -3948,7 +3948,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3406.516312538521,
        &quot;e2e_p99&quot;: 8495.105390900773,
@@ -3968,7 +3968,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3406.516312538521,
        &quot;e2e_p99&quot;: 8495.105390900773,
@@ -3988,7 +3988,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 432.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:18Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 3562.2893574747195,
        &quot;e2e_p99&quot;: 8454.328863318497,
@@ -4052,8 +4052,8 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
     &quot;trials_per_dim&quot;: 6.666666666666667,
     &quot;space_coverage&quot;: 0.06944444444444445,
     &quot;still_improving&quot;: false,
-    &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
-    &quot;finished_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+    &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
+    &quot;finished_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
     &quot;best&quot;: {
      &quot;system&quot;: &quot;vllm&quot;,
      &quot;index&quot;: 0,
@@ -4068,7 +4068,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
      &quot;objective&quot;: 81.19314586817804,
      &quot;outcome&quot;: &quot;ok&quot;,
      &quot;wall_time_s&quot;: 12.0,
-     &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+     &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
      &quot;detail&quot;: {
       &quot;output_throughput&quot;: 17057.868015445525,
       &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4090,7 +4090,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4111,7 +4111,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4054.911521734167,
        &quot;e2e_p99&quot;: 18449.1453728094,
@@ -4132,7 +4132,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4153,7 +4153,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7823.8132565523365,
        &quot;e2e_p99&quot;: 9551.920919838445,
@@ -4174,7 +4174,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 51.74265226406936,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 10870.613814158332,
        &quot;e2e_p99&quot;: 11876.371187545628,
@@ -4195,7 +4195,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4054.911521734167,
        &quot;e2e_p99&quot;: 18449.1453728094,
@@ -4216,7 +4216,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4237,7 +4237,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4054.911521734167,
        &quot;e2e_p99&quot;: 18449.1453728094,
@@ -4258,7 +4258,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4279,7 +4279,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7823.8132565523365,
        &quot;e2e_p99&quot;: 9551.920919838445,
@@ -4300,7 +4300,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4321,7 +4321,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4054.911521734167,
        &quot;e2e_p99&quot;: 18449.1453728094,
@@ -4342,7 +4342,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 4054.911521734167,
        &quot;e2e_p99&quot;: 18449.1453728094,
@@ -4363,7 +4363,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 12408.627776730384,
        &quot;e2e_p99&quot;: 7587.79820450215,
@@ -4384,7 +4384,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 12408.627776730384,
        &quot;e2e_p99&quot;: 7587.79820450215,
@@ -4405,7 +4405,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7021.696514314101,
        &quot;e2e_p99&quot;: 13426.13886835959,
@@ -4426,7 +4426,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 51.74265226406936,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 10870.613814158332,
        &quot;e2e_p99&quot;: 11876.371187545628,
@@ -4447,7 +4447,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7021.696514314101,
        &quot;e2e_p99&quot;: 13426.13886835959,
@@ -4468,7 +4468,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4489,7 +4489,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7021.696514314101,
        &quot;e2e_p99&quot;: 13426.13886835959,
@@ -4510,7 +4510,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
        &quot;e2e_p99&quot;: 7560.120189550216,
@@ -4531,7 +4531,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7823.8132565523365,
        &quot;e2e_p99&quot;: 9551.920919838445,
@@ -4552,7 +4552,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 0.0,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 7823.8132565523365,
        &quot;e2e_p99&quot;: 9551.920919838445,
@@ -4573,7 +4573,7 @@ q=0.000488  n=11/11</title><rect x="366" y="74" width="53" height="53" fill="#f4
       &quot;objective&quot;: 81.19314586817804,
       &quot;outcome&quot;: &quot;ok&quot;,
       &quot;wall_time_s&quot;: 12.0,
-      &quot;started_at&quot;: &quot;2026-08-29T02:14:28Z&quot;,
+      &quot;started_at&quot;: &quot;2026-08-29T02:55:17Z&quot;,
       &quot;detail&quot;: {
        &quot;output_throughput&quot;: 17057.868015445525,
      </pre></details>
