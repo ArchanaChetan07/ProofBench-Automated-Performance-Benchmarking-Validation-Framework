@@ -23,8 +23,10 @@ reference instead.
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Sequence
+from functools import partial
+from typing import Any
 
 import numpy as np
 
@@ -33,8 +35,8 @@ from losscolumn.core.losscolumn import LossColumn, extract_loss_column
 from losscolumn.core.provenance import Provenance
 from losscolumn.core.stats import CellComparison, compare_cells
 from losscolumn.thrusts.kernel.bench import (
-    device_description,
     clock_stability,
+    device_description,
     free_memory,
     paired_ab,
 )
@@ -176,31 +178,32 @@ def run_kernel_sweep(
         flops = attention_flops(spec.batch, heads, spec.seq_len, spec.seq_len,
                                 spec.head_dim, causal)
 
+        # Bind the tensors into the closures explicitly rather than capturing
+        # loop variables. The captured names are freed at the end of each
+        # iteration, and a closure that reads them by reference would be a
+        # latent bug the moment anything downstream deferred the call.
+        run_method = partial(impl, q, k, v, causal=causal)
+        run_reference = partial(sdpa_reference, q, k, v, causal=causal)
+
         if not cr.passed:
             env.mark_missing(
                 METHOD, cell, f"correctness failed: {', '.join(cr.failures()) or cr.error}"
             )
             b_only, _ = paired_ab(
-                lambda: sdpa_reference(q, k, v, causal=causal),
-                lambda: sdpa_reference(q, k, v, causal=causal),
-                replicates=replicates,
-                iters=iters,
-                device=device,
+                run_reference, run_reference,
+                replicates=replicates, iters=iters, device=device,
             )
             env.put(BASELINE, cell, [_tflops(flops, t) for t in b_only])
-            del q, k, v
+            del q, k, v, run_method, run_reference
             continue
 
         a_ms, b_ms = paired_ab(
-            lambda: impl(q, k, v, causal=causal),
-            lambda: sdpa_reference(q, k, v, causal=causal),
-            replicates=replicates,
-            iters=iters,
-            device=device,
+            run_method, run_reference,
+            replicates=replicates, iters=iters, device=device,
         )
         env.put(METHOD, cell, [_tflops(flops, t) for t in a_ms])
         env.put(BASELINE, cell, [_tflops(flops, t) for t in b_ms])
-        del q, k, v
+        del q, k, v, run_method, run_reference
 
     result.clocks["after"] = clock_stability(device)
     result.comparisons = compare_cells(

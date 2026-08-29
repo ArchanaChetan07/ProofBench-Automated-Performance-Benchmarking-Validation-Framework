@@ -21,8 +21,9 @@ The design commitments worth naming:
 from __future__ import annotations
 
 import itertools
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Iterator, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -177,13 +178,13 @@ class Envelope:
         return itertools.product(*(range(n) for n in self.grid_shape))
 
     def coords(self, cell: Cell) -> dict[str, Level]:
-        return {f.name: f.levels[i] for f, i in zip(self.factors, cell)}
+        return {f.name: f.levels[i] for f, i in zip(self.factors, cell, strict=False)}
 
     def cell_of(self, **coords: Level) -> Cell:
         return tuple(f.index_of(coords[f.name]) for f in self.factors)
 
     def label(self, cell: Cell, sep: str = ", ") -> str:
-        return sep.join(f"{f.name}={f.levels[i]}" for f, i in zip(self.factors, cell))
+        return sep.join(f"{f.name}={f.levels[i]}" for f, i in zip(self.factors, cell, strict=False))
 
     # ---- writing ----------------------------------------------------------
 
@@ -288,9 +289,9 @@ class Envelope:
         other = [i for i in range(len(self.factors)) if i != ax]
         for combo in itertools.product(*(range(self.grid_shape[i]) for i in other)):
             cell = [0] * len(self.factors)
-            for i, v in zip(other, combo):
+            for i, v in zip(other, combo, strict=False):
                 cell[i] = v
-            fixed = {self.factors[i].name: self.factors[i].levels[v] for i, v in zip(other, combo)}
+            fixed = {self.factors[i].name: self.factors[i].levels[v] for i, v in zip(other, combo, strict=False)}
             yield fixed, tuple(cell)
 
     def fiber_cells(self, axis_name: str, base: Cell) -> list[Cell]:

@@ -10,10 +10,19 @@ Definitions used here:
 **Step.** Between adjacent levels of one factor, holding all others fixed, the
 log-ratio of the metric, oriented so positive means the surface got worse.
 
-**Cliff.** A step whose degradation exceeds both an absolute floor and a robust
-threshold from the pooled step distribution on that axis, *and* whose bootstrap
-interval clears the floor. Both conditions are required: real surfaces are
-noisy, and a single unlucky replicate should not manufacture a discontinuity.
+**Cliff.** A step that is worse than a *typical* step on the same axis by at
+least the absolute floor, and is also a robust outlier among those steps, and
+whose bootstrap interval clears that margin. All three are required, and the
+first is the one that carries the definition: a surface degrading 30% at every
+level has no cliff however steep it is, because nothing about any particular
+step is surprising.
+
+The centre and scale are computed leaving the candidate step out. Including it
+lets a cliff pull the baseline it is measured against toward itself, and since
+a structural cliff usually appears in every fibre at once, the contaminated
+median can hide all of them simultaneously. The scale is floored, because an
+axis whose steps are nearly identical otherwise yields a scale near zero and
+then ordinary measurement noise reads as many robust deviations out.
 
 **Exposure.** For any configuration, the worst degradation reachable by moving
 one level along any axis. This is the number that answers RQ1 directly: a
@@ -160,7 +169,7 @@ def detect_cliffs(
         steps: list[tuple[float, Cell, Cell, dict[str, Any]]] = []
         for fixed, base in env.fibers(axis):
             cells = env.fiber_cells(axis, base)
-            for c0, c1 in zip(cells[:-1], cells[1:]):
+            for c0, c1 in zip(cells[:-1], cells[1:], strict=False):
                 a = env.replicates_at(system, c0)
                 b = env.replicates_at(system, c1)
                 if a.size == 0 or b.size == 0:
@@ -172,16 +181,19 @@ def detect_cliffs(
                 d = sign * (math.log(float(np.median(b))) - math.log(float(np.median(a))))
                 steps.append((d, c0, c1, fixed))
 
-        finite = [s[0] for s in steps if math.isfinite(s[0])]
-        if not finite:
+        # `finite` holds only the measurable steps, so a step's position in
+        # `steps` is not its position in `finite`; the map keeps leave-one-out
+        # excluding the right element.
+        finite_pos = {i: k for k, i in enumerate(
+            [i for i, s in enumerate(steps) if math.isfinite(s[0])]
+        )}
+        finite = np.asarray([s[0] for s in steps if math.isfinite(s[0])], dtype=float)
+        if finite.size == 0:
             continue
-        med = float(np.median(finite))
-        mad = float(np.median(np.abs(np.asarray(finite) - med))) * 1.4826
-        thresh_robust = med + robust_z * mad if mad > 0 else math.inf
         floor = math.log1p(min_drop)
         report.n_steps_tested += len(steps)
 
-        for d, c0, c1, fixed in steps:
+        for si, (d, c0, c1, fixed) in enumerate(steps):
             if not math.isfinite(d):
                 report.cliffs.append(
                     Cliff(
@@ -199,16 +211,32 @@ def detect_cliffs(
                 )
                 exposure[env.label(c0)] = float("inf")
                 continue
-            if d < floor or d < thresh_robust:
+
+            # Compare this step against the *other* steps on the same axis,
+            # leaving itself out. Including it lets a cliff drag the centre it
+            # is being measured against toward itself, and when several fibres
+            # share the same cliff -- which they usually do, since the cause is
+            # structural -- the contaminated median hides all of them.
+            center, scale = _robust_center(finite, finite_pos.get(si))
+
+            # Two conditions, and the first is the one that matters. A cliff is
+            # a step that is worse than a typical step on this axis by a
+            # practically relevant margin. A surface declining 30% at every
+            # level has no cliff, however steep; the second condition alone
+            # would call one, because with a near-zero spread any deviation is
+            # many robust sigmas out.
+            excess = d - center
+            surprising = d >= center + robust_z * scale
+            if excess < floor or not surprising:
                 if d > 0:
                     lbl = env.label(c0)
                     exposure[lbl] = max(exposure[lbl], (math.exp(d) - 1) * 100)
                 continue
 
             lo, hi = _step_ci(env, system, c0, c1, sign, n_boot, rng)
-            if lo <= floor:  # interval does not clear the floor -> not supported
+            if lo <= center + floor:  # interval does not clear the margin
                 continue
-            z = (d - med) / mad if mad > 0 else float("inf")
+            z = excess / scale if scale > 0 else float("inf")
             report.cliffs.append(
                 Cliff(
                     axis=axis,
@@ -228,6 +256,22 @@ def detect_cliffs(
 
     report.exposure = exposure
     return report
+
+
+# Never claim to resolve a step-to-step difference finer than this, in log
+# units (~2%). Without a floor, an axis whose steps are all nearly identical
+# produces a scale estimate near zero, and then every step is an outlier.
+_MIN_SCALE = 0.02
+
+
+def _robust_center(steps: np.ndarray, exclude: int | None) -> tuple[float, float]:
+    """Leave-one-out robust centre and scale of the step distribution."""
+    others = np.delete(steps, exclude) if exclude is not None and steps.size > 1 else steps
+    if others.size == 0:
+        return 0.0, _MIN_SCALE
+    center = float(np.median(others))
+    mad = float(np.median(np.abs(others - center))) * 1.4826
+    return center, max(mad, _MIN_SCALE)
 
 
 def _step_ci(

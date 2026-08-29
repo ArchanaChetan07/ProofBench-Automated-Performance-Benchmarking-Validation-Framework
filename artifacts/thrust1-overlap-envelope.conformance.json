@@ -1,0 +1,306 @@
+{
+  "kind": "conformance_report",
+  "claim_id": "lc-thrust1-overlap-envelope",
+  "standard_version": "LC-1.0",
+  "grade": "non-conforming",
+  "n_fatal": 1,
+  "n_warnings": 1,
+  "findings": [
+    {
+      "rule": "LC-0",
+      "requirement": "LC-1.0",
+      "severity": "fatal",
+      "passed": true,
+      "message": "claim declares `LC-1.0`",
+      "detail": {}
+    },
+    {
+      "rule": "LC-0.2",
+      "requirement": "LC-1.0",
+      "severity": "fatal",
+      "passed": true,
+      "message": "evidence class: simulated",
+      "detail": {}
+    },
+    {
+      "rule": "LC-0.3",
+      "requirement": "LC-1.0",
+      "severity": "fatal",
+      "passed": true,
+      "message": "the simulated component is described",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.1",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "passed": true,
+      "message": "loss column present",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.2",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "passed": true,
+      "message": "losing cells are covered by described regions",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.3",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "passed": true,
+      "message": "loss column is complete over its own cells",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.4",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "passed": true,
+      "message": "loss column is in the main body",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.5",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "passed": true,
+      "message": "every loss region carries an attributed cause",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.6",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "passed": true,
+      "message": "unmeasurable cells are accounted for",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.8",
+      "requirement": "Loss column",
+      "severity": "fatal",
+      "passed": true,
+      "message": "the design is capable of declaring a loss if one exists",
+      "detail": {}
+    },
+    {
+      "rule": "LC-1.7",
+      "requirement": "Loss column",
+      "severity": "warning",
+      "passed": true,
+      "message": "inconclusive fraction is within tolerance",
+      "detail": {}
+    },
+    {
+      "rule": "LC-2.1",
+      "requirement": "Tuning-budget parity",
+      "severity": "info",
+      "passed": true,
+      "message": "no tuning was involved; parity certificate not applicable",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.1",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "passed": true,
+      "message": "4 factors swept",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.2",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "passed": true,
+      "message": "48 cells measured",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.3",
+      "requirement": "Envelope, not point",
+      "severity": "fatal",
+      "passed": true,
+      "message": "headline reports the range, not a single number",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.4",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "passed": true,
+      "message": "headline range is non-degenerate",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.5",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "passed": true,
+      "message": "worst case names its conditions",
+      "detail": {}
+    },
+    {
+      "rule": "LC-3.6",
+      "requirement": "Envelope, not point",
+      "severity": "warning",
+      "passed": true,
+      "message": "headline avoids unbounded superlatives",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.1",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "passed": true,
+      "message": "pre-registration present",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.2",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "passed": true,
+      "message": "sealed at 2026-08-28T22:48:06Z",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.3",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "passed": true,
+      "message": "protocol matches its seal",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.4",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "passed": true,
+      "message": "results were verified against the protocol",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.5",
+      "requirement": "Pre-registration",
+      "severity": "fatal",
+      "passed": true,
+      "message": "no fatal protocol deviations",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.6",
+      "requirement": "Pre-registration",
+      "severity": "warning",
+      "passed": true,
+      "message": "no deviations from the sealed protocol",
+      "detail": {}
+    },
+    {
+      "rule": "LC-4.7",
+      "requirement": "Pre-registration",
+      "severity": "warning",
+      "passed": true,
+      "message": "seal anchored to `git:a0bdfe6`",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.1",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "passed": true,
+      "message": "`losscolumn run thrust1`",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.2",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "passed": true,
+      "message": "reproduction is a single command",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.3",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "passed": true,
+      "message": "pinned to `222dec09b09b`",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.4",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "passed": false,
+      "message": "the producing working tree was dirty; the pinned commit does not identify the code that ran",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.5",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "passed": true,
+      "message": "image `ghcr.io/archanachetan07/losscolumn:0.1.0`",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.6",
+      "requirement": "One-command reproduction",
+      "severity": "fatal",
+      "passed": true,
+      "message": "hardware: 8x A100 80GB (measured path) / calibratable model (this artifact)",
+      "detail": {}
+    },
+    {
+      "rule": "LC-5.7",
+      "requirement": "One-command reproduction",
+      "severity": "warning",
+      "passed": true,
+      "message": "~120 min",
+      "detail": {}
+    },
+    {
+      "rule": "LC-Q1",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": true,
+      "message": "11 replicates per cell",
+      "detail": {}
+    },
+    {
+      "rule": "LC-Q2",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": true,
+      "message": "measurements were interleaved A/B",
+      "detail": {}
+    },
+    {
+      "rule": "LC-Q3",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": false,
+      "message": "lowest per-system cell coverage is 83%",
+      "detail": {}
+    },
+    {
+      "rule": "LC-Q4",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": true,
+      "message": "noise/effect ratio 0.00",
+      "detail": {}
+    },
+    {
+      "rule": "LC-Q5",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": true,
+      "message": "3 limitation(s) stated",
+      "detail": {}
+    }
+  ]
+}

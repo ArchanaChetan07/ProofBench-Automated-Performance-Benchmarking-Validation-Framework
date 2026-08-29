@@ -26,8 +26,9 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from losscolumn.version import STANDARD_VERSION
 
@@ -241,7 +242,6 @@ class Validator:
 
     def _check_parity(self, c: dict[str, Any], add: Callable) -> None:
         par = c.get("parity")
-        systems_compared = c.get("method") and c.get("baseline")
         needs_parity = bool(par) or _is_tuned_comparison(c)
 
         if not needs_parity:
@@ -266,18 +266,18 @@ class Validator:
             f"only {len(ledgers)} tuning ledger(s); parity needs at least two systems"
             if len(ledgers) < 2 else f"{len(ledgers)} systems tuned under one budget")
 
-        counts = {l.get("system"): l.get("n_trials") for l in ledgers}
+        counts = {led.get("system"): led.get("n_trials") for led in ledgers}
         add("LC-2.4", "Tuning-budget parity", "warning",
             len(set(counts.values())) <= 1,
             f"trial counts differ: {counts}" if len(set(counts.values())) > 1
             else f"equal trial budgets ({next(iter(counts.values()), 0)} per system)")
 
-        binding = [l.get("system") for l in ledgers if l.get("still_improving")]
+        binding = [led.get("system") for led in ledgers if led.get("still_improving")]
         add("LC-2.5", "Tuning-budget parity", "warning", not binding,
             f"budget was binding for {binding}: their performance is a lower bound"
             if binding else "no system was still improving when its budget ended")
 
-        ops = {l.get("operator") for l in ledgers}
+        ops = {led.get("operator") for led in ledgers}
         add("LC-2.6", "Tuning-budget parity", "info", True,
             f"operator(s) of record: {sorted(x for x in ops if x)} "
             "(skill is documented, not eliminated)")
@@ -287,7 +287,7 @@ class Validator:
         # inherits one from each constituent. The requirement is that nothing
         # in the comparison went untuned, so the check follows the derivation
         # rather than insisting on a literal ledger for the baseline's name.
-        tuned_systems = {l.get("system") for l in ledgers}
+        tuned_systems = {led.get("system") for led in ledgers}
         derived = (c.get("supporting", {}) or {}).get("baseline_derived_from") or []
         baseline = c.get("baseline")
         if baseline in tuned_systems:

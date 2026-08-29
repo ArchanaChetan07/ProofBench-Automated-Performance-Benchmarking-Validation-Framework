@@ -190,8 +190,6 @@ def md_to_html(md: str) -> str:
     generate, and nothing else. Pulling in a full parser to render text this
     package wrote itself would be a dependency bought for no benefit.
     """
-    import html as _html
-    import re
 
     out: list[str] = []
     rows: list[list[str]] = []

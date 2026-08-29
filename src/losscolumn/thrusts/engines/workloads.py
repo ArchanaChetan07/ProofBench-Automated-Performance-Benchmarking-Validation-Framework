@@ -15,8 +15,9 @@ certificate is what proves the inputs were identical.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -137,7 +138,7 @@ def _trace(
         description=description,
         requests=[
             Request(float(a), int(p), int(o), int(g))
-            for a, p, o, g in zip(arrivals, prompts, outs, groups)
+            for a, p, o, g in zip(arrivals, prompts, outs, groups, strict=False)
         ],
         shared_prefix_tokens=shared_prefix_tokens,
         slo_ttft_ms=slo_ttft_ms,

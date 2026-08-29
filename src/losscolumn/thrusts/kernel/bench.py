@@ -24,8 +24,9 @@ and the replicate-level spread is kept rather than collapsed.
 from __future__ import annotations
 
 import gc
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Sequence
+from typing import Any
 
 try:
     import torch
@@ -102,7 +103,7 @@ def time_callable(
                 fn()
                 end[i].record()
             torch.cuda.synchronize()
-            samples = [float(s.elapsed_time(e)) for s, e in zip(start, end)]
+            samples = [float(s.elapsed_time(e)) for s, e in zip(start, end, strict=False)]
         else:
             import time
 

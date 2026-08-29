@@ -18,7 +18,8 @@ from __future__ import annotations
 
 import html
 import math
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from losscolumn.core.envelope import Envelope
 from losscolumn.core.losscolumn import LossColumn
@@ -32,9 +33,14 @@ _TIE = (241, 241, 240)
 _NEUTRAL = (250, 250, 249)
 
 
+def _hex(rgb: tuple[int, int, int]) -> str:
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
+
+
 def _lerp(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> str:
+    """Interpolate two RGB triples into a hex colour."""
     t = max(0.0, min(1.0, t))
-    return "#%02x%02x%02x" % tuple(int(round(x + (y - x) * t)) for x, y in zip(a, b))
+    return _hex(tuple(int(round(x + (y - x) * t)) for x, y in zip(a, b, strict=False)))
 
 
 def _fill_for(c: CellComparison, vmax: float) -> tuple[str, str]:
@@ -44,9 +50,9 @@ def _fill_for(c: CellComparison, vmax: float) -> tuple[str, str]:
     if c.verdict == "loss" and not math.isfinite(c.effect):
         return "#67000d", "cross"
     if c.verdict == "inconclusive":
-        return "#%02x%02x%02x" % _NEUTRAL, "hatch"
+        return _hex(_NEUTRAL), "hatch"
     if c.verdict == "tie":
-        return "#%02x%02x%02x" % _TIE, ""
+        return _hex(_TIE), ""
     t = min(abs(c.effect) / vmax, 1.0) if vmax > 0 else 0.0
     return (_lerp(*_LOSS, t) if c.effect > 0 else _lerp(*_WIN, t)), ""
 
@@ -242,7 +248,7 @@ def _legend(W: int, H: int, vmax: float) -> str:
     for t in [1.0, 0.6, 0.3]:
         o.append(f'<rect x="{x}" y="-9" width="15" height="12" fill="{_lerp(*_WIN, t)}"/>')
         x += 15
-    o.append(f'<rect x="{x}" y="-9" width="15" height="12" fill="#{"%02x%02x%02x" % _TIE}"/>')
+    o.append(f'<rect x="{x}" y="-9" width="15" height="12" fill="{_hex(_TIE)}"/>')
     x += 15
     for t in [0.3, 0.6, 1.0]:
         o.append(f'<rect x="{x}" y="-9" width="15" height="12" fill="{_lerp(*_LOSS, t)}"/>')

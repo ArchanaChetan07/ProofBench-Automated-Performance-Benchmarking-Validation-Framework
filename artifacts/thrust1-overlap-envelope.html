@@ -1,0 +1,2135 @@
+<title>The overlap envelope: where the recommended sharding configuration breaks down</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<header><div class="kicker">Thrust I &middot; conforming claim &middot; LC-1.0</div><h1>The overlap envelope: where the recommended sharding configuration breaks down</h1><div class="banner"><b>SIMULATED EVIDENCE</b> &mdash; Produced by the package&#x27;s calibratable model, not by measurement on the target hardware. The model&#x27;s parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.</div><div class="headline">Across a 48-cell sharding envelope for a 7B-class model, the commonly recommended FSDP configuration (full_shard/tp1) is at or near the best swept alternative over most of the space and collapses in identifiable corners of it. Median -0.1% across the swept envelope; best +0.2% at micro_batch=4, seq_len=8192, checkpointing=True, world_size=8; worst -inf% at micro_batch=2, seq_len=8192, checkpointing=False, world_size=8.</div><div class="meta"><span><code>lc-thrust1-overlap-envelope</code></span><span>full_shard/tp1 vs best_of_swept</span><span>2026-08-29T01:56:57Z</span><span class="tag fail">non-conforming</span></div></header>
+<div class="stat"><div><b>25%</b><span>of envelope lost</span></div><div><b>+inf%</b><span>worst regression</span></div><div><b>3</b><span>loss regions</span></div><div><b>2%</b><span>inconclusive</span></div><div><b>48</b><span>cells measured</span></div></div>
+<div class="loss"><h2>Loss column</h2><p>full_shard/tp1 loses to best_of_swept on 25% of the swept envelope (12/48 cells), across 3 region(s); worst measurable case +258.1% on cluster_throughput, and cannot run at all in 8 cell(s).</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>2 &lt;= micro_batch &lt;= 8 and seq_len=8192 and checkpointing=False</td><td>6/6 (12%)</td><td><span style="color:var(--loss)">+inf%</span></td><td><span style="color:var(--loss)"><b>+inf%</b></span></td><td>nan</td><td>the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</td></tr><tr><td><b>2</b></td><td>micro_batch=8 and 2048 &lt;= seq_len &lt;= 8192 and checkpointing=False</td><td>4/4 (8%)</td><td><span style="color:var(--loss)">+inf%</span></td><td><span style="color:var(--loss)"><b>+inf%</b></span></td><td>nan</td><td>the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</td></tr><tr><td><b>3</b></td><td>1 &lt;= micro_batch &lt;= 2 and seq_len=512 and world_size=32</td><td>4/4 (8%)</td><td><span style="color:var(--loss)">+127.1%</span></td><td><span style="color:var(--loss)"><b>+258.1%</b></span></td><td>0.00244</td><td>overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 5.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 12 loss, 0 win, 35 tie, 1 inconclusive, 0 unmeasurable.</li></ul></div>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 706 298" width="706" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Where the recommended sharding configuration loses"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="706" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Where the recommended sharding configuration loses</text><text x="0" y="42" font-size="12" fill="#57534e">full_shard/tp1 vs the best of the swept alternatives, cluster throughput. Cells collapse over checkpointing by taking the most adverse.</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">world_size=8</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>micro_batch=1, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.3..+0.3)
+q=0.875  n=11/11</title><rect x="96" y="182" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=2, seq_len=512, checkpointing=True, world_size=8
+verdict: tie
+effect: +0.2% (95% CI -0.0..+0.4)
+q=0.191  n=11/11</title><rect x="150" y="182" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=4, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.1% (95% CI -0.3..+0.1)
+q=0.886  n=11/11</title><rect x="204" y="182" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=8, seq_len=512, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.2..+0.2)
+q=0.818  n=11/11</title><rect x="258" y="182" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="285.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>micro_batch=1, seq_len=2048, checkpointing=False, world_size=8
+verdict: tie
+effect: +0.0% (95% CI -0.3..+0.3)
+q=0.818  n=11/11</title><rect x="96" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=2, seq_len=2048, checkpointing=True, world_size=8
+verdict: tie
+effect: +0.1% (95% CI -0.0..+0.3)
+q=0.234  n=11/11</title><rect x="150" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=4, seq_len=2048, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.1% (95% CI -0.4..+0.1)
+q=0.886  n=11/11</title><rect x="204" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=8, seq_len=2048, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~101 GB/rank against 80 GB HBM</title><rect x="258" y="128" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M270 140L299 169M299 140L270 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="88" y="105.0" font-size="11" text-anchor="end" fill="#44403c">8192</text><g><title>micro_batch=1, seq_len=8192, checkpointing=False, world_size=8
+verdict: tie
+effect: -0.0% (95% CI -0.3..+0.2)
+q=0.818  n=11/11</title><rect x="96" y="74" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-0</text></g><g><title>micro_batch=2, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~101 GB/rank against 80 GB HBM</title><rect x="150" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M162 86L191 115M191 86L162 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=4, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~187 GB/rank against 80 GB HBM</title><rect x="204" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=8, seq_len=8192, checkpointing=False, world_size=8
+verdict: loss
+OOM: model needs ~359 GB/rank against 80 GB HBM</title><rect x="258" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M270 86L299 115M299 86L270 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="150" y="74" width="161" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="162" cy="86" r="9" fill="#7f1d1d"/><text x="162" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="258" y="74" width="53" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="270" cy="86" r="9" fill="#7f1d1d"/><text x="270" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4</text><text x="285.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">8</text><text x="204.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">micro_batch</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text x="466" y="62" font-size="12" font-weight="600" fill="#292524">world_size=32</text><text x="458" y="213.0" font-size="11" text-anchor="end" fill="#44403c">512</text><g><title>micro_batch=1, seq_len=512, checkpointing=False, world_size=32
+verdict: loss
+effect: +258.1% (95% CI +257.1..+259.0)
+q=0.00244  n=11/11</title><rect x="466" y="182" width="53" height="53" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+258</text></g><g><title>micro_batch=2, seq_len=512, checkpointing=False, world_size=32
+verdict: loss
+effect: +83.0% (95% CI +82.6..+83.3)
+q=0.00244  n=11/11</title><rect x="520" y="182" width="53" height="53" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="547.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+83</text></g><g><title>micro_batch=4, seq_len=512, checkpointing=False, world_size=32
+verdict: inconclusive
+effect: +4.7% (95% CI +4.4..+5.1)
+q=0.00244  n=11/11</title><rect x="574" y="182" width="53" height="53" fill="#fafaf9" stroke="#ffffff" stroke-width="1"/><rect x="574" y="182" width="53" height="53" fill="url(#hatch)" opacity="0.85"/></g><g><title>micro_batch=8, seq_len=512, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.6% (95% CI +0.4..+0.7)
+q=0.00434  n=11/11</title><rect x="628" y="182" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="655.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+1</text></g><text x="458" y="159.0" font-size="11" text-anchor="end" fill="#44403c">2048</text><g><title>micro_batch=1, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +2.5% (95% CI +2.3..+2.8)
+q=0.00244  n=11/11</title><rect x="466" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+3</text></g><g><title>micro_batch=2, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.7% (95% CI +0.4..+1.1)
+q=0.0071  n=11/11</title><rect x="520" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="547.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+1</text></g><g><title>micro_batch=4, seq_len=2048, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.4% (95% CI +0.2..+0.7)
+q=0.0163  n=11/11</title><rect x="574" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="601.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=8, seq_len=2048, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~91 GB/rank against 80 GB HBM</title><rect x="628" y="128" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M640 140L669 169M669 140L640 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="458" y="105.0" font-size="11" text-anchor="end" fill="#44403c">8192</text><g><title>micro_batch=1, seq_len=8192, checkpointing=False, world_size=32
+verdict: tie
+effect: +0.3% (95% CI +0.1..+0.5)
+q=0.0481  n=11/11</title><rect x="466" y="74" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+0</text></g><g><title>micro_batch=2, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~91 GB/rank against 80 GB HBM</title><rect x="520" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M532 86L561 115M561 86L532 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=4, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~177 GB/rank against 80 GB HBM</title><rect x="574" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M586 86L615 115M615 86L586 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>micro_batch=8, seq_len=8192, checkpointing=False, world_size=32
+verdict: loss
+OOM: model needs ~349 GB/rank against 80 GB HBM</title><rect x="628" y="74" width="53" height="53" fill="#67000d" stroke="#ffffff" stroke-width="1"/><path d="M640 86L669 115M669 86L640 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="520" y="74" width="161" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="532" cy="86" r="9" fill="#7f1d1d"/><text x="532" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="628" y="74" width="53" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="640" cy="86" r="9" fill="#7f1d1d"/><text x="640" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><rect x="466" y="182" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="194" r="9" fill="#7f1d1d"/><text x="478" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2</text><text x="601.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4</text><text x="655.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">8</text><text x="574.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">micro_batch</text><text transform="translate(392,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 83% .. tie .. loss 83%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Red is a region where following the standard recommendation costs throughput; crossed cells are configurations that cannot run at all. Collapsing over the checkpointing axis takes the <em>worst</em> cell rather than the mean: averaging would hide the failures this map exists to show.</figcaption></figure>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 152" width="660" height="152" font-family="ui-sans-serif, Segoe UI, sans-serif"><rect width="660" height="152" fill="#ffffff"/><text x="0" y="17" font-size="13" font-weight="650" fill="#1c1917">Overlap efficiency by sharding configuration (worst first)</text><text x="210" y="46.0" font-size="10.5" text-anchor="end" fill="#292524">full_shard/tp8</text><rect x="220" y="34" width="348" height="15" fill="#f5f5f4"/><rect x="220" y="34" width="1.8" height="15" fill="#be123c"/><text x="576" y="46.0" font-size="10" fill="#1c1917">1%</text><text x="614" y="46.0" font-size="9.5" fill="#78716c">14% exp</text><text x="210" y="70.0" font-size="10.5" text-anchor="end" fill="#292524">full_shard/tp2</text><rect x="220" y="58" width="348" height="15" fill="#f5f5f4"/><rect x="220" y="58" width="231.5" height="15" fill="#b45309"/><text x="576" y="70.0" font-size="10" fill="#1c1917">67%</text><text x="614" y="70.0" font-size="9.5" fill="#78716c">3% exp</text><text x="210" y="94.0" font-size="10.5" text-anchor="end" fill="#292524">full_shard/tp1</text><rect x="220" y="82" width="348" height="15" fill="#f5f5f4"/><rect x="220" y="82" width="342.5" height="15" fill="#047857"/><text x="576" y="94.0" font-size="10" fill="#1c1917">98%</text><text x="614" y="94.0" font-size="9.5" fill="#78716c">0% exp</text><text x="210" y="118.0" font-size="10.5" text-anchor="end" fill="#292524">hybrid_shard/tp1</text><rect x="220" y="106" width="348" height="15" fill="#f5f5f4"/><rect x="220" y="106" width="343.0" height="15" fill="#047857"/><text x="576" y="118.0" font-size="10" fill="#1c1917">99%</text><text x="614" y="118.0" font-size="9.5" fill="#78716c">0% exp</text><text x="220" y="144" font-size="10" fill="#57534e">overlap efficiency = 1 - exposed communication / total communication (right column: exposed share of step)</text></svg><figcaption>Overlap efficiency is computed by interval algebra over the trace -- the union of communication intervals minus the union of compute intervals -- not by summing kernel durations, which double-counts concurrent collectives. The right-hand figure is exposed communication as a share of step wall-clock, which is what a sharding change actually buys.</figcaption></figure>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 210" width="720" height="210" font-family="ui-sans-serif, Segoe UI, sans-serif"><rect width="720" height="210" fill="#ffffff"/><text x="0" y="18" font-size="13" font-weight="650" fill="#1c1917">First quarter of one step -- full_shard/tp1</text><text x="108" y="51.0" font-size="11" text-anchor="end" fill="#292524">compute</text><rect x="118" y="34" width="584" height="26" fill="#fafaf9" stroke="#e7e5e4"/><rect x="129.70" y="36" width="572.30" height="22" fill="#1d4ed8" opacity="0.88"><title>1.624-324.184 ms</title></rect><text x="708" y="51.0" font-size="10" fill="#57534e">398%</text><text x="108" y="85.0" font-size="11" text-anchor="end" fill="#292524">communication</text><rect x="118" y="68" width="584" height="26" fill="#fafaf9" stroke="#e7e5e4"/><rect x="118.00" y="70" width="11.70" height="22" fill="#b45309" opacity="0.88"><title>0.000-1.624 ms</title></rect><rect x="130.30" y="70" width="11.57" height="22" fill="#b45309" opacity="0.88"><title>1.706-3.312 ms</title></rect><rect x="159.90" y="70" width="11.18" height="22" fill="#b45309" opacity="0.88"><title>5.814-7.366 ms</title></rect><rect x="191.07" y="70" width="11.48" height="22" fill="#b45309" opacity="0.88"><title>10.141-11.734 ms</title></rect><rect x="222.00" y="70" width="11.43" height="22" fill="#b45309" opacity="0.88"><title>14.432-16.018 ms</title></rect><rect x="254.38" y="70" width="10.50" height="22" fill="#b45309" opacity="0.88"><title>18.927-20.384 ms</title></rect><rect x="284.63" y="70" width="10.96" height="22" fill="#b45309" opacity="0.88"><title>23.125-24.645 ms</title></rect><rect x="315.72" y="70" width="11.45" height="22" fill="#b45309" opacity="0.88"><title>27.439-29.029 ms</title></rect><rect x="346.22" y="70" width="11.54" height="22" fill="#b45309" opacity="0.88"><title>31.672-33.274 ms</title></rect><rect x="377.98" y="70" width="11.13" height="22" fill="#b45309" opacity="0.88"><title>36.080-37.625 ms</title></rect><rect x="408.74" y="70" width="10.39" height="22" fill="#b45309" opacity="0.88"><title>40.348-41.790 ms</title></rect><rect x="439.75" y="70" width="10.74" height="22" fill="#b45309" opacity="0.88"><title>44.652-46.143 ms</title></rect><rect x="471.61" y="70" width="11.62" height="22" fill="#b45309" opacity="0.88"><title>49.073-50.685 ms</title></rect><rect x="501.41" y="70" width="10.73" height="22" fill="#b45309" opacity="0.88"><title>53.208-54.698 ms</title></rect><rect x="533.10" y="70" width="10.91" height="22" fill="#b45309" opacity="0.88"><title>57.606-59.120 ms</title></rect><rect x="562.92" y="70" width="11.18" height="22" fill="#b45309" opacity="0.88"><title>61.745-63.296 ms</title></rect><rect x="593.59" y="70" width="11.08" height="22" fill="#b45309" opacity="0.88"><title>66.002-67.540 ms</title></rect><rect x="627.67" y="70" width="10.51" height="22" fill="#b45309" opacity="0.88"><title>70.730-72.189 ms</title></rect><rect x="659.07" y="70" width="11.70" height="22" fill="#b45309" opacity="0.88"><title>75.088-76.711 ms</title></rect><rect x="689.74" y="70" width="10.79" height="22" fill="#b45309" opacity="0.88"><title>79.345-80.841 ms</title></rect><text x="708" y="85.0" font-size="10" fill="#57534e">121%</text><text x="108" y="119.0" font-size="11" text-anchor="end" fill="#292524">exposed comm</text><rect x="118" y="102" width="584" height="26" fill="#fafaf9" stroke="#e7e5e4"/><rect x="118.00" y="104" width="11.70" height="22" fill="#be123c" opacity="0.88"><title>0.000-1.624 ms</title></rect><text x="708" y="119.0" font-size="10" fill="#57534e">2%</text><text x="108" y="153.0" font-size="11" text-anchor="end" fill="#292524">idle</text><rect x="118" y="136" width="584" height="26" fill="#fafaf9" stroke="#e7e5e4"/><text x="708" y="153.0" font-size="10" fill="#57534e">0%</text><text x="118.0" y="192" font-size="10" text-anchor="middle" fill="#57534e">0.0</text><text x="234.8" y="192" font-size="10" text-anchor="middle" fill="#57534e">16.2</text><text x="351.6" y="192" font-size="10" text-anchor="middle" fill="#57534e">32.4</text><text x="468.4" y="192" font-size="10" text-anchor="middle" fill="#57534e">48.6</text><text x="585.2" y="192" font-size="10" text-anchor="middle" fill="#57534e">64.8</text><text x="702.0" y="192" font-size="10" text-anchor="middle" fill="#57534e">81.0</text><text x="410.0" y="206" font-size="11" text-anchor="middle" fill="#1c1917">ms into step</text></svg><figcaption>The exposed lane is the point of the figure: wall-clock the collective failed to hide. A step can be 95% overlapped and still lose a fifth of its time to the 5% that is not.</figcaption></figure>
+<h2>Attributed causes</h2><ul>
+<li><b>2 &lt;= micro_batch &lt;= 8 and seq_len=8192 and checkpointing=False and 8 &lt;= world_size &lt;= 32</b> &mdash; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
+<li><b>micro_batch=8 and 2048 &lt;= seq_len &lt;= 8192 and checkpointing=False and 8 &lt;= world_size &lt;= 32</b> &mdash; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
+<li><b>1 &lt;= micro_batch &lt;= 2 and seq_len=512 and False &lt;= checkpointing &lt;= True and world_size=32</b> &mdash; overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1</li>
+</ul>
+<h2>Discontinuities</h2><h4>Discontinuities -- full<i>shard/tp1 (cluster</i>throughput)</h4>
+<p>14 cliff(s) in 82 adjacent-level steps, threshold 15.0%.</p>
+<div class="scroll"><table><thead><tr>
+<th>Axis</th>
+<th>Transition</th>
+<th>Held fixed</th>
+<th>Degradation</th>
+<th>95% CI</th>
+</tr></thead><tbody>
+<tr><td>micro_batch</td><td>4 -&gt; 8</td><td>seq<i>len=2048, checkpointing=False, world</i>size=8</td><td>cannot run</td><td>-</td></tr>
+<tr><td>micro_batch</td><td>4 -&gt; 8</td><td>seq<i>len=2048, checkpointing=False, world</i>size=32</td><td>cannot run</td><td>-</td></tr>
+<tr><td>micro_batch</td><td>1 -&gt; 2</td><td>seq<i>len=8192, checkpointing=False, world</i>size=8</td><td>cannot run</td><td>-</td></tr>
+<tr><td>micro_batch</td><td>1 -&gt; 2</td><td>seq<i>len=8192, checkpointing=False, world</i>size=32</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>2048 -&gt; 8192</td><td>micro<i>batch=2, checkpointing=False, world</i>size=8</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>2048 -&gt; 8192</td><td>micro<i>batch=2, checkpointing=False, world</i>size=32</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>2048 -&gt; 8192</td><td>micro<i>batch=4, checkpointing=False, world</i>size=8</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>2048 -&gt; 8192</td><td>micro<i>batch=4, checkpointing=False, world</i>size=32</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>512 -&gt; 2048</td><td>micro<i>batch=8, checkpointing=False, world</i>size=8</td><td>cannot run</td><td>-</td></tr>
+<tr><td>seq_len</td><td>512 -&gt; 2048</td><td>micro<i>batch=8, checkpointing=False, world</i>size=32</td><td>cannot run</td><td>-</td></tr>
+</tbody></table></div>
+<h2>Cliff adjacency of named configurations</h2><p>RQ1 in tabular form. A configuration is dangerous when a single-level change in any direction costs far more than the configuration itself gains.</p><div class="scroll"><table><thead><tr><th>Configuration</th><th>Adjacent to a cliff</th><th>One-step exposure</th><th>The cliff</th></tr></thead><tbody><tr><td>textbook single-node recipe</td><td>no</td><td>23.0%</td><td>&ndash;</td></tr><tr><td>long-context default</td><td>no</td><td>0.0%</td><td>&ndash;</td></tr><tr><td>same recipe scaled to 4 nodes</td><td>no</td><td>22.7%</td><td>&ndash;</td></tr><tr><td>small-batch fine-tune at scale</td><td>yes</td><td>0.0%</td><td>world_size 8 -> 32 at micro_batch=1, seq_len=512, checkpointing=False: -10.4% (95% CI -10.6..-10.0, z=63.6)</td></tr></tbody></table></div>
+<h2>Where this fails as a study</h2><ul>
+<li>A single 8-GPU node cannot exhibit the inter-node bandwidth effects that dominate at cluster scale. The world_size=32 column is modelled; on the funded allocation it is out of budget, and the artifact states that here rather than in a footnote.</li>
+<li>The comparator is an oracle -- the best of four swept configurations at each cell -- which flatters the alternatives, since a practitioner would have to find that configuration themselves.</li>
+<li>Overlap efficiency is measured on one rank. A straggler on another rank appears here as compute time, not as exposed communication.</li>
+</ul>
+<h2>Pre-registration <span class="tag pass">verified</span></h2><ul><li>Sealed <code>2026-08-28T22:48:06Z</code></li><li>Seal hash <code>sha256:b86a36613c8bab1494c655395c3077e4421cf5bd276045c122c6d0e5eee4f335</code></li><li>Anchor <code>git:a0bdfe6</code></li></ul>
+<h2>Reproduction</h2><pre>losscolumn run thrust1</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>222dec09b09b51d0386d4ad7b96147460cfc0554</code> <span class="fail">dirty tree</span></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>8x A100 80GB (measured path) / calibratable model (this artifact)</td></tr><tr><td>Estimated cost</td><td>120 min</td></tr></tbody></table></div>
+<h2>Conformance <span class="tag fail">non-conforming</span></h2>
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>evidence class: simulated</td></tr><tr><td><code>LC-0.3</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>the simulated component is described</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity certificate not applicable</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>4 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>48 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-28T22:48:06Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:a0bdfe6`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust1`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `222dec09b09b`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="fail">FAIL</span></td><td>the producing working tree was dirty; the pinned commit does not identify the code that ran</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: 8x A100 80GB (measured path) / calibratable model (this artifact)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~120 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="warn">warn</span></td><td>lowest per-system cell coverage is 83%</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>3 limitation(s) stated</td></tr></tbody></table></div>
+<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T01:56:45Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
+<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (59 KB)</summary><pre>{
+ &quot;kind&quot;: &quot;claim&quot;,
+ &quot;standard_version&quot;: &quot;LC-1.0&quot;,
+ &quot;id&quot;: &quot;lc-thrust1-overlap-envelope&quot;,
+ &quot;title&quot;: &quot;The overlap envelope: where the recommended sharding configuration breaks down&quot;,
+ &quot;thrust&quot;: &quot;I&quot;,
+ &quot;method&quot;: &quot;full_shard/tp1&quot;,
+ &quot;baseline&quot;: &quot;best_of_swept&quot;,
+ &quot;created_at&quot;: &quot;2026-08-29T01:56:57Z&quot;,
+ &quot;evidence_class&quot;: &quot;simulated&quot;,
+ &quot;evidence_note&quot;: &quot;Produced by the package&#x27;s calibratable model, not by measurement on the target hardware. The model&#x27;s parameters -- achievable FLOP/s, bus bandwidth, collective latency, per-step scheduler overhead -- are the quantities a microbenchmark measures, and the funded run replaces them with measured values. Every analysis step downstream of the numbers is the same code that runs on measured data; this artifact exists to show that path works before GPU time is committed to it.&quot;,
+ &quot;authors&quot;: [
+  &quot;Archana Suresh Patil&quot;
+ ],
+ &quot;headline&quot;: {
+  &quot;statement&quot;: &quot;Across a 48-cell sharding envelope for a 7B-class model, the commonly recommended FSDP configuration (full_shard/tp1) is at or near the best swept alternative over most of the space and collapses in identifiable corners of it.&quot;,
+  &quot;best_pct&quot;: 0.1504882473992719,
+  &quot;worst_pct&quot;: -Infinity,
+  &quot;median_pct&quot;: -0.09197175211030917,
+  &quot;conditions_best&quot;: {
+   &quot;micro_batch&quot;: 4,
+   &quot;seq_len&quot;: 8192,
+   &quot;checkpointing&quot;: true,
+   &quot;world_size&quot;: 8
+  },
+  &quot;conditions_worst&quot;: {
+   &quot;micro_batch&quot;: 2,
+   &quot;seq_len&quot;: 8192,
+   &quot;checkpointing&quot;: false,
+   &quot;world_size&quot;: 8
+  }
+ },
+ &quot;headline_rendered&quot;: &quot;Across a 48-cell sharding envelope for a 7B-class model, the commonly recommended FSDP configuration (full_shard/tp1) is at or near the best swept alternative over most of the space and collapses in identifiable corners of it. Median -0.1% across the swept envelope; best +0.2% at micro_batch=4, seq_len=8192, checkpointing=True, world_size=8; worst -inf% at micro_batch=2, seq_len=8192, checkpointing=False, world_size=8.&quot;,
+ &quot;loss_column&quot;: {
+  &quot;metric&quot;: &quot;cluster_throughput&quot;,
+  &quot;unit&quot;: &quot;tok/s&quot;,
+  &quot;method&quot;: &quot;full_shard/tp1&quot;,
+  &quot;baseline&quot;: &quot;best_of_swept&quot;,
+  &quot;mde_pct&quot;: 5.0,
+  &quot;q_level&quot;: 0.05,
+  &quot;counts&quot;: {
+   &quot;loss&quot;: 12,
+   &quot;win&quot;: 0,
+   &quot;tie&quot;: 35,
+   &quot;inconclusive&quot;: 1,
+   &quot;missing&quot;: 0
+  },
+  &quot;n_cells&quot;: 48,
+  &quot;loss_fraction&quot;: 0.25,
+  &quot;weighted_loss_fraction&quot;: 0.25,
+  &quot;inconclusive_fraction&quot;: 0.020833333333333332,
+  &quot;win_fraction&quot;: 0.0,
+  &quot;n_unrunnable&quot;: 8,
+  &quot;envelope_digest&quot;: &quot;sha256:530e97a6e305c322874b225c8f0ef58e623607456c6b28d1ab9daec8d361468a&quot;,
+  &quot;factor_levels&quot;: {
+   &quot;micro_batch&quot;: [
+    1,
+    2,
+    4,
+    8
+   ],
+   &quot;seq_len&quot;: [
+    512,
+    2048,
+    8192
+   ],
+   &quot;checkpointing&quot;: [
+    false,
+    true
+   ],
+   &quot;world_size&quot;: [
+    8,
+    32
+   ]
+  },
+  &quot;design_check&quot;: {
+   &quot;replicates&quot;: 11,
+   &quot;n_tests&quot;: 40,
+   &quot;q&quot;: 0.05,
+   &quot;p_floor&quot;: 0.00048828125,
+   &quot;bh_threshold_for_rank_1&quot;: 0.00125,
+   &quot;can_reject&quot;: true,
+   &quot;min_replicates&quot;: 10,
+   &quot;message&quot;: &quot;&quot;
+  },
+  &quot;notes&quot;: [],
+  &quot;regions&quot;: [
+   {
+    &quot;bounds&quot;: {
+     &quot;micro_batch&quot;: [
+      2,
+      4,
+      8
+     ],
+     &quot;seq_len&quot;: [
+      8192
+     ],
+     &quot;checkpointing&quot;: [
+      false
+     ],
+     &quot;world_size&quot;: [
+      8,
+      32
+     ]
+    },
+    &quot;n_cells&quot;: 6,
+    &quot;n_loss&quot;: 6,
+    &quot;n_inconclusive&quot;: 0,
+    &quot;frac_of_envelope&quot;: 0.125,
+    &quot;weighted_frac&quot;: 0.12499999999999999,
+    &quot;median_regression_pct&quot;: Infinity,
+    &quot;worst_regression_pct&quot;: Infinity,
+    &quot;worst_cell&quot;: {
+     &quot;micro_batch&quot;: 2,
+     &quot;seq_len&quot;: 8192,
+     &quot;checkpointing&quot;: false,
+     &quot;world_size&quot;: 8
+    },
+    &quot;max_q&quot;: NaN,
+    &quot;min_effect_pct&quot;: Infinity,
+    &quot;contains_missing&quot;: 6,
+    &quot;missing_reasons&quot;: [
+     &quot;OOM: model needs ~101 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~177 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~187 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~349 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~359 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~91 GB/rank against 80 GB HBM&quot;
+    ],
+    &quot;attribution&quot;: &quot;the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8&quot;,
+    &quot;label&quot;: &quot;micro_batch=[2, 4, 8], seq_len=[8192], checkpointing=[False], world_size=[8, 32]&quot;,
+    &quot;purity&quot;: 1.0
+   },
+   {
+    &quot;bounds&quot;: {
+     &quot;micro_batch&quot;: [
+      8
+     ],
+     &quot;seq_len&quot;: [
+      2048,
+      8192
+     ],
+     &quot;checkpointing&quot;: [
+      false
+     ],
+     &quot;world_size&quot;: [
+      8,
+      32
+     ]
+    },
+    &quot;n_cells&quot;: 4,
+    &quot;n_loss&quot;: 4,
+    &quot;n_inconclusive&quot;: 0,
+    &quot;frac_of_envelope&quot;: 0.08333333333333333,
+    &quot;weighted_frac&quot;: 0.08333333333333333,
+    &quot;median_regression_pct&quot;: Infinity,
+    &quot;worst_regression_pct&quot;: Infinity,
+    &quot;worst_cell&quot;: {
+     &quot;micro_batch&quot;: 8,
+     &quot;seq_len&quot;: 2048,
+     &quot;checkpointing&quot;: false,
+     &quot;world_size&quot;: 8
+    },
+    &quot;max_q&quot;: NaN,
+    &quot;min_effect_pct&quot;: Infinity,
+    &quot;contains_missing&quot;: 4,
+    &quot;missing_reasons&quot;: [
+     &quot;OOM: model needs ~101 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~349 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~359 GB/rank against 80 GB HBM&quot;,
+     &quot;OOM: model needs ~91 GB/rank against 80 GB HBM&quot;
+    ],
+    &quot;attribution&quot;: &quot;the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8&quot;,
+    &quot;label&quot;: &quot;micro_batch=[8], seq_len=[2048, 8192], checkpointing=[False], world_size=[8, 32]&quot;,
+    &quot;purity&quot;: 1.0
+   },
+   {
+    &quot;bounds&quot;: {
+     &quot;micro_batch&quot;: [
+      1,
+      2
+     ],
+     &quot;seq_len&quot;: [
+      512
+     ],
+     &quot;checkpointing&quot;: [
+      false,
+      true
+     ],
+     &quot;world_size&quot;: [
+      32
+     ]
+    },
+    &quot;n_cells&quot;: 4,
+    &quot;n_loss&quot;: 4,
+    &quot;n_inconclusive&quot;: 0,
+    &quot;frac_of_envelope&quot;: 0.08333333333333333,
+    &quot;weighted_frac&quot;: 0.08333333333333333,
+    &quot;median_regression_pct&quot;: 127.11706851899092,
+    &quot;worst_regression_pct&quot;: 258.05948387164466,
+    &quot;worst_cell&quot;: {
+     &quot;micro_batch&quot;: 1,
+     &quot;seq_len&quot;: 512,
+     &quot;checkpointing&quot;: false,
+     &quot;world_size&quot;: 32
+    },
+    &quot;max_q&quot;: 0.00244140625,
+    &quot;min_effect_pct&quot;: 38.077974915871394,
+    &quot;contains_missing&quot;: 0,
+    &quot;missing_reasons&quot;: [],
+    &quot;attribution&quot;: &quot;overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1&quot;,
+    &quot;label&quot;: &quot;micro_batch=[1, 2], seq_len=[512], checkpointing=[False, True], world_size=[32]&quot;,
+    &quot;purity&quot;: 1.0
+   }
+  ],
+  &quot;summary&quot;: &quot;full_shard/tp1 loses to best_of_swept on 25% of the swept envelope (12/48 cells), across 3 region(s); worst measurable case +258.1% on cluster_throughput, and cannot run at all in 8 cell(s).&quot;
+ },
+ &quot;loss_column_placement&quot;: &quot;main&quot;,
+ &quot;reproduction&quot;: {
+  &quot;command&quot;: &quot;losscolumn run thrust1&quot;,
+  &quot;repo&quot;: &quot;local checkout&quot;,
+  &quot;commit&quot;: &quot;222dec09b09b51d0386d4ad7b96147460cfc0554&quot;,
+  &quot;dirty&quot;: true,
+  &quot;container_image&quot;: &quot;ghcr.io/archanachetan07/losscolumn:0.1.0&quot;,
+  &quot;hardware&quot;: &quot;8x A100 80GB (measured path) / calibratable model (this artifact)&quot;,
+  &quot;estimated_runtime_min&quot;: 120,
+  &quot;estimated_cost_usd&quot;: 1560,
+  &quot;data_inputs&quot;: [],
+  &quot;notes&quot;: &quot;&quot;
+ },
+ &quot;attributions&quot;: {
+  &quot;2 &lt;= micro_batch &lt;= 8 and seq_len=8192 and checkpointing=False and 8 &lt;= world_size &lt;= 32&quot;: &quot;the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8&quot;,
+  &quot;micro_batch=8 and 2048 &lt;= seq_len &lt;= 8192 and checkpointing=False and 8 &lt;= world_size &lt;= 32&quot;: &quot;the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8&quot;,
+  &quot;1 &lt;= micro_batch &lt;= 2 and seq_len=512 and False &lt;= checkpointing &lt;= True and world_size=32&quot;: &quot;overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1&quot;
+ },
+ &quot;limitations&quot;: [
+  &quot;A single 8-GPU node cannot exhibit the inter-node bandwidth effects that dominate at cluster scale. The world_size=32 column is modelled; on the funded allocation it is out of budget, and the artifact states that here rather than in a footnote.&quot;,
+  &quot;The comparator is an oracle -- the best of four swept configurations at each cell -- which flatters the alternatives, since a practitioner would have to find that configuration themselves.&quot;,
+  &quot;Overlap efficiency is measured on one rank. A straggler on another rank appears here as compute time, not as exposed communication.&quot;
+ ],
+ &quot;supporting&quot;: {
+  &quot;baseline_derived_from&quot;: [
+   &quot;hybrid_shard/tp1&quot;,
+   &quot;full_shard/tp2&quot;,
+   &quot;full_shard/tp8&quot;
+  ],
+  &quot;cliffs&quot;: {
+   &quot;full_shard/tp1&quot;: {
+    &quot;system&quot;: &quot;full_shard/tp1&quot;,
+    &quot;metric&quot;: &quot;cluster_throughput&quot;,
+    &quot;threshold_pct&quot;: 15.0,
+    &quot;n_steps_tested&quot;: 82,
+    &quot;n_cliffs&quot;: 14,
+    &quot;cliffs&quot;: [
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 4,
+      &quot;to_level&quot;: 8,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 2048,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 4 -&gt; 8 at seq_len=2048, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 4,
+      &quot;to_level&quot;: 8,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 2048,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 4 -&gt; 8 at seq_len=2048, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 1,
+      &quot;to_level&quot;: 2,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       0,
+       2,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 1 -&gt; 2 at seq_len=8192, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 1,
+      &quot;to_level&quot;: 2,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       0,
+       2,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 1 -&gt; 2 at seq_len=8192, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 512,
+      &quot;to_level&quot;: 2048,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 512 -&gt; 2048 at micro_batch=8, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 512,
+      &quot;to_level&quot;: 2048,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       0,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 512 -&gt; 2048 at micro_batch=8, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: false
+      },
+      &quot;degradation_pct&quot;: -10.374566083510405,
+      &quot;ci_lo_pct&quot;: -10.569051862984447,
+      &quot;ci_hi_pct&quot;: -9.995178668211924,
+      &quot;robust_z&quot;: 63.58838872390828,
+      &quot;from_cell&quot;: [
+       0,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       0,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=1, seq_len=512, checkpointing=False: -10.4% (95% CI -10.6..-10.0, z=63.6)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: true
+      },
+      &quot;degradation_pct&quot;: -32.132872675721444,
+      &quot;ci_lo_pct&quot;: -32.22181314488923,
+      &quot;ci_hi_pct&quot;: -31.956431011812626,
+      &quot;robust_z&quot;: 49.684020888702385,
+      &quot;from_cell&quot;: [
+       0,
+       0,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       0,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=1, seq_len=512, checkpointing=True: -32.1% (95% CI -32.2..-32.0, z=49.7)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: false
+      },
+      &quot;degradation_pct&quot;: -54.266257567326214,
+      &quot;ci_lo_pct&quot;: -54.384182645185184,
+      &quot;ci_hi_pct&quot;: -54.16230489287259,
+      &quot;robust_z&quot;: 29.94825030037571,
+      &quot;from_cell&quot;: [
+       1,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       0,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=2, seq_len=512, checkpointing=False: -54.3% (95% CI -54.4..-54.2, z=29.9)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: true
+      },
+      &quot;degradation_pct&quot;: -65.44562702347946,
+      &quot;ci_lo_pct&quot;: -65.53597379763802,
+      &quot;ci_hi_pct&quot;: -65.41343079738398,
+      &quot;robust_z&quot;: 15.93313729079906,
+      &quot;from_cell&quot;: [
+       1,
+       0,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       0,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=2, seq_len=512, checkpointing=True: -65.4% (95% CI -65.5..-65.4, z=15.9)&quot;
+     }
+    ],
+    &quot;exposure&quot;: {
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=8&quot;: 4.346472200711959,
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=8&quot;: 4.698945459111181,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=8&quot;: 22.474486358206036,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=32&quot;: 19.662062135809922,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.798475283303677,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=32&quot;: 21.707864275970714,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.029955408963910912,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=8&quot;: 5.23912472512551,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=8&quot;: 5.400594092267763,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.535037637520183,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.582025423141094,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.10940314955663055,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=8&quot;: 5.447073108813161,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=32&quot;: 1.4208833851462765,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=8&quot;: 5.8373816782068655,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=32&quot;: 5.24599092951159,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.99005387218267,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.672575377939317,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=8&quot;: 6.014958266942583,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=32&quot;: 5.444028456854411,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.69755374529474,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.863400857090245,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0
+    }
+   },
+   &quot;hybrid_shard/tp1&quot;: {
+    &quot;system&quot;: &quot;hybrid_shard/tp1&quot;,
+    &quot;metric&quot;: &quot;cluster_throughput&quot;,
+    &quot;threshold_pct&quot;: 15.0,
+    &quot;n_steps_tested&quot;: 82,
+    &quot;n_cliffs&quot;: 20,
+    &quot;cliffs&quot;: [
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 4,
+      &quot;to_level&quot;: 8,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 2048,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 4 -&gt; 8 at seq_len=2048, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 4,
+      &quot;to_level&quot;: 8,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 2048,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 4 -&gt; 8 at seq_len=2048, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 1,
+      &quot;to_level&quot;: 2,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       0,
+       2,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 1 -&gt; 2 at seq_len=8192, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 1,
+      &quot;to_level&quot;: 2,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       0,
+       2,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 1 -&gt; 2 at seq_len=8192, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: 22.527386216493817,
+      &quot;ci_lo_pct&quot;: 22.220596854820474,
+      &quot;ci_hi_pct&quot;: 22.767813091351343,
+      &quot;robust_z&quot;: 7.341360924407159,
+      &quot;from_cell&quot;: [
+       0,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=1, checkpointing=False, world_size=8: +22.5% (95% CI +22.2..+22.8, z=7.3)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: 22.395650106980213,
+      &quot;ci_lo_pct&quot;: 21.91495152238403,
+      &quot;ci_hi_pct&quot;: 22.555847923771854,
+      &quot;robust_z&quot;: 7.287574182173806,
+      &quot;from_cell&quot;: [
+       0,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=1, checkpointing=False, world_size=32: +22.4% (95% CI +21.9..+22.6, z=7.3)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: 22.76379529708028,
+      &quot;ci_lo_pct&quot;: 22.513603332584275,
+      &quot;ci_hi_pct&quot;: 23.071741759615037,
+      &quot;robust_z&quot;: 7.4377399105276965,
+      &quot;from_cell&quot;: [
+       0,
+       1,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       2,
+       1,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=1, checkpointing=True, world_size=8: +22.8% (95% CI +22.5..+23.1, z=7.4)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: 22.482058644512183,
+      &quot;ci_lo_pct&quot;: 22.108559037394482,
+      &quot;ci_hi_pct&quot;: 22.690799637348658,
+      &quot;robust_z&quot;: 7.32286058760403,
+      &quot;from_cell&quot;: [
+       0,
+       1,
+       1,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       2,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=1, checkpointing=True, world_size=32: +22.5% (95% CI +22.1..+22.7, z=7.3)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: 22.725393105660284,
+      &quot;ci_lo_pct&quot;: 22.426900112015513,
+      &quot;ci_hi_pct&quot;: 22.916546713831366,
+      &quot;robust_z&quot;: 7.422096780993925,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       1,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=True, world_size=8: +22.7% (95% CI +22.4..+22.9, z=7.4)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: 22.80194236547233,
+      &quot;ci_lo_pct&quot;: 22.533778372798285,
+      &quot;ci_hi_pct&quot;: 23.165747586511554,
+      &quot;robust_z&quot;: 7.453274271738675,
+      &quot;from_cell&quot;: [
+       1,
+       1,
+       1,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       2,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=2, checkpointing=True, world_size=32: +22.8% (95% CI +22.5..+23.2, z=7.5)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: 23.103868930309247,
+      &quot;ci_lo_pct&quot;: 22.685480750566533,
+      &quot;ci_hi_pct&quot;: 23.298208033910694,
+      &quot;robust_z&quot;: 7.576055720036656,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       1,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=True, world_size=8: +23.1% (95% CI +22.7..+23.3, z=7.6)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: 23.07823343351889,
+      &quot;ci_lo_pct&quot;: 22.604163882861393,
+      &quot;ci_hi_pct&quot;: 23.18654566133993,
+      &quot;robust_z&quot;: 7.565642494770941,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       1,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=True, world_size=32: +23.1% (95% CI +22.6..+23.2, z=7.6)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 512,
+      &quot;to_level&quot;: 2048,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 512 -&gt; 2048 at micro_batch=8, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 512,
+      &quot;to_level&quot;: 2048,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       0,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       1,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 512 -&gt; 2048 at micro_batch=8, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: 23.02978613004023,
+      &quot;ci_lo_pct&quot;: 22.826031477942777,
+      &quot;ci_hi_pct&quot;: 23.273937270166243,
+      &quot;robust_z&quot;: 7.545957112640611,
+      &quot;from_cell&quot;: [
+       3,
+       1,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       2,
+       1,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=8, checkpointing=True, world_size=8: +23.0% (95% CI +22.8..+23.3, z=7.5)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: true,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: 22.721193240580885,
+      &quot;ci_lo_pct&quot;: 22.53030628163557,
+      &quot;ci_hi_pct&quot;: 23.055594545335257,
+      &quot;robust_z&quot;: 7.420385669365803,
+      &quot;from_cell&quot;: [
+       3,
+       1,
+       1,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       2,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=8, checkpointing=True, world_size=32: +22.7% (95% CI +22.5..+23.1, z=7.4)&quot;
+     }
+    ],
+    &quot;exposure&quot;: {
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=8&quot;: 4.2994880964021265,
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=32&quot;: 4.210203994841422,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=8&quot;: 4.6928434877218095,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=32&quot;: 4.850014150377024,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=8&quot;: 22.527386216493817,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=32&quot;: 22.395650106980213,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.76379529708028,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.482058644512183,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=8&quot;: 5.477835196557712,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=32&quot;: 5.010531699264131,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=8&quot;: 5.506420046364835,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=32&quot;: 5.131914790812808,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.725393105660284,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.80194236547233,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.265858426171528,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0859429389189037,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=8&quot;: 5.476888761027721,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=32&quot;: 5.58216182118938,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=8&quot;: 5.795432504949782,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=32&quot;: 5.875583175555366,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=8&quot;: 23.103868930309247,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=32&quot;: 23.07823343351889,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=8&quot;: 5.650350879396782,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=32&quot;: 6.126965023863584,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=8&quot;: 23.02978613004023,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.721193240580885,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0
+    }
+   },
+   &quot;full_shard/tp2&quot;: {
+    &quot;system&quot;: &quot;full_shard/tp2&quot;,
+    &quot;metric&quot;: &quot;cluster_throughput&quot;,
+    &quot;threshold_pct&quot;: 15.0,
+    &quot;n_steps_tested&quot;: 88,
+    &quot;n_cliffs&quot;: 10,
+    &quot;cliffs&quot;: [
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 2,
+      &quot;to_level&quot;: 4,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       2,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 2 -&gt; 4 at seq_len=8192, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;micro_batch&quot;,
+      &quot;from_level&quot;: 2,
+      &quot;to_level&quot;: 4,
+      &quot;fixed&quot;: {
+       &quot;seq_len&quot;: 8192,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       1,
+       2,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;micro_batch 2 -&gt; 4 at seq_len=8192, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 4,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       2,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       2,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=4, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 8
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       1,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       2,
+       0,
+       0
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=8, checkpointing=False, world_size=8: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;seq_len&quot;,
+      &quot;from_level&quot;: 2048,
+      &quot;to_level&quot;: 8192,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 8,
+       &quot;checkpointing&quot;: false,
+       &quot;world_size&quot;: 32
+      },
+      &quot;degradation_pct&quot;: Infinity,
+      &quot;ci_lo_pct&quot;: Infinity,
+      &quot;ci_hi_pct&quot;: Infinity,
+      &quot;robust_z&quot;: Infinity,
+      &quot;from_cell&quot;: [
+       3,
+       1,
+       0,
+       1
+      ],
+      &quot;to_cell&quot;: [
+       3,
+       2,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;seq_len 2048 -&gt; 8192 at micro_batch=8, checkpointing=False, world_size=32: the configuration stops running entirely&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: false
+      },
+      &quot;degradation_pct&quot;: -12.45367133452926,
+      &quot;ci_lo_pct&quot;: -12.557420234412964,
+      &quot;ci_hi_pct&quot;: -12.129028229667938,
+      &quot;robust_z&quot;: 62.508057559948945,
+      &quot;from_cell&quot;: [
+       0,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       0,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=1, seq_len=512, checkpointing=False: -12.5% (95% CI -12.6..-12.1, z=62.5)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 1,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: true
+      },
+      &quot;degradation_pct&quot;: -31.431082496851893,
+      &quot;ci_lo_pct&quot;: -31.60087359495719,
+      &quot;ci_hi_pct&quot;: -31.287955086853124,
+      &quot;robust_z&quot;: 50.291618096163134,
+      &quot;from_cell&quot;: [
+       0,
+       0,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       0,
+       0,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=1, seq_len=512, checkpointing=True: -31.4% (95% CI -31.6..-31.3, z=50.3)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: false
+      },
+      &quot;degradation_pct&quot;: -52.09925886367963,
+      &quot;ci_lo_pct&quot;: -52.14810920048632,
+      &quot;ci_hi_pct&quot;: -51.95052624131935,
+      &quot;robust_z&quot;: 32.3562002182312,
+      &quot;from_cell&quot;: [
+       1,
+       0,
+       0,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       0,
+       0,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=2, seq_len=512, checkpointing=False: -52.1% (95% CI -52.1..-52.0, z=32.4)&quot;
+     },
+     {
+      &quot;axis&quot;: &quot;world_size&quot;,
+      &quot;from_level&quot;: 8,
+      &quot;to_level&quot;: 32,
+      &quot;fixed&quot;: {
+       &quot;micro_batch&quot;: 2,
+       &quot;seq_len&quot;: 512,
+       &quot;checkpointing&quot;: true
+      },
+      &quot;degradation_pct&quot;: -62.19397948028035,
+      &quot;ci_lo_pct&quot;: -62.26270930795621,
+      &quot;ci_hi_pct&quot;: -62.13182850025005,
+      &quot;robust_z&quot;: 20.523069522215742,
+      &quot;from_cell&quot;: [
+       1,
+       0,
+       1,
+       0
+      ],
+      &quot;to_cell&quot;: [
+       1,
+       0,
+       1,
+       1
+      ],
+      &quot;direction&quot;: &quot;increase&quot;,
+      &quot;description&quot;: &quot;world_size 8 -&gt; 32 at micro_batch=2, seq_len=512, checkpointing=True: -62.2% (95% CI -62.3..-62.1, z=20.5)&quot;
+     }
+    ],
+    &quot;exposure&quot;: {
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=8&quot;: 1.4259275714771258,
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=8&quot;: 2.5916486898705404,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=8&quot;: 21.114971572252973,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=32&quot;: 14.665258110106262,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=8&quot;: 21.333918854296428,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=32&quot;: 20.716036852550413,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.012907493379876733,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=8&quot;: 3.3837450159570626,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=8&quot;: 4.240825521431213,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=8&quot;: 21.779468744979248,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=32&quot;: 21.393754012242304,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=8&quot;: 21.876278769345724,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=32&quot;: 21.628950697034742,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=8&quot;: 4.914592647041682,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=8&quot;: 5.129097877145461,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=32&quot;: 4.574280963110655,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.04309486881688,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.183074713900176,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=8&quot;: 5.319010812631264,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=32&quot;: 5.198974548165425,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=8&quot;: 5.4915874022625655,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=32&quot;: 5.199385680585644,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=8&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=32&quot;: Infinity,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=8&quot;: 22.10497213090823,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=32&quot;: 22.074567912884604,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0
+    }
+   },
+   &quot;full_shard/tp8&quot;: {
+    &quot;system&quot;: &quot;full_shard/tp8&quot;,
+    &quot;metric&quot;: &quot;cluster_throughput&quot;,
+    &quot;threshold_pct&quot;: 15.0,
+    &quot;n_steps_tested&quot;: 92,
+    &quot;n_cliffs&quot;: 0,
+    &quot;cliffs&quot;: [],
+    &quot;exposure&quot;: {
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=8&quot;: 10.371508125314888,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=False, world_size=32&quot;: 13.314836000679996,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=8&quot;: 12.705792169224761,
+     &quot;micro_batch=1, seq_len=2048, checkpointing=True, world_size=32&quot;: 15.548689344636845,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=1, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=512, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=8&quot;: 14.348699172377465,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=False, world_size=32&quot;: 16.127636269120416,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=8&quot;: 16.169423850877894,
+     &quot;micro_batch=2, seq_len=2048, checkpointing=True, world_size=32&quot;: 17.813143167194333,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=2, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=False, world_size=32&quot;: 0.1488474433228193,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=512, checkpointing=True, world_size=32&quot;: 1.3092850422312008,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=8&quot;: 16.806162759745604,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=False, world_size=32&quot;: 17.40873641943581,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=8&quot;: 18.186691027722546,
+     &quot;micro_batch=4, seq_len=2048, checkpointing=True, world_size=32&quot;: 18.77407454702307,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=4, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=8&quot;: 0.6353940821196558,
+     &quot;micro_batch=8, seq_len=512, checkpointing=False, world_size=32&quot;: 2.7266463683582876,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=8&quot;: 1.7716242255248815,
+     &quot;micro_batch=8, seq_len=512, checkpointing=True, world_size=32&quot;: 3.2409646472536524,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=8&quot;: 18.21035509507949,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=False, world_size=32&quot;: 18.11542394261383,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=8&quot;: 19.186943748697406,
+     &quot;micro_batch=8, seq_len=2048, checkpointing=True, world_size=32&quot;: 19.388261321684517,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=False, world_size=32&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=8&quot;: 0.0,
+     &quot;micro_batch=8, seq_len=8192, checkpointing=True, world_size=32&quot;: 0.0
+    }
+   }
+  },
+  &quot;cliff_adjacency&quot;: [
+   {
+    &quot;name&quot;: &quot;textbook single-node recipe&quot;,
+    &quot;coords&quot;: {
+     &quot;micro_batch&quot;: 4,
+     &quot;seq_len&quot;: 2048,
+     &quot;checkpointing&quot;: true,
+     &quot;world_size&quot;: 8
+    },
+    &quot;exposure_pct&quot;: 22.99005387218267,
+    &quot;cliff_adjacent&quot;: false,
+    &quot;adjacent_cliffs&quot;: []
+   },
+   {
+    &quot;name&quot;: &quot;long-context default&quot;,
+    &quot;coords&quot;: {
+     &quot;micro_batch&quot;: 1,
+     &quot;seq_len&quot;: 8192,
+     &quot;checkpointing&quot;: true,
+     &quot;world_size&quot;: 8
+    },
+    &quot;exposure_pct&quot;: 0.0,
+    &quot;cliff_adjacent&quot;: false,
+    &quot;adjacent_cliffs&quot;: []
+   },
+   {
+    &quot;name&quot;: &quot;same recipe scaled to 4 nodes&quot;,
+    &quot;coords&quot;: {
+     &quot;micro_batch&quot;: 4,
+     &quot;seq_len&quot;: 2048,
+     &quot;checkpointing&quot;: true,
+     &quot;world_size&quot;: 32
+    },
+    &quot;exposure_pct&quot;: 22.672575377939317,
+    &quot;cliff_adjacent&quot;: false,
+    &quot;adjacent_cliffs&quot;: []
+   },
+   {
+    &quot;name&quot;: &quot;small-batch fine-tune at scale&quot;,
+    &quot;coords&quot;: {
+     &quot;micro_batch&quot;: 1,
+     &quot;seq_len&quot;: 512,
+     &quot;checkpointing&quot;: false,
+     &quot;world_size&quot;: 32
+    },
+    &quot;exposure_pct&quot;: 0.0,
+    &quot;cliff_adjacent&quot;: true,
+    &quot;adjacent_cliffs&quot;: [
+     &quot;world_size 8 -&gt; 32 at micro_batch=1, seq_len=512, checkpointing=False: -10.4% (95% CI -10.6..-10.0, z=63.6)&quot;
+    ]
+   }
+  ],
+  &quot;per_config&quot;: [
+   {
+    &quot;label&quot;: &quot;full_shard/tp8&quot;,
+    &quot;overlap_efficiency&quot;: 0.005304005515217924,
+    &quot;exposed_frac_of_step&quot;: 0.1399734261214183,
+    &quot;step_ms&quot;: 670.6258193424117,
+    &quot;n_steps&quot;: 1584
+   },
+   {
+    &quot;label&quot;: &quot;full_shard/tp2&quot;,
+    &quot;overlap_efficiency&quot;: 0.6651817471932255,
+    &quot;exposed_frac_of_step&quot;: 0.026916915340851805,
+    &quot;step_ms&quot;: 1787.6181811344431,
+    &quot;n_steps&quot;: 1452
+   },
+   {
+    &quot;label&quot;: &quot;full_shard/tp1&quot;,
+    &quot;overlap_efficiency&quot;: 0.9842648285836155,
+    &quot;exposed_frac_of_step&quot;: 0.0015218691442877791,
+    &quot;step_ms&quot;: 3047.860108449545,
+    &quot;n_steps&quot;: 1320
+   },
+   {
+    &quot;label&quot;: &quot;hybrid_shard/tp1&quot;,
+    &quot;overlap_efficiency&quot;: 0.9855510633463443,
+    &quot;exposed_frac_of_step&quot;: 0.0005085608094001558,
+    &quot;step_ms&quot;: 3035.9460299900256,
+    &quot;n_steps&quot;: 1320
+   }
+  ],
+  &quot;noise&quot;: {
+   &quot;median_cv&quot;: 0.0023861575816024726,
+   &quot;p95_cv&quot;: 0.004105437347402764,
+   &quot;n&quot;: 40
+  }
+ },
+ &quot;envelope_ref&quot;: null,
+ &quot;prereg&quot;: {
+  &quot;title&quot;: &quot;Thrust I -- the overlap envelope&quot;,
+  &quot;hypotheses&quot;: {
+   &quot;H0&quot;: &quot;The commonly recommended FSDP configuration (full shard, no tensor parallelism) is within the MDE of the best configuration in the swept space at every point of the operating envelope.&quot;,
+   &quot;H1&quot;: &quot;There exist regions of the envelope where the recommended configuration is beaten by at least the MDE, and those regions are identifiable from communication-computation overlap.&quot;
+  },
+  &quot;metrics&quot;: [
+   {
+    &quot;name&quot;: &quot;cluster_throughput&quot;,
+    &quot;unit&quot;: &quot;tok/s&quot;,
+    &quot;higher_is_better&quot;: true
+   },
+   {
+    &quot;name&quot;: &quot;overlap_efficiency&quot;,
+    &quot;unit&quot;: &quot;fraction&quot;,
+    &quot;higher_is_better&quot;: true
+   }
+  ],
+  &quot;factors&quot;: [
+   {
+    &quot;name&quot;: &quot;micro_batch&quot;,
+    &quot;levels&quot;: [
+     1,
+     2,
+     4,
+     8
+    ]
+   },
+   {
+    &quot;name&quot;: &quot;seq_len&quot;,
+    &quot;levels&quot;: [
+     512,
+     2048,
+     8192
+    ],
+    &quot;unit&quot;: &quot;tokens&quot;
+   },
+   {
+    &quot;name&quot;: &quot;checkpointing&quot;,
+    &quot;levels&quot;: [
+     false,
+     true
+    ]
+   },
+   {
+    &quot;name&quot;: &quot;world_size&quot;,
+    &quot;levels&quot;: [
+     8,
+     32
+    ],
+    &quot;unit&quot;: &quot;GPUs&quot;
+   }
+  ],
+  &quot;systems&quot;: [
+   &quot;full_shard/tp1&quot;,
+   &quot;hybrid_shard/tp1&quot;,
+   &quot;full_shard/tp2&quot;,
+   &quot;full_shard/tp8&quot;,
+   &quot;best_of_swept&quot;
+  ],
+  &quot;mde&quot;: 0.05,
+  &quot;q_level&quot;: 0.05,
+  &quot;alpha&quot;: 0.05,
+  &quot;replicates&quot;: 11,
+  &quot;interleaved&quot;: true,
+  &quot;decision_rules&quot;: [
+   &quot;A cell is a loss when the paired regression is at least the MDE and its Benjamini-Hochberg q-value over all cells is at most 0.05.&quot;,
+   &quot;A cell is a tie only when two one-sided tests establish equivalence within the MDE; a non-significant difference is reported as inconclusive, not as a tie.&quot;,
+   &quot;A configuration that cannot run in a cell is recorded as a loss in that cell, with the failure reason.&quot;,
+   &quot;A discontinuity is reported only when the degradation exceeds 15% and sits at least three robust deviations outside the pooled step distribution on its axis, and its bootstrap interval clears 15%.&quot;
+  ],
+  &quot;exclusion_rules&quot;: [
+   &quot;The first five steps of every run are discarded as warm-up, by count, before any statistic is computed.&quot;,
+   &quot;A replicate whose measured step time exceeds five times the median of its cell is retained and reported, not dropped; outliers are the phenomenon.&quot;
+  ],
+  &quot;stopping_rule&quot;: &quot;Fixed full-factorial grid, fixed replicate count, no interim analysis.&quot;,
+  &quot;primary_outcome&quot;: &quot;The loss column of the recommended configuration against the best swept alternative, on cluster training throughput.&quot;,
+  &quot;secondary_outcomes&quot;: [
+   &quot;Overlap efficiency, from interval attribution of profiler traces.&quot;,
+   &quot;Throughput discontinuities between adjacent factor levels, with bootstrap support.&quot;,
+   &quot;Cliff exposure of each named recommended configuration.&quot;
+  ],
+  &quot;tuning_budget_trials&quot;: null,
+  &quot;search_algorithm&quot;: null,
+  &quot;loss_column_policy&quot;: &quot;Every region meeting the MDE at the stated FDR level is published in the main artifact above the wins, with an attributed mechanism drawn from the overlap measurement rather than from narrative.&quot;,
+  &quot;rationale&quot;: &quot;The replicate count is set by the arithmetic, not by convention: an exact paired sign-flip test over r replicates cannot produce a p-value below 2**-r, and Benjamini-Hochberg over a 48-cell grid needs p &lt;= 0.05/48 for the most extreme cell. That requires r &gt;= 10. A sweep at r = 5 would report an empty loss column no matter how badly the recommendation lost.&quot;,
+  &quot;authors&quot;: [
+   &quot;Archana Suresh Patil&quot;
+  ],
+  &quot;version&quot;: &quot;1&quot;,
+  &quot;sealed_at&quot;: &quot;2026-08-28T22:48:06Z&quot;,
+  &quot;seal_hash&quot;: &quot;sha256:b86a36613c8bab1494c655395c3077e4421cf5bd276045c122c6d0e5eee4f335&quot;,
+  &quot;anchor&quot;: &quot;git:a0bdfe6&quot;,
+  &quot;deviations&quot;: [],
+  &quot;kind&quot;: &quot;preregistration&quot;,
+  &quot;normative_hash&quot;: &quot;sha256:b86a36613c8bab1494c655395c3077e4421cf5bd276045c122c6d0e5eee4f335&quot;
+ },
+ &quot;prereg_verification&quot;: {
+  &quot;ok&quot;: true,
+  &quot;findings&quot;: []
+ },
+ &quot;parity&quot;: null,
+ &quot;provenance&quot;: {
+  &quot;captured_at&quot;: &quot;2026-08-29T01:56:45Z&quot;,
+  &quot;host&quot;: &quot;Archana-PC&quot;,
+  &quot;platform&quot;: &quot;Windows-10-10.0.26200-SP0&quot;,
+  &quot;python&quot;: &quot;3.11.5&quot;,
+  &quot;cpu_count&quot;: 24,
+  &quot;git&quot;: {
+   &quot;commit&quot;: &quot;222dec09b09b51d0386d4ad7b96147460cfc0554&quot;,
+   &quot;dirty&quot;: true,
+   &quot;dirty_scope&quot;: [
+    &quot;src&quot;,
+    &quot;pyproject.toml&quot;,
+    &quot;tests&quot;,
+    &quot;configs&quot;
+   ],
+   &quot;dirty_files&quot;: [
+    &quot;M src/losscolumn/core/cliffs.py&quot;,
+    &quot; M src/losscolumn/core/pareto.py&quot;,
+    &quot;?? tests/&quot;
+   ],
+   &quot;branch&quot;: &quot;master&quot;,
+   &quot;remote&quot;: null,
+   &quot;describe&quot;: &quot;222dec0-dirty&quot;
+  },
+  &quot;gpu&quot;: {
+   &quot;available&quot;: true,
+   &quot;devices&quot;: [
+    {
+     &quot;index&quot;: 0,
+     &quot;name&quot;: &quot;NVIDIA T1000 8GB&quot;,
+     &quot;capability&quot;: &quot;7.5&quot;,
+     &quot;total_memory_gb&quot;: 8.59,
+     &quot;multi_processor_count&quot;: 14
+    }
+   ],
+   &quot;source&quot;: &quot;torch&quot;,
+   &quot;torch_version&quot;: &quot;2.6.0+cu124&quot;,
+   &quot;cuda_version&quot;: &quot;12.4&quot;
+  },
+  &quot;packages&quot;: {
+   &quot;torch&quot;: &quot;2.6.0+cu124&quot;,
+   &quot;triton&quot;: null,
+   &quot;numpy&quot;: &quot;1.26.4&quot;,
+   &quot;vllm&quot;: null,
+   &quot;sglang&quot;: null,
+   &quot;tensorrt_llm&quot;: null,
+   &quot;transformers&quot;: &quot;5.12.1&quot;,
+   &quot;flash_attn&quot;: null
+  },
+  &quot;container_image&quot;: null,
+  &quot;operator&quot;: null,
+  &quot;env_overrides&quot;: {
+   &quot;CUDA_PATH&quot;: &quot;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5&quot;,
+   &quot;CUDA_PATH_V12_5&quot;: &quot;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5&quot;,
+   &quot;CUDA_MODULE_LOADING&quot;: &quot;LAZY&quot;
+  },
+  &quot;notes&quot;: null,
+  &quot;hardware_fingerprint&quot;: &quot;cc72e8eab7a5d10b&quot;,
+  &quot;hardware&quot;: &quot;1x NVIDIA T1000 8GB&quot;
+ },
+ &quot;digest&quot;: &quot;sha256:eecc5ecdae9518a3148120d67924223df695dbe1f9b5b64db4ebdf8946e4b3de&quot;
+}</pre></details>
+<footer>Generated by <code>losscolumn</code> against standard LC-1.0. Every number on this page is reproducible from the command above; if it is not, that is a bug and a conformance failure.</footer></div>

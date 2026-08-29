@@ -16,8 +16,8 @@ error beyond the endpoints themselves.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Sequence
 
 Interval = tuple[float, float]
 
@@ -163,7 +163,7 @@ def coverage_profile(sets: dict[str, IntervalSet], lo: float, hi: float) -> list
             edges.add(b)
     xs = sorted(edges)
     out: list[dict] = []
-    for a, b in zip(xs[:-1], xs[1:]):
+    for a, b in zip(xs[:-1], xs[1:], strict=False):
         if b <= a:
             continue
         mid = (a + b) / 2.0

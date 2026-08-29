@@ -127,7 +127,7 @@ def render_markdown(
             "",
             f"- Captured: `{p.captured_at}` on `{p.platform}`, Python {p.python}",
             f"- Hardware fingerprint: `{p.hardware_fingerprint()}` ({p.describe_hardware()})",
-            f"- Packages: "
+            "- Packages: "
             + ", ".join(f"`{k}={v}`" for k, v in p.packages.items() if v),
             "",
         ]
@@ -215,7 +215,7 @@ def render_html(
     embed_json: bool = True,
 ) -> str:
     lc = claim.loss_column
-    O: list[str] = [f"<title>{_e(claim.title)}</title>", f"<style>{_CSS}</style>", '<div class="wrap">']
+    out: list[str] = [f"<title>{_e(claim.title)}</title>", f"<style>{_CSS}</style>", '<div class="wrap">']
 
     banner = ""
     if claim.evidence_class != "measured":
@@ -223,7 +223,7 @@ def render_html(
             f'<div class="banner"><b>{_e(claim.evidence_class.upper())} EVIDENCE</b> '
             f"&mdash; {_e(claim.evidence_note)}</div>"
         )
-    O.append(
+    out.append(
         f'<header><div class="kicker">Thrust {_e(claim.thrust)} &middot; conforming claim '
         f'&middot; {_e(claim.standard_version)}</div>'
         f"<h1>{_e(claim.title)}</h1>"
@@ -241,7 +241,7 @@ def render_html(
         + "</div></header>"
     )
 
-    O.append(
+    out.append(
         '<div class="stat">'
         f"<div><b>{lc.loss_fraction:.0%}</b><span>of envelope lost</span></div>"
         f"<div><b>{lc.worst_regression_pct:+.0f}%</b><span>worst regression</span></div>"
@@ -269,7 +269,7 @@ def render_html(
     if not rows:
         rows = [["&ndash;", "<i>no loss region resolved</i>", "&ndash;", "&ndash;", "&ndash;",
                  "&ndash;", "&ndash;"]]
-    O.append(
+    out.append(
         '<div class="loss"><h2>Loss column</h2>'
         f"<p>{_e(lc.summary_sentence())}</p>"
         + _table(
@@ -285,53 +285,53 @@ def render_html(
     )
 
     for fig in figures or []:
-        O.append(
+        out.append(
             f'<figure{f" id={fig.anchor}" if fig.anchor else ""}>{fig.svg}'
             f"<figcaption>{fig.caption}</figcaption></figure>"
         )
 
     if claim.attributions:
-        O.append("<h2>Attributed causes</h2><ul>")
-        O += [f"<li><b>{_e(k)}</b> &mdash; {_e(v)}</li>" for k, v in claim.attributions.items()]
-        O.append("</ul>")
+        out.append("<h2>Attributed causes</h2><ul>")
+        out += [f"<li><b>{_e(k)}</b> &mdash; {_e(v)}</li>" for k, v in claim.attributions.items()]
+        out.append("</ul>")
 
     for name, body in extra_sections or []:
-        O.append(f"<h2>{_e(name)}</h2>{body}")
+        out.append(f"<h2>{_e(name)}</h2>{body}")
 
     if claim.limitations:
-        O.append("<h2>Where this fails as a study</h2><ul>")
-        O += [f"<li>{_e(x)}</li>" for x in claim.limitations]
-        O.append("</ul>")
+        out.append("<h2>Where this fails as a study</h2><ul>")
+        out += [f"<li>{_e(x)}</li>" for x in claim.limitations]
+        out.append("</ul>")
 
     if claim.parity is not None:
         p = claim.parity
-        O.append(
+        out.append(
             f'<h2>Tuning-budget parity <span class="tag {"pass" if p.ok else "fail"}">'
             f'{"parity held" if p.ok else "violated"}</span></h2>'
         )
-        O.append(
+        out.append(
             _table(
                 ["System", "Trials", "ok", "Space", "Trials/dim", "Coverage", "Wall-clock",
                  "Budget binding?"],
                 [
                     [
-                        _e(l.system),
-                        str(l.n_trials),
-                        str(l.n_ok),
-                        f"{l.space.n_dims}d / {l.space.cardinality}",
-                        f"{l.trials_per_dim:.1f}",
-                        f"{l.space_coverage:.1%}",
-                        f"{l.wall_time_s / 60:.0f} min",
+                        _e(led.system),
+                        str(led.n_trials),
+                        str(led.n_ok),
+                        f"{led.space.n_dims}d / {led.space.cardinality}",
+                        f"{led.trials_per_dim:.1f}",
+                        f"{led.space_coverage:.1%}",
+                        f"{led.wall_time_s / 60:.0f} min",
                         '<span style="color:var(--warn)">yes</span>'
-                        if l.still_improving()
+                        if led.still_improving()
                         else "no",
                     ]
-                    for l in p.ledgers
+                    for led in p.ledgers
                 ],
             )
         )
         if p.violations:
-            O.append(
+            out.append(
                 _table(
                     ["Severity", "Code", "Finding"],
                     [
@@ -348,7 +348,7 @@ def render_html(
 
     if claim.prereg is not None:
         pv = claim.prereg_verification or {}
-        O.append(
+        out.append(
             f'<h2>Pre-registration <span class="tag {"pass" if pv.get("ok") else "fail"}">'
             f'{"verified" if pv.get("ok") else "unverified"}</span></h2>'
             f"<ul><li>Sealed <code>{_e(claim.prereg.sealed_at)}</code></li>"
@@ -356,7 +356,7 @@ def render_html(
             f"<li>Anchor <code>{_e(claim.prereg.anchor or 'none')}</code></li></ul>"
         )
         if pv.get("findings"):
-            O.append(
+            out.append(
                 _table(
                     ["Code", "Severity", "Finding"],
                     [
@@ -367,7 +367,7 @@ def render_html(
             )
 
     r = claim.reproduction
-    O.append(
+    out.append(
         "<h2>Reproduction</h2>"
         f"<pre>{_e(r.command)}</pre>"
         + _table(
@@ -392,11 +392,11 @@ def render_html(
     )
 
     if conformance is not None:
-        O.append(
+        out.append(
             f'<h2>Conformance <span class="tag {"pass" if conformance.ok else "fail"}">'
             f"{_e(conformance.grade)}</span></h2>"
         )
-        O.append(
+        out.append(
             _table(
                 ["Rule", "Requirement", "Result", "Finding"],
                 [
@@ -419,7 +419,7 @@ def render_html(
 
     if claim.provenance is not None:
         p = claim.provenance
-        O.append(
+        out.append(
             "<h2>Provenance</h2>"
             + _table(
                 ["Field", "Value"],
@@ -440,16 +440,16 @@ def render_html(
 
     if embed_json:
         payload = json.dumps(claim.to_dict(include_envelope=False), indent=1, default=str)
-        O.append(
+        out.append(
             '<h2>Machine-readable claim</h2><p>The same document the validator grades. '
             "A reader who disagrees with the analysis can re-run it from this.</p>"
             f'<details><summary>claim.json ({len(payload) // 1024} KB)</summary>'
             f"<pre>{_e(payload[:120000])}</pre></details>"
         )
 
-    O.append(
+    out.append(
         f'<footer>Generated by <code>losscolumn</code> against standard '
         f"{_e(claim.standard_version)}. Every number on this page is reproducible from the "
         f"command above; if it is not, that is a bug and a conformance failure.</footer></div>"
     )
-    return "\n".join(O)
+    return "\n".join(out)

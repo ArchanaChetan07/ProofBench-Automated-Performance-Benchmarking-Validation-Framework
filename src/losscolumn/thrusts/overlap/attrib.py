@@ -26,8 +26,9 @@ Two derived quantities matter as much as the headline:
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from losscolumn.core.intervals import IntervalSet
 

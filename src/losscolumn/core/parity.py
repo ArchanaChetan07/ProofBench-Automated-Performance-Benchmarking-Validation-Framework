@@ -24,8 +24,9 @@ the proposal says as much, and so does the certificate.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from losscolumn.core.provenance import Provenance, content_hash, utcnow
 
@@ -219,7 +220,7 @@ class ParityCertificate:
 
     @property
     def systems(self) -> list[str]:
-        return [l.system for l in self.ledgers]
+        return [led.system for led in self.ledgers]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -227,9 +228,9 @@ class ParityCertificate:
             "issued_at": self.issued_at,
             "ok": self.ok,
             "systems": self.systems,
-            "ledgers": [l.to_dict() for l in self.ledgers],
+            "ledgers": [led.to_dict() for led in self.ledgers],
             "violations": [v.to_dict() for v in self.violations],
-            "digest": content_hash([l.to_dict() for l in self.ledgers]),
+            "digest": content_hash([led.to_dict() for led in self.ledgers]),
         }
 
     def to_markdown(self) -> str:
@@ -244,12 +245,12 @@ class ParityCertificate:
             "|--------|-------|--------|----|---------------------|------------|----------|"
             "-------------------|-----------------|",
         ]
-        for l in self.ledgers:
+        for led in self.ledgers:
             lines.append(
-                f"| {l.system} | {l.group or '-'} | {l.n_trials} | {l.n_ok} | "
-                f"{l.space.n_dims} / {l.space.cardinality} | {l.trials_per_dim:.1f} | "
-                f"{l.space_coverage:.1%} | {l.wall_time_s / 60:.1f} min | "
-                f"{'YES -- budget was binding' if l.still_improving() else 'no'} |"
+                f"| {led.system} | {led.group or '-'} | {led.n_trials} | {led.n_ok} | "
+                f"{led.space.n_dims} / {led.space.cardinality} | {led.trials_per_dim:.1f} | "
+                f"{led.space_coverage:.1%} | {led.wall_time_s / 60:.1f} min | "
+                f"{'YES -- budget was binding' if led.still_improving() else 'no'} |"
             )
         if self.violations:
             lines += ["", "| Severity | Code | Finding |", "|----------|------|---------|"]
@@ -269,7 +270,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
     def _spread(name: str, vals: Iterable[Any]) -> set:
         return set(vals)
 
-    counts = {l.system: l.n_trials for l in ledgers}
+    counts = {led.system: led.n_trials for led in ledgers}
     if max(counts.values()) - min(counts.values()) > tolerance_trials:
         v.append(
             ParityViolation(
@@ -280,7 +281,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    algos = _spread("algo", (l.search_algorithm for l in ledgers))
+    algos = _spread("algo", (led.search_algorithm for led in ledgers))
     if len(algos) > 1:
         v.append(
             ParityViolation(
@@ -289,7 +290,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    ops = _spread("operator", (l.operator for l in ledgers))
+    ops = _spread("operator", (led.operator for led in ledgers))
     if len(ops) > 1:
         v.append(
             ParityViolation(
@@ -301,7 +302,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    hw = _spread("hw", (l.hardware_fingerprint for l in ledgers))
+    hw = _spread("hw", (led.hardware_fingerprint for led in ledgers))
     if len(hw) > 1:
         v.append(
             ParityViolation(
@@ -311,7 +312,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    wl = _spread("workload", (l.workload_digest for l in ledgers))
+    wl = _spread("workload", (led.workload_digest for led in ledgers))
     if len(wl) > 1:
         v.append(
             ParityViolation(
@@ -320,7 +321,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    objs = _spread("obj", (l.objective_name for l in ledgers))
+    objs = _spread("obj", (led.objective_name for led in ledgers))
     if len(objs) > 1:
         v.append(
             ParityViolation(
@@ -328,35 +329,35 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    for l in ledgers:
-        if l.finished_at is None:
+    for led in ledgers:
+        if led.finished_at is None:
             v.append(
                 ParityViolation(
-                    "PAR-007", "fatal", f"ledger for {l.system} was never sealed", {"system": l.system}
+                    "PAR-007", "fatal", f"ledger for {led.system} was never sealed", {"system": led.system}
                 )
             )
-        if l.still_improving():
+        if led.still_improving():
             v.append(
                 ParityViolation(
                     "PAR-008",
                     "warning",
-                    f"{l.system} was still improving when its budget ran out; its measured "
+                    f"{led.system} was still improving when its budget ran out; its measured "
                     "performance is a lower bound and the comparison understates it",
-                    {"system": l.system},
+                    {"system": led.system},
                 )
             )
-        if l.n_ok < 0.5 * max(l.n_trials, 1):
+        if led.n_ok < 0.5 * max(led.n_trials, 1):
             v.append(
                 ParityViolation(
                     "PAR-009",
                     "warning",
-                    f"{l.system} completed only {l.n_ok}/{l.n_trials} trials; the effective "
+                    f"{led.system} completed only {led.n_ok}/{led.n_trials} trials; the effective "
                     "budget was smaller than the nominal one",
-                    {"system": l.system},
+                    {"system": led.system},
                 )
             )
 
-    tpd = {l.system: l.trials_per_dim for l in ledgers}
+    tpd = {led.system: led.trials_per_dim for led in ledgers}
     if tpd and min(tpd.values()) > 0 and max(tpd.values()) / min(tpd.values()) > 2.0:
         v.append(
             ParityViolation(
@@ -368,7 +369,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    cov = {l.system: l.space_coverage for l in ledgers}
+    cov = {led.system: led.space_coverage for led in ledgers}
     if cov and min(cov.values()) > 0 and max(cov.values()) / min(cov.values()) > 2.0:
         v.append(
             ParityViolation(
@@ -382,7 +383,7 @@ def certify(ledgers: Sequence[TuningLedger], *, tolerance_trials: int = 0) -> Pa
             )
         )
 
-    wall = {l.system: l.wall_time_s for l in ledgers}
+    wall = {led.system: led.wall_time_s for led in ledgers}
     if wall and min(wall.values()) > 0 and max(wall.values()) / min(wall.values()) > 3.0:
         v.append(
             ParityViolation(

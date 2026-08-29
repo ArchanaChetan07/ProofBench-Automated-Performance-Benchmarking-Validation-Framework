@@ -24,8 +24,9 @@ What is checked, and why each one earns its place:
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Callable, Sequence
+from typing import Any
 
 from losscolumn.thrusts.kernel.reference import (
     HAS_TORCH,

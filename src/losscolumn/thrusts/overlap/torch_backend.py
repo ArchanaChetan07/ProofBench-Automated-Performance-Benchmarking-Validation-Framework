@@ -22,8 +22,9 @@ from __future__ import annotations
 
 import contextlib
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from losscolumn.thrusts.overlap.attrib import Span, StepTrace, classify
 from losscolumn.thrusts.overlap.simulate import ModelSpec, ShardingConfig
@@ -111,7 +112,7 @@ def split_steps(spans: list[Span], n_steps: int, *, drop_first: int = 0) -> list
         edges = [min(s.start for s in spans)] + marks
 
     traces: list[StepTrace] = []
-    for a, b in zip(edges[:-1], edges[1:]):
+    for a, b in zip(edges[:-1], edges[1:], strict=False):
         sub = [s for s in spans if s.start < b and s.end > a]
         if sub:
             traces.append(StepTrace(spans=sub, step_start=a, step_end=b))

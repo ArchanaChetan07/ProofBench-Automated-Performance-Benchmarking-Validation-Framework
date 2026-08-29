@@ -22,8 +22,9 @@ Uncertainty is carried through as two frontiers rather than error bars on one:
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -186,14 +187,25 @@ class FrontierComparison:
         return self.budgets[np.nan_to_num(self.ratio, nan=1.0) < 1.0]
 
     def crossover(self) -> float | None:
-        """Latency budget at which the ordering flips, if it flips once."""
-        r = np.nan_to_num(self.ratio, nan=1.0)
-        sign = np.sign(r - 1.0)
+        """Latency budget at which the ordering flips, if it flips exactly once.
+
+        Only budgets both systems can meet are considered. Treating an
+        unmeetable budget as a tie would insert a spurious sign change at the
+        point where the slower system first becomes able to run at all, and
+        report it as a crossover between two systems only one of which was
+        present.
+        """
+        live = np.isfinite(self.ratio) & np.isfinite(self.method_attain) & np.isfinite(
+            self.baseline_attain
+        )
+        if live.sum() < 2:
+            return None
+        budgets = self.budgets[live]
+        sign = np.sign(self.ratio[live] - 1.0)
         flips = np.where(np.diff(sign) != 0)[0]
         if len(flips) != 1:
             return None
-        i = int(flips[0])
-        return float(self.budgets[i])
+        return float(budgets[int(flips[0])])
 
     def summary(self) -> dict[str, Any]:
         r = self.ratio[np.isfinite(self.ratio)]
@@ -207,7 +219,7 @@ class FrontierComparison:
             "crossover_ms": self.crossover(),
             "budgets_method_cannot_meet": [
                 float(b)
-                for b, m in zip(self.budgets, self.method_attain)
+                for b, m in zip(self.budgets, self.method_attain, strict=False)
                 if not np.isfinite(m)
             ],
         }

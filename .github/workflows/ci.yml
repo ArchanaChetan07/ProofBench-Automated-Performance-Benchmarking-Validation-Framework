@@ -1,0 +1,113 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # The analysis layer depends on numpy alone, on purpose. This job installs
+  # nothing else and would fail if a GPU import leaked into `losscolumn.core`.
+  core:
+    name: core (numpy only, no torch)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev]"
+      - name: Assert core imports without torch
+        run: |
+          python - <<'PY'
+          import sys
+          sys.modules["torch"] = None  # poison the import
+          import losscolumn.core, losscolumn.validate, losscolumn.spec  # noqa: F401
+          print("core imports with torch unavailable")
+          PY
+      - run: ruff check src tests
+      - run: pytest -q -m "not gpu and not triton and not slow"
+
+  # The standard has to be able to grade a non-conforming document. A
+  # conformance checker that has only ever seen conforming input is a rubber
+  # stamp, so CI asserts the failure path explicitly.
+  standard:
+    name: standard catches violations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: pytest -q tests/test_standard.py
+      - name: A claim with no loss column must be rejected
+        run: |
+          python - <<'PY'
+          import json, subprocess, sys, tempfile, pathlib
+          bad = {"kind": "claim", "id": "bad", "title": "no loss column",
+                 "standard_version": "LC-1.0", "evidence_class": "measured"}
+          p = pathlib.Path(tempfile.mkdtemp()) / "bad.claim.json"
+          p.write_text(json.dumps(bad))
+          r = subprocess.run([sys.executable, "-m", "losscolumn.cli.main",
+                              "validate", str(p)], capture_output=True, text=True)
+          assert r.returncode != 0, "validator accepted a claim with no loss column"
+          assert "LC-1.1" in r.stdout, r.stdout
+          print("validator correctly rejected it")
+          PY
+
+  # End-to-end on the synthetic backends: no GPU, so every artifact is
+  # evidence_class=simulated and is expected to say so.
+  artifacts:
+    name: end-to-end (synthetic backends)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e ".[dev]"
+      - run: python -m losscolumn.cli.main doctor
+      - name: Seal protocols, then run
+        run: |
+          python -m losscolumn.cli.main prereg seal I  --anchor "git:${GITHUB_SHA::12}"
+          python -m losscolumn.cli.main prereg seal II --anchor "git:${GITHUB_SHA::12}"
+          python -m losscolumn.cli.main run thrust1
+          python -m losscolumn.cli.main run thrust2
+      - name: Every artifact must declare simulated evidence
+        run: |
+          python - <<'PY'
+          import json, pathlib
+          for p in pathlib.Path("artifacts").glob("*.claim.json"):
+              c = json.loads(p.read_text())
+              assert c["evidence_class"] == "simulated", (p.name, c["evidence_class"])
+              assert c["evidence_note"], f"{p.name} is simulated but does not say what was modelled"
+          print("all artifacts correctly labelled")
+          PY
+      - run: python -m losscolumn.cli.main validate artifacts/*.claim.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: losscolumn-artifacts
+          path: artifacts/
+
+  gpu:
+    name: gpu (self-hosted, optional)
+    runs-on: [self-hosted, gpu]
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -e ".[torch,dev]"
+      - run: python -m losscolumn.cli.main doctor
+      - run: pytest -q -m gpu
+      - name: Thrust III against a real device
+        run: |
+          python -m losscolumn.cli.main prereg seal III --anchor "git:${GITHUB_SHA::12}"
+          python -m losscolumn.cli.main run thrust3

@@ -1,0 +1,90 @@
+<title>The Loss Column</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<header><div class="kicker">Research artifact &middot; machine-learning systems</div><h1>The Loss Column</h1><div class="headline">Establishing falsifiable performance claims in LLM training and inference systems, by making every result report the conditions under which it fails.</div><div class="meta"><span>standard <code>LC-1.0</code></span><span>losscolumn <code>0.1.0</code></span><span>3 claim(s)</span></div></header>
+<div class="stat"><div><b>3</b><span>claims audited</span></div><div><b>108</b><span>cells measured</span></div><div><b>7</b><span>loss regions</span></div><div><b>0/3</b><span>conforming</span></div></div>
+<h2>The reporting standard</h2>
+<p>The durable output of this project is not any single measurement but a reporting standard that the three artifacts jointly demonstrate. Each requirement targets a specific documented failure mode rather than expressing a general preference for rigour, and each is implemented as an executable conformance rule rather than as prose.</p>
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>What it forecloses</th></tr></thead><tbody><tr><td><code>LC-1</code></td><td><b>Loss column</b></td><td>Selective reporting. Every claim names the regions where it underperforms, at equal prominence to the wins, with an attributed cause.</td></tr><tr><td><code>LC-2</code></td><td><b>Tuning-budget parity</b></td><td>The untuned baseline. An append-only ledger records trials, search procedure, operator and hardware for every system, and the certificate is derived from it.</td></tr><tr><td><code>LC-3</code></td><td><b>Envelope, not point</b></td><td>Overgeneralisation from one configuration. Results are surfaces; a headline must carry its own best, worst and median.</td></tr><tr><td><code>LC-4</code></td><td><b>Pre-registration</b></td><td>Post-hoc selection of the favourable comparison. The protocol is hashed and sealed before collection, and the analysis is verified against the seal.</td></tr><tr><td><code>LC-5</code></td><td><b>One-command reproduction</b></td><td>Unfalsifiability by inaccessibility. Pinned commit, pinned image, documented hardware, one command.</td></tr></tbody></table></div>
+<h2>Verdicts</h2>
+<div class="scroll"><table><thead><tr><th>Claim</th><th>Thrust</th><th>Evidence</th><th>Verdict</th><th>Basis</th><th>Conformance</th></tr></thead><tbody><tr><td><b>The overlap envelope: where the recommended sharding configuration breaks down</b><br><span style='color:var(--muted)'>full_shard/tp1 vs best_of_swept</span></td><td>I</td><td><span class="tag warn">simulated</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 25% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr><tr><td><b>The equal-tuning audit: engine differences that survive budget parity</b><br><span style='color:var(--muted)'>vllm vs best_alternative</span></td><td>II</td><td><span class="tag warn">simulated</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 75% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr><tr><td><b>Reproduction with a loss map: a from-scratch attention kernel</b><br><span style='color:var(--muted)'>reimplementation vs reference</span></td><td>III</td><td><span class="tag pass">measured</span></td><td><span class="fail"><b>did not survive</b></span></td><td>regresses over 100% of the swept envelope</td><td><span class="fail">non-conforming</span></td></tr></tbody></table></div>
+<h2>Loss columns</h2>
+<h3>The overlap envelope: where the recommended sharding configuration breaks down</h3>
+<div class="loss"><p>full_shard/tp1 loses to best_of_swept on 25% of the swept envelope (12/48 cells), across 3 region(s); worst measurable case +258.1% on cluster_throughput, and cannot run at all in 8 cell(s).</p><ul>
+<li><b>micro_batch=[2, 4, 8], seq_len=[8192], checkpointing=[False], world_size=[8, 32]</b> &mdash; worst cannot run; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
+<li><b>micro_batch=[8], seq_len=[2048, 8192], checkpointing=[False], world_size=[8, 32]</b> &mdash; worst cannot run; the configuration cannot run here at all; OOM: model needs ~101 GB/rank against 80 GB HBM; beaten by full_shard/tp2, full_shard/tp8</li>
+<li><b>micro_batch=[1, 2], seq_len=[512], checkpointing=[False, True], world_size=[32]</b> &mdash; worst +258.1%; overlap efficiency 0.45; 54.5% of the step is exposed communication; beaten by hybrid_shard/tp1</li>
+</ul>
+</div>
+<h3>The equal-tuning audit: engine differences that survive budget parity</h3>
+<div class="loss"><p>vllm loses to best_alternative on 75% of the swept envelope (18/24 cells), across 3 region(s); worst measurable case +107.7% on attainable_throughput, and cannot run at all in 1 cell(s).</p><ul>
+<li><b>workload=[&#x27;chat&#x27;, &#x27;rag&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100]</b> &mdash; worst +107.7%; vllm cannot meet a 10 ms/token normalised p99 budget on rag at any measured concurrency; rag has 15% prefix reuse, which the alternative caches and vllm does not at its tuned settings; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
+<li><b>workload=[&#x27;chat&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25, 50, 100, 250]</b> &mdash; worst +94.8%; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
+<li><b>workload=[&#x27;chat&#x27;, &#x27;summarize&#x27;, &#x27;agentic&#x27;], latency_budget_ms=[10, 15, 25]</b> &mdash; worst +94.8%; vllm cannot meet a 10 ms/token normalised p99 budget on summarize at any measured concurrency; agentic has 82% prefix reuse, which the alternative caches and vllm does not at its tuned settings</li>
+</ul>
+<p style='font-size:13px'>2 cell(s) could not be measured for either system and are excluded from the comparison rather than counted as wins.</p>
+</div>
+<h3>Reproduction with a loss map: a from-scratch attention kernel</h3>
+<div class="loss"><p>reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1253.9% on attention_throughput.</p><ul>
+<li><b>head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=[&#x27;float16&#x27;, &#x27;bfloat16&#x27;]</b> &mdash; worst +1253.9%; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate</li>
+</ul>
+</div>
+<h2>How to read a null result</h2><p>Three of the verdicts above are distinct and are not interchangeable. <b>Survived</b> means the sweep had the power to detect a regression at the pre-registered effect size and found none. <b>Undetermined</b> means it did not have that power &mdash; an exact paired sign-flip test over <i>r</i> replicates cannot produce a p-value below 2<sup>&minus;r</sup>, so a sweep with too few replicates will report an empty loss column no matter how large the true regression is. Every loss column in this project carries the arithmetic that distinguishes the two, and the validator treats an undetectable design as a conformance failure rather than as a clean result.</p>
+<footer>Generated by <code>losscolumn run all</code>. Every figure and every number on the linked artifact pages is regenerable from the pinned commit and container image recorded in each claim.</footer></div>

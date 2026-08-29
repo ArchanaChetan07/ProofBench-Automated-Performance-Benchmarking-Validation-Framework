@@ -24,9 +24,10 @@ but they appear in the artifact next to the result they affect.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Sequence
+from typing import Any
 
 from losscolumn.core.provenance import content_hash, utcnow
 

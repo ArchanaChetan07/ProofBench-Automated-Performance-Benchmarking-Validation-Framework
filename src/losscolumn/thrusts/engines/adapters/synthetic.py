@@ -34,7 +34,6 @@ KV capacity bounds the batch, and per-step overhead is charged explicitly.
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from typing import Any
 

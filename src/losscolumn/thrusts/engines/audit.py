@@ -26,25 +26,26 @@ The design, in the order it runs:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 
 from losscolumn.core.envelope import Envelope, Factor, Metric
 from losscolumn.core.losscolumn import LossColumn, extract_loss_column
-from losscolumn.core.parity import ParityCertificate, TuningLedger, certify_grouped
 from losscolumn.core.pareto import (
     FrontierComparison,
     OperatingPoint,
     ParetoFrontier,
     compare_frontiers,
 )
+from losscolumn.core.parity import ParityCertificate, TuningLedger, certify_grouped
 from losscolumn.core.provenance import Provenance
 from losscolumn.core.stats import CellComparison, compare_cells
 from losscolumn.thrusts.engines.adapters.synthetic import SyntheticEngine, synthetic_engines
 from losscolumn.thrusts.engines.search import SearchProcedure, engine_seed
-from losscolumn.thrusts.engines.workloads import Workload, standard_workloads, workload_digest
+from losscolumn.thrusts.engines.workloads import Workload, standard_workloads
 
 DEFAULT_CONCURRENCIES = (1, 2, 4, 8, 16, 32, 64, 128, 256)
 
@@ -208,7 +209,6 @@ def run_engine_audit(
     workloads = workloads or standard_workloads()
     prov = Provenance.capture()
     hw = hardware_fingerprint or prov.hardware_fingerprint()
-    wdigest = workload_digest(list(workloads.values()))
     procedure = SearchProcedure(n_trials=n_trials)
 
     # ---- stage 1: tune every engine under one budget, per workload -------
@@ -354,7 +354,6 @@ def _attribute(result: AuditResult) -> None:
     """Attach a mechanism to each loss region, from the frontier metadata."""
     if result.loss_column is None:
         return
-    env = result.envelope
     for region in result.loss_column.regions:
         wls = [str(x) for x in region.bounds.get("workload", [])]
         parts: list[str] = []

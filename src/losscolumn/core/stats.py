@@ -25,8 +25,9 @@ is not simply win-or-lose:
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Literal, Sequence
+from typing import Any, Literal
 
 import numpy as np
 
@@ -453,7 +454,7 @@ def compare_cells(
     live = [c for c in out if math.isfinite(c.p_worse)]
     rej_w, qw = bh_fdr([c.p_worse for c in live], q=q)
     rej_b, qb = bh_fdr([c.p_better for c in live], q=q)
-    for c, w, b_, rw, rb in zip(live, qw, qb, rej_w, rej_b):
+    for c, w, b_, rw, rb in zip(live, qw, qb, rej_w, rej_b, strict=False):
         c.q_worse, c.q_better = float(w), float(b_)
         c.verdict = _classify(c, rw, rb, mde=lm, alpha=alpha)
     return out

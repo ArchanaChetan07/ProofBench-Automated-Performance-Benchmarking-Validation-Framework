@@ -25,29 +25,55 @@ Where the ceiling comes from, concretely:
 
 from __future__ import annotations
 
+import importlib.util
 import math
+import os
 from typing import Any
-
-try:
-    import triton
-    import triton.language as tl
-
-    HAS_TRITON = True
-except Exception:  # pragma: no cover - Triton is absent on Windows and CPU-only CI
-    triton = None  # type: ignore
-    tl = None  # type: ignore
-    HAS_TRITON = False
 
 try:
     import torch
 except Exception:  # pragma: no cover
     torch = None  # type: ignore
 
+# Triton is imported lazily, never at module load. Two reasons, both learned
+# the hard way: a broken or partial install can fault the interpreter during
+# import rather than raising something catchable, and `attention_flops` below
+# is pure arithmetic that the rest of the package needs on machines with no
+# Triton at all. Nothing here touches Triton until a caller asks for the kernel.
+_TRITON: Any = None
+_TL: Any = None
+_KERNEL: Any = None
+_PROBE: tuple[bool, str] | None = None
+
+
+def _import_triton() -> tuple[bool, str]:
+    """Import Triton once, and remember how it went."""
+    global _TRITON, _TL, _PROBE
+    if _PROBE is not None:
+        return _PROBE
+    if os.environ.get("LC_DISABLE_TRITON"):
+        _PROBE = (False, "disabled by LC_DISABLE_TRITON")
+        return _PROBE
+    if importlib.util.find_spec("triton") is None:
+        _PROBE = (False, "triton is not installed (no official Windows wheel; "
+                         "try triton-windows)")
+        return _PROBE
+    try:
+        import triton
+        import triton.language as tl
+    except BaseException as e:  # a broken install can raise almost anything
+        _PROBE = (False, f"triton is installed but unusable: {type(e).__name__}: {e}")
+        return _PROBE
+    _TRITON, _TL = triton, tl
+    _PROBE = (True, "")
+    return _PROBE
+
 
 def triton_available() -> tuple[bool, str]:
     """Whether a usable Triton + CUDA pair is present, and why not if not."""
-    if not HAS_TRITON:
-        return False, "triton is not installed (no official Windows wheel; try triton-windows)"
+    ok, why = _import_triton()
+    if not ok:
+        return False, why
     if torch is None or not torch.cuda.is_available():
         return False, "no CUDA device visible to torch"
     cap = torch.cuda.get_device_capability()
@@ -60,7 +86,15 @@ def triton_available() -> tuple[bool, str]:
     return True, ""
 
 
-if HAS_TRITON:
+def _build_kernel() -> Any:
+    """Compile-time construction of the Triton kernel, on first use only."""
+    global _KERNEL
+    if _KERNEL is not None:
+        return _KERNEL
+    ok, why = _import_triton()
+    if not ok:
+        raise RuntimeError(f"Triton path unavailable: {why}")
+    triton, tl = _TRITON, _TL
 
     def _configs() -> list[Any]:
         out = []
@@ -147,6 +181,9 @@ if HAS_TRITON:
             lse = tl.where(l_i == 0.0, float("-inf"), m_i + tl.log(l_safe))
             tl.store(LSE + pid_bh * slh + offs_m * slm, lse, mask=m_mask)
 
+    _KERNEL = _fwd_kernel
+    return _KERNEL
+
 
 def flash_attention_triton(q, k, v, *, causal: bool = False,
                            softmax_scale: float | None = None, return_lse: bool = False):
@@ -154,6 +191,8 @@ def flash_attention_triton(q, k, v, *, causal: bool = False,
     ok, why = triton_available()
     if not ok:
         raise RuntimeError(f"Triton path unavailable: {why}")
+    triton = _TRITON
+    kernel = _build_kernel()
     assert q.dim() == 4, "expected (batch, heads, seq, head_dim)"
     b, h, sq, d = q.shape
     sk = k.shape[-2]
@@ -169,7 +208,7 @@ def flash_attention_triton(q, k, v, *, causal: bool = False,
     lse = torch.empty((b * h, sq), device=q.device, dtype=torch.float32)
 
     grid = lambda meta: (triton.cdiv(sq, meta["BLOCK_M"]), b * h)  # noqa: E731
-    _fwd_kernel[grid](
+    kernel[grid](
         qf, kf, vf, out, lse,
         0, qf.stride(0), qf.stride(1), qf.stride(2),
         0, kf.stride(0), kf.stride(1), kf.stride(2),
