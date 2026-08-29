@@ -99,9 +99,21 @@ def cmd_prereg(args: argparse.Namespace) -> int:
         path = outdir / f"prereg-thrust-{args.thrust.upper()}.json"
         if path.exists() and not args.force:
             print(f"{path} already exists. A sealed protocol is not re-sealed; publish a new "
-                  "version with a declared deviation instead. Use --force only to replace an "
-                  "unpublished draft.", file=sys.stderr)
+                  "version with a declared deviation instead. Use --force only to supersede "
+                  "it with a genuinely new revision.", file=sys.stderr)
             return 2
+        if path.exists():
+            # A superseded seal is archived, never deleted: it governed results
+            # that are already published, and it has to stay verifiable.
+            import json as _json
+
+            old = _json.loads(path.read_text(encoding="utf-8"))
+            arch = outdir / "archive"
+            arch.mkdir(parents=True, exist_ok=True)
+            stamp = str(old.get("sealed_at", "unknown")).replace(":", "").replace("-", "")
+            dest = arch / f"prereg-thrust-{args.thrust.upper()}-v{old.get('version', '?')}-{stamp}.json"
+            dest.write_text(_json.dumps(old, indent=2), encoding="utf-8")
+            print(f"archived the superseded seal to {dest}")
         seal(pre, anchor=args.anchor)
         path.write_text(json.dumps(pre.to_dict(), indent=2), encoding="utf-8")
         (outdir / f"prereg-thrust-{args.thrust.upper()}.md").write_text(

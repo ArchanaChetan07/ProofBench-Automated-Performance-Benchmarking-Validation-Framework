@@ -1,0 +1,91 @@
+{
+  "title": "Thrust III -- reproduction with a loss map",
+  "hypotheses": {
+    "H0": "A faithful from-scratch implementation of the FlashAttention algorithm matches the reference within the MDE across the swept shape space.",
+    "H1": "It does not, and the regions where it loses are attributable to specific implementation mechanisms the reimplementation does not express."
+  },
+  "metrics": [
+    {
+      "name": "attention_throughput",
+      "unit": "TFLOP/s",
+      "higher_is_better": true
+    },
+    {
+      "name": "max_relative_error",
+      "unit": "ratio",
+      "higher_is_better": false
+    }
+  ],
+  "factors": [
+    {
+      "name": "head_dim",
+      "levels": [
+        32,
+        64,
+        128
+      ]
+    },
+    {
+      "name": "seq_len",
+      "levels": [
+        128,
+        512,
+        2048
+      ],
+      "unit": "tokens"
+    },
+    {
+      "name": "batch",
+      "levels": [
+        1,
+        4
+      ]
+    },
+    {
+      "name": "dtype",
+      "levels": [
+        "float16",
+        "bfloat16"
+      ]
+    }
+  ],
+  "systems": [
+    "reimplementation",
+    "reference"
+  ],
+  "mde": 0.1,
+  "q_level": 0.05,
+  "alpha": 0.05,
+  "replicates": 11,
+  "interleaved": true,
+  "decision_rules": [
+    "Correctness is evaluated before timing at every shape. A shape that fails correctness is recorded as unmeasurable for the reimplementation and enters the comparison as a loss; its timing is never reported.",
+    "Correctness tolerances are derived from the arithmetic -- 4u for the storage format plus 8*sqrt(seq)*u for the accumulator -- and are fixed before any measurement. They are not adjusted to make a shape pass.",
+    "Timing uses CUDA events, an L2 flush between iterations, and interleaved A/B replicates; the statistic is the median of per-iteration device times.",
+    "The reimplementation is expected to lose over much of the space. The result is the map and the attribution, not the aggregate."
+  ],
+  "exclusion_rules": [
+    "Shapes that exceed device memory are recorded as unmeasurable with the allocation failure, for both arms.",
+    "No shape is excluded after seeing its timing."
+  ],
+  "stopping_rule": "Fixed full-factorial grid; correctness gate is evaluated first.",
+  "primary_outcome": "A complete performance map over (head_dim, seq_len, batch, dtype) with every losing region marked and an attributed cause for each.",
+  "secondary_outcomes": [
+    "A correctness suite passing across the full swept space, independent of timing.",
+    "An account of which architectural details of the reference mattered."
+  ],
+  "tuning_budget_trials": null,
+  "search_algorithm": null,
+  "loss_column_policy": "The performance map is the artifact. Losing regions are marked on the map itself, not listed in an appendix, and the artifact states plainly that a reader wanting the fastest kernel should use the reference.",
+  "rationale": "The MDE is 10% rather than 5% because a kernel within 10% of the reference is a practical substitute; the finding of interest is the region where it is far outside that, and a tighter MDE would fill the loss column with regions no reader would act on. Matching a mature hand-tuned kernel is not the goal and would not be credible.",
+  "authors": [
+    "Archana Suresh Patil"
+  ],
+  "version": "1",
+  "sealed_at": "2026-08-28T22:48:06Z",
+  "seal_hash": "sha256:4e8e472017ff9e1645aa00f034abe3633e86cce891cfd50ae777ef78ee1eab4c",
+  "anchor": "git:a0bdfe6",
+  "deviations": [],
+  "kind": "preregistration",
+  "normative_hash": "sha256:4e8e472017ff9e1645aa00f034abe3633e86cce891cfd50ae777ef78ee1eab4c"
+}

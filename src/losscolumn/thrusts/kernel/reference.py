@@ -182,3 +182,131 @@ def error_budget(
         "abs_tol": rel * 4.0,   # outputs are O(1) after softmax; absolute floor
         "derivation": "4u_storage + 8*sqrt(seq)*u_accumulator",
     }
+
+
+# --------------------------------------------------------------------------
+# block-sparse attention
+# --------------------------------------------------------------------------
+
+
+def flash_torch_sparse(
+    q,
+    k,
+    v,
+    layout,
+    *,
+    causal: bool = False,
+    softmax_scale: float | None = None,
+    return_lse: bool = False,
+):
+    """FlashAttention over a block layout, in portable PyTorch ops.
+
+    Same online-softmax algorithm as :func:`flash_torch`, but the inner loop
+    visits only the key blocks the layout names. Query blocks whose row is
+    empty are impossible by construction -- :mod:`sparsity` always keeps the
+    diagonal -- so no row can end with a zero normaliser.
+
+    The block size comes from the layout, not from a tuning parameter: it is
+    part of the sparsity format.
+    """
+    _require_torch()
+    b, h, sq, d = q.shape
+    sk = k.shape[-2]
+    scale = softmax_scale if softmax_scale is not None else 1.0 / math.sqrt(d)
+    bq, bk = layout.block_q, layout.block_k
+
+    acc = torch.zeros((b, h, sq, d), device=q.device, dtype=torch.float32)
+    m_i = torch.full((b, h, sq), float("-inf"), device=q.device, dtype=torch.float32)
+    l_i = torch.zeros((b, h, sq), device=q.device, dtype=torch.float32)
+    offset = sk - sq
+
+    crow = layout.crow
+    cols = layout.cols
+    for bi in range(layout.n_q_blocks):
+        q0, q1 = bi * bq, min((bi + 1) * bq, sq)
+        if q1 <= q0:
+            continue
+        qb = q[:, :, q0:q1, :].to(torch.float32)
+        acc_b, m_b, l_b = acc[:, :, q0:q1, :], m_i[:, :, q0:q1], l_i[:, :, q0:q1]
+
+        for idx in range(int(crow[bi]), int(crow[bi + 1])):
+            kj = int(cols[idx])
+            k0, k1 = kj * bk, min((kj + 1) * bk, sk)
+            if k1 <= k0:
+                continue
+            kb_ = k[:, :, k0:k1, :].to(torch.float32)
+            vb = v[:, :, k0:k1, :].to(torch.float32)
+            s = torch.matmul(qb, kb_.transpose(-1, -2)) * scale
+            if causal:
+                qi = torch.arange(q0, q1, device=q.device).view(-1, 1)
+                kjx = torch.arange(k0, k1, device=q.device).view(1, -1)
+                s = s.masked_fill(kjx > qi + offset, float("-inf"))
+            m_new = torch.maximum(m_b, s.amax(dim=-1))
+            m_safe = torch.where(torch.isneginf(m_new), torch.zeros_like(m_new), m_new)
+            corr = torch.exp(m_b - m_safe)
+            corr = torch.where(torch.isneginf(m_b), torch.zeros_like(corr), corr)
+            p = torch.nan_to_num(torch.exp(s - m_safe.unsqueeze(-1)), nan=0.0)
+            acc_b = acc_b * corr.unsqueeze(-1) + torch.matmul(p, vb)
+            l_b = l_b * corr + p.sum(dim=-1)
+            m_b = m_new
+
+        acc[:, :, q0:q1, :] = acc_b
+        m_i[:, :, q0:q1] = m_b
+        l_i[:, :, q0:q1] = l_b
+
+    out = (acc / l_i.clamp_min(torch.finfo(torch.float32).tiny).unsqueeze(-1)).to(q.dtype)
+    if return_lse:
+        return out, m_i + torch.log(l_i.clamp_min(torch.finfo(torch.float32).tiny))
+    return out
+
+
+def sparse_reference(q, k, v, layout, *, causal: bool = False,
+                     softmax_scale: float | None = None):
+    """The reference for a sparse pattern: SDPA computing it densely under a mask.
+
+    This is the honest comparator. It produces the same output as the sparse
+    kernel and does the full dense work, so the difference between them is
+    exactly what block-skipping buys -- which is the question. Comparing a
+    sparse kernel against *unmasked* dense attention would instead be comparing
+    two different functions.
+    """
+    _require_torch()
+    b, h, sq, d = q.shape
+    sk = k.shape[-2]
+    mask = torch.zeros((sq, sk), device=q.device, dtype=torch.bool)
+    bq, bk = layout.block_q, layout.block_k
+    for bi in range(layout.n_q_blocks):
+        q0, q1 = bi * bq, min((bi + 1) * bq, sq)
+        for idx in range(int(layout.crow[bi]), int(layout.crow[bi + 1])):
+            kj = int(layout.cols[idx])
+            mask[q0:q1, kj * bk:min((kj + 1) * bk, sk)] = True
+    if causal:
+        i = torch.arange(sq, device=q.device).view(-1, 1)
+        j = torch.arange(sk, device=q.device).view(1, -1)
+        mask &= j <= i + (sk - sq)
+    return torch.nn.functional.scaled_dot_product_attention(
+        q, k, v, attn_mask=mask.view(1, 1, sq, sk), scale=softmax_scale
+    )
+
+
+def math_reference_sparse(q, k, v, layout, *, causal: bool = False,
+                          softmax_scale: float | None = None):
+    """fp64 ground truth for a sparse pattern."""
+    _require_torch()
+    qd, kd, vd = (x.to(torch.float64) for x in (q, k, v))
+    sq, sk = qd.shape[-2], kd.shape[-2]
+    scale = softmax_scale if softmax_scale is not None else 1.0 / math.sqrt(qd.shape[-1])
+    scores = torch.matmul(qd, kd.transpose(-1, -2)) * scale
+    keep = torch.zeros((sq, sk), device=q.device, dtype=torch.bool)
+    bq, bk = layout.block_q, layout.block_k
+    for bi in range(layout.n_q_blocks):
+        q0, q1 = bi * bq, min((bi + 1) * bq, sq)
+        for idx in range(int(layout.crow[bi]), int(layout.crow[bi + 1])):
+            kj = int(layout.cols[idx])
+            keep[q0:q1, kj * bk:min((kj + 1) * bk, sk)] = True
+    if causal:
+        i = torch.arange(sq, device=q.device).view(-1, 1)
+        j = torch.arange(sk, device=q.device).view(1, -1)
+        keep &= j <= i + (sk - sq)
+    scores = scores.masked_fill(~keep.view(1, 1, sq, sk), float("-inf"))
+    return torch.matmul(torch.softmax(scores, dim=-1), vd)

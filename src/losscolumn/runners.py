@@ -400,74 +400,113 @@ def _crossover_html(res: Any) -> str:
 
 
 def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> dict[str, Path]:
-    from losscolumn.thrusts.kernel.sweep import run_kernel_sweep
-    from losscolumn.thrusts.kernel.triton_fa import device_limits, supported_dtypes
+    """Run the registered lattice for every available implementation.
+
+    Each implementation gets its own claim. The portable one measures what the
+    algorithm costs in eager dispatch; the fused one measures what the code
+    generator achieves. Pooling them would produce a single number describing
+    neither, so the protocol registers them as separate systems and they are
+    published as separate artifacts.
+    """
+    from losscolumn.thrusts.kernel.sparse_sweep import IMPLEMENTATIONS, run_sparse_sweep, select
 
     pre = _prereg("III", prereg_dir)
-    grid: dict[str, Any] = _analysis_params(pre)
-
-    # The protocol registers both float16 and bfloat16. bf16 tensor cores
-    # arrive with Ampere, so on an older device the registered grid cannot be
-    # run in full. Narrowing it silently is precisely the selection LC-4
-    # exists to prevent, so the restriction is declared against the seal and
-    # travels with the artifact.
-    limits = device_limits()
-    usable = supported_dtypes()
-    registered = tuple(
-        str(x)
-        for f in (pre.factors if pre else [])
-        if f.get("name") == "dtype"
-        for x in f.get("levels", [])
-    )
-    if usable and registered and not set(registered) <= set(usable):
-        dropped = sorted(set(registered) - set(usable))
-        grid["dtypes"] = tuple(d for d in registered if d in usable)
-        if pre is not None:
-            pre.declare_deviation(
-                "factors",
-                {"dtype": list(grid["dtypes"])},
-                f"{limits.get('capability', 'this device')} has no bf16 tensor cores; "
-                f"{', '.join(dropped)} cannot be measured here and would report an "
-                "emulated path rather than the algorithm",
-            )
-
+    params = _analysis_params(pre)
+    grid: dict[str, Any] = dict(params)
     if quick:
-        grid.update(head_dims=(32, 64), seq_lens=(128, 512), batches=(1,),
-                    dtypes=("float16",), iters=8)
+        grid.update(seq_lens=(512, 2048), batches=(1,), iters=5)
         _declare_quick(pre, grid)
-    res = run_kernel_sweep(**grid)
-    env, lc = res.envelope, res.loss_column
+
+    available: list[str] = []
+    unavailable: dict[str, str] = {}
+    for impl in IMPLEMENTATIONS:
+        try:
+            select(impl)
+            available.append(impl)
+        except Exception as e:
+            unavailable[impl] = str(e)
+
+    out: dict[str, Path] = {}
+    for impl in available:
+        res = run_sparse_sweep(implementation=impl, **grid)
+        out.update(
+            _publish_kernel_claim(res, pre=pre, outdir=outdir, quick=quick,
+                                  unavailable=unavailable)
+        )
+    if not available:
+        raise RuntimeError(f"no attention implementation is runnable here: {unavailable}")
+    return out
+
+
+_IMPL_BLURB = {
+    "portable": (
+        "the FlashAttention algorithm written out in eager PyTorch ops: correct "
+        "everywhere, portable to any device, and not fast. Its loss map measures what "
+        "per-tile dispatch costs"
+    ),
+    "triton": (
+        "the same algorithm as a fused Triton kernel with real block skipping. Its "
+        "loss map measures what the code generator achieves"
+    ),
+}
+
+
+def _publish_kernel_claim(res, *, pre, outdir: Path, quick: bool,
+                          unavailable: dict[str, str]) -> dict[str, Path]:
+    from losscolumn.thrusts.kernel.sparse_sweep import BASELINE, METHOD
+
+    env, lc = res.latency, res.loss_column
     assert lc is not None
+    label = "A" if res.implementation == "portable" else "B"
 
     figures = [
         Figure(
             svg=loss_map_svg(
-                env, res.comparisons, x="seq_len", y="head_dim", facet="dtype",
+                env, res.comparisons, x="seq_len", y="pattern", facet="phase",
                 loss_column=lc,
-                title="Loss map -- from-scratch attention against the reference",
-                subtitle=f"{res.implementation} vs torch SDPA on {res.device}. "
-                         "Correctness is checked before any timing is recorded.",
+                title=f"Loss map {label} -- {res.implementation} vs the reference",
+                subtitle=f"per-call latency on {res.device}; batch and density collapse "
+                         f"to the most adverse cell",
             ),
             caption=(
-                "The reimplementation is expected to lose across most of this space, and "
-                "does. Matching a mature hand-tuned kernel is not the goal and would not "
-                "be credible; the contribution is the map and the attribution. A reader "
-                "who wants the fastest kernel should use the reference."
+                "Red marks a region where this implementation is slower than the "
+                "reference computing the same attention pattern. Crossed cells are "
+                "combinations that are not a configuration &mdash; dense below full "
+                "density, or a sparse pattern at full density &mdash; recorded rather "
+                "than dropped so the artifact does not claim a full factorial it did "
+                "not run. Collapsing takes the <em>worst</em> cell, never the mean."
             ),
-        )
+        ),
+        Figure(
+            svg=loss_map_svg(
+                env, res.comparisons, x="density", y="batch", facet="phase",
+                loss_column=lc,
+                title=f"Loss map {label} -- by density and batch",
+                subtitle="the same measurements, sliced along the sparsity axis",
+            ),
+            caption=(
+                "Density is reported as the fraction of blocks actually visited, and "
+                "throughput counts only the blocks computed. Counting dense-equivalent "
+                "FLOPs against a sparse kernel's runtime turns the pattern's density "
+                "into a speedup it did not earn."
+            ),
+        ),
     ]
 
     claim = assemble(
-        claim_id="lc-thrust3-attention-loss-map",
-        title="Reproduction with a loss map: a from-scratch attention kernel",
+        claim_id=f"lc-thrust3{label.lower()}-{res.implementation}-attention",
+        title=(
+            f"Sparse attention, {res.implementation} implementation: "
+            f"a loss map over prefill and decode"
+        ),
         thrust="III",
-        method="reimplementation",
-        baseline="reference",
+        method=METHOD,
+        baseline=BASELINE,
         statement=(
-            f"A faithful from-scratch implementation of the FlashAttention algorithm "
-            f"({res.implementation}), validated for numerical correctness against an fp64 "
-            f"ground truth before any timing, then swept across "
-            f"(head_dim, seq_len, batch, dtype) on {res.device}."
+            f"The {res.implementation} implementation &mdash; {_IMPL_BLURB[res.implementation]} "
+            f"&mdash; swept over the registered "
+            f"(seq_len x batch x pattern x density x phase) lattice on {res.device}, "
+            f"against the reference computing the same pattern."
         ),
         envelope=env,
         comparisons=res.comparisons,
@@ -476,43 +515,81 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
         repro=reproduction(
             "losscolumn run thrust3",
             hardware=res.device,
-            runtime_min=220,
-            cost_usd=704,
+            runtime_min=25,
+            cost_usd=0.0,
             image="ghcr.io/archanachetan07/losscolumn:0.1.0",
         ),
         evidence_class=res.evidence_class,
-        evidence_note=(
-            res.envelope.meta.get("fallback_reason", "") + (("  " + QUICK_NOTE) if quick else "")
-        ).strip(),
+        evidence_note=(QUICK_NOTE if quick else ""),
         attributions={r.describe(): r.attribution or "unattributed" for r in lc.regions},
         supporting={
+            "implementation": res.implementation,
+            "device_limits": res.limits,
+            "phase_summary": res.phase_summary,
             "correctness": res.correctness.to_dict(),
             "clocks": res.clocks,
-            "roofline": res.roofline,
-            "device_limits": limits,
+            "layouts": res.layouts,
+            "throughput_envelope": res.throughput.to_dict(include_replicates=False),
+            "memory_envelope": res.memory.to_dict(include_replicates=False),
+            "implementations_unavailable": unavailable,
+            "baseline_tuning_policy": env.meta.get("baseline_tuning_policy"),
         },
         limitations=[
-            "FlashAttention-3's headline mechanisms -- warp specialisation, TMA-driven "
-            "asynchronous copy, ping-pong scheduling of softmax against the next GEMM -- "
-            "are Hopper features that Triton's programming model does not expose. This is "
-            "a reimplementation of the algorithm, not of the implementation, and the loss "
-            "map is the measurement of what that distinction costs.",
-            f"Measured on {limits.get('name', 'this device')} "
-            f"({limits.get('capability', '?')}), which is two architecture generations "
-            "behind the FA-3 target. The gap here is a lower bound on what the missing "
-            "Hopper mechanisms are worth, not a measurement of them: they do not exist "
-            "on this hardware for either arm to use.",
-            "Forward pass only. The backward pass has a different arithmetic intensity and "
-            "a different loss map, and is out of scope here.",
+            f"Measured on {res.limits.get('name', 'this device')} "
+            f"({res.limits.get('capability', '?')}), which predates the architecture "
+            "FlashAttention-3 targets. FA-3's warp specialisation, TMA and ping-pong "
+            "scheduling do not exist on this hardware for either arm to use, so this "
+            "is not evidence about them.",
+            "Forward pass only. The backward pass has a different arithmetic intensity "
+            "and a different loss map.",
+            "One head dimension (64) and one dtype (float16). Both are held fixed to "
+            "keep the sparsity lattice tractable; widening either is a new "
+            "registration, not an extension of this one.",
+            "The block-sparse pattern is one seeded random draw per shape, not an "
+            "average over draws. A different draw would give a different pattern with "
+            "the same density, and the artifact records the seed rather than claiming "
+            "generality over patterns.",
             "SM clocks are recorded but not controlled. A run taken while the card is "
-            "throttling is not comparable to one taken cold, and the difference routinely "
-            "exceeds published effect sizes.",
+            "throttling is not comparable to one taken cold.",
         ],
     )
 
-    extra = [("Correctness suite", md_to_html(res.correctness.to_markdown(40)))]
-    return publish(claim, outdir, figures=figures, extra_sections=extra,
-                   stem="thrust3-attention-loss-map")
+    extra = [
+        ("Speedup by phase", _phase_table(res)),
+        ("Correctness suite", md_to_html(res.correctness.to_markdown(40))),
+    ]
+    return {
+        f"{res.implementation}.{k}": v
+        for k, v in publish(
+            claim, outdir, figures=figures, extra_sections=extra,
+            stem=f"thrust3{label.lower()}-{res.implementation}-attention",
+        ).items()
+    }
+
+
+def _phase_table(res) -> str:
+    rows = ""
+    for phase, s in res.phase_summary.items():
+        rows += (
+            "<tr>"
+            f"<td><b>{phase}</b><span class='sub'>{s['interpretation']}</span></td>"
+            f"<td>{s['n_measured']}/{s['n_cells']}</td>"
+            f"<td>{s['median_latency_ms']:.3f} ms</td>"
+            f"<td>{s['median_reference_latency_ms']:.3f} ms</td>"
+            f"<td>{s['median_speedup']:.2f}x</td>"
+            f"<td>{s['worst_speedup']:.2f}x</td>"
+            f"<td>{s['best_speedup']:.2f}x</td>"
+            "</tr>"
+        )
+    return (
+        "<p>Latency means something different in each phase, so it is reported per "
+        "phase rather than pooled: at prefill it is the time-to-first-token "
+        "contribution, at decode it is the inter-token latency. A speedup below 1.00x "
+        "is a loss.</p>"
+        '<div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th>'
+        "<th>Median latency</th><th>Reference</th><th>Median speedup</th>"
+        f"<th>Worst</th><th>Best</th></tr></thead><tbody>{rows}</tbody></table></div>"
+    )
 
 
 # --------------------------------------------------------------------------

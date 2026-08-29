@@ -279,3 +279,150 @@ def attention_flops(batch: int, heads: int, seq_q: int, seq_k: int, head_dim: in
     """
     full = 2.0 * 2.0 * batch * heads * seq_q * seq_k * head_dim
     return full * (0.5 if causal else 1.0)
+
+
+# --------------------------------------------------------------------------
+# block-sparse forward
+# --------------------------------------------------------------------------
+
+_SPARSE_KERNEL: Any = None
+
+
+def _build_sparse_kernel() -> Any:
+    """The block-sparse kernel, built on first use.
+
+    Block size is a constant of the sparsity format rather than an autotuned
+    parameter, so only the scheduling knobs -- warps and pipeline stages -- are
+    tuned. Autotuning over the block size would change which pattern is being
+    measured between configurations, and the density reported would no longer
+    describe the work done.
+
+    The inner loop is a dynamic trip count read from the layout: each query
+    block visits exactly the key blocks named in its compressed row, so blocks
+    outside the pattern cost nothing at all. That is the whole point -- a mask
+    applied inside a dense loop skips no work and has a completely different
+    loss map.
+    """
+    global _SPARSE_KERNEL
+    if _SPARSE_KERNEL is not None:
+        return _SPARSE_KERNEL
+    ok, why = _import_triton()
+    if not ok:
+        raise RuntimeError(f"Triton path unavailable: {why}")
+    triton, tl = _TRITON, _TL
+
+    @triton.autotune(
+        configs=[
+            triton.Config({}, num_warps=w, num_stages=st)
+            for w in (2, 4, 8)
+            for st in (2, 3)
+        ],
+        key=["SEQ_Q", "SEQ_K", "HEAD_DIM", "IS_CAUSAL"],
+    )
+    @triton.jit
+    def _fwd_sparse(
+        Q, K, V, Out, CROW, COLS,
+        sqh, sqm, sqd,
+        skh, skn, skd,
+        svh, svn, svd,
+        soh, som, sod,
+        SEQ_Q, SEQ_K,
+        softmax_scale,
+        HEAD_DIM: tl.constexpr,
+        IS_CAUSAL: tl.constexpr,
+        BLOCK_M: tl.constexpr,
+        BLOCK_N: tl.constexpr,
+    ):
+        pid_m = tl.program_id(0)
+        pid_bh = tl.program_id(1)
+
+        offs_m = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
+        offs_n = tl.arange(0, BLOCK_N)
+        offs_d = tl.arange(0, HEAD_DIM)
+        m_mask = offs_m < SEQ_Q
+
+        q = tl.load(
+            Q + pid_bh * sqh + offs_m[:, None] * sqm + offs_d[None, :] * sqd,
+            mask=m_mask[:, None], other=0.0,
+        )
+
+        m_i = tl.full([BLOCK_M], float("-inf"), dtype=tl.float32)
+        l_i = tl.zeros([BLOCK_M], dtype=tl.float32)
+        acc = tl.zeros([BLOCK_M, HEAD_DIM], dtype=tl.float32)
+
+        offset = SEQ_K - SEQ_Q
+        row_start = tl.load(CROW + pid_m)
+        row_end = tl.load(CROW + pid_m + 1)
+
+        for idx in range(row_start, row_end):
+            kj = tl.load(COLS + idx)
+            n_idx = kj * BLOCK_N + offs_n
+            n_mask = n_idx < SEQ_K
+            k = tl.load(
+                K + pid_bh * skh + n_idx[:, None] * skn + offs_d[None, :] * skd,
+                mask=n_mask[:, None], other=0.0,
+            )
+            qk = tl.dot(q, tl.trans(k), out_dtype=tl.float32) * softmax_scale
+            qk = tl.where(n_mask[None, :], qk, float("-inf"))
+            if IS_CAUSAL:
+                qk = tl.where(n_idx[None, :] <= offs_m[:, None] + offset, qk,
+                              float("-inf"))
+
+            m_new = tl.maximum(m_i, tl.max(qk, 1))
+            m_safe = tl.where(m_new == float("-inf"), 0.0, m_new)
+            alpha = tl.exp(m_i - m_safe)
+            alpha = tl.where(m_i == float("-inf"), 0.0, alpha)
+            p = tl.exp(qk - m_safe[:, None])
+            p = tl.where(qk == float("-inf"), 0.0, p)
+
+            v = tl.load(
+                V + pid_bh * svh + n_idx[:, None] * svn + offs_d[None, :] * svd,
+                mask=n_mask[:, None], other=0.0,
+            )
+            acc = acc * alpha[:, None] + tl.dot(p.to(v.dtype), v, out_dtype=tl.float32)
+            l_i = l_i * alpha + tl.sum(p, 1)
+            m_i = m_new
+
+        l_safe = tl.where(l_i == 0.0, 1.0, l_i)
+        acc = acc / l_safe[:, None]
+        tl.store(
+            Out + pid_bh * soh + offs_m[:, None] * som + offs_d[None, :] * sod,
+            acc.to(Out.dtype.element_ty), mask=m_mask[:, None],
+        )
+
+    _SPARSE_KERNEL = _fwd_sparse
+    return _SPARSE_KERNEL
+
+
+def flash_attention_triton_sparse(q, k, v, layout, *, causal: bool = False,
+                                  softmax_scale: float | None = None):
+    """Block-sparse attention forward. Inputs are ``(batch, heads, seq, head_dim)``."""
+    ok, why = triton_available()
+    if not ok:
+        raise RuntimeError(f"Triton path unavailable: {why}")
+    kernel = _build_sparse_kernel()
+    b, h, sq, d = q.shape
+    sk = k.shape[-2]
+    if d not in (16, 32, 64, 128, 256):
+        raise ValueError(f"head_dim {d} is not a supported power of two for this kernel")
+    scale = softmax_scale if softmax_scale is not None else 1.0 / math.sqrt(d)
+
+    qf = q.contiguous().view(b * h, sq, d)
+    kf = k.contiguous().view(b * h, sk, d)
+    vf = v.contiguous().view(b * h, sk, d)
+    out = torch.empty_like(qf)
+
+    crow = torch.as_tensor(layout.crow, device=q.device, dtype=torch.int32)
+    cols = torch.as_tensor(layout.cols, device=q.device, dtype=torch.int32)
+
+    kernel[(layout.n_q_blocks, b * h)](
+        qf, kf, vf, out, crow, cols,
+        qf.stride(0), qf.stride(1), qf.stride(2),
+        kf.stride(0), kf.stride(1), kf.stride(2),
+        vf.stride(0), vf.stride(1), vf.stride(2),
+        out.stride(0), out.stride(1), out.stride(2),
+        sq, sk, scale,
+        HEAD_DIM=d, IS_CAUSAL=causal,
+        BLOCK_M=layout.block_q, BLOCK_N=layout.block_k,
+    )
+    return out.view(b, h, sq, d)
