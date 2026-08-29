@@ -56,6 +56,7 @@ from losscolumn.thrusts.kernel.reference import (
     error_budget,
     flash_torch_sparse,
     math_reference_sparse,
+    sdpa_reference,
     sparse_reference,
 )
 from losscolumn.thrusts.kernel.sparsity import (
@@ -83,6 +84,7 @@ class SparseSweepResult:
     comparisons: list[CellComparison] = field(default_factory=list)
     loss_column: LossColumn | None = None
     layouts: dict[str, dict[str, Any]] = field(default_factory=dict)
+    references: dict[str, str] = field(default_factory=dict)
     device: str = ""
     clocks: dict[str, Any] = field(default_factory=dict)
     limits: dict[str, Any] = field(default_factory=dict)
@@ -102,6 +104,7 @@ class SparseSweepResult:
             "correctness": self.correctness.to_dict(),
             "loss_column": self.loss_column.to_dict() if self.loss_column else None,
             "layouts": self.layouts,
+            "references": self.references,
             "phase_summary": self.phase_summary,
         }
 
@@ -315,7 +318,30 @@ def run_sparse_sweep(
         result.layouts[latency.label(cell)] = layout.to_dict()
 
         run_method = partial(impl, q, k, v, layout, causal=causal)
-        run_reference = partial(sparse_reference, q, k, v, layout, causal=causal)
+        # The reference gets its best available backend for this shape, which is
+        # what the protocol's baseline tuning policy registers.
+        #
+        # This distinction is not cosmetic. `sparse_reference` reaches SDPA
+        # through an explicit boolean attn_mask, and an explicit mask disables
+        # the fused flash backend. For a genuinely sparse pattern that is
+        # unavoidable and fair -- it is the only way torch computes that same
+        # function -- but for the dense pattern it would hand the baseline a
+        # slower path than torch would have chosen on its own, and every dense
+        # cell would report a win that is really the handicap.
+        #
+        # An earlier revision of this sweep did exactly that, and the Triton
+        # arm's dense-cell margin was inflated by it.
+        if pattern == "dense":
+            run_reference = partial(sdpa_reference, q, k, v, causal=causal)
+            reference_kind = "sdpa, backend chosen by torch for this shape"
+        else:
+            run_reference = partial(sparse_reference, q, k, v, layout, causal=causal)
+            reference_kind = (
+                "sdpa computing the same pattern densely under an explicit mask; "
+                "an explicit mask precludes the fused backend, which is a property "
+                "of the reference and not a handicap imposed here"
+            )
+        result.references[latency.label(cell)] = reference_kind
 
         if not cr.passed:
             reason = f"correctness failed: {', '.join(cr.failures()) or cr.error}"

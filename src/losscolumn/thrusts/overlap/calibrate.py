@@ -206,8 +206,13 @@ def _block(hidden: int, ffn: int, heads: int, dtype, device: str):
 
 def run_thrust_one_calibration(
     *,
-    micro_batches: Sequence[int] = (1, 2, 4, 8),
-    seq_lens: Sequence[int] = (512, 1024, 2048),
+    # Sized for a development card. The registered Thrust I grid is wider, and
+    # the point of a calibration study is not to reproduce the grid -- it is to
+    # get enough spread in the predicted effect to fit a slope against measured
+    # reality. On a 50W card the full grid costs about three hours, most of it
+    # in one corner, and a study nobody can afford to run is not a check.
+    micro_batches: Sequence[int] = (1, 2, 4),
+    seq_lens: Sequence[int] = (512, 1024),
     checkpointing: Sequence[bool] = (False, True),
     hidden: int = 1024,
     heads: int = 16,
@@ -217,10 +222,11 @@ def run_thrust_one_calibration(
     device: str = "cuda",
     dtype: str = "float16",
     replicates: int = 11,
-    iters: int = 5,
+    iters: int = 3,
     mde: float = 0.05,
     q_level: float = 0.05,
     seed: int = 20260101,
+    progress: bool = True,
 ) -> ThrustOneCalibration:
     """Run Thrust I's question at reduced scope, predicted and measured.
 
@@ -272,10 +278,15 @@ def run_thrust_one_calibration(
     lock = MeasurementLock("thrust1 calibration")
     lock.__enter__()
     peak = measure_peak_gemm(device=device, dtype=dtype)
+    if progress:
+        print(f"  peak GEMM {peak:.1f} TFLOP/s", flush=True)
     penalties: list[float] = []
-    for cell in measured.cells():
+    n_cells = measured.n_cells
+    for i_cell, cell in enumerate(measured.cells(), 1):
         c = measured.coords(cell)
         s, ckpt = int(c["seq_len"]), bool(c["checkpointing"])
+        if progress:
+            print(f"  [{i_cell}/{n_cells}] seq={s} checkpointing={ckpt}", flush=True)
         per_mb: dict[int, list[float]] = {}
         for mb in micro_batches:
             try:
@@ -313,6 +324,11 @@ def run_thrust_one_calibration(
             "hidden": hidden, "heads": heads, "ffn": ffn, "dtype": dtype,
         },
         uncalibrated=[
+            f"Scale. Calibrated over micro batches {list(micro_batches)} and sequence "
+            f"lengths {list(seq_lens)} at hidden={hidden}, which is what a development "
+            "card can measure in a usable time. The registered Thrust I grid is wider "
+            "in every direction, and a slope fitted here is not evidence about the "
+            "corners this grid does not reach.",
             "Collective time. Bus bandwidth, the per-collective latency floor and the "
             "bandwidth-against-message-size curve are the model's other half, and none "
             "of them is measurable on a single device. Thrust I's loss regions are "

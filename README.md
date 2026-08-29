@@ -52,8 +52,8 @@ Three things distinguish this from a limitations paragraph:
 
 ### The standard — [`docs/STANDARD.md`](docs/STANDARD.md)
 
-Five requirements, each targeting a documented failure mode, each implemented
-as an executable conformance rule rather than as prose.
+**LC-1.0, frozen.** Five requirements, each targeting a documented failure
+mode, each implemented as an executable conformance rule rather than as prose.
 
 | | Requirement | What it forecloses |
 |---|-------------|--------------------|
@@ -65,10 +65,33 @@ as an executable conformance rule rather than as prose.
 
 ```bash
 losscolumn validate anyones-claim.json
+losscolumn standard export          # schemas, rules, coverage matrix, corpus
 ```
 
 The validator grades **documents, not objects**. Nothing in it is specific to
 this project's subject matter.
+
+**What "frozen" means here.** Rule identifiers and severities carry meaning
+into other people's artifacts: a claim graded `conforming` last year has to
+mean the same thing this year. So the freeze is structural rather than a
+promise. Every rule lives in one registry with its severity; the validator
+looks severity up there instead of passing it at the call site, which is how
+`LC-2.1` came to be `info` on one code path and `fatal` on another before the
+registry existed. A content hash over the table is asserted by a test, so
+changing an id or a severity fails CI and forces a version bump.
+
+| | |
+|---|---|
+| Rules | **47** (28 fatal, 17 warning, 2 informational) |
+| Document schemas | 4, frozen: envelope, loss column, claim, protocol seal |
+| Adversarial corpus | **46** deliberately defective artifacts, all caught |
+| Rule coverage | **47/47** have both a passing case and a failing case |
+
+The corpus ships **in the package**, not in `tests/`. Anyone implementing
+LC-1.0 in another language can run their validator against those documents and
+check that it reaches the same verdicts; a standard whose only implementation
+is its author's is not a standard. See
+[`artifacts/standard/validator-coverage.md`](artifacts/standard/validator-coverage.md).
 
 ### Three worked reference implementations
 
@@ -76,7 +99,7 @@ this project's subject matter.
 |--------|----------|---------|
 | **I** | Where does communication–computation overlap break down, and do recommended sharding configurations sit next to a cliff? | [`thrusts/overlap`](src/losscolumn/thrusts/overlap) |
 | **II** | How much engine-to-engine difference survives an identical tuning budget? | [`thrusts/engines`](src/losscolumn/thrusts/engines) |
-| **III** | Where does a faithful from-scratch attention kernel lose to the reference, and why? | [`thrusts/kernel`](src/losscolumn/thrusts/kernel) |
+| **III** | Over (seq_len x batch x sparsity pattern x density x phase), where does a from-scratch attention implementation lose to the reference computing the same pattern, and why? | [`thrusts/kernel`](src/losscolumn/thrusts/kernel) |
 
 ---
 
@@ -155,6 +178,35 @@ level further down: validate the *analysis* before committing any GPU time.
 A `simulated` claim is banner-flagged at the top of its page and is a fatal
 conformance error if it does not explain itself.
 
+### Turning a simulation into a prediction that gets checked
+
+```bash
+losscolumn calibrate thrust1
+```
+
+A simulated claim says something weaker than a measured one: *if this model is
+right, the method loses here*. That is a prediction, and a prediction is worth
+the track record of the model that made it — which, before any calibration, is
+nothing.
+
+So Thrust I's question is restricted to the axes one GPU can vary, the model is
+asked for its prediction **before** anything is measured, and the predicted loss
+map is then scored against the measured one on six axes: region overlap,
+per-axis boundary displacement, false wins (the model called it safe and it
+regresses), false losses, cliff agreement, and calibration error on the effect
+rather than the verdict.
+
+The correction that falls out is computed and deliberately **not applied**. A
+model refitted on the measurements used to validate it has been fitted, not
+calibrated; the update belongs in a newly sealed protocol, evaluated on cells
+the calibration study did not touch. See
+[`docs/FROM_SIMULATION_TO_SCIENCE.md`](docs/FROM_SIMULATION_TO_SCIENCE.md).
+
+What this does **not** do is as important. It calibrates the compute half of
+the model completely and the communication half not at all — and Thrust I's
+loss regions are driven by exposed communication. The study makes that thrust
+better founded, not founded, and the report says so in those words.
+
 ---
 
 ## Layout
@@ -184,14 +236,37 @@ and runs on a laptop, in CI, and on a login node with no CUDA and no network.
 ## Reproducing this repository's own artifacts
 
 ```bash
-losscolumn prereg seal I && losscolumn prereg seal II && losscolumn prereg seal III
-losscolumn run all
-losscolumn validate artifacts/*.claim.json
+scripts/reproduce.sh --full
 ```
 
-Requirement LC-5 would be hollow if this project's own artifacts were not
-produced that way. Each claim records the exact invocation that made it, the
-commit, the image, and the hardware.
+That is the honest version: it clones the repository into a fresh directory,
+builds an isolated environment, installs from the pinned commit, runs the
+pipeline, and compares what comes out against what is tracked here. Running the
+pipeline in the working tree proves it works on a machine that already has
+everything it needs; the failures worth catching — uncommitted files, unpinned
+dependencies, paths that exist only on one disk — are invisible from inside the
+tree, and the script refuses to start from a dirty one.
+
+Structure is compared, not numbers. Two benchmark runs on the same machine
+never produce identical timings, and a check that demanded they did would fail
+every time and be switched off within a week. What must reproduce is the
+standard version, the factor lattice, the protocol seal and the conformance
+verdict.
+
+The individual steps, if you want them:
+
+```bash
+losscolumn doctor                     # what can this machine actually measure?
+losscolumn prereg seal III            # commit to a protocol before collecting data
+scripts/measure_all.sh                # every measurement, in series
+losscolumn index                      # regenerate the artifact index
+```
+
+`measure_all.sh` runs in series deliberately. Two benchmark processes on one
+device contend at the scheduler and in cache and produce timings that are wrong
+by an amount nothing downstream can detect — the replicates stay
+self-consistent and the intervals stay tight. A lock enforces it; this happened
+here once and both sets of numbers had to be discarded.
 
 ## Tests
 
@@ -199,12 +274,18 @@ commit, the image, and the hardware.
 pytest -q
 ```
 
-The tests that matter are the ones that verify the detectors detect: a planted
-loss region is recovered with the right bounds; a flat surface produces no
-region; a smoothly declining surface produces no cliff; a deliberately broken
-kernel fails the correctness gate; an underpowered design flags itself. Every
-validator rule is exercised by a document that violates it — a conformance
-checker that has never been shown a non-conforming document is a rubber stamp.
+The tests that carry weight are the ones that check the machinery can still
+tell truth from falsehood:
+
+- **Detectors, against ground truth.** Five surfaces built so the right answer
+  is known by construction: a steep but smooth decline yields no cliff at any
+  slope; noise yields none across seeds and noise levels; multiple cliffs are
+  found independently; and a catastrophic cliff does not mask a moderate one
+  next to it. A planted loss region is recovered with the right bounds, and an
+  unperturbed surface produces none.
+- **The validator, against defects.** All 46 corpus artifacts, each breaking
+  one rule in one named way, plus a passing case for every rule.
+- **The freeze.** Registry and schema digests, asserted literally.
 
 ## Status and honesty
 

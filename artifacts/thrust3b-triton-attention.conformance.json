@@ -1,10 +1,10 @@
 {
   "kind": "conformance_report",
-  "claim_id": "lc-thrust3a-portable-attention",
+  "claim_id": "lc-thrust3b-triton-attention",
   "standard_version": "LC-1.0",
   "grade": "conforming",
   "standard_digest": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
-  "n_rules_checked": 38,
+  "n_rules_checked": 37,
   "n_not_applicable": 7,
   "n_fatal": 0,
   "n_warnings": 0,
@@ -357,14 +357,6 @@
       "severity": "warning",
       "passed": true,
       "message": "cell coverage >= 100% for every system",
-      "detail": {}
-    },
-    {
-      "rule": "LC-Q4",
-      "requirement": "Measurement quality",
-      "severity": "warning",
-      "passed": true,
-      "message": "noise/effect ratio 0.00",
       "detail": {}
     },
     {

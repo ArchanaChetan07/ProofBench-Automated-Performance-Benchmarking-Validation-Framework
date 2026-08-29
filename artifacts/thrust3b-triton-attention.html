@@ -1,4 +1,4 @@
-<title>Sparse attention, portable implementation: a loss map over prefill and decode</title>
+<title>Sparse attention, triton implementation: a loss map over prefill and decode</title>
 <style>
 :root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
 --loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
@@ -58,10 +58,10 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-si
 color:var(--muted)}
 </style>
 <div class="wrap">
-<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Sparse attention, portable implementation: a loss map over prefill and decode</h1><div class="headline">The portable implementation &amp;mdash; the FlashAttention algorithm written out in eager PyTorch ops: correct everywhere, portable to any device, and not fast. Its loss map measures what per-tile dispatch costs &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median -45.8% across the swept envelope; best +82.7% at seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=decode; worst -1038.2% at seq_len=1024, batch=1, pattern=dense, density=1.0, phase=prefill.</div><div class="meta"><span><code>lc-thrust3a-portable-attention</code></span><span>implementation vs reference</span><span>2026-08-29T18:29:08Z</span><span class="tag pass">conforming</span></div></header>
-<div class="stat"><div><b>55%</b><span>of envelope lost</span></div><div><b>+1038%</b><span>worst regression</span></div><div><b>4</b><span>loss regions</span></div><div><b>0%</b><span>inconclusive</span></div><div><b>80</b><span>cells measured</span></div></div>
-<div class="loss"><h2>Loss column</h2><p>implementation loses to reference on 55% of the swept envelope (44/80 cells), across 4 region(s); worst measurable case +1038.2% on latency_ms.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>pattern=dense and density=1.0</td><td>16/16 (20%)</td><td><span style="color:var(--loss)">+455.1%</span></td><td><span style="color:var(--loss)"><b>+1038.2%</b></span></td><td>0.000888</td><td>dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</td></tr><tr><td><b>2</b></td><td>batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25 and phase=prefill</td><td>16/16 (20%)</td><td><span style="color:var(--loss)">+217.6%</span></td><td><span style="color:var(--loss)"><b>+473.7%</b></span></td><td>0.000888</td><td>sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</td></tr><tr><td><b>3</b></td><td>batch=1 and pattern in {sliding_window, block_sparse} and density=0.25</td><td>16/16 (20%)</td><td><span style="color:var(--loss)">+222.8%</span></td><td><span style="color:var(--loss)"><b>+473.7%</b></span></td><td>0.000888</td><td>sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</td></tr><tr><td><b>4</b></td><td>2048 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25</td><td>16/16 (20%)</td><td><span style="color:var(--loss)">+196.9%</span></td><td><span style="color:var(--loss)"><b>+428.3%</b></span></td><td>0.000888</td><td>sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 44 loss, 34 win, 2 tie, 0 inconclusive, 0 unmeasurable.</li></ul></div>
-<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 706 298" width="706" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map A -- portable vs the reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="706" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map A -- portable vs the reference</text><text x="0" y="42" font-size="12" fill="#57534e">per-call latency on NVIDIA T1000 8GB (sm_75, 9 GB); batch and density collapse to the most adverse cell</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
+<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Sparse attention, triton implementation: a loss map over prefill and decode</h1><div class="headline">The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +77.6% across the swept envelope; best +93.6% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -1.7% at seq_len=512, batch=1, pattern=dense, density=1.0, phase=decode.</div><div class="meta"><span><code>lc-thrust3b-triton-attention</code></span><span>implementation vs reference</span><span>2026-08-29T18:39:21Z</span><span class="tag pass">conforming</span></div></header>
+<div class="stat"><div><b>0%</b><span>of envelope lost</span></div><div><b>+0%</b><span>worst regression</span></div><div><b>0</b><span>loss regions</span></div><div><b>1%</b><span>inconclusive</span></div><div><b>80</b><span>cells measured</span></div></div>
+<div class="loss"><h2>Loss column</h2><p>No region of the swept envelope shows a regression of at least 10.0% at q&lt;=0.05.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td>&ndash;</td><td><i>no loss region resolved</i></td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 0 loss, 74 win, 5 tie, 1 inconclusive, 0 unmeasurable.</li></ul></div>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 706 298" width="706" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map B -- triton vs the reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="706" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map B -- triton vs the reference</text><text x="0" y="42" font-size="12" fill="#57534e">per-call latency on NVIDIA T1000 8GB (sm_75, 9 GB); batch and density collapse to the most adverse cell</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="96" y="182" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M108 194L137 223M137 194L108 223" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=1024, batch=1, pattern=dense, density=0.125, phase=prefill
 verdict: missing
@@ -85,7 +85,7 @@ block_sparse at density 1.0 is dense attention under another name</title><rect x
 verdict: missing
 block_sparse at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=4096, batch=1, pattern=block_sparse, density=1.0, phase=prefill
 verdict: missing
-block_sparse at density 1.0 is dense attention under another name</title><rect x="258" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M270 86L299 115M299 86L270 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="96" y="182" width="215" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="194" r="9" fill="#7f1d1d"/><text x="108" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="96" y="74" width="215" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><rect x="96" y="74" width="215" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><rect x="204" y="74" width="107" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="216" cy="86" r="9" fill="#7f1d1d"/><text x="216" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">4</text><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="285.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="204.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><text x="466" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="458" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
+block_sparse at density 1.0 is dense attention under another name</title><rect x="258" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M270 86L299 115M299 86L270 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="285.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="204.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><text x="466" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="458" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="466" y="182" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M478 194L507 223M507 194L478 223" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=1024, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
@@ -109,8 +109,8 @@ block_sparse at density 1.0 is dense attention under another name</title><rect x
 verdict: missing
 block_sparse at density 1.0 is dense attention under another name</title><rect x="574" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M586 86L615 115M615 86L586 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=4096, batch=1, pattern=block_sparse, density=1.0, phase=decode
 verdict: missing
-block_sparse at density 1.0 is dense attention under another name</title><rect x="628" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M640 86L669 115M669 86L640 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="466" y="182" width="215" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="194" r="9" fill="#7f1d1d"/><text x="478" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="466" y="74" width="215" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="86" r="9" fill="#7f1d1d"/><text x="478" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><rect x="574" y="74" width="107" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="586" cy="86" r="9" fill="#7f1d1d"/><text x="586" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">4</text><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="601.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="655.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="574.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(392,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 969% .. tie .. loss 969%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Red marks a region where this implementation is slower than the reference computing the same attention pattern. Crossed cells are combinations that are not a configuration &mdash; dense below full density, or a sparse pattern at full density &mdash; recorded rather than dropped so the artifact does not claim a full factorial it did not run. Collapsing takes the <em>worst</em> cell, never the mean.</figcaption></figure>
-<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 244" width="598" height="244" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map A -- by density and batch"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="598" height="244" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map A -- by density and batch</text><text x="0" y="42" font-size="12" fill="#57534e">the same measurements, sliced along the sparsity axis</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
+block_sparse at density 1.0 is dense attention under another name</title><rect x="628" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M640 86L669 115M669 86L640 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="601.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="655.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="574.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(392,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1075% .. tie .. loss 1075%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Red marks a region where this implementation is slower than the reference computing the same attention pattern. Crossed cells are combinations that are not a configuration &mdash; dense below full density, or a sparse pattern at full density &mdash; recorded rather than dropped so the artifact does not claim a full factorial it did not run. Collapsing takes the <em>worst</em> cell, never the mean.</figcaption></figure>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 244" width="598" height="244" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map B -- by density and batch"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="598" height="244" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map B -- by density and batch</text><text x="0" y="42" font-size="12" fill="#57534e">the same measurements, sliced along the sparsity axis</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="96" y="128" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M108 140L137 169M137 140L108 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=1, pattern=dense, density=0.25, phase=prefill
 verdict: missing
@@ -122,7 +122,7 @@ dense attention has density 1.0 by definition</title><rect x="96" y="74" width="
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="150" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M162 86L191 115M191 86L162 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=8, pattern=sliding_window, density=1.0, phase=prefill
 verdict: missing
-sliding_window at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="204" y="74" width="53" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="216" cy="86" r="9" fill="#7f1d1d"/><text x="216" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="96" y="128" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="140" r="9" fill="#7f1d1d"/><text x="108" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><rect x="150" y="128" width="53" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="162" cy="140" r="9" fill="#7f1d1d"/><text x="162" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><rect x="96" y="128" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="140" r="9" fill="#7f1d1d"/><text x="108" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">4</text><text x="123.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="177.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="231.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="177.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(22,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><text x="412" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="404" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
+sliding_window at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="123.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="177.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="231.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="177.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(22,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><text x="412" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="404" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="412" y="128" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M424 140L453 169M453 140L424 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=1, pattern=dense, density=0.25, phase=decode
 verdict: missing
@@ -134,15 +134,9 @@ dense attention has density 1.0 by definition</title><rect x="412" y="74" width=
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="466" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M478 86L507 115M507 86L478 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=8, pattern=sliding_window, density=1.0, phase=decode
 verdict: missing
-sliding_window at density 1.0 is dense attention under another name</title><rect x="520" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M532 86L561 115M561 86L532 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="520" y="74" width="53" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="532" cy="86" r="9" fill="#7f1d1d"/><text x="532" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="466" y="128" width="53" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="140" r="9" fill="#7f1d1d"/><text x="478" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">3</text><rect x="412" y="128" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="424" cy="140" r="9" fill="#7f1d1d"/><text x="424" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">4</text><text x="439.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="493.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="547.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="493.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(338,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><g transform="translate(0,224)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 969% .. tie .. loss 969%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Density is reported as the fraction of blocks actually visited, and throughput counts only the blocks computed. Counting dense-equivalent FLOPs against a sparse kernel's runtime turns the pattern's density into a speedup it did not earn.</figcaption></figure>
-<h2>Attributed causes</h2><ul>
-<li><b>512 &lt;= seq_len &lt;= 4096 and 1 &lt;= batch &lt;= 8 and pattern=dense and density=1.0 and phase in {prefill, decode}</b> &mdash; dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</li>
-<li><b>512 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25 and phase=prefill</b> &mdash; sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</li>
-<li><b>512 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and density=0.25 and phase in {prefill, decode}</b> &mdash; sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</li>
-<li><b>2048 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25 and phase in {prefill, decode}</b> &mdash; sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel</li>
-</ul>
-<h2>Speedup by phase</h2><p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>35.995 ms</td><td>25.188 ms</td><td>0.63x</td><td>0.08x</td><td>5.20x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>2.020 ms</td><td>1.488 ms</td><td>0.90x</td><td>0.09x</td><td>5.80x</td></tr></tbody></table></div>
-<h2>Correctness suite</h2><h4>Correctness -- flash<i>torch</i>sparse (portable eager ops) on NVIDIA T1000 8GB (sm_75, 9 GB)</h4>
+sliding_window at density 1.0 is dense attention under another name</title><rect x="520" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M532 86L561 115M561 86L532 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="439.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="493.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="547.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="493.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(338,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><g transform="translate(0,224)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1075% .. tie .. loss 1075%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Density is reported as the fraction of blocks actually visited, and throughput counts only the blocks computed. Counting dense-equivalent FLOPs against a sparse kernel's runtime turns the pattern's density into a speedup it did not earn.</figcaption></figure>
+<h2>Speedup by phase</h2><p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>3.904 ms</td><td>24.562 ms</td><td>5.78x</td><td>1.74x</td><td>15.68x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>0.354 ms</td><td>1.506 ms</td><td>3.51x</td><td>0.99x</td><td>7.49x</td></tr></tbody></table></div>
+<h2>Correctness suite</h2><h4>Correctness -- flash<i>attention</i>triton<i>sparse (fused) on NVIDIA T1000 8GB (sm</i>75, 9 GB)</h4>
 <p>80/80 shapes pass. Tolerances are derived from the arithmetic (4u + 8<i>sqrt(seq)</i>u_acc), not fitted to the results.</p>
 <div class="scroll"><table><thead><tr>
 <th>Shape</th>
@@ -151,46 +145,46 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
 <th>Tolerance</th>
 <th>Failed checks</th>
 </tr></thead><tbody>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.09e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.68e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.72e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>1.53e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.09e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.85e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.72e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>1.53e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.39e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.55e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>3.39e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.71e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.39e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.47e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>3.39e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.71e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.72e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.69e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.52e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.58e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.77e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.84e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.52e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.81e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.77e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.84e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.57e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.93e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>1.58e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.02e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>1.58e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.09e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>1.58e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.78e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.94e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.96e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.52e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.86e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.94e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.96e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs512xd64/float16/causal</code></td><td>pass</td><td>2.57e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.57e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>2.21e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.21e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>2.21e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.89e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>2.21e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.87e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>2.88e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.29e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>2.61e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.02e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.82e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>3.18e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>1.81e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.01e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>3.18e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.28e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>4.46e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>3.18e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>3.49e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>3.18e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.74e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b1xh2xs1024xd64/float16/causal</code></td><td>pass</td><td>3.18e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>1.95e-04</td><td>1.97e-03</td><td>-</td></tr>
+<tr><td><code>b1xh2xs1xd64/float16/causal</code></td><td>pass</td><td>2.23e-04</td><td>1.97e-03</td><td>-</td></tr>
 </tbody></table></div>
 <h2>Where this fails as a study</h2><ul>
 <li>Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3&#x27;s warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.</li>
@@ -202,43 +196,43 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
 <h2>Pre-registration <span class="tag pass">verified</span></h2><ul><li>Sealed <code>2026-08-29T07:01:56Z</code></li><li>Seal hash <code>sha256:fd87925555851b655abfbe9df0c7ec2e5cd065a1cd6f8be9573a8ca114ac6a24</code></li><li>Anchor <code>git:257b179</code></li></ul>
 <h2>Reproduction</h2><pre>losscolumn run thrust3</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>7c28f6afb5883db3f479096bf41ae0793cc5bfb3</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td>Estimated cost</td><td>25 min</td></tr></tbody></table></div>
 <h2>Conformance <span class="tag pass">conforming</span></h2>
-<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0.1</code></td><td>Standard version</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>Evidence class</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.9</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every region&#x27;s support meets the claim&#x27;s declared thresholds</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>5 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>80 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.7</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline extremes agree with the loss column</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-29T07:01:56Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:257b179`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `7c28f6afb588`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~25 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q6</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>equivalence is established where the data supports it</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>5 limitation(s) stated</td></tr></tbody></table></div>
-<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T18:10:41Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
-<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (188 KB)</summary><pre>{
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0.1</code></td><td>Standard version</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>Evidence class</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.9</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every region&#x27;s support meets the claim&#x27;s declared thresholds</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>5 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>80 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.7</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline extremes agree with the loss column</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-29T07:01:56Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:257b179`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `7c28f6afb588`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~25 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q6</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>equivalence is established where the data supports it</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>5 limitation(s) stated</td></tr></tbody></table></div>
+<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T18:29:08Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
+<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (181 KB)</summary><pre>{
  &quot;kind&quot;: &quot;claim&quot;,
  &quot;standard_version&quot;: &quot;LC-1.0&quot;,
- &quot;id&quot;: &quot;lc-thrust3a-portable-attention&quot;,
- &quot;title&quot;: &quot;Sparse attention, portable implementation: a loss map over prefill and decode&quot;,
+ &quot;id&quot;: &quot;lc-thrust3b-triton-attention&quot;,
+ &quot;title&quot;: &quot;Sparse attention, triton implementation: a loss map over prefill and decode&quot;,
  &quot;thrust&quot;: &quot;III&quot;,
  &quot;method&quot;: &quot;implementation&quot;,
  &quot;baseline&quot;: &quot;reference&quot;,
- &quot;created_at&quot;: &quot;2026-08-29T18:29:08Z&quot;,
+ &quot;created_at&quot;: &quot;2026-08-29T18:39:21Z&quot;,
  &quot;evidence_class&quot;: &quot;measured&quot;,
  &quot;evidence_note&quot;: &quot;&quot;,
  &quot;authors&quot;: [
   &quot;Archana Suresh Patil&quot;
  ],
  &quot;headline&quot;: {
-  &quot;statement&quot;: &quot;The portable implementation &amp;mdash; the FlashAttention algorithm written out in eager PyTorch ops: correct everywhere, portable to any device, and not fast. Its loss map measures what per-tile dispatch costs &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern.&quot;,
-  &quot;best_pct&quot;: 82.73179635966478,
-  &quot;worst_pct&quot;: -1038.202837380497,
-  &quot;median_pct&quot;: -45.803020864250676,
+  &quot;statement&quot;: &quot;The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern.&quot;,
+  &quot;best_pct&quot;: 93.59766578276066,
+  &quot;worst_pct&quot;: -1.6967495077650385,
+  &quot;median_pct&quot;: 77.61810097440372,
   &quot;conditions_best&quot;: {
-   &quot;seq_len&quot;: 512,
-   &quot;batch&quot;: 8,
+   &quot;seq_len&quot;: 4096,
+   &quot;batch&quot;: 1,
    &quot;pattern&quot;: &quot;block_sparse&quot;,
    &quot;density&quot;: 0.125,
-   &quot;phase&quot;: &quot;decode&quot;
+   &quot;phase&quot;: &quot;prefill&quot;
   },
   &quot;conditions_worst&quot;: {
-   &quot;seq_len&quot;: 1024,
+   &quot;seq_len&quot;: 512,
    &quot;batch&quot;: 1,
    &quot;pattern&quot;: &quot;dense&quot;,
    &quot;density&quot;: 1.0,
-   &quot;phase&quot;: &quot;prefill&quot;
+   &quot;phase&quot;: &quot;decode&quot;
   }
  },
- &quot;headline_rendered&quot;: &quot;The portable implementation &amp;mdash; the FlashAttention algorithm written out in eager PyTorch ops: correct everywhere, portable to any device, and not fast. Its loss map measures what per-tile dispatch costs &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median -45.8% across the swept envelope; best +82.7% at seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=decode; worst -1038.2% at seq_len=1024, batch=1, pattern=dense, density=1.0, phase=prefill.&quot;,
+ &quot;headline_rendered&quot;: &quot;The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +77.6% across the swept envelope; best +93.6% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -1.7% at seq_len=512, batch=1, pattern=dense, density=1.0, phase=decode.&quot;,
  &quot;loss_column&quot;: {
   &quot;metric&quot;: &quot;latency_ms&quot;,
   &quot;unit&quot;: &quot;ms&quot;,
@@ -247,21 +241,21 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
   &quot;mde_pct&quot;: 10.0,
   &quot;q_level&quot;: 0.05,
   &quot;counts&quot;: {
-   &quot;loss&quot;: 44,
-   &quot;win&quot;: 34,
-   &quot;tie&quot;: 2,
-   &quot;inconclusive&quot;: 0,
+   &quot;loss&quot;: 0,
+   &quot;win&quot;: 74,
+   &quot;tie&quot;: 5,
+   &quot;inconclusive&quot;: 1,
    &quot;missing&quot;: 0,
    &quot;inapplicable&quot;: 64
   },
   &quot;n_cells&quot;: 80,
-  &quot;loss_fraction&quot;: 0.55,
-  &quot;weighted_loss_fraction&quot;: 0.30555555555555547,
-  &quot;inconclusive_fraction&quot;: 0.0,
-  &quot;win_fraction&quot;: 0.425,
+  &quot;loss_fraction&quot;: 0.0,
+  &quot;weighted_loss_fraction&quot;: 0.0,
+  &quot;inconclusive_fraction&quot;: 0.0125,
+  &quot;win_fraction&quot;: 0.925,
   &quot;n_unrunnable&quot;: 0,
   &quot;n_inapplicable&quot;: 64,
-  &quot;envelope_digest&quot;: &quot;sha256:ea18504518647ba88133a6c48fb57b672b6049cdda9045d9e37153fbcf89b3cb&quot;,
+  &quot;envelope_digest&quot;: &quot;sha256:243111235b97fae888a912010b33b1d46639b7899c32026da834a7a5405b6f39&quot;,
   &quot;factor_levels&quot;: {
    &quot;seq_len&quot;: [
     512,
@@ -299,188 +293,8 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;message&quot;: &quot;&quot;
   },
   &quot;notes&quot;: [],
-  &quot;regions&quot;: [
-   {
-    &quot;bounds&quot;: {
-     &quot;seq_len&quot;: [
-      512,
-      1024,
-      2048,
-      4096
-     ],
-     &quot;batch&quot;: [
-      1,
-      8
-     ],
-     &quot;pattern&quot;: [
-      &quot;dense&quot;
-     ],
-     &quot;density&quot;: [
-      1.0
-     ],
-     &quot;phase&quot;: [
-      &quot;prefill&quot;,
-      &quot;decode&quot;
-     ]
-    },
-    &quot;n_cells&quot;: 16,
-    &quot;n_loss&quot;: 16,
-    &quot;n_inconclusive&quot;: 0,
-    &quot;frac_of_envelope&quot;: 0.2,
-    &quot;weighted_frac&quot;: 0.11111111111111115,
-    &quot;median_regression_pct&quot;: 455.14053830316885,
-    &quot;worst_regression_pct&quot;: 1038.202837380497,
-    &quot;worst_cell&quot;: {
-     &quot;seq_len&quot;: 1024,
-     &quot;batch&quot;: 1,
-     &quot;pattern&quot;: &quot;dense&quot;,
-     &quot;density&quot;: 1.0,
-     &quot;phase&quot;: &quot;prefill&quot;
-    },
-    &quot;max_q&quot;: 0.0008877840909090909,
-    &quot;min_effect_pct&quot;: 34.06783221113405,
-    &quot;contains_missing&quot;: 0,
-    &quot;missing_reasons&quot;: [],
-    &quot;attribution&quot;: &quot;dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-    &quot;label&quot;: &quot;seq_len=[512, 1024, 2048, 4096], batch=[1, 8], pattern=[&#x27;dense&#x27;], density=[1.0], phase=[&#x27;prefill&#x27;, &#x27;decode&#x27;]&quot;,
-    &quot;purity&quot;: 1.0
-   },
-   {
-    &quot;bounds&quot;: {
-     &quot;seq_len&quot;: [
-      512,
-      1024,
-      2048,
-      4096
-     ],
-     &quot;batch&quot;: [
-      1
-     ],
-     &quot;pattern&quot;: [
-      &quot;sliding_window&quot;,
-      &quot;block_sparse&quot;
-     ],
-     &quot;density&quot;: [
-      0.125,
-      0.25
-     ],
-     &quot;phase&quot;: [
-      &quot;prefill&quot;
-     ]
-    },
-    &quot;n_cells&quot;: 16,
-    &quot;n_loss&quot;: 16,
-    &quot;n_inconclusive&quot;: 0,
-    &quot;frac_of_envelope&quot;: 0.2,
-    &quot;weighted_frac&quot;: 0.11111111111111115,
-    &quot;median_regression_pct&quot;: 217.58259714386767,
-    &quot;worst_regression_pct&quot;: 473.70059669283097,
-    &quot;worst_cell&quot;: {
-     &quot;seq_len&quot;: 512,
-     &quot;batch&quot;: 1,
-     &quot;pattern&quot;: &quot;sliding_window&quot;,
-     &quot;density&quot;: 0.25,
-     &quot;phase&quot;: &quot;prefill&quot;
-    },
-    &quot;max_q&quot;: 0.0008877840909090909,
-    &quot;min_effect_pct&quot;: 67.37283360566484,
-    &quot;contains_missing&quot;: 0,
-    &quot;missing_reasons&quot;: [],
-    &quot;attribution&quot;: &quot;sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-    &quot;label&quot;: &quot;seq_len=[512, 1024, 2048, 4096], batch=[1], pattern=[&#x27;sliding_window&#x27;, &#x27;block_sparse&#x27;], density=[0.125, 0.25], phase=[&#x27;prefill&#x27;]&quot;,
-    &quot;purity&quot;: 1.0
-   },
-   {
-    &quot;bounds&quot;: {
-     &quot;seq_len&quot;: [
-      512,
-      1024,
-      2048,
-      4096
-     ],
-     &quot;batch&quot;: [
-      1
-     ],
-     &quot;pattern&quot;: [
-      &quot;sliding_window&quot;,
-      &quot;block_sparse&quot;
-     ],
-     &quot;density&quot;: [
-      0.25
-     ],
-     &quot;phase&quot;: [
-      &quot;prefill&quot;,
-      &quot;decode&quot;
-     ]
-    },
-    &quot;n_cells&quot;: 16,
-    &quot;n_loss&quot;: 16,
-    &quot;n_inconclusive&quot;: 0,
-    &quot;frac_of_envelope&quot;: 0.2,
-    &quot;weighted_frac&quot;: 0.11111111111111115,
-    &quot;median_regression_pct&quot;: 222.76129792262336,
-    &quot;worst_regression_pct&quot;: 473.70059669283097,
-    &quot;worst_cell&quot;: {
-     &quot;seq_len&quot;: 512,
-     &quot;batch&quot;: 1,
-     &quot;pattern&quot;: &quot;sliding_window&quot;,
-     &quot;density&quot;: 0.25,
-     &quot;phase&quot;: &quot;prefill&quot;
-    },
-    &quot;max_q&quot;: 0.0008877840909090909,
-    &quot;min_effect_pct&quot;: 83.50394197237333,
-    &quot;contains_missing&quot;: 0,
-    &quot;missing_reasons&quot;: [],
-    &quot;attribution&quot;: &quot;sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-    &quot;label&quot;: &quot;seq_len=[512, 1024, 2048, 4096], batch=[1], pattern=[&#x27;sliding_window&#x27;, &#x27;block_sparse&#x27;], density=[0.25], phase=[&#x27;prefill&#x27;, &#x27;decode&#x27;]&quot;,
-    &quot;purity&quot;: 1.0
-   },
-   {
-    &quot;bounds&quot;: {
-     &quot;seq_len&quot;: [
-      2048,
-      4096
-     ],
-     &quot;batch&quot;: [
-      1
-     ],
-     &quot;pattern&quot;: [
-      &quot;sliding_window&quot;,
-      &quot;block_sparse&quot;
-     ],
-     &quot;density&quot;: [
-      0.125,
-      0.25
-     ],
-     &quot;phase&quot;: [
-      &quot;prefill&quot;,
-      &quot;decode&quot;
-     ]
-    },
-    &quot;n_cells&quot;: 16,
-    &quot;n_loss&quot;: 16,
-    &quot;n_inconclusive&quot;: 0,
-    &quot;frac_of_envelope&quot;: 0.2,
-    &quot;weighted_frac&quot;: 0.11111111111111115,
-    &quot;median_regression_pct&quot;: 196.89445959578836,
-    &quot;worst_regression_pct&quot;: 428.28111453400373,
-    &quot;worst_cell&quot;: {
-     &quot;seq_len&quot;: 2048,
-     &quot;batch&quot;: 1,
-     &quot;pattern&quot;: &quot;sliding_window&quot;,
-     &quot;density&quot;: 0.25,
-     &quot;phase&quot;: &quot;prefill&quot;
-    },
-    &quot;max_q&quot;: 0.0008877840909090909,
-    &quot;min_effect_pct&quot;: 40.257878664977476,
-    &quot;contains_missing&quot;: 0,
-    &quot;missing_reasons&quot;: [],
-    &quot;attribution&quot;: &quot;sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-    &quot;label&quot;: &quot;seq_len=[2048, 4096], batch=[1], pattern=[&#x27;sliding_window&#x27;, &#x27;block_sparse&#x27;], density=[0.125, 0.25], phase=[&#x27;prefill&#x27;, &#x27;decode&#x27;]&quot;,
-    &quot;purity&quot;: 1.0
-   }
-  ],
-  &quot;summary&quot;: &quot;implementation loses to reference on 55% of the swept envelope (44/80 cells), across 4 region(s); worst measurable case +1038.2% on latency_ms.&quot;
+  &quot;regions&quot;: [],
+  &quot;summary&quot;: &quot;No region of the swept envelope shows a regression of at least 10.0% at q&lt;=0.05.&quot;
  },
  &quot;loss_column_placement&quot;: &quot;main&quot;,
  &quot;reproduction&quot;: {
@@ -495,12 +309,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
   &quot;data_inputs&quot;: [],
   &quot;notes&quot;: &quot;&quot;
  },
- &quot;attributions&quot;: {
-  &quot;512 &lt;= seq_len &lt;= 4096 and 1 &lt;= batch &lt;= 8 and pattern=dense and density=1.0 and phase in {prefill, decode}&quot;: &quot;dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-  &quot;512 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25 and phase=prefill&quot;: &quot;sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-  &quot;512 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and density=0.25 and phase in {prefill, decode}&quot;: &quot;sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;,
-  &quot;2048 &lt;= seq_len &lt;= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 &lt;= density &lt;= 0.25 and phase in {prefill, decode}&quot;: &quot;sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel&quot;
- },
+ &quot;attributions&quot;: {},
  &quot;limitations&quot;: [
   &quot;Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3&#x27;s warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.&quot;,
   &quot;Forward pass only. The backward pass has a different arithmetic intensity and a different loss map.&quot;,
@@ -509,7 +318,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
   &quot;SM clocks are recorded but not controlled. A run taken while the card is throttling is not comparable to one taken cold.&quot;
  ],
  &quot;supporting&quot;: {
-  &quot;implementation&quot;: &quot;portable&quot;,
+  &quot;implementation&quot;: &quot;triton&quot;,
   &quot;device_limits&quot;: {
    &quot;available&quot;: true,
    &quot;name&quot;: &quot;NVIDIA T1000 8GB&quot;,
@@ -524,26 +333,26 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;prefill&quot;: {
     &quot;n_cells&quot;: 72,
     &quot;n_measured&quot;: 40,
-    &quot;median_latency_ms&quot;: 35.994744300842285,
-    &quot;median_reference_latency_ms&quot;: 25.18770408630371,
-    &quot;median_speedup&quot;: 0.630512729353947,
-    &quot;worst_speedup&quot;: 0.0840190628742184,
-    &quot;best_speedup&quot;: 5.202475503236307,
+    &quot;median_latency_ms&quot;: 3.9042959213256836,
+    &quot;median_reference_latency_ms&quot;: 24.562416076660156,
+    &quot;median_speedup&quot;: 5.781821044167181,
+    &quot;worst_speedup&quot;: 1.7369492769611163,
+    &quot;best_speedup&quot;: 15.676625513373244,
     &quot;interpretation&quot;: &quot;time-to-first-token contribution&quot;
    },
    &quot;decode&quot;: {
     &quot;n_cells&quot;: 72,
     &quot;n_measured&quot;: 40,
-    &quot;median_latency_ms&quot;: 2.0195760130882263,
-    &quot;median_reference_latency_ms&quot;: 1.4876720011234283,
-    &quot;median_speedup&quot;: 0.8982444263620413,
-    &quot;worst_speedup&quot;: 0.08605613935887146,
-    &quot;best_speedup&quot;: 5.796758742328676,
+    &quot;median_latency_ms&quot;: 0.35395199060440063,
+    &quot;median_reference_latency_ms&quot;: 1.5058640241622925,
+    &quot;median_speedup&quot;: 3.5111213872811633,
+    &quot;worst_speedup&quot;: 0.9857300137839259,
+    &quot;best_speedup&quot;: 7.4905828472620835,
     &quot;interpretation&quot;: &quot;inter-token latency&quot;
    }
   },
   &quot;correctness&quot;: {
-   &quot;implementation&quot;: &quot;flash_torch_sparse (portable eager ops)&quot;,
+   &quot;implementation&quot;: &quot;flash_attention_triton_sparse (fused)&quot;,
    &quot;device&quot;: &quot;NVIDIA T1000 8GB (sm_75, 9 GB)&quot;,
    &quot;note&quot;: &quot;Checked at batch=1, heads=2 rather than at the timed shape. Attention carries no data between batch or head lanes, so correctness cannot vary along those axes; sequence length, pattern, density and phase -- the axes it can vary along -- are checked at their measured values.&quot;,
    &quot;n_shapes&quot;: 80,
@@ -565,7 +374,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002092082695188692,
+       &quot;max_rel_err&quot;: 0.00023877344212969262,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -596,7 +405,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00026796480962292614,
+       &quot;max_rel_err&quot;: 0.0003545714825825992,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -627,7 +436,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027229235432127733,
+       &quot;max_rel_err&quot;: 0.0003394802894578515,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -658,7 +467,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00015255489374614732,
+       &quot;max_rel_err&quot;: 0.00027087029687795986,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -689,7 +498,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002092082695188692,
+       &quot;max_rel_err&quot;: 0.00023877344212969262,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -720,7 +529,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00028514779508176505,
+       &quot;max_rel_err&quot;: 0.00034659478708927135,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -751,7 +560,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027229235432127733,
+       &quot;max_rel_err&quot;: 0.0003394802894578515,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -782,7 +591,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00015255489374614732,
+       &quot;max_rel_err&quot;: 0.00027087029687795986,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -906,7 +715,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002576869242715851,
+       &quot;max_rel_err&quot;: 0.00029266504575266755,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -937,7 +746,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027710269324215107,
+       &quot;max_rel_err&quot;: 0.0002936735624656115,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -968,7 +777,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002837198588669088,
+       &quot;max_rel_err&quot;: 0.0002961642610757958,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1030,7 +839,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00028070382991479155,
+       &quot;max_rel_err&quot;: 0.00038583360724836333,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1061,7 +870,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027710269324215107,
+       &quot;max_rel_err&quot;: 0.0002936735624656115,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1092,7 +901,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002837198588669088,
+       &quot;max_rel_err&quot;: 0.0002961642610757958,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1154,7 +963,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00029277679014851527,
+       &quot;max_rel_err&quot;: 0.00035724520696489516,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1185,7 +994,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00015799292980872524,
+       &quot;max_rel_err&quot;: 0.00022101937421407358,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1216,7 +1025,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000302200056521178,
+       &quot;max_rel_err&quot;: 0.00032124974264839895,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1247,7 +1056,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00015799292980872524,
+       &quot;max_rel_err&quot;: 0.00022101937421407358,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1278,7 +1087,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000309079267605801,
+       &quot;max_rel_err&quot;: 0.00038886508758514146,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1309,7 +1118,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00015799292980872524,
+       &quot;max_rel_err&quot;: 0.00022101937421407358,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1340,7 +1149,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027750494549322416,
+       &quot;max_rel_err&quot;: 0.0002867127657404632,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1464,7 +1273,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00020225224557434077,
+       &quot;max_rel_err&quot;: 0.00028193597323648443,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1526,7 +1335,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00018096984958632478,
+       &quot;max_rel_err&quot;: 0.0003005277734937109,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1588,7 +1397,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0003279312394160195,
+       &quot;max_rel_err&quot;: 0.00044645777946121924,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1774,7 +1583,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0001954330211783147,
+       &quot;max_rel_err&quot;: 0.00022275381332792534,
        &quot;tolerance&quot;: 0.0019683837890625,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1836,7 +1645,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000247026516232072,
+       &quot;max_rel_err&quot;: 0.000322098366516428,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1898,7 +1707,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00025108406406684194,
+       &quot;max_rel_err&quot;: 0.00029224879762654776,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1960,7 +1769,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00030031807012737715,
+       &quot;max_rel_err&quot;: 0.0004254457528578406,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1991,7 +1800,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002608103163585463,
+       &quot;max_rel_err&quot;: 0.00026829021274198285,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2022,7 +1831,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00023727249568132646,
+       &quot;max_rel_err&quot;: 0.0003671264638911864,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2084,7 +1893,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0003248574927845497,
+       &quot;max_rel_err&quot;: 0.00044448743481726913,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2146,7 +1955,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00033085412590384795,
+       &quot;max_rel_err&quot;: 0.00044328416481995473,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2270,7 +2079,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002994791795440214,
+       &quot;max_rel_err&quot;: 0.0003128238051075958,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2301,7 +2110,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00029716896370291825,
+       &quot;max_rel_err&quot;: 0.0003177137285668554,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2332,7 +2141,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00018866337183993373,
+       &quot;max_rel_err&quot;: 0.0002549147033834444,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2456,7 +2265,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002522764093350566,
+       &quot;max_rel_err&quot;: 0.0003611613536224297,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2518,7 +2327,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002543328630202723,
+       &quot;max_rel_err&quot;: 0.0002833038172509569,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2580,7 +2389,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00023856480431882316,
+       &quot;max_rel_err&quot;: 0.00034592025473289466,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2611,7 +2420,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00028509385887839087,
+       &quot;max_rel_err&quot;: 0.0002856823968293717,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2642,7 +2451,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027627903291676636,
+       &quot;max_rel_err&quot;: 0.00038434361832707676,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2704,7 +2513,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00025514534190903654,
+       &quot;max_rel_err&quot;: 0.0003186963028376327,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2735,7 +2544,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00016032676777307984,
+       &quot;max_rel_err&quot;: 0.00019103672516097424,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2766,7 +2575,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00021541927932221,
+       &quot;max_rel_err&quot;: 0.0002732367110464473,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2797,7 +2606,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00016032676777307984,
+       &quot;max_rel_err&quot;: 0.00019103672516097424,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2828,7 +2637,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00023250377014893164,
+       &quot;max_rel_err&quot;: 0.00031122417440857295,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2859,7 +2668,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00016032676777307984,
+       &quot;max_rel_err&quot;: 0.00019103672516097424,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2890,7 +2699,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00025998478655589333,
+       &quot;max_rel_err&quot;: 0.0003184507685387952,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -2952,7 +2761,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00034471772416437297,
+       &quot;max_rel_err&quot;: 0.000379349953323017,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -3014,7 +2823,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00023372174071384654,
+       &quot;max_rel_err&quot;: 0.00039520558052589486,
        &quot;tolerance&quot;: 0.001983642578125,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -4223,8 +4032,8 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;interleaved&quot;: true,
    &quot;workload&quot;: &quot;attention forward, heads=8, head_dim=64, dtype=float16, causal=True&quot;,
    &quot;meta&quot;: {
-    &quot;implementation&quot;: &quot;portable&quot;,
-    &quot;implementation_label&quot;: &quot;flash_torch_sparse (portable eager ops)&quot;,
+    &quot;implementation&quot;: &quot;triton&quot;,
+    &quot;implementation_label&quot;: &quot;flash_attention_triton_sparse (fused)&quot;,
     &quot;reference&quot;: &quot;torch SDPA computing the same pattern densely under a mask&quot;,
     &quot;heads&quot;: 8,
     &quot;head_dim&quot;: 64,
@@ -4237,7 +4046,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
     &quot;reference&quot;: 1.0
    },
    &quot;provenance&quot;: {
-    &quot;captured_at&quot;: &quot;2026-08-29T18:10:41Z&quot;,
+    &quot;captured_at&quot;: &quot;2026-08-29T18:29:08Z&quot;,
     &quot;host&quot;: &quot;Archana-PC&quot;,
     &quot;platform&quot;: &quot;Windows-10-10.0.26200-SP0&quot;,
     &quot;python&quot;: &quot;3.11.5&quot;,
@@ -4298,144 +4107,144 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      NaN,
      NaN,
      NaN,
-     0.020297027071645813,
-     0.021701336062315738,
-     0.019277419899268136,
-     0.050388083458615424,
-     0.019470042431910077,
-     0.0253923238820977,
+     0.4269059940791384,
+     0.22004637642281233,
+     0.30073162123681835,
+     0.07048776497156115,
+     0.3565129863249253,
+     0.11492503173275698,
      NaN,
      NaN,
-     0.019257328746465366,
-     0.05167435464502295,
-     0.01959295938761168,
-     0.032637451449435285,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.2082938832371709,
-     0.1871746855555832,
-     0.17612210990717048,
-     0.3619211320596361,
-     0.19419572689379813,
-     0.26974750983936685,
-     NaN,
-     NaN,
-     0.17616649790511807,
-     0.36352089235285484,
-     0.18628706315919782,
-     0.265470678642665,
+     0.2998287200912652,
+     0.06616456501114931,
+     0.2819579578762272,
+     0.10963781170180208,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.020378947820115834,
-     0.021743185798997235,
-     0.01950373238495424,
-     0.03319959450558089,
-     0.020290650095823395,
-     0.02610735898877497,
+     0.546772120667461,
+     0.48090166692735575,
+     0.5138346801437605,
+     0.2989099157061155,
+     0.5353155039135822,
+     0.38400586184284596,
      NaN,
      NaN,
-     0.019343158199965568,
-     0.032766976136728784,
-     0.01978959706623201,
-     0.025713942965757765,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.20810300925659725,
-     0.18137334815850603,
-     0.19406336553762382,
-     0.27203943348130594,
-     0.20221090842966646,
-     0.20934101025734292,
-     NaN,
-     NaN,
-     0.1839576278470966,
-     0.2563677165511,
-     0.1967760724498526,
-     0.21038316531721848,
+     0.5175517382125843,
+     0.30150988454006844,
+     0.5193892274762986,
+     0.38031500865563755,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.021583862386439313,
-     0.02190937839090662,
-     0.020540010973371225,
-     0.02570858348553492,
-     0.021273271972928852,
-     0.023692884693915933,
+     0.4737720612784311,
+     0.2593158386317003,
+     0.44636185068465123,
+     0.11433605662256542,
+     0.4819205329628189,
+     0.168256740595521,
      NaN,
      NaN,
-     0.02087286910825532,
-     0.02782882011187745,
-     0.02118811305283702,
-     0.024546323703021854,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.20272751361036268,
-     0.19495752034630096,
-     0.155551995172119,
-     0.2111908969836781,
-     0.20323283216783722,
-     0.1911846298077348,
-     NaN,
-     NaN,
-     0.19118550333353063,
-     0.22250359685376922,
-     0.1939757318917598,
-     0.18588271233139297,
+     0.38849852172577926,
+     0.11619857819975825,
+     0.42277502007707407,
+     0.17009911523866625,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.022591343902988562,
-     0.021372113465917466,
-     0.019658477937634627,
-     0.022792529597346598,
-     0.02224287520249367,
-     0.02137807797340103,
+     0.5660222556340401,
+     0.50618401080283,
+     0.5603347086581856,
+     0.38325146270112187,
+     0.5658025346969316,
+     0.4409023429395897,
      NaN,
      NaN,
-     0.019340213756504295,
-     0.0237061424083957,
-     0.020283974179742967,
-     0.015625171314045845,
-     NaN,
-     NaN,
-     NaN,
+     0.545801695835968,
+     0.3780866407797988,
+     0.5542543189944218,
+     0.44131987809027284,
      NaN,
      NaN,
      NaN,
-     0.18985103362848554,
-     0.17008435284894322,
-     0.1897718068396369,
-     0.19425831230638743,
-     0.19145669017075492,
-     0.18084840409664862,
      NaN,
      NaN,
-     0.191504233496064,
-     0.1833976426734902,
-     0.19389978001301497,
-     0.17341822291476935,
+     NaN,
+     0.5254932410708358,
+     0.2768197678791739,
+     0.5240860995532538,
+     0.16897526739957433,
+     0.5358991376087535,
+     0.1976487463119365,
+     NaN,
+     NaN,
+     0.4818823606950249,
+     0.16556027697676734,
+     0.5122239702315193,
+     0.20088625420974168,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5741425847386292,
+     0.5174060907316732,
+     0.5740072527398947,
+     0.44431185645344834,
+     0.5754054008136187,
+     0.48106712688685915,
+     NaN,
+     NaN,
+     0.5673520542200642,
+     0.4430329944679399,
+     0.5701609577612848,
+     0.47165430565984123,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5543959648504176,
+     0.301255426867222,
+     0.5602789692929561,
+     0.21467417092226274,
+     0.5647622103817834,
+     0.2565715927078022,
+     NaN,
+     NaN,
+     0.5406910150959106,
+     0.21716392870827697,
+     0.5476984363863279,
+     0.25946020033505235,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5789775483951692,
+     0.521038646753735,
+     0.5787644971969341,
+     0.48314515413453796,
+     0.5796845961398066,
+     0.5064819913136347,
+     NaN,
+     NaN,
+     0.5758239817155463,
+     0.48186850072990156,
+     0.5771077282576228,
+     0.5035405409506308,
      NaN,
      NaN
     ],
@@ -4444,144 +4253,144 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      NaN,
      NaN,
      NaN,
-     0.24157645154923574,
-     0.23382227477538403,
-     0.06136509283781306,
-     0.030330209695275622,
-     0.11089627629230112,
-     0.058951818199186684,
+     0.2457791944425877,
+     0.22323189245107736,
+     0.06003182966051563,
+     0.029704702853024262,
+     0.11029747386690168,
+     0.058684575506405295,
      NaN,
      NaN,
-     0.061376764335044874,
-     0.030268922334939972,
-     0.08251424023698245,
-     0.059402676040529526,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.3115333977438481,
-     0.490734051768055,
-     0.07108462858658089,
-     0.06259127724922928,
-     0.13152631062737163,
-     0.12486578306208367,
-     NaN,
-     NaN,
-     0.07081997141239395,
-     0.0627110612174315,
-     0.09710365294039366,
-     0.12481190297513002,
+     0.06009634454400375,
+     0.029520720402194587,
+     0.08206921834153161,
+     0.058166971347617294,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.23236308426719346,
-     0.23803546765603734,
-     0.05977494943856585,
-     0.033027057103948494,
-     0.10925413786035622,
-     0.06567967513103408,
+     0.30832473386397297,
+     0.48599322930641026,
+     0.06985107783979329,
+     0.06178543100857461,
+     0.1303048317981511,
+     0.12310661990268945,
      NaN,
      NaN,
-     0.041326060280710904,
-     0.03300937991974735,
-     0.06971605856427093,
-     0.06553804544347701,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.2961622369438683,
-     0.49655097132863296,
-     0.06874017847825843,
-     0.06361512045727313,
-     0.1280545063962198,
-     0.12714828494551014,
-     NaN,
-     NaN,
-     0.04667915074854519,
-     0.06377520509106328,
-     0.0798169667611124,
-     0.12727271160391426,
+     0.06985020680183267,
+     0.061836443490999746,
+     0.0960952423370993,
+     0.12311203801532794,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.2194350079516182,
-     0.24737494369827415,
-     0.062154564091416356,
-     0.0345329585461419,
-     0.11265043772335068,
-     0.06868251963803071,
+     0.22858488500310922,
+     0.2364853404318759,
+     0.05931119378044459,
+     0.03244758087954664,
+     0.10747251988236053,
+     0.0629038640062163,
      NaN,
      NaN,
-     0.036393617622486114,
-     0.03462017999797254,
-     0.0681036099780207,
-     0.06857808048740717,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.28222568848974516,
-     0.4984947945743244,
-     0.06776225247342474,
-     0.06403395323118824,
-     0.12605110197342284,
-     0.12790583145018505,
-     NaN,
-     NaN,
-     0.0389888654794873,
-     0.06402759885125778,
-     0.07438917016557124,
-     0.12786926860710096,
+     0.040760744767071345,
+     0.03218860479390469,
+     0.06864679649329349,
+     0.06448212282351334,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.18948036872240592,
-     0.2483508280192705,
-     0.05889621348974663,
-     0.03567100711508572,
-     0.10376962677283598,
-     0.06956535777382582,
+     0.2929766990466376,
+     0.4914060270863094,
+     0.06830446428500123,
+     0.06313157340068624,
+     0.12699203670566522,
+     0.12619667379912647,
      NaN,
      NaN,
-     0.032646287459569226,
-     0.03543085011932932,
-     0.06248011667907647,
-     0.069325618921162,
-     NaN,
-     NaN,
-     NaN,
+     0.046396556104217966,
+     0.06311922503570387,
+     0.07930381713940882,
+     0.12614448702583553,
      NaN,
      NaN,
      NaN,
-     0.2571643955595914,
-     0.4437243097333576,
-     0.06206541722731427,
-     0.060599286944704914,
-     0.1157328777773125,
-     0.1283493385480124,
      NaN,
      NaN,
-     0.03681021340262628,
-     0.06449885274311049,
-     0.0723870664344264,
-     0.1283279874932488,
+     NaN,
+     0.2362228047878655,
+     0.24763052371256533,
+     0.06146643011069995,
+     0.03430137850005698,
+     0.11068281624266728,
+     0.06801647515402624,
+     NaN,
+     NaN,
+     0.03578283073151729,
+     0.03410391425800366,
+     0.06692067155788392,
+     0.06798781103521091,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.28122460159565965,
+     0.49408692757527123,
+     0.06782089975914188,
+     0.06399902156024409,
+     0.12542151859173475,
+     0.12788730773087573,
+     NaN,
+     NaN,
+     0.03899165053248257,
+     0.06344120274267426,
+     0.0743766580585785,
+     0.12788292093777454,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.20028405026665946,
+     0.24902726838698186,
+     0.06310921128296963,
+     0.03519006628143217,
+     0.1136942894327332,
+     0.06891272173645531,
+     NaN,
+     NaN,
+     0.03449026798749921,
+     0.03518357276203832,
+     0.06480065846695104,
+     0.06903522313267103,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.278443116706347,
+     0.49838187195775596,
+     0.06726637451155504,
+     0.06450034182735653,
+     0.1253532658612241,
+     0.12774635474602017,
+     NaN,
+     NaN,
+     0.03687398969684844,
+     0.06449290448207817,
+     0.07229760892755246,
+     0.1276532894696032,
      NaN,
      NaN
     ]
@@ -5552,5 +5361,381 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      },
      {
       &quot;cell&quot;: [
-    </pre></details>
+       2,
+       0,
+       0,
+       0,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       0,
+       0,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       0,
+       1,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       0,
+       1,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       1,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       1,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       2,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       0,
+       2,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       0,
+       0,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       0,
+       0,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       0,
+       1,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       0,
+       1,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       1,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       1,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       2,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       2,
+       1,
+       2,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       0,
+       0,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       0,
+       0,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       0,
+       1,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       0,
+       1,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       1,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       1,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       2,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       0,
+       2,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       0,
+       0,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       0,
+       0,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       0,
+       1,
+       0
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       0,
+       1,
+       1
+      ],
+      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       1,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       1,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       2,
+       2,
+       0
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     },
+     {
+      &quot;cell&quot;: [
+       3,
+       1,
+       2,
+       2,
+       1
+      ],
+      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
+     }
+    ]
+   },
+   &quot;inapplicable&quot;: [
+    {
+     &quot;cell&quot;: [
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill&quot;,
+     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+    },
+    {
+     &quot;cell&quot;: [
+      0,
+      0,
+      0,
+      0,
+      1
+     ],
+     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode&quot;,
+     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+    },
+    {
+     &quot;cell&quot;: [
+      0,
+      0,
+      0,
+      1,
+      0
+     ],
+     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.25, phase=prefill&quot;,
+     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+    },
+    {
+     &quot;cell&quot;: [
+      0,
+      0,
+      0,
+      1,
+      1
+     ],
+     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.25, phase=decode&quot;,
+     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
+    },
+    {
+     &quot;cell&quot;: [
+      0,
+      0,
+      1,
+      2,
+      0
+     ],
+     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=sliding_window, density=1.0, phase=prefill&quot;,
+     &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
+    },
+  </pre></details>
 <footer>Generated by <code>losscolumn</code> against standard LC-1.0. Every number on this page is reproducible from the command above; if it is not, that is a bug and a conformance failure.</footer></div>

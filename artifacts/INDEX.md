@@ -1,8 +1,8 @@
 # Artifact index
 
-Generated 2026-08-29T17:45:00Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-29T18:07:32Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
-**2 claims** &mdash; 0 conforming, 0 measured, 2 simulated.
+**3 claims** &mdash; 0 conforming, 1 measured, 2 simulated.
 
 ---
 
@@ -51,7 +51,9 @@ MDE 10% &middot; q 0.05 &middot; 11 replicates &middot; seal `fd87925555851b65..
 
 Superseded and still verifiable: [`prereg-thrust-III-v1-20260828T224806Z.json`](prereg/archive/prereg-thrust-III-v1-20260828T224806Z.json)
 
-_No claim published._
+| Claim | Evidence | Grade | Loss cells | Artifacts |
+|---|---|---|---|---|
+| **Sparse attention, portable implementation: a loss map over prefill and decode**<br><code>implementation</code> vs <code>reference</code> | measured | non-conforming (1w) | 46/144 | [conformance.json](thrust3a-portable-attention.conformance.json) [html](thrust3a-portable-attention.html) [md](thrust3a-portable-attention.md) |
 
 ---
 

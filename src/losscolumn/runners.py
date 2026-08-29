@@ -532,6 +532,7 @@ def _publish_kernel_claim(res, *, pre, outdir: Path, quick: bool,
             "correctness": res.correctness.to_dict(),
             "clocks": res.clocks,
             "layouts": res.layouts,
+            "references": res.references,
             "throughput_envelope": res.throughput.to_dict(include_replicates=False),
             "memory_envelope": res.memory.to_dict(include_replicates=False),
             "implementations_unavailable": unavailable,
@@ -548,6 +549,13 @@ def _publish_kernel_claim(res, *, pre, outdir: Path, quick: bool,
             "One head dimension (64) and one dtype (float16). Both are held fixed to "
             "keep the sparsity lattice tractable; widening either is a new "
             "registration, not an extension of this one.",
+            "The reference for a sparse pattern is torch computing that same pattern "
+            "densely under an explicit mask, because that is the only way torch "
+            "computes this function. An explicit mask precludes the fused backend, so "
+            "the reference is not a sparsity-optimised kernel and the margin here is "
+            "not a margin over one. Against a production block-sparse implementation "
+            "it would be smaller, and this artifact is not evidence about that "
+            "comparison.",
             "The block-sparse pattern is one seeded random draw per shape, not an "
             "average over draws. A different draw would give a different pattern with "
             "the same density, and the artifact records the seed rather than claiming "
