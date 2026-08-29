@@ -65,25 +65,71 @@ def _import_triton() -> tuple[bool, str]:
         _PROBE = (False, f"triton is installed but unusable: {type(e).__name__}: {e}")
         return _PROBE
     _TRITON, _TL = triton, tl
+    # Triton's code generator resolves names in the JIT function's __globals__,
+    # not in its enclosing scope, so `tl.constexpr` in a kernel signature is a
+    # NameError unless `tl` is a module global. Because the import is lazy, the
+    # names have to be published here rather than at module import.
+    globals()["triton"] = triton
+    globals()["tl"] = tl
     _PROBE = (True, "")
     return _PROBE
 
 
 def triton_available() -> tuple[bool, str]:
-    """Whether a usable Triton + CUDA pair is present, and why not if not."""
+    """Whether a usable Triton + CUDA pair is present, and why not if not.
+
+    The floor is sm_70, where ``tl.dot`` first lowers to tensor cores. Below
+    that the kernel still compiles but runs on the CUDA cores, and timing it
+    would measure a code path nobody deploys.
+    """
     ok, why = _import_triton()
     if not ok:
         return False, why
     if torch is None or not torch.cuda.is_available():
         return False, "no CUDA device visible to torch"
     cap = torch.cuda.get_device_capability()
-    if cap[0] < 8:
+    if cap < (7, 0):
         return (
             False,
-            f"compute capability {cap[0]}.{cap[1]} lacks bf16 tensor cores; the kernel "
-            "targets sm_80 and above",
+            f"compute capability {cap[0]}.{cap[1]} has no tensor cores for tl.dot; "
+            "the kernel targets sm_70 and above",
         )
     return True, ""
+
+
+def supported_dtypes() -> tuple[str, ...]:
+    """Input dtypes this device can run the kernel on.
+
+    bfloat16 tensor cores arrive with Ampere (sm_80). On Turing the kernel
+    compiles for bf16 but lowers to an emulated path whose timings say nothing
+    about the algorithm, so bf16 is excluded rather than measured badly.
+
+    A sweep that drops a registered dtype because the hardware cannot run it
+    must declare that as a protocol deviation, not silently narrow its grid --
+    which is what the caller does with this.
+    """
+    if torch is None or not torch.cuda.is_available():
+        return ()
+    cap = torch.cuda.get_device_capability()
+    return ("float16", "bfloat16") if cap >= (8, 0) else ("float16",)
+
+
+def device_limits() -> dict[str, Any]:
+    """What this device can and cannot do, for the artifact to record."""
+    if torch is None or not torch.cuda.is_available():
+        return {"available": False}
+    cap = torch.cuda.get_device_capability()
+    p = torch.cuda.get_device_properties(0)
+    return {
+        "available": True,
+        "name": p.name,
+        "capability": f"sm_{cap[0]}{cap[1]}",
+        "supported_dtypes": list(supported_dtypes()),
+        "bf16_tensor_cores": cap >= (8, 0),
+        "shared_memory_per_block_kb": round(p.shared_memory_per_block / 1024, 1)
+        if hasattr(p, "shared_memory_per_block")
+        else None,
+    }
 
 
 def _build_kernel() -> Any:

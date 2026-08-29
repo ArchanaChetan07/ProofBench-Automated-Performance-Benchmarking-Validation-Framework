@@ -58,69 +58,42 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-si
 color:var(--muted)}
 </style>
 <div class="wrap">
-<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Reproduction with a loss map: a from-scratch attention kernel</h1><div class="headline">A faithful from-scratch implementation of the FlashAttention algorithm (flash_torch (portable)), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median -230.9% across the swept envelope; best -46.9% at head_dim=128, seq_len=128, batch=4, dtype=float16; worst -1470.8% at head_dim=32, seq_len=512, batch=1, dtype=float16.</div><div class="meta"><span><code>lc-thrust3-attention-loss-map</code></span><span>reimplementation vs reference</span><span>2026-08-29T02:14:10Z</span><span class="tag pass">conforming</span></div></header>
-<div class="stat"><div><b>100%</b><span>of envelope lost</span></div><div><b>+1471%</b><span>worst regression</span></div><div><b>1</b><span>loss regions</span></div><div><b>0%</b><span>inconclusive</span></div><div><b>36</b><span>cells measured</span></div></div>
-<div class="loss"><h2>Loss column</h2><p>reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>the entire envelope</td><td>36/36 (100%)</td><td><span style="color:var(--loss)">+230.9%</span></td><td><span style="color:var(--loss)"><b>+1470.8%</b></span></td><td>0.000488</td><td>the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 36 loss, 0 win, 0 tie, 0 inconclusive, 0 unmeasurable.</li></ul></div>
-<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 298" width="598" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map -- from-scratch attention against the reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="598" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map -- from-scratch attention against the reference</text><text x="0" y="42" font-size="12" fill="#57534e">flash_torch (portable) vs torch SDPA on NVIDIA T1000 8GB (sm_75, 9 GB). Correctness is checked before any timing is recorded.</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">dtype=float16</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">32</text><g><title>head_dim=32, seq_len=128, batch=1, dtype=float16
+<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Reproduction with a loss map: a from-scratch attention kernel</h1><div class="headline">A faithful from-scratch implementation of the FlashAttention algorithm (triton_flash_fwd), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median +0.9% across the swept envelope; best +34.6% at head_dim=32, seq_len=512, batch=1, dtype=float16; worst -32.4% at head_dim=128, seq_len=128, batch=1, dtype=float16.</div><div class="meta"><span><code>lc-thrust3-attention-loss-map</code></span><span>reimplementation vs reference</span><span>2026-08-29T02:50:26Z</span><span class="tag fail">non-conforming</span></div></header>
+<div class="stat"><div><b>6%</b><span>of envelope lost</span></div><div><b>+32%</b><span>worst regression</span></div><div><b>1</b><span>loss regions</span></div><div><b>0%</b><span>inconclusive</span></div><div><b>18</b><span>cells measured</span></div></div>
+<div class="loss"><h2>Loss column</h2><p>reimplementation loses to reference on 6% of the swept envelope (1/18 cells), across 1 region(s); worst measurable case +32.4% on attention_throughput.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>head_dim=128 and seq_len=128 and batch=1</td><td>1/1 (6%)</td><td><span style="color:var(--loss)">+32.4%</span></td><td><span style="color:var(--loss)"><b>+32.4%</b></span></td><td>0.00146</td><td>launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 1 loss, 6 win, 11 tie, 0 inconclusive, 0 unmeasurable.</li></ul></div>
+<figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 282 298" width="282" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map -- from-scratch attention against the reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="282" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map -- from-scratch attention against the reference</text><text x="0" y="42" font-size="12" fill="#57534e">triton_flash_fwd vs torch SDPA on NVIDIA T1000 8GB (sm_75, 9 GB). Correctness is checked before any timing is recorded.</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">dtype=float16</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">32</text><g><title>head_dim=32, seq_len=128, batch=4, dtype=float16
+verdict: win
+effect: -33.5% (95% CI -33.5..-33.4)
+q=1  n=11/11</title><rect x="96" y="182" width="53" height="53" fill="#276aae" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">-33</text></g><g><title>head_dim=32, seq_len=512, batch=4, dtype=float16
+verdict: win
+effect: -34.4% (95% CI -34.4..-34.4)
+q=1  n=11/11</title><rect x="150" y="182" width="53" height="53" fill="#2166ac" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">-34</text></g><g><title>head_dim=32, seq_len=2048, batch=4, dtype=float16
+verdict: win
+effect: -34.1% (95% CI -34.4..-34.0)
+q=1  n=11/11</title><rect x="204" y="182" width="53" height="53" fill="#2367ad" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">-34</text></g><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">64</text><g><title>head_dim=64, seq_len=128, batch=4, dtype=float16
+verdict: tie
+effect: -0.8% (95% CI -0.8..-0.8)
+q=1  n=11/11</title><rect x="96" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-1</text></g><g><title>head_dim=64, seq_len=512, batch=4, dtype=float16
+verdict: tie
+effect: -1.0% (95% CI -1.0..-1.0)
+q=1  n=11/11</title><rect x="150" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-1</text></g><g><title>head_dim=64, seq_len=2048, batch=4, dtype=float16
+verdict: tie
+effect: -0.6% (95% CI -0.6..-0.6)
+q=1  n=11/11</title><rect x="204" y="128" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">-1</text></g><text x="88" y="105.0" font-size="11" text-anchor="end" fill="#44403c">128</text><g><title>head_dim=128, seq_len=128, batch=1, dtype=float16
 verdict: loss
-effect: +233.6% (95% CI +197.1..+303.0)
-q=0.000488  n=11/11</title><rect x="96" y="182" width="53" height="53" fill="#db898e" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+234</text></g><g><title>head_dim=32, seq_len=512, batch=1, dtype=float16
-verdict: loss
-effect: +1470.8% (95% CI +1275.9..+1833.1)
-q=0.000488  n=11/11</title><rect x="150" y="182" width="53" height="53" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1471</text></g><g><title>head_dim=32, seq_len=2048, batch=1, dtype=float16
-verdict: loss
-effect: +1253.9% (95% CI +1203.0..+1285.2)
-q=0.000488  n=11/11</title><rect x="204" y="182" width="53" height="53" fill="#b31b2e" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1254</text></g><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">64</text><g><title>head_dim=64, seq_len=128, batch=1, dtype=float16
-verdict: loss
-effect: +221.5% (95% CI +182.7..+310.7)
-q=0.000488  n=11/11</title><rect x="96" y="128" width="53" height="53" fill="#dc8c90" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+222</text></g><g><title>head_dim=64, seq_len=512, batch=1, dtype=float16
-verdict: loss
-effect: +969.0% (95% CI +935.4..+1026.1)
-q=0.000488  n=11/11</title><rect x="150" y="128" width="53" height="53" fill="#ba2e3e" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+969</text></g><g><title>head_dim=64, seq_len=2048, batch=1, dtype=float16
-verdict: loss
-effect: +922.3% (95% CI +902.2..+964.1)
-q=0.000488  n=11/11</title><rect x="204" y="128" width="53" height="53" fill="#bb3141" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+922</text></g><text x="88" y="105.0" font-size="11" text-anchor="end" fill="#44403c">128</text><g><title>head_dim=128, seq_len=128, batch=1, dtype=float16
-verdict: loss
-effect: +121.6% (95% CI +114.1..+136.5)
-q=0.000488  n=11/11</title><rect x="96" y="74" width="53" height="53" fill="#e6a9aa" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+122</text></g><g><title>head_dim=128, seq_len=512, batch=1, dtype=float16
-verdict: loss
-effect: +439.2% (95% CI +398.7..+534.6)
-q=0.000488  n=11/11</title><rect x="150" y="74" width="53" height="53" fill="#cd636d" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+439</text></g><g><title>head_dim=128, seq_len=2048, batch=1, dtype=float16
-verdict: loss
-effect: +390.7% (95% CI +377.9..+404.1)
-q=0.000488  n=11/11</title><rect x="204" y="74" width="53" height="53" fill="#d06b73" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+391</text></g><rect x="96" y="74" width="161" height="161" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">128</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="177.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">head_dim</text><text x="412" y="62" font-size="12" font-weight="600" fill="#292524">dtype=bfloat16</text><text x="404" y="213.0" font-size="11" text-anchor="end" fill="#44403c">32</text><g><title>head_dim=32, seq_len=128, batch=1, dtype=bfloat16
-verdict: loss
-effect: +251.8% (95% CI +229.7..+279.3)
-q=0.000488  n=11/11</title><rect x="412" y="182" width="53" height="53" fill="#d9858a" stroke="#ffffff" stroke-width="1"/><text x="439.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+252</text></g><g><title>head_dim=32, seq_len=512, batch=1, dtype=bfloat16
-verdict: loss
-effect: +1313.7% (95% CI +1278.3..+1377.1)
-q=0.000488  n=11/11</title><rect x="466" y="182" width="53" height="53" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1314</text></g><g><title>head_dim=32, seq_len=2048, batch=1, dtype=bfloat16
-verdict: loss
-effect: +1383.2% (95% CI +1172.0..+1913.5)
-q=0.000488  n=11/11</title><rect x="520" y="182" width="53" height="53" fill="#b2182b" stroke="#ffffff" stroke-width="1"/><text x="547.0" y="213.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1383</text></g><text x="404" y="159.0" font-size="11" text-anchor="end" fill="#44403c">64</text><g><title>head_dim=64, seq_len=128, batch=1, dtype=bfloat16
-verdict: loss
-effect: +477.8% (95% CI +340.8..+548.3)
-q=0.000488  n=11/11</title><rect x="412" y="128" width="53" height="53" fill="#cb5e68" stroke="#ffffff" stroke-width="1"/><text x="439.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+478</text></g><g><title>head_dim=64, seq_len=512, batch=1, dtype=bfloat16
-verdict: loss
-effect: +1112.2% (95% CI +1087.7..+1179.4)
-q=0.000488  n=11/11</title><rect x="466" y="128" width="53" height="53" fill="#b62436" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1112</text></g><g><title>head_dim=64, seq_len=2048, batch=1, dtype=bfloat16
-verdict: loss
-effect: +1005.0% (95% CI +959.6..+1100.5)
-q=0.000488  n=11/11</title><rect x="520" y="128" width="53" height="53" fill="#b92b3c" stroke="#ffffff" stroke-width="1"/><text x="547.0" y="159.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+1005</text></g><text x="404" y="105.0" font-size="11" text-anchor="end" fill="#44403c">128</text><g><title>head_dim=128, seq_len=128, batch=1, dtype=bfloat16
-verdict: loss
-effect: +146.2% (95% CI +144.1..+148.4)
-q=0.000488  n=11/11</title><rect x="412" y="74" width="53" height="53" fill="#e3a1a2" stroke="#ffffff" stroke-width="1"/><text x="439.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+146</text></g><g><title>head_dim=128, seq_len=512, batch=1, dtype=bfloat16
-verdict: loss
-effect: +770.0% (95% CI +741.3..+807.9)
-q=0.000488  n=11/11</title><rect x="466" y="74" width="53" height="53" fill="#c03e4c" stroke="#ffffff" stroke-width="1"/><text x="493.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+770</text></g><g><title>head_dim=128, seq_len=2048, batch=1, dtype=bfloat16
-verdict: loss
-effect: +630.0% (95% CI +604.6..+652.4)
-q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c54c58" stroke="#ffffff" stroke-width="1"/><text x="547.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+630</text></g><rect x="412" y="74" width="161" height="161" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="424" cy="86" r="9" fill="#7f1d1d"/><text x="424" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><text x="439.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">128</text><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="493.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(338,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">head_dim</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1314% .. tie .. loss 1314%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>The reimplementation is expected to lose across most of this space, and does. Matching a mature hand-tuned kernel is not the goal and would not be credible; the contribution is the map and the attribution. A reader who wants the fastest kernel should use the reference.</figcaption></figure>
+effect: +32.4% (95% CI +32.3..+32.4)
+q=0.00146  n=11/11</title><rect x="96" y="74" width="53" height="53" fill="#cb5d67" stroke="#ffffff" stroke-width="1"/><text x="123.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#ffffff">+32</text></g><g><title>head_dim=128, seq_len=512, batch=4, dtype=float16
+verdict: tie
+effect: +2.3% (95% CI +2.3..+2.3)
+q=0.00146  n=11/11</title><rect x="150" y="74" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="177.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+2</text></g><g><title>head_dim=128, seq_len=2048, batch=1, dtype=float16
+verdict: tie
+effect: +2.4% (95% CI +2.4..+2.5)
+q=0.00146  n=11/11</title><rect x="204" y="74" width="53" height="53" fill="#f1f1f0" stroke="#ffffff" stroke-width="1"/><text x="231.0" y="105.0" font-size="10.5" text-anchor="middle" fill="#1c1917">+2</text></g><rect x="96" y="74" width="53" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="86" r="9" fill="#7f1d1d"/><text x="108" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">128</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="177.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">head_dim</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 52% .. tie .. loss 52%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>The reimplementation is expected to lose across most of this space, and does. Matching a mature hand-tuned kernel is not the goal and would not be credible; the contribution is the map and the attribution. A reader who wants the fastest kernel should use the reference.</figcaption></figure>
 <h2>Attributed causes</h2><ul>
-<li><b>32 &lt;= head_dim &lt;= 128 and 128 &lt;= seq_len &lt;= 2048 and 1 &lt;= batch &lt;= 4 and dtype in {float16, bfloat16}</b> &mdash; the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate</li>
+<li><b>head_dim=128 and seq_len=128 and batch=1 and dtype=float16</b> &mdash; launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it</li>
 </ul>
-<h2>Correctness suite</h2><h4>Correctness -- flash<i>torch (portable) on NVIDIA T1000 8GB (sm</i>75, 9 GB)</h4>
-<p>36/36 shapes pass. Tolerances are derived from the arithmetic (4u + 8<i>sqrt(seq)</i>u_acc), not fitted to the results.</p>
+<h2>Correctness suite</h2><h4>Correctness -- triton<i>flash</i>fwd on NVIDIA T1000 8GB (sm_75, 9 GB)</h4>
+<p>18/18 shapes pass. Tolerances are derived from the arithmetic (4u + 8<i>sqrt(seq)</i>u_acc), not fitted to the results.</p>
 <div class="scroll"><table><thead><tr>
 <th>Shape</th>
 <th>Result</th>
@@ -128,54 +101,38 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
 <th>Tolerance</th>
 <th>Failed checks</th>
 </tr></thead><tbody>
-<tr><td><code>b1xh8xs128xd32/float16</code></td><td>pass</td><td>2.45e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs128xd32/bfloat16</code></td><td>pass</td><td>1.93e-03</td><td>1.56e-02</td><td>-</td></tr>
+<tr><td><code>b1xh8xs128xd32/float16</code></td><td>pass</td><td>3.00e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b4xh8xs128xd32/float16</code></td><td>pass</td><td>2.18e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs128xd32/bfloat16</code></td><td>pass</td><td>1.38e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b1xh8xs512xd32/float16</code></td><td>pass</td><td>3.56e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs512xd32/bfloat16</code></td><td>pass</td><td>2.47e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b4xh8xs512xd32/float16</code></td><td>pass</td><td>1.71e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs512xd32/bfloat16</code></td><td>pass</td><td>2.21e-03</td><td>1.56e-02</td><td>-</td></tr>
+<tr><td><code>b4xh8xs512xd32/float16</code></td><td>pass</td><td>2.15e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b1xh8xs2048xd32/float16</code></td><td>pass</td><td>2.97e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs2048xd32/bfloat16</code></td><td>pass</td><td>2.51e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b4xh8xs2048xd32/float16</code></td><td>pass</td><td>1.88e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs2048xd32/bfloat16</code></td><td>pass</td><td>2.04e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b1xh8xs128xd64/float16</code></td><td>pass</td><td>2.72e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs128xd64/bfloat16</code></td><td>pass</td><td>2.17e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b4xh8xs128xd64/float16</code></td><td>pass</td><td>2.22e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs128xd64/bfloat16</code></td><td>pass</td><td>2.83e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b1xh8xs512xd64/float16</code></td><td>pass</td><td>2.55e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs512xd64/bfloat16</code></td><td>pass</td><td>3.33e-03</td><td>1.56e-02</td><td>-</td></tr>
+<tr><td><code>b1xh8xs128xd64/float16</code></td><td>pass</td><td>2.97e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b4xh8xs128xd64/float16</code></td><td>pass</td><td>2.76e-04</td><td>1.96e-03</td><td>-</td></tr>
+<tr><td><code>b1xh8xs512xd64/float16</code></td><td>pass</td><td>2.81e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b4xh8xs512xd64/float16</code></td><td>pass</td><td>3.03e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs512xd64/bfloat16</code></td><td>pass</td><td>2.91e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b1xh8xs2048xd64/float16</code></td><td>pass</td><td>2.65e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs2048xd64/bfloat16</code></td><td>pass</td><td>2.12e-03</td><td>1.56e-02</td><td>-</td></tr>
+<tr><td><code>b1xh8xs2048xd64/float16</code></td><td>pass</td><td>3.87e-04</td><td>1.97e-03</td><td>-</td></tr>
 <tr><td><code>b4xh8xs2048xd64/float16</code></td><td>pass</td><td>3.55e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs2048xd64/bfloat16</code></td><td>pass</td><td>1.88e-03</td><td>1.56e-02</td><td>-</td></tr>
-<tr><td><code>b1xh8xs128xd128/float16</code></td><td>pass</td><td>2.72e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs128xd128/bfloat16</code></td><td>pass</td><td>2.16e-03</td><td>1.56e-02</td><td>-</td></tr>
+<tr><td><code>b1xh8xs128xd128/float16</code></td><td>pass</td><td>3.45e-04</td><td>1.96e-03</td><td>-</td></tr>
 <tr><td><code>b4xh8xs128xd128/float16</code></td><td>pass</td><td>3.60e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs128xd128/bfloat16</code></td><td>pass</td><td>2.50e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b1xh8xs512xd128/float16</code></td><td>pass</td><td>3.08e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs512xd128/bfloat16</code></td><td>pass</td><td>2.42e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b4xh8xs512xd128/float16</code></td><td>pass</td><td>2.71e-04</td><td>1.96e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs512xd128/bfloat16</code></td><td>pass</td><td>1.78e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b1xh8xs2048xd128/float16</code></td><td>pass</td><td>2.67e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b1xh8xs2048xd128/bfloat16</code></td><td>pass</td><td>1.80e-03</td><td>1.56e-02</td><td>-</td></tr>
 <tr><td><code>b4xh8xs2048xd128/float16</code></td><td>pass</td><td>3.14e-04</td><td>1.97e-03</td><td>-</td></tr>
-<tr><td><code>b4xh8xs2048xd128/bfloat16</code></td><td>pass</td><td>1.66e-03</td><td>1.56e-02</td><td>-</td></tr>
 </tbody></table></div>
 <h2>Where this fails as a study</h2><ul>
 <li>FlashAttention-3&#x27;s headline mechanisms -- warp specialisation, TMA-driven asynchronous copy, ping-pong scheduling of softmax against the next GEMM -- are Hopper features that Triton&#x27;s programming model does not expose. This is a reimplementation of the algorithm, not of the implementation, and the loss map is the measurement of what that distinction costs.</li>
+<li>Measured on NVIDIA T1000 8GB (sm_75), which is two architecture generations behind the FA-3 target. The gap here is a lower bound on what the missing Hopper mechanisms are worth, not a measurement of them: they do not exist on this hardware for either arm to use.</li>
 <li>Forward pass only. The backward pass has a different arithmetic intensity and a different loss map, and is out of scope here.</li>
 <li>SM clocks are recorded but not controlled. A run taken while the card is throttling is not comparable to one taken cold, and the difference routinely exceeds published effect sizes.</li>
 </ul>
 <h2>Pre-registration <span class="tag pass">verified</span></h2><ul><li>Sealed <code>2026-08-28T22:48:06Z</code></li><li>Seal hash <code>sha256:4e8e472017ff9e1645aa00f034abe3633e86cce891cfd50ae777ef78ee1eab4c</code></li><li>Anchor <code>git:a0bdfe6</code></li></ul>
-<h2>Reproduction</h2><pre>losscolumn run thrust3</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>87e209643ccb4cda209ac714c3eed4f6d84bf714</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td>Estimated cost</td><td>220 min</td></tr></tbody></table></div>
-<h2>Conformance <span class="tag pass">conforming</span></h2>
-<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity certificate not applicable</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>4 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>36 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-28T22:48:06Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:a0bdfe6`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `87e209643ccb`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~220 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>3 limitation(s) stated</td></tr></tbody></table></div>
-<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T02:06:14Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
-<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (48 KB)</summary><pre>{
+<div class="scroll"><table><thead><tr><th>Code</th><th>Severity</th><th>Finding</th></tr></thead><tbody><tr><td><code>PRE-009</code></td><td>warning</td><td>registered levels of `dtype` were not analysed: [&#x27;bfloat16&#x27;]. Dropping levels after seeing data is the selection this protocol exists to prevent.</td></tr></tbody></table></div>
+<h2>Reproduction</h2><pre>losscolumn run thrust3</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>42abc7aae0149cfac6c070afa1b1bf8d5e926ae2</code> <span class="fail">dirty tree</span></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td>Estimated cost</td><td>220 min</td></tr></tbody></table></div>
+<h2>Conformance <span class="tag fail">non-conforming</span></h2>
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>LC-1.0</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity certificate not applicable</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>4 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>18 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-28T22:48:06Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="warn">warn</span></td><td>1 declared deviation(s) from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:a0bdfe6`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `42abc7aae014`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="fail">FAIL</span></td><td>the producing working tree was dirty; the pinned commit does not identify the code that ran</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~220 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>4 limitation(s) stated</td></tr></tbody></table></div>
+<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T02:48:26Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
+<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (30 KB)</summary><pre>{
  &quot;kind&quot;: &quot;claim&quot;,
  &quot;standard_version&quot;: &quot;LC-1.0&quot;,
  &quot;id&quot;: &quot;lc-thrust3-attention-loss-map&quot;,
@@ -183,31 +140,31 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
  &quot;thrust&quot;: &quot;III&quot;,
  &quot;method&quot;: &quot;reimplementation&quot;,
  &quot;baseline&quot;: &quot;reference&quot;,
- &quot;created_at&quot;: &quot;2026-08-29T02:14:10Z&quot;,
+ &quot;created_at&quot;: &quot;2026-08-29T02:50:26Z&quot;,
  &quot;evidence_class&quot;: &quot;measured&quot;,
- &quot;evidence_note&quot;: &quot;triton is installed but unusable: ImportError: DLL load failed while importing libtriton: A dynamic link library (DLL) initialization routine failed.&quot;,
+ &quot;evidence_note&quot;: &quot;&quot;,
  &quot;authors&quot;: [
   &quot;Archana Suresh Patil&quot;
  ],
  &quot;headline&quot;: {
-  &quot;statement&quot;: &quot;A faithful from-scratch implementation of the FlashAttention algorithm (flash_torch (portable)), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB).&quot;,
-  &quot;best_pct&quot;: -46.936897565176935,
-  &quot;worst_pct&quot;: -1470.8491290164004,
-  &quot;median_pct&quot;: -230.9000772535275,
+  &quot;statement&quot;: &quot;A faithful from-scratch implementation of the FlashAttention algorithm (triton_flash_fwd), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB).&quot;,
+  &quot;best_pct&quot;: 34.646142014401214,
+  &quot;worst_pct&quot;: -32.35682500496966,
+  &quot;median_pct&quot;: 0.8812436998273054,
   &quot;conditions_best&quot;: {
-   &quot;head_dim&quot;: 128,
-   &quot;seq_len&quot;: 128,
-   &quot;batch&quot;: 4,
-   &quot;dtype&quot;: &quot;float16&quot;
-  },
-  &quot;conditions_worst&quot;: {
    &quot;head_dim&quot;: 32,
    &quot;seq_len&quot;: 512,
    &quot;batch&quot;: 1,
    &quot;dtype&quot;: &quot;float16&quot;
+  },
+  &quot;conditions_worst&quot;: {
+   &quot;head_dim&quot;: 128,
+   &quot;seq_len&quot;: 128,
+   &quot;batch&quot;: 1,
+   &quot;dtype&quot;: &quot;float16&quot;
   }
  },
- &quot;headline_rendered&quot;: &quot;A faithful from-scratch implementation of the FlashAttention algorithm (flash_torch (portable)), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median -230.9% across the swept envelope; best -46.9% at head_dim=128, seq_len=128, batch=4, dtype=float16; worst -1470.8% at head_dim=32, seq_len=512, batch=1, dtype=float16.&quot;,
+ &quot;headline_rendered&quot;: &quot;A faithful from-scratch implementation of the FlashAttention algorithm (triton_flash_fwd), validated for numerical correctness against an fp64 ground truth before any timing, then swept across (head_dim, seq_len, batch, dtype) on NVIDIA T1000 8GB (sm_75, 9 GB). Median +0.9% across the swept envelope; best +34.6% at head_dim=32, seq_len=512, batch=1, dtype=float16; worst -32.4% at head_dim=128, seq_len=128, batch=1, dtype=float16.&quot;,
  &quot;loss_column&quot;: {
   &quot;metric&quot;: &quot;attention_throughput&quot;,
   &quot;unit&quot;: &quot;TFLOP/s&quot;,
@@ -216,19 +173,19 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
   &quot;mde_pct&quot;: 10.0,
   &quot;q_level&quot;: 0.05,
   &quot;counts&quot;: {
-   &quot;loss&quot;: 36,
-   &quot;win&quot;: 0,
-   &quot;tie&quot;: 0,
+   &quot;loss&quot;: 1,
+   &quot;win&quot;: 6,
+   &quot;tie&quot;: 11,
    &quot;inconclusive&quot;: 0,
    &quot;missing&quot;: 0
   },
-  &quot;n_cells&quot;: 36,
-  &quot;loss_fraction&quot;: 1.0,
-  &quot;weighted_loss_fraction&quot;: 1.0,
+  &quot;n_cells&quot;: 18,
+  &quot;loss_fraction&quot;: 0.05555555555555555,
+  &quot;weighted_loss_fraction&quot;: 0.05555555555555555,
   &quot;inconclusive_fraction&quot;: 0.0,
-  &quot;win_fraction&quot;: 0.0,
+  &quot;win_fraction&quot;: 0.3333333333333333,
   &quot;n_unrunnable&quot;: 0,
-  &quot;envelope_digest&quot;: &quot;sha256:69b844a062f882058e0dc813fb969dfc40f1a6406caa46433f94a9fa1adef20d&quot;,
+  &quot;envelope_digest&quot;: &quot;sha256:9b1e692e68be65852bf1d710e9c50210b0b0a1de4a346bd6519ca46d737e062a&quot;,
   &quot;factor_levels&quot;: {
    &quot;head_dim&quot;: [
     32,
@@ -245,18 +202,17 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     4
    ],
    &quot;dtype&quot;: [
-    &quot;float16&quot;,
-    &quot;bfloat16&quot;
+    &quot;float16&quot;
    ]
   },
   &quot;design_check&quot;: {
    &quot;replicates&quot;: 11,
-   &quot;n_tests&quot;: 36,
+   &quot;n_tests&quot;: 18,
    &quot;q&quot;: 0.05,
    &quot;p_floor&quot;: 0.00048828125,
-   &quot;bh_threshold_for_rank_1&quot;: 0.001388888888888889,
+   &quot;bh_threshold_for_rank_1&quot;: 0.002777777777777778,
    &quot;can_reject&quot;: true,
-   &quot;min_replicates&quot;: 10,
+   &quot;min_replicates&quot;: 9,
    &quot;message&quot;: &quot;&quot;
   },
   &quot;notes&quot;: [],
@@ -264,54 +220,48 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
    {
     &quot;bounds&quot;: {
      &quot;head_dim&quot;: [
-      32,
-      64,
       128
      ],
      &quot;seq_len&quot;: [
-      128,
-      512,
-      2048
+      128
      ],
      &quot;batch&quot;: [
-      1,
-      4
+      1
      ],
      &quot;dtype&quot;: [
-      &quot;float16&quot;,
-      &quot;bfloat16&quot;
+      &quot;float16&quot;
      ]
     },
-    &quot;n_cells&quot;: 36,
-    &quot;n_loss&quot;: 36,
+    &quot;n_cells&quot;: 1,
+    &quot;n_loss&quot;: 1,
     &quot;n_inconclusive&quot;: 0,
-    &quot;frac_of_envelope&quot;: 1.0,
-    &quot;weighted_frac&quot;: 1.0000000000000002,
-    &quot;median_regression_pct&quot;: 230.91088833470621,
-    &quot;worst_regression_pct&quot;: 1470.8491290164004,
+    &quot;frac_of_envelope&quot;: 0.05555555555555555,
+    &quot;weighted_frac&quot;: 0.05555555555555555,
+    &quot;median_regression_pct&quot;: 32.35682500496966,
+    &quot;worst_regression_pct&quot;: 32.35682500496966,
     &quot;worst_cell&quot;: {
-     &quot;head_dim&quot;: 32,
-     &quot;seq_len&quot;: 512,
+     &quot;head_dim&quot;: 128,
+     &quot;seq_len&quot;: 128,
      &quot;batch&quot;: 1,
      &quot;dtype&quot;: &quot;float16&quot;
     },
-    &quot;max_q&quot;: 0.00048828125,
-    &quot;min_effect_pct&quot;: 46.936897565176935,
+    &quot;max_q&quot;: 0.00146484375,
+    &quot;min_effect_pct&quot;: 32.35682500496966,
     &quot;contains_missing&quot;: 0,
     &quot;missing_reasons&quot;: [],
-    &quot;attribution&quot;: &quot;the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate&quot;,
-    &quot;label&quot;: &quot;head_dim=[32, 64, 128], seq_len=[128, 512, 2048], batch=[1, 4], dtype=[&#x27;float16&#x27;, &#x27;bfloat16&#x27;]&quot;,
+    &quot;attribution&quot;: &quot;launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it&quot;,
+    &quot;label&quot;: &quot;head_dim=[128], seq_len=[128], batch=[1], dtype=[&#x27;float16&#x27;]&quot;,
     &quot;purity&quot;: 1.0
    }
   ],
-  &quot;summary&quot;: &quot;reimplementation loses to reference on 100% of the swept envelope (36/36 cells), across 1 region(s); worst measurable case +1470.8% on attention_throughput.&quot;
+  &quot;summary&quot;: &quot;reimplementation loses to reference on 6% of the swept envelope (1/18 cells), across 1 region(s); worst measurable case +32.4% on attention_throughput.&quot;
  },
  &quot;loss_column_placement&quot;: &quot;main&quot;,
  &quot;reproduction&quot;: {
   &quot;command&quot;: &quot;losscolumn run thrust3&quot;,
   &quot;repo&quot;: &quot;local checkout&quot;,
-  &quot;commit&quot;: &quot;87e209643ccb4cda209ac714c3eed4f6d84bf714&quot;,
-  &quot;dirty&quot;: false,
+  &quot;commit&quot;: &quot;42abc7aae0149cfac6c070afa1b1bf8d5e926ae2&quot;,
+  &quot;dirty&quot;: true,
   &quot;container_image&quot;: &quot;ghcr.io/archanachetan07/losscolumn:0.1.0&quot;,
   &quot;hardware&quot;: &quot;NVIDIA T1000 8GB (sm_75, 9 GB)&quot;,
   &quot;estimated_runtime_min&quot;: 220,
@@ -320,19 +270,20 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
   &quot;notes&quot;: &quot;&quot;
  },
  &quot;attributions&quot;: {
-  &quot;32 &lt;= head_dim &lt;= 128 and 128 &lt;= seq_len &lt;= 2048 and 1 &lt;= batch &lt;= 4 and dtype in {float16, bfloat16}&quot;: &quot;the implementation dispatches ~1456 eager kernels per call (128x64 tiling) where the reference launches one fused kernel; dispatch and intermediate write-back dominate&quot;
+  &quot;head_dim=128 and seq_len=128 and batch=1 and dtype=float16&quot;: &quot;launch-bound region: at these shapes the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it&quot;
  },
  &quot;limitations&quot;: [
   &quot;FlashAttention-3&#x27;s headline mechanisms -- warp specialisation, TMA-driven asynchronous copy, ping-pong scheduling of softmax against the next GEMM -- are Hopper features that Triton&#x27;s programming model does not expose. This is a reimplementation of the algorithm, not of the implementation, and the loss map is the measurement of what that distinction costs.&quot;,
+  &quot;Measured on NVIDIA T1000 8GB (sm_75), which is two architecture generations behind the FA-3 target. The gap here is a lower bound on what the missing Hopper mechanisms are worth, not a measurement of them: they do not exist on this hardware for either arm to use.&quot;,
   &quot;Forward pass only. The backward pass has a different arithmetic intensity and a different loss map, and is out of scope here.&quot;,
   &quot;SM clocks are recorded but not controlled. A run taken while the card is throttling is not comparable to one taken cold, and the difference routinely exceeds published effect sizes.&quot;
  ],
  &quot;supporting&quot;: {
   &quot;correctness&quot;: {
-   &quot;implementation&quot;: &quot;flash_torch (portable)&quot;,
+   &quot;implementation&quot;: &quot;triton_flash_fwd&quot;,
    &quot;device&quot;: &quot;NVIDIA T1000 8GB (sm_75, 9 GB)&quot;,
-   &quot;n_shapes&quot;: 36,
-   &quot;n_passed&quot;: 36,
+   &quot;n_shapes&quot;: 18,
+   &quot;n_passed&quot;: 18,
    &quot;all_passed&quot;: true,
    &quot;results&quot;: [
     {
@@ -350,8 +301,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00024458251668532026,
-       &quot;mean_rel_err&quot;: 1.974807770636889e-05,
+       &quot;max_rel_err&quot;: 0.0003002847639263723,
+       &quot;mean_rel_err&quot;: 2.833653573641677e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -374,43 +325,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs128xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0019260942752709943,
-       &quot;mean_rel_err&quot;: 0.00015797188674311673,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 128, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 128, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0001224782422685081
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 128,
@@ -425,7 +339,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00021773933795468612,
-       &quot;mean_rel_err&quot;: 1.3941643224207967e-05,
+       &quot;mean_rel_err&quot;: 2.001393671644098e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -448,43 +362,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs128xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0013774281225560632,
-       &quot;mean_rel_err&quot;: 0.00011167898874676157,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 128, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 128, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0006912337461381008
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 1,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 512,
@@ -499,7 +376,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00035598093381776003,
-       &quot;mean_rel_err&quot;: 1.5455334478670686e-05,
+       &quot;mean_rel_err&quot;: 2.3052380563231944e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -522,43 +399,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs512xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0024682684259995633,
-       &quot;mean_rel_err&quot;: 0.00012405785892642893,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 512, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 512, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000730802365847487
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 512,
@@ -572,8 +412,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00017100837209851235,
-       &quot;mean_rel_err&quot;: 1.1592504442629625e-05,
+       &quot;max_rel_err&quot;: 0.0002151946841486429,
+       &quot;mean_rel_err&quot;: 1.745717647750846e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -596,43 +436,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs512xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002211045617937832,
-       &quot;mean_rel_err&quot;: 9.239317386975308e-05,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 512, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 512, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0011086405371879843
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 1,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 2048,
@@ -647,7 +450,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00029714254131489647,
-       &quot;mean_rel_err&quot;: 1.3315956274495969e-05,
+       &quot;mean_rel_err&quot;: 2.069608272059235e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -670,43 +473,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs2048xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002507661863252655,
-       &quot;mean_rel_err&quot;: 0.00010648544565886961,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 2048, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 2048, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0012824237774544023
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 2048,
@@ -721,7 +487,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00018765288516770745,
-       &quot;mean_rel_err&quot;: 1.1214519698189813e-05,
+       &quot;mean_rel_err&quot;: 1.71744733868414e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -744,43 +510,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 32,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs2048xd32/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0020443737701197466,
-       &quot;mean_rel_err&quot;: 8.996640153137088e-05,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 2048, 32)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 2048, 32)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002118685005641025
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 1,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 128,
@@ -794,8 +523,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027230963757735244,
-       &quot;mean_rel_err&quot;: 2.223962295901452e-05,
+       &quot;max_rel_err&quot;: 0.0002973952928147698,
+       &quot;mean_rel_err&quot;: 3.200928602046445e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -811,44 +540,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       },
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0005449652224268063
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs128xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002173406806577973,
-       &quot;mean_rel_err&quot;: 0.0001771335031714944,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 128, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 128, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00013621068860027494
+       &quot;max_rel_err&quot;: 0.00027248261121340313
       }
      },
      &quot;error&quot;: null
@@ -868,8 +560,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0002215258095561065,
-       &quot;mean_rel_err&quot;: 1.5589404682683623e-05,
+       &quot;max_rel_err&quot;: 0.00027623799654751647,
+       &quot;mean_rel_err&quot;: 2.2553631599055448e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -885,44 +577,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       },
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0003863581237699705
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs128xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0028314531177189932,
-       &quot;mean_rel_err&quot;: 0.00012458451044664265,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 128, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 128, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0007723385480991802
+       &quot;max_rel_err&quot;: 0.00019317906188498526
       }
      },
      &quot;error&quot;: null
@@ -942,8 +597,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000255013891694777,
-       &quot;mean_rel_err&quot;: 1.8942303191052884e-05,
+       &quot;max_rel_err&quot;: 0.00028057190923850265,
+       &quot;mean_rel_err&quot;: 2.8384766659493073e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -959,44 +614,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       },
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0004578373399708175
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs512xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0033250534706629714,
-       &quot;mean_rel_err&quot;: 0.0001518917687551894,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 512, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 512, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.000916061531736523
+       &quot;max_rel_err&quot;: 0.00022891866998540875
       }
      },
      &quot;error&quot;: null
@@ -1017,7 +635,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.0003025442048353076,
-       &quot;mean_rel_err&quot;: 1.6165722845524856e-05,
+       &quot;mean_rel_err&quot;: 2.4057645728097552e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1033,44 +651,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       },
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0003842034803209703
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs512xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0029059077690948808,
-       &quot;mean_rel_err&quot;: 0.0001295769468326519,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 512, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 512, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.003077450901947238
+       &quot;max_rel_err&quot;: 0.00019210174016048514
       }
      },
      &quot;error&quot;: null
@@ -1090,8 +671,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00026524266179795417,
-       &quot;mean_rel_err&quot;: 2.262865713822901e-05,
+       &quot;max_rel_err&quot;: 0.000387209368642059,
+       &quot;mean_rel_err&quot;: 3.466893761706024e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1114,43 +695,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs2048xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0021230963715339044,
-       &quot;mean_rel_err&quot;: 0.00018130306412645307,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 2048, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 2048, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002124594319584249
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 2048,
@@ -1164,8 +708,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0003549947196425103,
-       &quot;mean_rel_err&quot;: 1.4806001086812188e-05,
+       &quot;max_rel_err&quot;: 0.0003549696800450526,
+       &quot;mean_rel_err&quot;: 2.295090356517428e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1181,44 +725,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       },
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0007099643996875629
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 64,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs2048xd64/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0018847638243069678,
-       &quot;mean_rel_err&quot;: 0.00011795045896476472,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 2048, 64)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 2048, 64)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0014145702877898054
+       &quot;max_rel_err&quot;: 0.00035498219984378144
       }
      },
      &quot;error&quot;: null
@@ -1238,8 +745,8 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;checks&quot;: {
       &quot;output&quot;: {
        &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.00027238555965237104,
-       &quot;mean_rel_err&quot;: 2.2484876675472597e-05,
+       &quot;max_rel_err&quot;: 0.0003445436130898672,
+       &quot;mean_rel_err&quot;: 3.197548493273165e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1262,43 +769,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs128xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0021586760056579325,
-       &quot;mean_rel_err&quot;: 0.00018042588504111213,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 128, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 128, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0021873095306689473
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 128,
@@ -1313,7 +783,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00036015942950374055,
-       &quot;mean_rel_err&quot;: 1.5193846427275487e-05,
+       &quot;mean_rel_err&quot;: 2.170850321871938e-05,
        &quot;tolerance&quot;: 0.0019585197966093945,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1336,43 +806,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 128,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs128xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0024952337399781997,
-       &quot;mean_rel_err&quot;: 0.00012147098742036123,
-       &quot;tolerance&quot;: 0.015630394796609395,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 128, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 128, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0014918083835416343
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 1,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 512,
@@ -1387,7 +820,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00030766906491100127,
-       &quot;mean_rel_err&quot;: 1.2852744019828023e-05,
+       &quot;mean_rel_err&quot;: 1.9304292776817025e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1410,43 +843,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs512xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.002419049391733303,
-       &quot;mean_rel_err&quot;: 0.00010309887088965317,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 512, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 512, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0012572853800659279
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 512,
@@ -1461,7 +857,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.0002709450624360656,
-       &quot;mean_rel_err&quot;: 1.2800974744410854e-05,
+       &quot;mean_rel_err&quot;: 1.90399746480122e-05,
        &quot;tolerance&quot;: 0.001963914593218789,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1484,43 +880,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 512,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs512xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0017812845764785807,
-       &quot;mean_rel_err&quot;: 0.00010175627692284242,
-       &quot;tolerance&quot;: 0.015635789593218787,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 512, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 512, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0012212799145833216
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 1,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 2048,
@@ -1535,7 +894,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00026693128279255037,
-       &quot;mean_rel_err&quot;: 1.1396637531492256e-05,
+       &quot;mean_rel_err&quot;: 1.7494302492152707e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1558,43 +917,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
     },
     {
      &quot;shape&quot;: {
-      &quot;batch&quot;: 1,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b1xh8xs2048xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0018046484786643805,
-       &quot;mean_rel_err&quot;: 9.10970233277154e-05,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(1, 8, 2048, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(1, 8, 2048, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0010809397873758272
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
       &quot;batch&quot;: 4,
       &quot;heads&quot;: 8,
       &quot;seq_len&quot;: 2048,
@@ -1609,7 +931,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;output&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.0003135031855015046,
-       &quot;mean_rel_err&quot;: 1.72315598246978e-05,
+       &quot;mean_rel_err&quot;: 2.662853018758697e-05,
        &quot;tolerance&quot;: 0.001974704186437578,
        &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
        &quot;finite&quot;: true
@@ -1626,43 +948,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
       &quot;agrees_with_sdpa&quot;: {
        &quot;passed&quot;: true,
        &quot;max_rel_err&quot;: 0.00041335268726673617
-      }
-     },
-     &quot;error&quot;: null
-    },
-    {
-     &quot;shape&quot;: {
-      &quot;batch&quot;: 4,
-      &quot;heads&quot;: 8,
-      &quot;seq_len&quot;: 2048,
-      &quot;head_dim&quot;: 128,
-      &quot;dtype&quot;: &quot;bfloat16&quot;,
-      &quot;causal&quot;: false,
-      &quot;seq_k&quot;: null
-     },
-     &quot;label&quot;: &quot;b4xh8xs2048xd128/bfloat16&quot;,
-     &quot;passed&quot;: true,
-     &quot;checks&quot;: {
-      &quot;output&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0016571559973711405,
-       &quot;mean_rel_err&quot;: 0.00013813487879009545,
-       &quot;tolerance&quot;: 0.015646579186437578,
-       &quot;derivation&quot;: &quot;4u_storage + 8*sqrt(seq)*u_accumulator&quot;,
-       &quot;finite&quot;: true
-      },
-      &quot;dtype&quot;: {
-       &quot;passed&quot;: true,
-       &quot;got&quot;: &quot;torch.bfloat16(4, 8, 2048, 128)&quot;,
-       &quot;expected&quot;: &quot;torch.bfloat16(4, 8, 2048, 128)&quot;
-      },
-      &quot;determinism&quot;: {
-       &quot;passed&quot;: true,
-       &quot;note&quot;: &quot;bitwise identical across two invocations&quot;
-      },
-      &quot;agrees_with_sdpa&quot;: {
-       &quot;passed&quot;: true,
-       &quot;max_rel_err&quot;: 0.0033143817498567257
       }
      },
      &quot;error&quot;: null
@@ -1684,17 +969,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 262144,
      &quot;arithmetic_intensity&quot;: 64.0
     },
-    &quot;head_dim=32, seq_len=128, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 16777216.0,
-     &quot;bytes&quot;: 262144,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
     &quot;head_dim=32, seq_len=128, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 67108864.0,
-     &quot;bytes&quot;: 1048576,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
-    &quot;head_dim=32, seq_len=128, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 67108864.0,
      &quot;bytes&quot;: 1048576,
      &quot;arithmetic_intensity&quot;: 64.0
@@ -1704,17 +979,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 1048576,
      &quot;arithmetic_intensity&quot;: 256.0
     },
-    &quot;head_dim=32, seq_len=512, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 268435456.0,
-     &quot;bytes&quot;: 1048576,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
     &quot;head_dim=32, seq_len=512, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 1073741824.0,
-     &quot;bytes&quot;: 4194304,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
-    &quot;head_dim=32, seq_len=512, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 1073741824.0,
      &quot;bytes&quot;: 4194304,
      &quot;arithmetic_intensity&quot;: 256.0
@@ -1724,17 +989,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 4194304,
      &quot;arithmetic_intensity&quot;: 1024.0
     },
-    &quot;head_dim=32, seq_len=2048, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 4294967296.0,
-     &quot;bytes&quot;: 4194304,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
     &quot;head_dim=32, seq_len=2048, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 17179869184.0,
-     &quot;bytes&quot;: 16777216,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
-    &quot;head_dim=32, seq_len=2048, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 17179869184.0,
      &quot;bytes&quot;: 16777216,
      &quot;arithmetic_intensity&quot;: 1024.0
@@ -1744,17 +999,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 524288,
      &quot;arithmetic_intensity&quot;: 64.0
     },
-    &quot;head_dim=64, seq_len=128, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 33554432.0,
-     &quot;bytes&quot;: 524288,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
     &quot;head_dim=64, seq_len=128, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 134217728.0,
-     &quot;bytes&quot;: 2097152,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
-    &quot;head_dim=64, seq_len=128, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 134217728.0,
      &quot;bytes&quot;: 2097152,
      &quot;arithmetic_intensity&quot;: 64.0
@@ -1764,17 +1009,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 2097152,
      &quot;arithmetic_intensity&quot;: 256.0
     },
-    &quot;head_dim=64, seq_len=512, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 536870912.0,
-     &quot;bytes&quot;: 2097152,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
     &quot;head_dim=64, seq_len=512, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 2147483648.0,
-     &quot;bytes&quot;: 8388608,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
-    &quot;head_dim=64, seq_len=512, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 2147483648.0,
      &quot;bytes&quot;: 8388608,
      &quot;arithmetic_intensity&quot;: 256.0
@@ -1784,17 +1019,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 8388608,
      &quot;arithmetic_intensity&quot;: 1024.0
     },
-    &quot;head_dim=64, seq_len=2048, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 8589934592.0,
-     &quot;bytes&quot;: 8388608,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
     &quot;head_dim=64, seq_len=2048, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 34359738368.0,
-     &quot;bytes&quot;: 33554432,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
-    &quot;head_dim=64, seq_len=2048, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 34359738368.0,
      &quot;bytes&quot;: 33554432,
      &quot;arithmetic_intensity&quot;: 1024.0
@@ -1804,17 +1029,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 1048576,
      &quot;arithmetic_intensity&quot;: 64.0
     },
-    &quot;head_dim=128, seq_len=128, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 67108864.0,
-     &quot;bytes&quot;: 1048576,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
     &quot;head_dim=128, seq_len=128, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 268435456.0,
-     &quot;bytes&quot;: 4194304,
-     &quot;arithmetic_intensity&quot;: 64.0
-    },
-    &quot;head_dim=128, seq_len=128, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 268435456.0,
      &quot;bytes&quot;: 4194304,
      &quot;arithmetic_intensity&quot;: 64.0
@@ -1824,17 +1039,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 4194304,
      &quot;arithmetic_intensity&quot;: 256.0
     },
-    &quot;head_dim=128, seq_len=512, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 1073741824.0,
-     &quot;bytes&quot;: 4194304,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
     &quot;head_dim=128, seq_len=512, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 4294967296.0,
-     &quot;bytes&quot;: 16777216,
-     &quot;arithmetic_intensity&quot;: 256.0
-    },
-    &quot;head_dim=128, seq_len=512, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 4294967296.0,
      &quot;bytes&quot;: 16777216,
      &quot;arithmetic_intensity&quot;: 256.0
@@ -1844,27 +1049,27 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
      &quot;bytes&quot;: 16777216,
      &quot;arithmetic_intensity&quot;: 1024.0
     },
-    &quot;head_dim=128, seq_len=2048, batch=1, dtype=bfloat16&quot;: {
-     &quot;flops&quot;: 17179869184.0,
-     &quot;bytes&quot;: 16777216,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
     &quot;head_dim=128, seq_len=2048, batch=4, dtype=float16&quot;: {
-     &quot;flops&quot;: 68719476736.0,
-     &quot;bytes&quot;: 67108864,
-     &quot;arithmetic_intensity&quot;: 1024.0
-    },
-    &quot;head_dim=128, seq_len=2048, batch=4, dtype=bfloat16&quot;: {
      &quot;flops&quot;: 68719476736.0,
      &quot;bytes&quot;: 67108864,
      &quot;arithmetic_intensity&quot;: 1024.0
     }
    }
   },
+  &quot;device_limits&quot;: {
+   &quot;available&quot;: true,
+   &quot;name&quot;: &quot;NVIDIA T1000 8GB&quot;,
+   &quot;capability&quot;: &quot;sm_75&quot;,
+   &quot;supported_dtypes&quot;: [
+    &quot;float16&quot;
+   ],
+   &quot;bf16_tensor_cores&quot;: false,
+   &quot;shared_memory_per_block_kb&quot;: null
+  },
   &quot;noise&quot;: {
-   &quot;median_cv&quot;: 0.04399462193411979,
-   &quot;p95_cv&quot;: 0.12466063027956806,
-   &quot;n&quot;: 36
+   &quot;median_cv&quot;: 0.00013605542888585822,
+   &quot;p95_cv&quot;: 0.0012930166043613673,
+   &quot;n&quot;: 18
   }
  },
  &quot;envelope_ref&quot;: null,
@@ -1955,34 +1160,88 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
   &quot;sealed_at&quot;: &quot;2026-08-28T22:48:06Z&quot;,
   &quot;seal_hash&quot;: &quot;sha256:4e8e472017ff9e1645aa00f034abe3633e86cce891cfd50ae777ef78ee1eab4c&quot;,
   &quot;anchor&quot;: &quot;git:a0bdfe6&quot;,
-  &quot;deviations&quot;: [],
+  &quot;deviations&quot;: [
+   {
+    &quot;field&quot;: &quot;factors&quot;,
+    &quot;registered&quot;: [
+     {
+      &quot;name&quot;: &quot;head_dim&quot;,
+      &quot;levels&quot;: [
+       32,
+       64,
+       128
+      ]
+     },
+     {
+      &quot;name&quot;: &quot;seq_len&quot;,
+      &quot;levels&quot;: [
+       128,
+       512,
+       2048
+      ],
+      &quot;unit&quot;: &quot;tokens&quot;
+     },
+     {
+      &quot;name&quot;: &quot;batch&quot;,
+      &quot;levels&quot;: [
+       1,
+       4
+      ]
+     },
+     {
+      &quot;name&quot;: &quot;dtype&quot;,
+      &quot;levels&quot;: [
+       &quot;float16&quot;,
+       &quot;bfloat16&quot;
+      ]
+     }
+    ],
+    &quot;actual&quot;: {
+     &quot;dtype&quot;: [
+      &quot;float16&quot;
+     ]
+    },
+    &quot;reason&quot;: &quot;sm_75 has no bf16 tensor cores; bfloat16 cannot be measured here and would report an emulated path rather than the algorithm&quot;,
+    &quot;declared_at&quot;: &quot;2026-08-29T02:48:26Z&quot;
+   }
+  ],
   &quot;kind&quot;: &quot;preregistration&quot;,
   &quot;normative_hash&quot;: &quot;sha256:4e8e472017ff9e1645aa00f034abe3633e86cce891cfd50ae777ef78ee1eab4c&quot;
  },
  &quot;prereg_verification&quot;: {
   &quot;ok&quot;: true,
-  &quot;findings&quot;: []
+  &quot;findings&quot;: [
+   {
+    &quot;code&quot;: &quot;PRE-009&quot;,
+    &quot;severity&quot;: &quot;warning&quot;,
+    &quot;message&quot;: &quot;registered levels of `dtype` were not analysed: [&#x27;bfloat16&#x27;]. Dropping levels after seeing data is the selection this protocol exists to prevent.&quot;,
+    &quot;detail&quot;: {}
+   }
+  ]
  },
  &quot;parity&quot;: null,
  &quot;provenance&quot;: {
-  &quot;captured_at&quot;: &quot;2026-08-29T02:06:14Z&quot;,
+  &quot;captured_at&quot;: &quot;2026-08-29T02:48:26Z&quot;,
   &quot;host&quot;: &quot;Archana-PC&quot;,
   &quot;platform&quot;: &quot;Windows-10-10.0.26200-SP0&quot;,
   &quot;python&quot;: &quot;3.11.5&quot;,
   &quot;cpu_count&quot;: 24,
   &quot;git&quot;: {
-   &quot;commit&quot;: &quot;87e209643ccb4cda209ac714c3eed4f6d84bf714&quot;,
-   &quot;dirty&quot;: false,
+   &quot;commit&quot;: &quot;42abc7aae0149cfac6c070afa1b1bf8d5e926ae2&quot;,
+   &quot;dirty&quot;: true,
    &quot;dirty_scope&quot;: [
     &quot;src&quot;,
     &quot;pyproject.toml&quot;,
     &quot;tests&quot;,
     &quot;configs&quot;
    ],
-   &quot;dirty_files&quot;: [],
+   &quot;dirty_files&quot;: [
+    &quot;M src/losscolumn/runners.py&quot;,
+    &quot; M src/losscolumn/thrusts/kernel/triton_fa.py&quot;
+   ],
    &quot;branch&quot;: &quot;master&quot;,
    &quot;remote&quot;: null,
-   &quot;describe&quot;: &quot;87e2096&quot;
+   &quot;describe&quot;: &quot;42abc7a-dirty&quot;
   },
   &quot;gpu&quot;: {
    &quot;available&quot;: true,
@@ -2001,7 +1260,7 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
   },
   &quot;packages&quot;: {
    &quot;torch&quot;: &quot;2.6.0+cu124&quot;,
-   &quot;triton&quot;: null,
+   &quot;triton&quot;: &quot;3.2.0&quot;,
    &quot;numpy&quot;: &quot;1.26.4&quot;,
    &quot;vllm&quot;: null,
    &quot;sglang&quot;: null,
@@ -2020,6 +1279,6 @@ q=0.000488  n=11/11</title><rect x="520" y="74" width="53" height="53" fill="#c5
   &quot;hardware_fingerprint&quot;: &quot;cc72e8eab7a5d10b&quot;,
   &quot;hardware&quot;: &quot;1x NVIDIA T1000 8GB&quot;
  },
- &quot;digest&quot;: &quot;sha256:d91ae9a7f1fe8ec10101404e3ece6204b284c7756343a38332c10e334380e105&quot;
+ &quot;digest&quot;: &quot;sha256:04039ebf618e3eb65dc271d75f7eee1a6056717c10337d83858816a67aa44b46&quot;
 }</pre></details>
 <footer>Generated by <code>losscolumn</code> against standard LC-1.0. Every number on this page is reproducible from the command above; if it is not, that is a bug and a conformance failure.</footer></div>

@@ -401,9 +401,36 @@ def _crossover_html(res: Any) -> str:
 
 def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> dict[str, Path]:
     from losscolumn.thrusts.kernel.sweep import run_kernel_sweep
+    from losscolumn.thrusts.kernel.triton_fa import device_limits, supported_dtypes
 
     pre = _prereg("III", prereg_dir)
     grid: dict[str, Any] = _analysis_params(pre)
+
+    # The protocol registers both float16 and bfloat16. bf16 tensor cores
+    # arrive with Ampere, so on an older device the registered grid cannot be
+    # run in full. Narrowing it silently is precisely the selection LC-4
+    # exists to prevent, so the restriction is declared against the seal and
+    # travels with the artifact.
+    limits = device_limits()
+    usable = supported_dtypes()
+    registered = tuple(
+        str(x)
+        for f in (pre.factors if pre else [])
+        if f.get("name") == "dtype"
+        for x in f.get("levels", [])
+    )
+    if usable and registered and not set(registered) <= set(usable):
+        dropped = sorted(set(registered) - set(usable))
+        grid["dtypes"] = tuple(d for d in registered if d in usable)
+        if pre is not None:
+            pre.declare_deviation(
+                "factors",
+                {"dtype": list(grid["dtypes"])},
+                f"{limits.get('capability', 'this device')} has no bf16 tensor cores; "
+                f"{', '.join(dropped)} cannot be measured here and would report an "
+                "emulated path rather than the algorithm",
+            )
+
     if quick:
         grid.update(head_dims=(32, 64), seq_lens=(128, 512), batches=(1,),
                     dtypes=("float16",), iters=8)
@@ -462,6 +489,7 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
             "correctness": res.correctness.to_dict(),
             "clocks": res.clocks,
             "roofline": res.roofline,
+            "device_limits": limits,
         },
         limitations=[
             "FlashAttention-3's headline mechanisms -- warp specialisation, TMA-driven "
@@ -469,6 +497,11 @@ def run_thrust_three(*, outdir: Path, prereg_dir: Path, quick: bool = False) -> 
             "are Hopper features that Triton's programming model does not expose. This is "
             "a reimplementation of the algorithm, not of the implementation, and the loss "
             "map is the measurement of what that distinction costs.",
+            f"Measured on {limits.get('name', 'this device')} "
+            f"({limits.get('capability', '?')}), which is two architecture generations "
+            "behind the FA-3 target. The gap here is a lower bound on what the missing "
+            "Hopper mechanisms are worth, not a measurement of them: they do not exist "
+            "on this hardware for either arm to use.",
             "Forward pass only. The backward pass has a different arithmetic intensity and "
             "a different loss map, and is out of scope here.",
             "SM clocks are recorded but not controlled. A run taken while the card is "

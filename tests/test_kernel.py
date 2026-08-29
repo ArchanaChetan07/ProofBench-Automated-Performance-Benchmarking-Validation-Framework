@@ -229,3 +229,118 @@ class TestSweepIntegration:
         for cell, reason in res.envelope.missing.get(METHOD, {}).items():
             assert res.envelope.replicates_at(METHOD, cell).size == 0
             assert reason
+
+
+# --------------------------------------------------------------------------
+# The Triton kernel. Skipped wherever Triton or the hardware is unavailable,
+# which is most CI; run wherever it is not, because a kernel nobody executes
+# is a kernel nobody has checked.
+# --------------------------------------------------------------------------
+
+from losscolumn.thrusts.kernel.triton_fa import (  # noqa: E402
+    device_limits,
+    supported_dtypes,
+    triton_available,
+)
+
+_TRITON_OK, _TRITON_WHY = triton_available()
+triton_only = pytest.mark.skipif(not _TRITON_OK, reason=f"triton unavailable: {_TRITON_WHY}")
+
+
+@triton_only
+@pytest.mark.triton
+class TestTritonKernel:
+    def _run(self, spec: ShapeSpec):
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        q, k, v = make_inputs(spec, device="cuda", seed=0)
+        out = flash_attention_triton(q, k, v, causal=spec.causal)
+        ref = math_reference(q, k, v, causal=spec.causal)
+        tol = error_budget(spec.torch_dtype, spec.seq_len, spec.head_dim)["rel_tol"]
+        err = ((out.to(torch.float64) - ref).abs().amax() / ref.abs().amax()).item()
+        return out, err, tol
+
+    @pytest.mark.parametrize("causal", [False, True])
+    @pytest.mark.parametrize("head_dim", [32, 64, 128])
+    @pytest.mark.parametrize("seq_len", [128, 512])
+    def test_matches_ground_truth(self, causal, head_dim, seq_len):
+        dtype = supported_dtypes()[0]
+        spec = ShapeSpec(batch=2, heads=4, seq_len=seq_len, head_dim=head_dim,
+                         dtype=dtype, causal=causal)
+        out, err, tol = self._run(spec)
+        assert torch.isfinite(out).all(), "kernel produced non-finite values"
+        assert err <= tol, f"max rel err {err:.3e} exceeds derived tolerance {tol:.3e}"
+
+    def test_ragged_sequence_length(self):
+        """A sequence length that is not a multiple of any block size."""
+        spec = ShapeSpec(batch=1, heads=2, seq_len=100, head_dim=64,
+                         dtype=supported_dtypes()[0])
+        out, err, tol = self._run(spec)
+        assert err <= tol
+
+    def test_causal_masks_the_future(self):
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        spec = ShapeSpec(batch=1, heads=1, seq_len=128, head_dim=64,
+                         dtype=supported_dtypes()[0], causal=True)
+        q, k, v = make_inputs(spec, device="cuda", seed=1)
+        a = flash_attention_triton(q, k, v, causal=True)
+        v2 = v.clone()
+        v2[:, :, 64:, :] += 10.0
+        b = flash_attention_triton(q, k, v2, causal=True)
+        assert torch.allclose(a[:, :, :64, :], b[:, :, :64, :]), "past attended to the future"
+        assert not torch.allclose(a[:, :, 64:, :], b[:, :, 64:, :])
+
+    def test_lse_is_returned_and_correct(self):
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        spec = ShapeSpec(batch=1, heads=2, seq_len=128, head_dim=64,
+                         dtype=supported_dtypes()[0])
+        q, k, v = make_inputs(spec, device="cuda", seed=2)
+        out, lse = flash_attention_triton(q, k, v, return_lse=True)
+        scale = 1.0 / math.sqrt(spec.head_dim)
+        ref = torch.logsumexp(
+            (q.double() @ k.double().transpose(-1, -2)) * scale, dim=-1
+        )
+        assert (lse.double() - ref).abs().amax().item() < 5e-2
+
+    def test_is_deterministic(self):
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        spec = ShapeSpec(batch=1, heads=2, seq_len=256, head_dim=64,
+                         dtype=supported_dtypes()[0])
+        q, k, v = make_inputs(spec, device="cuda", seed=3)
+        a = flash_attention_triton(q, k, v)
+        b = flash_attention_triton(q, k, v)
+        assert torch.equal(a, b)
+
+    def test_passes_the_correctness_gate(self):
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        suite = run_suite(
+            flash_attention_triton,
+            default_shapes(head_dims=(64,), seq_lens=(128, 512), batches=(1,),
+                           dtypes=(supported_dtypes()[0],), causal=(False, True)),
+            name="triton_flash_fwd", device="cuda",
+        )
+        assert suite.all_passed, [r.failures() or r.error for r in suite.results]
+
+    def test_unsupported_head_dim_is_refused(self):
+        """A shape the kernel cannot serve must raise, not return garbage."""
+        from losscolumn.thrusts.kernel.triton_fa import flash_attention_triton
+
+        q = torch.randn(1, 1, 64, 48, device="cuda", dtype=torch.float16)
+        with pytest.raises(ValueError, match="head_dim"):
+            flash_attention_triton(q, q, q)
+
+
+class TestDeviceLimits:
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+    def test_bf16_only_claimed_on_ampere_and_later(self):
+        cap = torch.cuda.get_device_capability()
+        assert ("bfloat16" in supported_dtypes()) == (cap >= (8, 0))
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
+    def test_limits_are_reported(self):
+        lim = device_limits()
+        assert lim["available"] and lim["capability"].startswith("sm_")
