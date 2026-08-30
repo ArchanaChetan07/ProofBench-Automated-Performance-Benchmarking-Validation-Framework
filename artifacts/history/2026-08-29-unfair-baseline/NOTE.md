@@ -1,0 +1,38 @@
+# Withdrawn: Sparse attention, Triton implementation (run of 2026-08-29 11:09)
+
+**Reason** &mdash; unfair-comparison (the comparison was not apples to apples)  
+**Withdrawn** 2026-08-30T02:51:08Z  
+**Originally published at** `adc8b89`  
+**Superseded by** `lc-thrust3b-triton-attention @ 0d6d57b`
+
+> The files in this directory are preserved exactly as published, including the parts that were wrong. They are not corrected in place, because correcting them would destroy the evidence that the error happened and was caught. Nothing here is a live claim.
+
+## What was wrong
+
+This run reports **zero losing cells across all 80 applicable configurations** &mdash; a clean sweep for the Triton kernel. The sweep was correct, the statistics were correct, and the conclusion was an artifact of the comparator.
+
+Every cell, including the `dense` pattern, reached the reference through `sparse_reference`, which calls PyTorch's scaled dot-product attention with an explicit boolean `attn_mask`. An explicit mask precludes the fused flash backend. For a genuinely sparse pattern that is unavoidable and fair &mdash; it is the only way torch computes that function &mdash; but for dense attention it handed the baseline a slower path than torch would have chosen on its own.
+
+The protocol registered the opposite: *the reference is given its own best backend for each shape by torch's dispatcher, with no backend disabled and no manual restriction*. So the run also violated its own sealed baseline tuning policy.
+
+## How it was found
+
+By reading the loss column and disbelieving it. An empty loss column is the outcome requirement LC-1.8 exists to make suspicious, and the design check said the sweep was adequately powered &mdash; 11 replicates over 80 cells, `can_reject=True`. A powered design that finds nothing adverse anywhere in an 80-cell envelope is a claim about the comparator at least as much as about the method, so the next question was what the reference had actually been asked to do.
+
+## What changed
+
+Dense cells now go through `sdpa_reference`, which lets torch choose its own backend for the shape. Each cell records which reference it used, and the claim states plainly that the sparse reference is not a sparsity-optimised kernel, so the margin over it is not a margin over one.
+
+Re-run against the corrected reference, the same kernel shows **8 losing cells with a worst case 69x slower**, in one coherent region: dense attention at decode, where one query row is padded to a 64-wide block and 98% of every tile is wasted.
+
+## What it taught
+
+The empty loss column was not a finding about the kernel. It was a finding about the comparator &mdash; the untuned-baseline failure that requirement LC-2 exists to foreclose &mdash; appearing in the work of the person writing the standard against it. It is preserved because a standard whose author has never tripped over it is not credible, and because the sequence from *suspicious empty column* to *named mechanism* is the discipline working.
+
+## Preserved files
+
+| File | Digest at withdrawal |
+|---|---|
+| `thrust3b-triton-attention.claim.json` | `sha256:e8860fbfb8cec668...` |
+| `thrust3b-triton-attention.conformance.json` | `sha256:c652c47786d742e1...` |
+| `thrust3b-triton-attention.md` | `sha256:767823fc52afa9bc...` |

@@ -271,6 +271,35 @@ def cmd_index(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_history(args: argparse.Namespace) -> int:
+    """Show or verify the record of withdrawn artifacts and discarded runs."""
+    from losscolumn.history import load, load_incidents, summarise, verify
+
+    root = Path(args.outdir)
+    if args.action == "verify":
+        problems = verify(root)
+        if problems:
+            print("PRESERVED FILES HAVE CHANGED:", file=sys.stderr)
+            for p in problems:
+                print(f"  {p}", file=sys.stderr)
+            print("\nA withdrawn artifact must not be edited: its content is the "
+                  "evidence that the error happened.", file=sys.stderr)
+            return 1
+        s = summarise(root)
+        print(f"{s['n_withdrawn']} withdrawn, {s['n_incidents']} discarded run(s)")
+        print("all preserved files match their withdrawal digests")
+        return 0
+
+    for d, w in load(root):
+        print(f"[{w.reason}] {w.title}")
+        print(f"    preserved  {d}")
+        print(f"    superseded {w.superseded_by or '-'}")
+        print(f"    files      {len(w.preserved)}")
+    for i in load_incidents(root):
+        print(f"[incident] {i.title}  ({i.occurred_at})")
+    return 0
+
+
 # --------------------------------------------------------------------------
 # validate / report
 # --------------------------------------------------------------------------
@@ -371,6 +400,11 @@ def build_parser() -> argparse.ArgumentParser:
     ix = sub.add_parser("index", help="regenerate the artifact index")
     ix.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS))
     ix.set_defaults(func=cmd_index)
+
+    hi = sub.add_parser("history", help="withdrawn artifacts and discarded runs")
+    hi.add_argument("action", choices=["list", "verify"], nargs="?", default="list")
+    hi.add_argument("--outdir", default=str(DEFAULT_ARTIFACTS))
+    hi.set_defaults(func=cmd_history)
 
     v = sub.add_parser("validate", help="grade a claim against the standard")
     v.add_argument("claims", nargs="+")

@@ -1,6 +1,6 @@
 # Artifact index
 
-Generated 2026-08-30T01:46:08Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-30T02:52:48Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
 **4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
@@ -63,6 +63,23 @@ Superseded and still verifiable: [`prereg-thrust-III-v1-20260828T224806Z.json`](
 Evidence *about* a claim rather than a claim. A simulated thrust predicts a loss map; a calibration study measures a subset of it and reports how far the prediction can be trusted.
 
 - [`calibration-thrust1-compute.json`](calibration-thrust1-compute.json) &mdash; ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model's reliability is supported.
+
+---
+
+## WITHDRAWN AND DISCARDED
+
+Preserved rather than deleted. Nothing in this section is a claim, and nothing here carries a conformance grade: grading a withdrawn artifact would invite it to be cited.
+
+Integrity: **all preserved files match their withdrawal digests**.
+
+| Withdrawn | Reason | Superseded by | Record |
+|---|---|---|---|
+| Sparse attention, Triton implementation (run of 2026-08-29 11:09) | `unfair-comparison` | `lc-thrust3b-triton-attention @ 0d6d57b` | [NOTE.md](history/2026-08-29-unfair-baseline/NOTE.md) |
+| Thrust I compute-model calibration (run of 2026-08-29 18:20) | `vacuous-result` | `calibration-thrust1-compute @ 0d6d57b` | [NOTE.md](history/2026-08-29-vacuous-calibration/NOTE.md) |
+
+**Discarded runs** &mdash; no artifact was published, so there is nothing to withdraw; what is recorded is that the run happened and what changed as a result.
+
+- [Two benchmark processes sharing one GPU](history/incidents/2026-08-29-contended-gpu.md) &mdash; 2026-08-29T10:16:50-07:00 / 10:22:22-07:00
 
 ---
 

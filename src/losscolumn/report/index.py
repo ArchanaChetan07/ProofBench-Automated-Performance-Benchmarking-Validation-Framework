@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from losscolumn.core.provenance import utcnow
+from losscolumn.history import load, load_incidents, verify
 from losscolumn.spec import registry, schema
 
 THRUST_TITLES = {
@@ -58,8 +59,18 @@ class ClaimEntry:
 
 
 def _load_claims(root: Path) -> list[ClaimEntry]:
+    """Live claims only.
+
+    Withdrawn artifacts live under ``history/`` and are deliberately excluded.
+    They are preserved so the record of an error survives, not so they can be
+    counted, graded or cited -- and a recursive glob that swept them back into
+    the claim list would undo the whole point of withdrawing them.
+    """
     out: list[ClaimEntry] = []
+    history = history_dir_of(root)
     for p in sorted(root.rglob("*.claim.json")):
+        if history in p.parents:
+            continue
         try:
             c = json.loads(p.read_text(encoding="utf-8"))
         except Exception:
@@ -93,6 +104,10 @@ def _load_claims(root: Path) -> list[ClaimEntry]:
                 e.siblings[ext.lstrip(".")] = q
         out.append(e)
     return out
+
+
+def history_dir_of(root: Path) -> Path:
+    return Path(root) / "history"
 
 
 def _rel(p: Path, root: Path) -> str:
@@ -219,6 +234,39 @@ def build_index(root: Path) -> str:
                 L.append(f"- [`{p.name}`]({_rel(p, root)})")
         L.append("")
 
+    withdrawn = load(root)
+    incidents = load_incidents(root)
+    if withdrawn or incidents:
+        L += ["---", "", "## WITHDRAWN AND DISCARDED", "",
+              "Preserved rather than deleted. Nothing in this section is a claim, and "
+              "nothing here carries a conformance grade: grading a withdrawn artifact "
+              "would invite it to be cited.", ""]
+        problems = verify(root)
+        L += [
+            f"Integrity: **{'all preserved files match their withdrawal digests' if not problems else str(len(problems)) + ' PRESERVED FILE(S) HAVE CHANGED'}**.",
+            "",
+        ]
+        if problems:
+            L += [f"- {p}" for p in problems] + [""]
+        if withdrawn:
+            L += ["| Withdrawn | Reason | Superseded by | Record |", "|---|---|---|---|"]
+            for d, w in withdrawn:
+                L.append(
+                    f"| {w.title} | `{w.reason}` | `{w.superseded_by or '-'}` | "
+                    f"[NOTE.md]({_rel(d / 'NOTE.md', root)}) |"
+                )
+            L.append("")
+        if incidents:
+            L += ["**Discarded runs** &mdash; no artifact was published, so there is "
+                  "nothing to withdraw; what is recorded is that the run happened and "
+                  "what changed as a result.", ""]
+            for i in incidents:
+                L.append(
+                    f"- [{i.title}]({_rel(history_dir_of(root) / 'incidents' / (i.incident_id + '.md'), root)})"
+                    f" &mdash; {i.occurred_at}"
+                )
+            L.append("")
+
     L += [
         "---",
         "",
@@ -257,6 +305,9 @@ def write_index(root: Path) -> Path:
 def summarise(root: Path) -> dict[str, Any]:
     claims = _load_claims(Path(root))
     return {
+        "n_withdrawn": len(load(Path(root))),
+        "n_incidents": len(load_incidents(Path(root))),
+        "history_intact": not verify(Path(root)),
         "n_claims": len(claims),
         "n_conforming": sum(1 for c in claims if c.grade == "conforming"),
         "n_measured": sum(1 for c in claims if c.evidence == "measured"),

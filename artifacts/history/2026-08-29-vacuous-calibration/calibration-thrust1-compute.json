@@ -1,0 +1,533 @@
+{
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "scope": {
+    "axes_checked": [
+      "seq_len",
+      "checkpointing",
+      "micro_batch"
+    ],
+    "axes_not_checked": [
+      "world_size",
+      "shard_group",
+      "tp_degree"
+    ],
+    "hidden": 1024,
+    "heads": 16,
+    "ffn": 4096,
+    "dtype": "float16"
+  },
+  "peak_tflops": 0.31755807909855804,
+  "measured_mfu": 1.4060096740599266,
+  "assumed_mfu": 0.48,
+  "checkpoint_penalty": {
+    "assumed": 1.3333333333333333,
+    "measured_median": 1.2210900805862097,
+    "measured_min": 1.2199053711825156,
+    "measured_max": 1.2222747899899038,
+    "ratio": 0.9158175604396573,
+    "varies": false,
+    "n": 2,
+    "per_seq_len": {
+      "512": 1.2199053711825156,
+      "1024": 1.2222747899899038
+    }
+  },
+  "calibration": {
+    "n_cells": 4,
+    "n_compared": 4,
+    "confusion": {
+      "loss": {
+        "loss": 0,
+        "win": 0,
+        "neither": 0
+      },
+      "win": {
+        "loss": 0,
+        "win": 0,
+        "neither": 0
+      },
+      "neither": {
+        "loss": 0,
+        "win": 0,
+        "neither": 4
+      }
+    },
+    "agreement": 1.0,
+    "kappa": NaN,
+    "region_overlap": {
+      "iou": 1.0,
+      "n_predicted_loss": 0,
+      "n_measured_loss": 0,
+      "n_false_loss": 0,
+      "n_false_win": 0,
+      "false_loss_cells": [],
+      "false_win_cells": []
+    },
+    "boundary_error": {
+      "seq_len": {
+        "axis": "seq_len",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_only": 0,
+        "n_fibers_measured_only": 0,
+        "mean_abs_shift": NaN,
+        "mean_signed_shift": NaN,
+        "shifts": []
+      },
+      "checkpointing": {
+        "axis": "checkpointing",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_only": 0,
+        "n_fibers_measured_only": 0,
+        "mean_abs_shift": NaN,
+        "mean_signed_shift": NaN,
+        "shifts": []
+      }
+    },
+    "cliffs": {
+      "precision": NaN,
+      "recall": NaN,
+      "n_predicted": 0,
+      "n_measured": 0
+    },
+    "calibration_error": {
+      "bias_pct": 0.0,
+      "mae_pct": 0.0,
+      "rmse_pct": 0.0,
+      "slope": NaN,
+      "intercept_pct": NaN,
+      "r_squared": NaN,
+      "fraction_within_mde": 1.0
+    },
+    "verdict": "USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.",
+    "notes": [
+      "the predicted effects have no spread, so no slope can be fitted: the model is being checked at a single operating point"
+    ]
+  },
+  "model_update": {
+    "parameter": "achievable_mfu",
+    "current": 0.48,
+    "slope": NaN,
+    "bias_pct": 0.0,
+    "applied": false,
+    "why_not_applied": "A model refitted on the measurements used to validate it is fitted, not calibrated. The correction is recorded here and takes effect only in a newly sealed protocol, evaluated against cells this study did not touch.",
+    "reading": "the model scales correctly; residual error is not a scale error"
+  },
+  "uncalibrated": [
+    "Scale. Calibrated over micro batches [1, 2, 4] and sequence lengths [512, 1024] at hidden=1024, which is what a development card can measure in a usable time. The registered Thrust I grid is wider in every direction, and a slope fitted here is not evidence about the corners this grid does not reach.",
+    "Collective time. Bus bandwidth, the per-collective latency floor and the bandwidth-against-message-size curve are the model's other half, and none of them is measurable on a single device. Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion remain unchecked by this study.",
+    "Whether a real runtime achieves the overlap schedule the model assumes. That is the question Thrust I exists to ask and it needs a cluster.",
+    "Scaling across world size. The registered grid spans 8 and 32 GPUs; this study touches one.",
+    "Model scale. Calibrated at hidden=1024, not the 7B-class hidden=4096 the protocol registers. What transfers is the residual of a model of this form, not the parameter value."
+  ],
+  "predicted_envelope": {
+    "kind": "envelope",
+    "factors": [
+      {
+        "name": "seq_len",
+        "levels": [
+          512,
+          1024
+        ],
+        "ordered": true,
+        "unit": "tokens",
+        "log_scale": true
+      },
+      {
+        "name": "checkpointing",
+        "levels": [
+          false,
+          true
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": false
+      }
+    ],
+    "metric": {
+      "name": "layer_throughput",
+      "unit": "tok/s",
+      "higher_is_better": true,
+      "description": "tokens per second through one transformer block, forward and backward"
+    },
+    "systems": [
+      "recommended",
+      "best_of_swept"
+    ],
+    "replicates": 1,
+    "interleaved": false,
+    "workload": "transformer block, hidden=1024, heads=16, ffn=4096",
+    "meta": {
+      "note": "closed-form model prediction; deterministic",
+      "micro_batches": [
+        1,
+        2,
+        4
+      ],
+      "recommended_rule": "largest micro batch in the swept set"
+    },
+    "coverage": {
+      "recommended": 1.0,
+      "best_of_swept": 1.0
+    },
+    "provenance": {
+      "captured_at": "2026-08-30T01:07:53Z",
+      "host": "Archana-PC",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.5",
+      "cpu_count": 24,
+      "git": {
+        "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+        "dirty": false,
+        "dirty_scope": [
+          "src",
+          "pyproject.toml",
+          "tests",
+          "configs"
+        ],
+        "dirty_files": [],
+        "branch": "master",
+        "remote": null,
+        "describe": "ced1ad4-dirty"
+      },
+      "gpu": {
+        "available": true,
+        "devices": [
+          {
+            "index": 0,
+            "name": "NVIDIA T1000 8GB",
+            "capability": "7.5",
+            "total_memory_gb": 8.59,
+            "multi_processor_count": 14
+          }
+        ],
+        "source": "torch",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4"
+      },
+      "packages": {
+        "torch": "2.6.0+cu124",
+        "triton": "3.2.0",
+        "numpy": "1.26.4",
+        "vllm": null,
+        "sglang": null,
+        "tensorrt_llm": null,
+        "transformers": "5.12.1",
+        "flash_attn": null
+      },
+      "container_image": null,
+      "operator": null,
+      "env_overrides": {
+        "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_MODULE_LOADING": "LAZY"
+      },
+      "notes": null,
+      "hardware_fingerprint": "cc72e8eab7a5d10b",
+      "hardware": "1x NVIDIA T1000 8GB"
+    },
+    "summary": {
+      "recommended": [
+        1355726.5760212813,
+        1024936.7326046282,
+        1302247.190307775,
+        980425.8913508995
+      ],
+      "best_of_swept": [
+        1355726.5760212813,
+        1024936.7326046282,
+        1302247.190307775,
+        980425.8913508995
+      ]
+    },
+    "missing": {
+      "recommended": [],
+      "best_of_swept": []
+    },
+    "inapplicable": [],
+    "n_applicable": 4
+  },
+  "measured_envelope": {
+    "kind": "envelope",
+    "factors": [
+      {
+        "name": "seq_len",
+        "levels": [
+          512,
+          1024
+        ],
+        "ordered": true,
+        "unit": "tokens",
+        "log_scale": true
+      },
+      {
+        "name": "checkpointing",
+        "levels": [
+          false,
+          true
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": false
+      }
+    ],
+    "metric": {
+      "name": "layer_throughput",
+      "unit": "tok/s",
+      "higher_is_better": true,
+      "description": "tokens per second through one transformer block, forward and backward"
+    },
+    "systems": [
+      "recommended",
+      "best_of_swept"
+    ],
+    "replicates": 11,
+    "interleaved": true,
+    "workload": "transformer block, hidden=1024, heads=16, ffn=4096",
+    "meta": {
+      "note": "measured on the local device",
+      "micro_batches": [
+        1,
+        2,
+        4
+      ],
+      "recommended_rule": "largest micro batch in the swept set"
+    },
+    "coverage": {
+      "recommended": 1.0,
+      "best_of_swept": 1.0
+    },
+    "provenance": {
+      "captured_at": "2026-08-30T01:07:53Z",
+      "host": "Archana-PC",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.5",
+      "cpu_count": 24,
+      "git": {
+        "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+        "dirty": false,
+        "dirty_scope": [
+          "src",
+          "pyproject.toml",
+          "tests",
+          "configs"
+        ],
+        "dirty_files": [],
+        "branch": "master",
+        "remote": null,
+        "describe": "ced1ad4-dirty"
+      },
+      "gpu": {
+        "available": true,
+        "devices": [
+          {
+            "index": 0,
+            "name": "NVIDIA T1000 8GB",
+            "capability": "7.5",
+            "total_memory_gb": 8.59,
+            "multi_processor_count": 14
+          }
+        ],
+        "source": "torch",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4"
+      },
+      "packages": {
+        "torch": "2.6.0+cu124",
+        "triton": "3.2.0",
+        "numpy": "1.26.4",
+        "vllm": null,
+        "sglang": null,
+        "tensorrt_llm": null,
+        "transformers": "5.12.1",
+        "flash_attn": null
+      },
+      "container_image": null,
+      "operator": null,
+      "env_overrides": {
+        "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_MODULE_LOADING": "LAZY"
+      },
+      "notes": null,
+      "hardware_fingerprint": "cc72e8eab7a5d10b",
+      "hardware": "1x NVIDIA T1000 8GB"
+    },
+    "data": {
+      "recommended": [
+        [
+          3923.9075319718213,
+          3919.9253922357407,
+          3935.6441211999513,
+          3930.555381472977,
+          3937.2863160234133,
+          3932.826583380675,
+          3933.9101290023127,
+          3935.7835344579544,
+          3937.7830311127086,
+          3936.7440000741485,
+          3919.828769915766
+        ],
+        [
+          3224.5720102219366,
+          3212.02438403807,
+          3228.098895116228,
+          3219.780640514498,
+          3229.1004471737456,
+          3227.6458534894277,
+          3228.340217304504,
+          3222.7397987585587,
+          3224.8493771384633,
+          3224.7666269302313,
+          3223.7126307688904
+        ],
+        [
+          4170.054870300772,
+          4169.86235182478,
+          4169.468819568045,
+          4170.115764770917,
+          4169.932827589155,
+          4169.95096511983,
+          4169.488248318073,
+          4170.674262961766,
+          4170.742433308631,
+          4169.820119328093,
+          4169.853024328593
+        ],
+        [
+          3411.2984360728824,
+          3412.345077877125,
+          3412.327726905838,
+          3411.8398898268715,
+          3411.368492797219,
+          3411.5894330951633,
+          3411.6164889759357,
+          3411.1240003956586,
+          3412.078586416637,
+          3411.55231867478,
+          3411.813524228658
+        ]
+      ],
+      "best_of_swept": [
+        [
+          3923.9075319718213,
+          3919.9253922357407,
+          3935.6441211999513,
+          3930.555381472977,
+          3937.2863160234133,
+          3932.826583380675,
+          3933.9101290023127,
+          3935.7835344579544,
+          3937.7830311127086,
+          3936.7440000741485,
+          3919.828769915766
+        ],
+        [
+          3224.5720102219366,
+          3212.02438403807,
+          3228.098895116228,
+          3219.780640514498,
+          3229.1004471737456,
+          3227.6458534894277,
+          3228.340217304504,
+          3222.7397987585587,
+          3224.8493771384633,
+          3224.7666269302313,
+          3223.7126307688904
+        ],
+        [
+          4170.054870300772,
+          4169.86235182478,
+          4169.468819568045,
+          4170.115764770917,
+          4169.932827589155,
+          4169.95096511983,
+          4169.488248318073,
+          4170.674262961766,
+          4170.742433308631,
+          4169.820119328093,
+          4169.853024328593
+        ],
+        [
+          3411.2984360728824,
+          3412.345077877125,
+          3412.327726905838,
+          3411.8398898268715,
+          3411.368492797219,
+          3411.5894330951633,
+          3411.6164889759357,
+          3411.1240003956586,
+          3412.078586416637,
+          3411.55231867478,
+          3411.813524228658
+        ]
+      ]
+    },
+    "missing": {
+      "recommended": [],
+      "best_of_swept": []
+    },
+    "inapplicable": [],
+    "n_applicable": 4
+  },
+  "kind": "calibration-report",
+  "standard_version": "LC-1.0",
+  "calibrates": "thrust1",
+  "generated_at": "2026-08-30T01:19:39Z",
+  "command": "losscolumn calibrate thrust1",
+  "provenance": {
+    "captured_at": "2026-08-30T01:19:39Z",
+    "host": "Archana-PC",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "cpu_count": 24,
+    "git": {
+      "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+      "dirty": false,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [],
+      "branch": "master",
+      "remote": null,
+      "describe": "ced1ad4-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA T1000 8GB",
+          "capability": "7.5",
+          "total_memory_gb": 8.59,
+          "multi_processor_count": 14
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4"
+    },
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "triton": "3.2.0",
+      "numpy": "1.26.4",
+      "vllm": null,
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.12.1",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    },
+    "notes": null,
+    "hardware_fingerprint": "cc72e8eab7a5d10b",
+    "hardware": "1x NVIDIA T1000 8GB"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "withdrawal-manifest",
+  "generated_at": "2026-08-30T02:51:08Z",
+  "n_withdrawn": 2,
+  "withdrawals": [
+    {
+      "slug": "2026-08-29-unfair-baseline",
+      "artifact_id": "lc-thrust3b-triton-attention",
+      "title": "Sparse attention, Triton implementation (run of 2026-08-29 11:09)",
+      "reason": "unfair-comparison",
+      "withdrawn_at": "2026-08-30T02:51:08Z",
+      "superseded_by": "lc-thrust3b-triton-attention @ 0d6d57b",
+      "original_commit": "adc8b89",
+      "n_files": 3
+    },
+    {
+      "slug": "2026-08-29-vacuous-calibration",
+      "artifact_id": "calibration-thrust1-compute",
+      "title": "Thrust I compute-model calibration (run of 2026-08-29 18:20)",
+      "reason": "vacuous-result",
+      "withdrawn_at": "2026-08-30T02:51:08Z",
+      "superseded_by": "calibration-thrust1-compute @ 0d6d57b",
+      "original_commit": "40d8a04",
+      "n_files": 2
+    }
+  ]
+}

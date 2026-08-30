@@ -1,0 +1,18 @@
+{
+  "artifact_id": "calibration-thrust1-compute",
+  "title": "Thrust I compute-model calibration (run of 2026-08-29 18:20)",
+  "reason": "vacuous-result",
+  "withdrawn_at": "2026-08-30T02:51:08Z",
+  "original_commit": "40d8a04",
+  "preserved": {
+    "calibration-thrust1-compute.json": "sha256:eb10c35dd0fec310d0fa46bba56206af112ec51d912881f7117c1f3ffe76eb19",
+    "calibration-thrust1-compute.md": "sha256:5de5f042c91eda098c0ef84a11038ec170d3c494125d66c85453a169ef4da869"
+  },
+  "superseded_by": "calibration-thrust1-compute @ 0d6d57b",
+  "what_was_wrong": "This report concludes **USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points**, with a loss-region overlap of 1.00 and 100% verdict agreement. Every one of those numbers is vacuous.\n\nNeither the predicted map nor the measured map contained a single loss. The intersection over union of two empty sets is 1.00; with no misclassified cells the error is necessarily 0.0; with no boundary in either map the boundary statistics are undefined. The predicted effects also had no spread, so no slope could be fitted and the model was in effect checked at a single operating point.\n\nThe study could not have detected a disagreement, and reported that as agreement.",
+  "how_it_was_found": "From the shape of the numbers rather than their values. A calibration that reports *exactly* 1.00 overlap and *exactly* 0.0 percentage points of error has almost certainly divided by something empty, and `Cohen's kappa: nan` printed two lines above was the confirmation: kappa is undefined when one category never occurs.",
+  "what_changed": "`CalibrationResult.degenerate` now detects both forms &mdash; no losses in either map, or no spread in the predicted effects &mdash; and the verdict leads with **ESTABLISHES NOTHING**, naming which condition applied. The statistics are still printed, under an explicit warning not to read them as agreement.\n\nA stronger version of the same rule now gates the study before it runs: calibration data must contain at least one predicted or observed loss, or no overlap statistics are computed at all.",
+  "lesson": "This is requirement LC-1.8 &mdash; *an empty result from a design that could not have produced a non-empty one is a property of the design, not evidence* &mdash; turned on the project's own calibration machinery. The standard already contained the rule that would have caught it; it had simply never been applied to anything except loss columns.",
+  "kind": "withdrawal",
+  "reason_description": "the result could not have come out any other way"
+}
