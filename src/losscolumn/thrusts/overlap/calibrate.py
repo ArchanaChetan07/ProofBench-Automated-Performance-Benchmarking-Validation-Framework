@@ -344,6 +344,22 @@ def run_thrust_one_calibration(
         ],
     )
     out.measured_mfu = _measured_mfu(measured, local, peak, micro_batches)
+    if math.isfinite(out.measured_mfu) and out.measured_mfu > 1.0:
+        # A model FLOP utilisation above one is arithmetically impossible; what
+        # it actually reports is that the GEMM used as the ceiling is not a
+        # ceiling. On this device the large fp16 GEMM lands on an emulated path
+        # that smaller layer GEMMs avoid, so it measures lower than the work it
+        # is supposed to bound. Reported rather than clipped: a clipped value
+        # would look like a measurement.
+        out.uncalibrated.insert(0, (
+            f"The MFU reference is invalid on this device. A single large fp16 GEMM "
+            f"measured {peak:.2f} TFLOP/s while the layer GEMMs it is supposed to "
+            f"bound reached more, giving a nominal utilisation of "
+            f"{out.measured_mfu:.2f} -- above one, which is impossible. The cause is "
+            "the absent tensor cores: the large fp16 GEMM falls on an emulated path "
+            "that the smaller layer shapes avoid. No MFU calibration is available "
+            "here, and the figure below is retained only to show the contradiction."
+        ))
     out.checkpoint_penalty = _checkpoint_penalty(measured)
     out.update = suggest_update(result, parameter="achievable_mfu",
                                 current=fabric.achievable_mfu)

@@ -1,0 +1,112 @@
+<title>Calibration -- Thrust I compute model</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Calibration -- Thrust I compute model</h1>
+<p class="lede">How far the simulated overlap envelope can be trusted, and which half of the model remains unchecked</p>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Verdict</b> <code>USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.</code></span><span><b>Cells compared</b> <code>4</code></span><span><b>False wins</b> <code>0</code></span></div>
+<h4>Calibration study -- Thrust I, compute half</h4>
+<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). The model was asked for its prediction before anything was measured, and was not adjusted afterwards.</p>
+<div class="scroll"><table><thead><tr>
+<th>Model parameter</th>
+<th>Assumed</th>
+<th>Measured</th>
+<th>Ratio</th>
+</tr></thead><tbody>
+<tr><td>Achievable MFU</td><td>0.480</td><td>1.406</td><td>2.93x</td></tr>
+<tr><td>Checkpointing penalty</td><td>1.33x</td><td>1.22x</td><td>0.92x</td></tr>
+</tbody></table></div>
+<h4>Calibration -- predicted against measured</h4>
+<p><b>USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.</b></p>
+<ul>
+<li>4 of 4 cells measured and compared.</li>
+<li>Verdict agreement 100% (Cohen's kappa nan).</li>
+<li>Loss-region overlap (IoU) 1.00: 0 predicted, 0 measured.</li>
+<li><b>0 false win(s)</b> -- predicted a win, measured a loss.</li>
+<li>0 false loss(es) -- predicted a loss, measurement cleared it.</li>
+</ul>
+<div class="scroll"><table><thead><tr>
+<th>Calibration statistic</th>
+<th>Value</th>
+<th>Reading</th>
+</tr></thead><tbody>
+<tr><td>Bias</td><td>+0.00 pp</td><td>model is pessimistic</td></tr>
+<tr><td>Mean absolute error</td><td>0.00 pp</td><td>typical miss</td></tr>
+<tr><td>RMSE</td><td>0.00 pp</td><td>miss including the tails</td></tr>
+<tr><td>Slope</td><td>nan</td><td>scales correctly</td></tr>
+<tr><td>R-squared</td><td>nan</td><td>share of variation the model tracks</td></tr>
+<tr><td>Within MDE</td><td>100%</td><td>cells predicted to within 5%</td></tr>
+</tbody></table></div>
+<p><b>Boundary displacement</b></p>
+<ul>
+<li>seq_len: no fiber has a boundary in both maps</li>
+<li>checkpointing: no fiber has a boundary in both maps</li>
+</ul>
+<ul>
+<li>the predicted effects have no spread, so no slope can be fitted: the model is being checked at a single operating point</li>
+</ul>
+<p><b>Not calibrated by this study</b></p>
+<ul>
+<li>Scale. Calibrated over micro batches [1, 2, 4] and sequence lengths [512, 1024] at hidden=1024, which is what a development card can measure in a usable time. The registered Thrust I grid is wider in every direction, and a slope fitted here is not evidence about the corners this grid does not reach.</li>
+<li>Collective time. Bus bandwidth, the per-collective latency floor and the bandwidth-against-message-size curve are the model's other half, and none of them is measurable on a single device. Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion remain unchecked by this study.</li>
+<li>Whether a real runtime achieves the overlap schedule the model assumes. That is the question Thrust I exists to ask and it needs a cluster.</li>
+<li>Scaling across world size. The registered grid spans 8 and 32 GPUs; this study touches one.</li>
+<li>Model scale. Calibrated at hidden=1024, not the 7B-class hidden=4096 the protocol registers. What transfers is the residual of a model of this form, not the parameter value.</li>
+</ul>
+</div>

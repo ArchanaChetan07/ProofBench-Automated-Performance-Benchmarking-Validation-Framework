@@ -1,6 +1,6 @@
 # Sparse attention, portable implementation: a loss map over prefill and decode
 
-> The portable implementation &mdash; the FlashAttention algorithm written out in eager PyTorch ops: correct everywhere, portable to any device, and not fast. Its loss map measures what per-tile dispatch costs &mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median -64.9% across the swept envelope; best +82.4% at seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=decode; worst -59525.3% at seq_len=4096, batch=1, pattern=dense, density=1.0, phase=decode.
+> The portable implementation &mdash; the FlashAttention algorithm written out in eager PyTorch ops: correct everywhere, portable to any device, and not fast. Its loss map measures what per-tile dispatch costs &mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median -55.1% across the swept envelope; best +81.8% at seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=decode; worst -49204.3% at seq_len=4096, batch=1, pattern=dense, density=1.0, phase=decode.
 
 `lc-thrust3a-portable-attention` -- thrust III -- implementation vs reference -- standard LC-1.0
 
@@ -10,17 +10,16 @@ _Where this result does not hold. Published above the wins, by requirement LC-1.
 
 ### Loss column -- implementation vs reference (latency_ms, ms)
 
-implementation loses to reference on 56% of the swept envelope (45/80 cells), across 5 region(s); worst measurable case +59525.3% on latency_ms.
+implementation loses to reference on 55% of the swept envelope (44/80 cells), across 4 region(s); worst measurable case +49204.3% on latency_ms.
 
 | # | Where it loses | Cells | Median | Worst | max q | Attributed to |
 |---|----------------|-------|--------|-------|-------|---------------|
-| 1 | pattern=dense and density=1.0 | 16/16 (20% of envelope) | +2184.5% | +59525.3% | 0.000868 | dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
-| 2 | batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 and phase=prefill | 16/16 (20% of envelope) | +213.5% | +571.9% | 0.000868 | sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
-| 3 | batch=1 and pattern in {sliding_window, block_sparse} and density=0.25 | 16/16 (20% of envelope) | +220.6% | +571.9% | 0.000868 | sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
-| 4 | 2048 <= seq_len <= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 | 16/16 (20% of envelope) | +190.1% | +397.4% | 0.000868 | sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
-| 5 | seq_len=4096 and pattern=block_sparse and density=0.25 and phase=decode | 2/2 (2% of envelope) | +152.8% | +241.8% | 0.000868 | decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
+| 1 | pattern=dense and density=1.0 | 16/16 (20% of envelope) | +2183.9% | +49204.3% | 0.000888 | dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
+| 2 | batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 and phase=prefill | 16/16 (20% of envelope) | +213.3% | +780.9% | 0.000888 | sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
+| 3 | batch=1 and pattern in {sliding_window, block_sparse} and density=0.25 | 16/16 (20% of envelope) | +213.3% | +780.9% | 0.000888 | sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
+| 4 | 2048 <= seq_len <= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 | 16/16 (20% of envelope) | +181.8% | +401.2% | 0.000888 | sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel |
 
-- Envelope: 80 cells. Losses 45, wins 33, ties 1, inconclusive 1, missing 0, inapplicable 64.
+- Envelope: 80 cells. Losses 44, wins 34, ties 1, inconclusive 1, missing 0, inapplicable 64.
 - Decision rule: regression >= 10.0% (pre-registered MDE) and Benjamini-Hochberg q <= 0.05.
 
 ### Attributed causes
@@ -29,10 +28,10 @@ implementation loses to reference on 56% of the swept envelope (45/80 cells), ac
 - **512 <= seq_len <= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 and phase=prefill** -- sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel
 - **512 <= seq_len <= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and density=0.25 and phase in {prefill, decode}** -- sparse at density 0.25: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel
 - **2048 <= seq_len <= 4096 and batch=1 and pattern in {sliding_window, block_sparse} and 0.125 <= density <= 0.25 and phase in {prefill, decode}** -- sparse at density 0.125: too few blocks per query row to amortise the per-block prologue; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel
-- **seq_len=4096 and 1 <= batch <= 8 and pattern=block_sparse and density=0.25 and phase=decode** -- decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid; the portable implementation dispatches one eager op per tile pair where the reference launches a single fused kernel
 
 ## Where this fails as a study
 
+- THIS DEVICE HAS NO TENSOR CORES. It reports compute capability sm_75, but compute capability names an instruction set rather than the units behind it, and this die ships without them: fp16 GEMM measures 0.323 TFLOP/s against 1.828 TFLOP/s for fp32, a ratio of 0.177 where a tensor-core part exceeds 2. Every timing here is fp16, so both arms ran an emulated path that nobody deploys. The comparison stays internally valid -- both arms took the same path -- but the absolute rates do not transfer to a tensor-core device, and neither necessarily does the ordering: on real hardware the reference's fused backend and the kernel's tl.dot would both reach units that are absent here, and there is no reason to assume they would gain equally.
 - Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3's warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.
 - Forward pass only. The backward pass has a different arithmetic intensity and a different loss map.
 - One head dimension (64) and one dtype (float16). Both are held fixed to keep the sparsity lattice tractable; widening either is a new registration, not an extension of this one.
@@ -42,7 +41,7 @@ implementation loses to reference on 56% of the swept envelope (45/80 cells), ac
 
 ## Speedup by phase
 
-<p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>36.323 ms</td><td>17.977 ms</td><td>0.37x</td><td>0.04x</td><td>5.19x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>2.056 ms</td><td>1.032 ms</td><td>0.77x</td><td>0.00x</td><td>5.74x</td></tr></tbody></table></div>
+<p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>34.374 ms</td><td>16.761 ms</td><td>0.38x</td><td>0.04x</td><td>5.03x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>1.898 ms</td><td>1.027 ms</td><td>0.96x</td><td>0.00x</td><td>5.72x</td></tr></tbody></table></div>
 
 ## Correctness suite
 
@@ -110,7 +109,7 @@ implementation loses to reference on 56% of the swept envelope (45/80 cells), ac
 losscolumn run thrust3
 ```
 
-- Repository: `local checkout` at commit `adc8b898f5d8b6235b11265490959b0965c1312c`
+- Repository: `local checkout` at commit `ced1ad46b08e0026787352e966ecae1a1fe8fa64`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: NVIDIA T1000 8GB (sm_75, 9 GB)
 - Estimated runtime: 25 min
@@ -157,7 +156,7 @@ losscolumn run thrust3
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:257b179` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust3` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `adc8b898f5d8` |
+| `LC-5.3` | One-command reproduction | pass | pinned to `ced1ad46b08e` |
 | `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: NVIDIA T1000 8GB (sm_75, 9 GB) |
@@ -167,10 +166,10 @@ losscolumn run thrust3
 | `LC-Q3` | Measurement quality | pass | cell coverage >= 100% for every system |
 | `LC-Q4` | Measurement quality | pass | noise/effect ratio 0.00 |
 | `LC-Q6` | Measurement quality | pass | equivalence is established where the data supports it |
-| `LC-Q5` | Measurement quality | pass | 6 limitation(s) stated |
+| `LC-Q5` | Measurement quality | pass | 7 limitation(s) stated |
 
 ## Provenance
 
-- Captured: `2026-08-29T21:19:26Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-30T00:15:23Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
 - Packages: `torch=2.6.0+cu124`, `triton=3.2.0`, `numpy=1.26.4`, `transformers=5.12.1`

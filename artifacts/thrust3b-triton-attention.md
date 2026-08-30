@@ -1,6 +1,6 @@
 # Sparse attention, triton implementation: a loss map over prefill and decode
 
-> The triton implementation &mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +71.5% across the swept envelope; best +93.7% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -5919.6% at seq_len=4096, batch=8, pattern=dense, density=1.0, phase=decode.
+> The triton implementation &mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +77.2% across the swept envelope; best +93.6% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -6849.2% at seq_len=4096, batch=8, pattern=dense, density=1.0, phase=decode.
 
 `lc-thrust3b-triton-attention` -- thrust III -- implementation vs reference -- standard LC-1.0
 
@@ -10,23 +10,22 @@ _Where this result does not hold. Published above the wins, by requirement LC-1.
 
 ### Loss column -- implementation vs reference (latency_ms, ms)
 
-implementation loses to reference on 11% of the swept envelope (9/80 cells), across 2 region(s); worst measurable case +5919.6% on latency_ms.
+implementation loses to reference on 10% of the swept envelope (8/80 cells), across 1 region(s); worst measurable case +6849.2% on latency_ms.
 
 | # | Where it loses | Cells | Median | Worst | max q | Attributed to |
 |---|----------------|-------|--------|-------|-------|---------------|
-| 1 | pattern=dense and density=1.0 and phase=decode | 8/8 (10% of envelope) | +2375.2% | +5919.6% | 0.00355 | decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid |
-| 2 | 512 <= seq_len <= 1024 and batch=1 and pattern=dense and density=1.0 | 3/4 (5% of envelope) | +1122.4% | +1742.5% | 0.00355 | dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it |
+| 1 | pattern=dense and density=1.0 and phase=decode | 8/8 (10% of envelope) | +2037.0% | +6849.2% | 0.00434 | decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid |
 
-- Envelope: 80 cells. Losses 9, wins 62, ties 5, inconclusive 4, missing 0, inapplicable 64.
+- Envelope: 80 cells. Losses 8, wins 64, ties 8, inconclusive 0, missing 0, inapplicable 64.
 - Decision rule: regression >= 10.0% (pre-registered MDE) and Benjamini-Hochberg q <= 0.05.
 
 ### Attributed causes
 
 - **512 <= seq_len <= 4096 and 1 <= batch <= 8 and pattern=dense and density=1.0 and phase=decode** -- decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid
-- **512 <= seq_len <= 1024 and batch=1 and pattern=dense and density=1.0 and phase in {prefill, decode}** -- dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it
 
 ## Where this fails as a study
 
+- THIS DEVICE HAS NO TENSOR CORES. It reports compute capability sm_75, but compute capability names an instruction set rather than the units behind it, and this die ships without them: fp16 GEMM measures 0.323 TFLOP/s against 1.828 TFLOP/s for fp32, a ratio of 0.177 where a tensor-core part exceeds 2. Every timing here is fp16, so both arms ran an emulated path that nobody deploys. The comparison stays internally valid -- both arms took the same path -- but the absolute rates do not transfer to a tensor-core device, and neither necessarily does the ordering: on real hardware the reference's fused backend and the kernel's tl.dot would both reach units that are absent here, and there is no reason to assume they would gain equally.
 - Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3's warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.
 - Forward pass only. The backward pass has a different arithmetic intensity and a different loss map.
 - One head dimension (64) and one dtype (float16). Both are held fixed to keep the sparsity lattice tractable; widening either is a new registration, not an extension of this one.
@@ -36,7 +35,7 @@ implementation loses to reference on 11% of the swept envelope (9/80 cells), acr
 
 ## Speedup by phase
 
-<p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>4.073 ms</td><td>18.075 ms</td><td>5.18x</td><td>0.91x</td><td>16.05x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>0.538 ms</td><td>1.051 ms</td><td>2.68x</td><td>0.02x</td><td>8.25x</td></tr></tbody></table></div>
+<p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>3.919 ms</td><td>16.983 ms</td><td>5.76x</td><td>0.96x</td><td>15.61x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>0.356 ms</td><td>1.038 ms</td><td>3.46x</td><td>0.01x</td><td>8.19x</td></tr></tbody></table></div>
 
 ## Correctness suite
 
@@ -104,7 +103,7 @@ implementation loses to reference on 11% of the swept envelope (9/80 cells), acr
 losscolumn run thrust3
 ```
 
-- Repository: `local checkout` at commit `adc8b898f5d8b6235b11265490959b0965c1312c`
+- Repository: `local checkout` at commit `ced1ad46b08e0026787352e966ecae1a1fe8fa64`
 - Image: `ghcr.io/archanachetan07/losscolumn:0.1.0`
 - Hardware: NVIDIA T1000 8GB (sm_75, 9 GB)
 - Estimated runtime: 25 min
@@ -151,7 +150,7 @@ losscolumn run thrust3
 | `LC-4.7` | Pre-registration | pass | seal anchored to `git:257b179` |
 | `LC-5.1` | One-command reproduction | pass | `losscolumn run thrust3` |
 | `LC-5.2` | One-command reproduction | pass | reproduction is a single command |
-| `LC-5.3` | One-command reproduction | pass | pinned to `adc8b898f5d8` |
+| `LC-5.3` | One-command reproduction | pass | pinned to `ced1ad46b08e` |
 | `LC-5.4` | One-command reproduction | pass | producing tree was clean |
 | `LC-5.5` | One-command reproduction | pass | image `ghcr.io/archanachetan07/losscolumn:0.1.0` |
 | `LC-5.6` | One-command reproduction | pass | hardware: NVIDIA T1000 8GB (sm_75, 9 GB) |
@@ -161,10 +160,10 @@ losscolumn run thrust3
 | `LC-Q3` | Measurement quality | pass | cell coverage >= 100% for every system |
 | `LC-Q4` | Measurement quality | pass | noise/effect ratio 0.00 |
 | `LC-Q6` | Measurement quality | pass | equivalence is established where the data supports it |
-| `LC-Q5` | Measurement quality | pass | 6 limitation(s) stated |
+| `LC-Q5` | Measurement quality | pass | 7 limitation(s) stated |
 
 ## Provenance
 
-- Captured: `2026-08-29T21:38:32Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
+- Captured: `2026-08-30T00:32:34Z` on `Windows-10-10.0.26200-SP0`, Python 3.11.5
 - Hardware fingerprint: `cc72e8eab7a5d10b` (1x NVIDIA T1000 8GB)
 - Packages: `torch=2.6.0+cu124`, `triton=3.2.0`, `numpy=1.26.4`, `transformers=5.12.1`

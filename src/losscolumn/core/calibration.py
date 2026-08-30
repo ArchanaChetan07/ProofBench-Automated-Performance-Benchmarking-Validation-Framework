@@ -110,6 +110,7 @@ class CalibrationResult:
 
     mde: float = 0.05
     notes: list[str] = field(default_factory=list)
+    effect_spread: float = float("nan")
 
     @property
     def n_false_win(self) -> int:
@@ -119,10 +120,53 @@ class CalibrationResult:
     def n_false_loss(self) -> int:
         return len(self.false_loss_cells)
 
+    @property
+    def degenerate(self) -> bool:
+        """True when this study could not have detected a disagreement.
+
+        Two ways that happens, and both look like success if you only read the
+        summary statistics. If neither map contains a loss, the intersection
+        over union of two empty sets is 1.00 and every boundary statistic is
+        undefined -- the study agreed about nothing. And if the predicted
+        effects have no spread, the model was only ever checked at a single
+        operating point, so no slope exists and "within MDE: 100%" describes
+        one number rather than a surface.
+
+        This is the same failure the standard's LC-1.8 exists to catch, turned
+        on the calibration itself: an empty result from a design that could not
+        have produced a non-empty one is a property of the design, not evidence
+        about the model.
+        """
+        no_losses = self.n_predicted_loss == 0 and self.n_measured_loss == 0
+        no_spread = not math.isfinite(self.slope)
+        return bool(no_losses or no_spread)
+
+    def degenerate_reason(self) -> str:
+        bits = []
+        if self.n_predicted_loss == 0 and self.n_measured_loss == 0:
+            bits.append(
+                "neither the predicted nor the measured map contains a loss, so the "
+                "region overlap of 1.00 is two empty sets agreeing and the boundary "
+                "statistics are undefined"
+            )
+        if not math.isfinite(self.slope):
+            bits.append(
+                "the predicted effects have no spread, so no slope can be fitted and "
+                "the model was checked at a single operating point"
+            )
+        return "; ".join(bits)
+
     def verdict(self) -> str:
         """A one-line statement of how far the model can be trusted."""
         if not math.isfinite(self.rmse_pct):
             return "no overlapping cells: the model has not been calibrated at all"
+        if self.degenerate:
+            return (
+                "ESTABLISHES NOTHING: this study could not have detected a "
+                f"disagreement. {self.degenerate_reason()}. A wider grid, or one "
+                "chosen so the model predicts a loss somewhere, is needed before any "
+                "statement about the model's reliability is supported."
+            )
         if self.n_false_win:
             return (
                 f"NOT SAFE FOR DECISIONS: the model calls {self.n_false_win} cell(s) a win "
@@ -173,6 +217,8 @@ class CalibrationResult:
                 "fraction_within_mde": self.within_mde,
             },
             "verdict": self.verdict(),
+            "degenerate": self.degenerate,
+            "degenerate_reason": self.degenerate_reason(),
             "notes": self.notes,
         }
 
@@ -182,6 +228,15 @@ class CalibrationResult:
             "",
             f"**{self.verdict()}**",
             "",
+        ]
+        if self.degenerate:
+            lines += [
+                "> The statistics below are reported for completeness and should not "
+                "be read as agreement. A study that could not have found a "
+                "disagreement has not found their absence.",
+                "",
+            ]
+        lines += [
             f"- {self.n_compared} of {self.n_cells} cells measured and compared.",
             f"- Verdict agreement {self.agreement:.0%} (Cohen's kappa {self.kappa:.2f}).",
             f"- Loss-region overlap (IoU) {self.region_iou:.2f}: "
@@ -346,6 +401,7 @@ def calibrate(
         res.mae_pct = float(np.mean(np.abs(err_pct)))
         res.rmse_pct = float(np.sqrt(np.mean(err_pct**2)))
         res.within_mde = float(np.mean(np.abs(err_pct) <= mde * 100))
+        res.effect_spread = float(np.ptp(x))
         if np.ptp(x) > 1e-12:
             slope, intercept = np.polyfit(x, y, 1)
             res.slope, res.intercept_pct = float(slope), float((math.exp(intercept) - 1) * 100)
