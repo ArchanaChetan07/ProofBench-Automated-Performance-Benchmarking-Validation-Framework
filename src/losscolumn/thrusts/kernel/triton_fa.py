@@ -126,6 +126,7 @@ def device_limits() -> dict[str, Any]:
         "capability": f"sm_{cap[0]}{cap[1]}",
         "supported_dtypes": list(supported_dtypes()),
         "bf16_tensor_cores": cap >= (8, 0),
+        "tensor_core_probe": tensor_core_probe(),
         "shared_memory_per_block_kb": round(p.shared_memory_per_block / 1024, 1)
         if hasattr(p, "shared_memory_per_block")
         else None,
@@ -426,3 +427,77 @@ def flash_attention_triton_sparse(q, k, v, layout, *, causal: bool = False,
         BLOCK_M=layout.block_q, BLOCK_N=layout.block_k,
     )
     return out.view(b, h, sq, d)
+
+
+_TENSOR_CORE_PROBE: dict[str, Any] | None = None
+
+
+def tensor_core_probe(n: int = 2048, iters: int = 10) -> dict[str, Any]:
+    """Measure whether this device actually has tensor cores.
+
+    Compute capability does not answer this. sm_75 is a Turing capability, and
+    the ISA includes the tensor-core instructions, but TU117 -- the die in the
+    T1000, T600, T400 and GTX 1650 -- ships without the units. Code compiled
+    for sm_75 runs there; it just does not run on hardware that exists.
+
+    The observable difference is unambiguous, so it is measured rather than
+    looked up: a part with tensor cores does fp16 GEMM several times faster
+    than fp32, and a part without does it *slower*, because the fp16 path is
+    emulated. On the T1000 this project was developed on, fp16 measures about a
+    fifth of fp32.
+
+    This matters far beyond a footnote. Every Thrust III timing is fp16, and on
+    a device without tensor cores both arms run a path that nobody deploys --
+    so the comparison remains internally valid while the absolute numbers, and
+    quite possibly the ordering, do not transfer to the hardware anyone would
+    actually use.
+    """
+    global _TENSOR_CORE_PROBE
+    if _TENSOR_CORE_PROBE is not None:
+        return _TENSOR_CORE_PROBE
+    out: dict[str, Any] = {"measured": False}
+    if torch is None or not torch.cuda.is_available():
+        _TENSOR_CORE_PROBE = out
+        return out
+    try:
+        import time
+
+        def rate(dtype: Any) -> float:
+            a = torch.randn(n, n, device="cuda", dtype=dtype)
+            b = torch.randn(n, n, device="cuda", dtype=dtype)
+            for _ in range(3):
+                a @ b
+            torch.cuda.synchronize()
+            t0 = time.perf_counter()
+            for _ in range(iters):
+                a @ b
+            torch.cuda.synchronize()
+            el = (time.perf_counter() - t0) / iters
+            del a, b
+            torch.cuda.empty_cache()
+            return 2.0 * n**3 / el / 1e12
+
+        fp32 = rate(torch.float32)
+        fp16 = rate(torch.float16)
+        ratio = fp16 / fp32 if fp32 > 0 else float("nan")
+        # With tensor cores the ratio is comfortably above 2. Without them it
+        # sits at or below 1. The threshold is placed at 1.5, between the two
+        # populations rather than at the edge of either.
+        present = ratio >= 1.5
+        out = {
+            "measured": True,
+            "fp32_tflops": round(fp32, 3),
+            "fp16_tflops": round(fp16, 3),
+            "fp16_over_fp32": round(ratio, 3),
+            "tensor_cores": present,
+            "note": (
+                "fp16 GEMM outruns fp32, consistent with tensor cores"
+                if present
+                else "fp16 GEMM is no faster than fp32: this die has no tensor cores, "
+                     "whatever its compute capability implies"
+            ),
+        }
+    except Exception as e:
+        out = {"measured": False, "error": f"{type(e).__name__}: {e}"}
+    _TENSOR_CORE_PROBE = out
+    return out

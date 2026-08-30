@@ -4,7 +4,7 @@
   "standard_version": "LC-1.0",
   "grade": "conforming",
   "standard_digest": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
-  "n_rules_checked": 37,
+  "n_rules_checked": 38,
   "n_not_applicable": 7,
   "n_fatal": 0,
   "n_warnings": 0,
@@ -300,7 +300,7 @@
       "requirement": "One-command reproduction",
       "severity": "fatal",
       "passed": true,
-      "message": "pinned to `7c28f6afb588`",
+      "message": "pinned to `adc8b898f5d8`",
       "detail": {}
     },
     {
@@ -360,6 +360,14 @@
       "detail": {}
     },
     {
+      "rule": "LC-Q4",
+      "requirement": "Measurement quality",
+      "severity": "warning",
+      "passed": true,
+      "message": "noise/effect ratio 0.00",
+      "detail": {}
+    },
+    {
       "rule": "LC-Q6",
       "requirement": "Measurement quality",
       "severity": "fatal",
@@ -372,7 +380,7 @@
       "requirement": "Measurement quality",
       "severity": "warning",
       "passed": true,
-      "message": "5 limitation(s) stated",
+      "message": "6 limitation(s) stated",
       "detail": {}
     }
   ]

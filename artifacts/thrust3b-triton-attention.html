@@ -58,9 +58,9 @@ footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-si
 color:var(--muted)}
 </style>
 <div class="wrap">
-<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Sparse attention, triton implementation: a loss map over prefill and decode</h1><div class="headline">The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +77.6% across the swept envelope; best +93.6% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -1.7% at seq_len=512, batch=1, pattern=dense, density=1.0, phase=decode.</div><div class="meta"><span><code>lc-thrust3b-triton-attention</code></span><span>implementation vs reference</span><span>2026-08-29T18:39:21Z</span><span class="tag pass">conforming</span></div></header>
-<div class="stat"><div><b>0%</b><span>of envelope lost</span></div><div><b>+0%</b><span>worst regression</span></div><div><b>0</b><span>loss regions</span></div><div><b>1%</b><span>inconclusive</span></div><div><b>80</b><span>cells measured</span></div></div>
-<div class="loss"><h2>Loss column</h2><p>No region of the swept envelope shows a regression of at least 10.0% at q&lt;=0.05.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td>&ndash;</td><td><i>no loss region resolved</i></td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td><td>&ndash;</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 0 loss, 74 win, 5 tie, 1 inconclusive, 0 unmeasurable.</li></ul></div>
+<header><div class="kicker">Thrust III &middot; conforming claim &middot; LC-1.0</div><h1>Sparse attention, triton implementation: a loss map over prefill and decode</h1><div class="headline">The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +71.5% across the swept envelope; best +93.7% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -5919.6% at seq_len=4096, batch=8, pattern=dense, density=1.0, phase=decode.</div><div class="meta"><span><code>lc-thrust3b-triton-attention</code></span><span>implementation vs reference</span><span>2026-08-29T21:48:29Z</span><span class="tag pass">conforming</span></div></header>
+<div class="stat"><div><b>11%</b><span>of envelope lost</span></div><div><b>+5920%</b><span>worst regression</span></div><div><b>2</b><span>loss regions</span></div><div><b>5%</b><span>inconclusive</span></div><div><b>80</b><span>cells measured</span></div></div>
+<div class="loss"><h2>Loss column</h2><p>implementation loses to reference on 11% of the swept envelope (9/80 cells), across 2 region(s); worst measurable case +5919.6% on latency_ms.</p><div class="scroll"><table><thead><tr><th>#</th><th>Where it loses</th><th>Cells</th><th>Median</th><th>Worst</th><th>max q</th><th>Attributed to</th></tr></thead><tbody><tr><td><b>1</b></td><td>pattern=dense and density=1.0 and phase=decode</td><td>8/8 (10%)</td><td><span style="color:var(--loss)">+2375.2%</span></td><td><span style="color:var(--loss)"><b>+5919.6%</b></span></td><td>0.00355</td><td>decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid</td></tr><tr><td><b>2</b></td><td>512 &lt;= seq_len &lt;= 1024 and batch=1 and pattern=dense and density=1.0</td><td>3/4 (5%)</td><td><span style="color:var(--loss)">+1122.4%</span></td><td><span style="color:var(--loss)"><b>+1742.5%</b></span></td><td>0.00355</td><td>dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it</td></tr></tbody></table></div><ul><li>Decision rule: regression &ge; 10.0% (pre-registered MDE) with Benjamini&ndash;Hochberg q &le; 0.05. Verdicts: 9 loss, 62 win, 5 tie, 4 inconclusive, 0 unmeasurable.</li></ul></div>
 <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 706 298" width="706" height="298" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map B -- triton vs the reference"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="706" height="298" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map B -- triton vs the reference</text><text x="0" y="42" font-size="12" fill="#57534e">per-call latency on NVIDIA T1000 8GB (sm_75, 9 GB); batch and density collapse to the most adverse cell</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="96" y="182" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M108 194L137 223M137 194L108 223" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=1024, batch=1, pattern=dense, density=0.125, phase=prefill
@@ -85,7 +85,7 @@ block_sparse at density 1.0 is dense attention under another name</title><rect x
 verdict: missing
 block_sparse at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=4096, batch=1, pattern=block_sparse, density=1.0, phase=prefill
 verdict: missing
-block_sparse at density 1.0 is dense attention under another name</title><rect x="258" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M270 86L299 115M299 86L270 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="285.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="204.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><text x="466" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="458" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
+block_sparse at density 1.0 is dense attention under another name</title><rect x="258" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M270 86L299 115M299 86L270 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="96" y="182" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="108" cy="194" r="9" fill="#7f1d1d"/><text x="108" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="123.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="177.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="231.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="285.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="204.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(22,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><text x="466" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="458" y="213.0" font-size="11" text-anchor="end" fill="#44403c">dense</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="466" y="182" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M478 194L507 223M507 194L478 223" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=1024, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
@@ -109,7 +109,7 @@ block_sparse at density 1.0 is dense attention under another name</title><rect x
 verdict: missing
 block_sparse at density 1.0 is dense attention under another name</title><rect x="574" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M586 86L615 115M615 86L586 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=4096, batch=1, pattern=block_sparse, density=1.0, phase=decode
 verdict: missing
-block_sparse at density 1.0 is dense attention under another name</title><rect x="628" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M640 86L669 115M669 86L640 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="601.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="655.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="574.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(392,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1075% .. tie .. loss 1075%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Red marks a region where this implementation is slower than the reference computing the same attention pattern. Crossed cells are combinations that are not a configuration &mdash; dense below full density, or a sparse pattern at full density &mdash; recorded rather than dropped so the artifact does not claim a full factorial it did not run. Collapsing takes the <em>worst</em> cell, never the mean.</figcaption></figure>
+block_sparse at density 1.0 is dense attention under another name</title><rect x="628" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M640 86L669 115M669 86L640 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="466" y="182" width="215" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="194" r="9" fill="#7f1d1d"/><text x="478" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="466" y="182" width="107" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="478" cy="194" r="9" fill="#7f1d1d"/><text x="478" y="198" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="493.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">512</text><text x="547.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">1024</text><text x="601.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">2048</text><text x="655.0" y="252" font-size="11" text-anchor="middle" fill="#44403c">4096</text><text x="574.0" y="272" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">seq_len</text><text transform="translate(392,155.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">pattern</text><g transform="translate(0,278)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1743% .. tie .. loss 1743%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Red marks a region where this implementation is slower than the reference computing the same attention pattern. Crossed cells are combinations that are not a configuration &mdash; dense below full density, or a sparse pattern at full density &mdash; recorded rather than dropped so the artifact does not claim a full factorial it did not run. Collapsing takes the <em>worst</em> cell, never the mean.</figcaption></figure>
 <figure><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 244" width="598" height="244" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, sans-serif" role="img" aria-label="Loss map B -- by density and batch"><defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fafaf9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#a8a29e" stroke-width="2"/></pattern></defs><rect width="598" height="244" fill="#ffffff"/><text x="0" y="22" font-size="16" font-weight="650" fill="#1c1917">Loss map B -- by density and batch</text><text x="0" y="42" font-size="12" fill="#57534e">the same measurements, sliced along the sparsity axis</text><text x="96" y="62" font-size="12" font-weight="600" fill="#292524">phase=prefill</text><text x="88" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="96" y="128" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M108 140L137 169M137 140L108 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=1, pattern=dense, density=0.25, phase=prefill
@@ -122,7 +122,7 @@ dense attention has density 1.0 by definition</title><rect x="96" y="74" width="
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="150" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M162 86L191 115M191 86L162 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=8, pattern=sliding_window, density=1.0, phase=prefill
 verdict: missing
-sliding_window at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="123.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="177.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="231.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="177.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(22,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><text x="412" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="404" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
+sliding_window at density 1.0 is dense attention under another name</title><rect x="204" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M216 86L245 115M245 86L216 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="204" y="128" width="53" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="216" cy="140" r="9" fill="#7f1d1d"/><text x="216" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="123.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="177.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="231.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="177.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(22,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><text x="412" y="62" font-size="12" font-weight="600" fill="#292524">phase=decode</text><text x="404" y="159.0" font-size="11" text-anchor="end" fill="#44403c">1</text><g><title>seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="412" y="128" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M424 140L453 169M453 140L424 169" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=1, pattern=dense, density=0.25, phase=decode
 verdict: missing
@@ -134,8 +134,12 @@ dense attention has density 1.0 by definition</title><rect x="412" y="74" width=
 verdict: missing
 dense attention has density 1.0 by definition</title><rect x="466" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M478 86L507 115M507 86L478 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><g><title>seq_len=512, batch=8, pattern=sliding_window, density=1.0, phase=decode
 verdict: missing
-sliding_window at density 1.0 is dense attention under another name</title><rect x="520" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M532 86L561 115M561 86L532 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><text x="439.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="493.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="547.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="493.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(338,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><g transform="translate(0,224)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1075% .. tie .. loss 1075%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Density is reported as the fraction of blocks actually visited, and throughput counts only the blocks computed. Counting dense-equivalent FLOPs against a sparse kernel's runtime turns the pattern's density into a speedup it did not earn.</figcaption></figure>
-<h2>Speedup by phase</h2><p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>3.904 ms</td><td>24.562 ms</td><td>5.78x</td><td>1.74x</td><td>15.68x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>0.354 ms</td><td>1.506 ms</td><td>3.51x</td><td>0.99x</td><td>7.49x</td></tr></tbody></table></div>
+sliding_window at density 1.0 is dense attention under another name</title><rect x="520" y="74" width="53" height="53" fill="#e7e5e4" stroke="#ffffff" stroke-width="1"/><path d="M532 86L561 115M561 86L532 115" stroke="#7f1d1d" stroke-width="2.5" fill="none"/></g><rect x="520" y="74" width="53" height="107" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="532" cy="86" r="9" fill="#7f1d1d"/><text x="532" y="90" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">1</text><rect x="520" y="128" width="53" height="53" fill="none" stroke="#7f1d1d" stroke-width="2.5" stroke-dasharray="5 3"/><circle cx="532" cy="140" r="9" fill="#7f1d1d"/><text x="532" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="#ffffff">2</text><text x="439.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.125</text><text x="493.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">0.25</text><text x="547.0" y="198" font-size="11" text-anchor="middle" fill="#44403c">1.0</text><text x="493.0" y="218" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">density</text><text transform="translate(338,128.0) rotate(-90)" font-size="12" font-weight="600" text-anchor="middle" fill="#1c1917">batch</text><g transform="translate(0,224)" font-size="10.5" fill="#44403c"><rect x="0" y="-9" width="15" height="12" fill="#2166ac"/><rect x="15" y="-9" width="15" height="12" fill="#6e9cca"/><rect x="30" y="-9" width="15" height="12" fill="#a7c5e0"/><rect x="45" y="-9" width="15" height="12" fill="#f1f1f0"/><rect x="60" y="-9" width="15" height="12" fill="#e6a9aa"/><rect x="75" y="-9" width="15" height="12" fill="#d06b73"/><rect x="90" y="-9" width="15" height="12" fill="#b2182b"/><text x="113" y="0">win 1743% .. tie .. loss 1743%</text><rect x="315" y="-9" width="15" height="12" fill="url(#hatch)" stroke="#d6d3d1"/><text x="335" y="0">inconclusive</text><path d="M426 -7L435 1M435 -7L426 1" stroke="#7f1d1d" stroke-width="2" fill="none"/><text x="443" y="0">unmeasurable</text><rect x="541" y="-9" width="15" height="12" fill="none" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="4 2"/><text x="561" y="0">extracted loss region</text></g></svg><figcaption>Density is reported as the fraction of blocks actually visited, and throughput counts only the blocks computed. Counting dense-equivalent FLOPs against a sparse kernel's runtime turns the pattern's density into a speedup it did not earn.</figcaption></figure>
+<h2>Attributed causes</h2><ul>
+<li><b>512 &lt;= seq_len &lt;= 4096 and 1 &lt;= batch &lt;= 8 and pattern=dense and density=1.0 and phase=decode</b> &mdash; decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid</li>
+<li><b>512 &lt;= seq_len &lt;= 1024 and batch=1 and pattern=dense and density=1.0 and phase in {prefill, decode}</b> &mdash; dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it</li>
+</ul>
+<h2>Speedup by phase</h2><p>Latency means something different in each phase, so it is reported per phase rather than pooled: at prefill it is the time-to-first-token contribution, at decode it is the inter-token latency. A speedup below 1.00x is a loss.</p><div class="scroll"><table><thead><tr><th>Phase</th><th>Cells</th><th>Median latency</th><th>Reference</th><th>Median speedup</th><th>Worst</th><th>Best</th></tr></thead><tbody><tr><td><b>prefill</b><span class='sub'>time-to-first-token contribution</span></td><td>40/72</td><td>4.073 ms</td><td>18.075 ms</td><td>5.18x</td><td>0.91x</td><td>16.05x</td></tr><tr><td><b>decode</b><span class='sub'>inter-token latency</span></td><td>40/72</td><td>0.538 ms</td><td>1.051 ms</td><td>2.68x</td><td>0.02x</td><td>8.25x</td></tr></tbody></table></div>
 <h2>Correctness suite</h2><h4>Correctness -- flash<i>attention</i>triton<i>sparse (fused) on NVIDIA T1000 8GB (sm</i>75, 9 GB)</h4>
 <p>80/80 shapes pass. Tolerances are derived from the arithmetic (4u + 8<i>sqrt(seq)</i>u_acc), not fitted to the results.</p>
 <div class="scroll"><table><thead><tr>
@@ -190,15 +194,16 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
 <li>Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3&#x27;s warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.</li>
 <li>Forward pass only. The backward pass has a different arithmetic intensity and a different loss map.</li>
 <li>One head dimension (64) and one dtype (float16). Both are held fixed to keep the sparsity lattice tractable; widening either is a new registration, not an extension of this one.</li>
+<li>The reference for a sparse pattern is torch computing that same pattern densely under an explicit mask, because that is the only way torch computes this function. An explicit mask precludes the fused backend, so the reference is not a sparsity-optimised kernel and the margin here is not a margin over one. Against a production block-sparse implementation it would be smaller, and this artifact is not evidence about that comparison.</li>
 <li>The block-sparse pattern is one seeded random draw per shape, not an average over draws. A different draw would give a different pattern with the same density, and the artifact records the seed rather than claiming generality over patterns.</li>
 <li>SM clocks are recorded but not controlled. A run taken while the card is throttling is not comparable to one taken cold.</li>
 </ul>
 <h2>Pre-registration <span class="tag pass">verified</span></h2><ul><li>Sealed <code>2026-08-29T07:01:56Z</code></li><li>Seal hash <code>sha256:fd87925555851b655abfbe9df0c7ec2e5cd065a1cd6f8be9573a8ca114ac6a24</code></li><li>Anchor <code>git:257b179</code></li></ul>
-<h2>Reproduction</h2><pre>losscolumn run thrust3</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>7c28f6afb5883db3f479096bf41ae0793cc5bfb3</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td>Estimated cost</td><td>25 min</td></tr></tbody></table></div>
+<h2>Reproduction</h2><pre>losscolumn run thrust3</pre><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Repository</td><td><code>local checkout</code></td></tr><tr><td>Commit</td><td><code>adc8b898f5d8b6235b11265490959b0965c1312c</code></td></tr><tr><td>Image</td><td><code>ghcr.io/archanachetan07/losscolumn:0.1.0</code></td></tr><tr><td>Hardware</td><td>NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td>Estimated cost</td><td>25 min</td></tr></tbody></table></div>
 <h2>Conformance <span class="tag pass">conforming</span></h2>
-<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0.1</code></td><td>Standard version</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>Evidence class</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.9</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every region&#x27;s support meets the claim&#x27;s declared thresholds</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>5 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>80 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.7</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline extremes agree with the loss column</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-29T07:01:56Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:257b179`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `7c28f6afb588`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~25 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q6</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>equivalence is established where the data supports it</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>5 limitation(s) stated</td></tr></tbody></table></div>
-<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T18:29:08Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
-<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (181 KB)</summary><pre>{
+<div class="scroll"><table><thead><tr><th>Rule</th><th>Requirement</th><th>Result</th><th>Finding</th></tr></thead><tbody><tr><td><code>LC-0.1</code></td><td>Standard version</td><td><span class="pass">pass</span></td><td>claim declares `LC-1.0`</td></tr><tr><td><code>LC-0.2</code></td><td>Evidence class</td><td><span class="pass">pass</span></td><td>evidence class: measured</td></tr><tr><td><code>LC-1.1</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column present</td></tr><tr><td><code>LC-1.2</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>losing cells are covered by described regions</td></tr><tr><td><code>LC-1.3</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is complete over its own cells</td></tr><tr><td><code>LC-1.4</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>loss column is in the main body</td></tr><tr><td><code>LC-1.5</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every loss region carries an attributed cause</td></tr><tr><td><code>LC-1.6</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>unmeasurable cells are accounted for</td></tr><tr><td><code>LC-1.9</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>every region&#x27;s support meets the claim&#x27;s declared thresholds</td></tr><tr><td><code>LC-1.8</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>the design is capable of declaring a loss if one exists</td></tr><tr><td><code>LC-1.7</code></td><td>Loss column</td><td><span class="pass">pass</span></td><td>inconclusive fraction is within tolerance</td></tr><tr><td><code>LC-2.1</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.2</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.3</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.4</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.5</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.6</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-2.7</code></td><td>Tuning-budget parity</td><td><span class="pass">pass</span></td><td>no tuning was involved; parity does not apply</td></tr><tr><td><code>LC-3.1</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>5 factors swept</td></tr><tr><td><code>LC-3.2</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>80 cells measured</td></tr><tr><td><code>LC-3.3</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline reports the range, not a single number</td></tr><tr><td><code>LC-3.4</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline range is non-degenerate</td></tr><tr><td><code>LC-3.5</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>worst case names its conditions</td></tr><tr><td><code>LC-3.7</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline extremes agree with the loss column</td></tr><tr><td><code>LC-3.6</code></td><td>Envelope, not point</td><td><span class="pass">pass</span></td><td>headline avoids unbounded superlatives</td></tr><tr><td><code>LC-4.1</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>pre-registration present</td></tr><tr><td><code>LC-4.2</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>sealed at 2026-08-29T07:01:56Z</td></tr><tr><td><code>LC-4.3</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>protocol matches its seal</td></tr><tr><td><code>LC-4.4</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>results were verified against the protocol</td></tr><tr><td><code>LC-4.5</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no fatal protocol deviations</td></tr><tr><td><code>LC-4.6</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>no deviations from the sealed protocol</td></tr><tr><td><code>LC-4.7</code></td><td>Pre-registration</td><td><span class="pass">pass</span></td><td>seal anchored to `git:257b179`</td></tr><tr><td><code>LC-5.1</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>`losscolumn run thrust3`</td></tr><tr><td><code>LC-5.2</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>reproduction is a single command</td></tr><tr><td><code>LC-5.3</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>pinned to `adc8b898f5d8`</td></tr><tr><td><code>LC-5.4</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>producing tree was clean</td></tr><tr><td><code>LC-5.5</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>image `ghcr.io/archanachetan07/losscolumn:0.1.0`</td></tr><tr><td><code>LC-5.6</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>hardware: NVIDIA T1000 8GB (sm_75, 9 GB)</td></tr><tr><td><code>LC-5.7</code></td><td>One-command reproduction</td><td><span class="pass">pass</span></td><td>~25 min</td></tr><tr><td><code>LC-Q1</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>11 replicates per cell</td></tr><tr><td><code>LC-Q2</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>measurements were interleaved A/B</td></tr><tr><td><code>LC-Q3</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>cell coverage &gt;= 100% for every system</td></tr><tr><td><code>LC-Q4</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>noise/effect ratio 0.00</td></tr><tr><td><code>LC-Q6</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>equivalence is established where the data supports it</td></tr><tr><td><code>LC-Q5</code></td><td>Measurement quality</td><td><span class="pass">pass</span></td><td>6 limitation(s) stated</td></tr></tbody></table></div>
+<h2>Provenance</h2><div class="scroll"><table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Captured</td><td><code>2026-08-29T21:38:32Z</code></td></tr><tr><td>Platform</td><td>Windows-10-10.0.26200-SP0</td></tr><tr><td>Hardware</td><td>1x NVIDIA T1000 8GB</td></tr><tr><td>Fingerprint</td><td><code>cc72e8eab7a5d10b</code></td></tr><tr><td>Packages</td><td><code>torch=2.6.0+cu124</code>, <code>triton=3.2.0</code>, <code>numpy=1.26.4</code>, <code>transformers=5.12.1</code></td></tr></tbody></table></div>
+<h2>Machine-readable claim</h2><p>The same document the validator grades. A reader who disagrees with the analysis can re-run it from this.</p><details><summary>claim.json (203 KB)</summary><pre>{
  &quot;kind&quot;: &quot;claim&quot;,
  &quot;standard_version&quot;: &quot;LC-1.0&quot;,
  &quot;id&quot;: &quot;lc-thrust3b-triton-attention&quot;,
@@ -206,7 +211,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
  &quot;thrust&quot;: &quot;III&quot;,
  &quot;method&quot;: &quot;implementation&quot;,
  &quot;baseline&quot;: &quot;reference&quot;,
- &quot;created_at&quot;: &quot;2026-08-29T18:39:21Z&quot;,
+ &quot;created_at&quot;: &quot;2026-08-29T21:48:29Z&quot;,
  &quot;evidence_class&quot;: &quot;measured&quot;,
  &quot;evidence_note&quot;: &quot;&quot;,
  &quot;authors&quot;: [
@@ -214,9 +219,9 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
  ],
  &quot;headline&quot;: {
   &quot;statement&quot;: &quot;The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern.&quot;,
-  &quot;best_pct&quot;: 93.59766578276066,
-  &quot;worst_pct&quot;: -1.6967495077650385,
-  &quot;median_pct&quot;: 77.61810097440372,
+  &quot;best_pct&quot;: 93.67619994912484,
+  &quot;worst_pct&quot;: -5919.585171530478,
+  &quot;median_pct&quot;: 71.507941167488,
   &quot;conditions_best&quot;: {
    &quot;seq_len&quot;: 4096,
    &quot;batch&quot;: 1,
@@ -225,14 +230,14 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;phase&quot;: &quot;prefill&quot;
   },
   &quot;conditions_worst&quot;: {
-   &quot;seq_len&quot;: 512,
-   &quot;batch&quot;: 1,
+   &quot;seq_len&quot;: 4096,
+   &quot;batch&quot;: 8,
    &quot;pattern&quot;: &quot;dense&quot;,
    &quot;density&quot;: 1.0,
    &quot;phase&quot;: &quot;decode&quot;
   }
  },
- &quot;headline_rendered&quot;: &quot;The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +77.6% across the swept envelope; best +93.6% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -1.7% at seq_len=512, batch=1, pattern=dense, density=1.0, phase=decode.&quot;,
+ &quot;headline_rendered&quot;: &quot;The triton implementation &amp;mdash; the same algorithm as a fused Triton kernel with real block skipping. Its loss map measures what the code generator achieves &amp;mdash; swept over the registered (seq_len x batch x pattern x density x phase) lattice on NVIDIA T1000 8GB (sm_75, 9 GB), against the reference computing the same pattern. Median +71.5% across the swept envelope; best +93.7% at seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill; worst -5919.6% at seq_len=4096, batch=8, pattern=dense, density=1.0, phase=decode.&quot;,
  &quot;loss_column&quot;: {
   &quot;metric&quot;: &quot;latency_ms&quot;,
   &quot;unit&quot;: &quot;ms&quot;,
@@ -241,21 +246,21 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
   &quot;mde_pct&quot;: 10.0,
   &quot;q_level&quot;: 0.05,
   &quot;counts&quot;: {
-   &quot;loss&quot;: 0,
-   &quot;win&quot;: 74,
+   &quot;loss&quot;: 9,
+   &quot;win&quot;: 62,
    &quot;tie&quot;: 5,
-   &quot;inconclusive&quot;: 1,
+   &quot;inconclusive&quot;: 4,
    &quot;missing&quot;: 0,
    &quot;inapplicable&quot;: 64
   },
   &quot;n_cells&quot;: 80,
-  &quot;loss_fraction&quot;: 0.0,
-  &quot;weighted_loss_fraction&quot;: 0.0,
-  &quot;inconclusive_fraction&quot;: 0.0125,
-  &quot;win_fraction&quot;: 0.925,
+  &quot;loss_fraction&quot;: 0.1125,
+  &quot;weighted_loss_fraction&quot;: 0.0625,
+  &quot;inconclusive_fraction&quot;: 0.05,
+  &quot;win_fraction&quot;: 0.775,
   &quot;n_unrunnable&quot;: 0,
   &quot;n_inapplicable&quot;: 64,
-  &quot;envelope_digest&quot;: &quot;sha256:243111235b97fae888a912010b33b1d46639b7899c32026da834a7a5405b6f39&quot;,
+  &quot;envelope_digest&quot;: &quot;sha256:fa50cea2dc6c3faa7d3d4c865a1409c174ec0e604469d3dc6b4b64371f7190ee&quot;,
   &quot;factor_levels&quot;: {
    &quot;seq_len&quot;: [
     512,
@@ -293,14 +298,101 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;message&quot;: &quot;&quot;
   },
   &quot;notes&quot;: [],
-  &quot;regions&quot;: [],
-  &quot;summary&quot;: &quot;No region of the swept envelope shows a regression of at least 10.0% at q&lt;=0.05.&quot;
+  &quot;regions&quot;: [
+   {
+    &quot;bounds&quot;: {
+     &quot;seq_len&quot;: [
+      512,
+      1024,
+      2048,
+      4096
+     ],
+     &quot;batch&quot;: [
+      1,
+      8
+     ],
+     &quot;pattern&quot;: [
+      &quot;dense&quot;
+     ],
+     &quot;density&quot;: [
+      1.0
+     ],
+     &quot;phase&quot;: [
+      &quot;decode&quot;
+     ]
+    },
+    &quot;n_cells&quot;: 8,
+    &quot;n_loss&quot;: 8,
+    &quot;n_inconclusive&quot;: 0,
+    &quot;frac_of_envelope&quot;: 0.1,
+    &quot;weighted_frac&quot;: 0.055555555555555566,
+    &quot;median_regression_pct&quot;: 2375.222552181953,
+    &quot;worst_regression_pct&quot;: 5919.585171530478,
+    &quot;worst_cell&quot;: {
+     &quot;seq_len&quot;: 4096,
+     &quot;batch&quot;: 8,
+     &quot;pattern&quot;: &quot;dense&quot;,
+     &quot;density&quot;: 1.0,
+     &quot;phase&quot;: &quot;decode&quot;
+    },
+    &quot;max_q&quot;: 0.0035511363636363635,
+    &quot;min_effect_pct&quot;: 826.9134482292241,
+    &quot;contains_missing&quot;: 0,
+    &quot;missing_reasons&quot;: [],
+    &quot;attribution&quot;: &quot;decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid&quot;,
+    &quot;label&quot;: &quot;seq_len=[512, 1024, 2048, 4096], batch=[1, 8], pattern=[&#x27;dense&#x27;], density=[1.0], phase=[&#x27;decode&#x27;]&quot;,
+    &quot;purity&quot;: 1.0
+   },
+   {
+    &quot;bounds&quot;: {
+     &quot;seq_len&quot;: [
+      512,
+      1024
+     ],
+     &quot;batch&quot;: [
+      1
+     ],
+     &quot;pattern&quot;: [
+      &quot;dense&quot;
+     ],
+     &quot;density&quot;: [
+      1.0
+     ],
+     &quot;phase&quot;: [
+      &quot;prefill&quot;,
+      &quot;decode&quot;
+     ]
+    },
+    &quot;n_cells&quot;: 4,
+    &quot;n_loss&quot;: 3,
+    &quot;n_inconclusive&quot;: 1,
+    &quot;frac_of_envelope&quot;: 0.05,
+    &quot;weighted_frac&quot;: 0.027777777777777776,
+    &quot;median_regression_pct&quot;: 1122.4404078508783,
+    &quot;worst_regression_pct&quot;: 1742.5423370574372,
+    &quot;worst_cell&quot;: {
+     &quot;seq_len&quot;: 1024,
+     &quot;batch&quot;: 1,
+     &quot;pattern&quot;: &quot;dense&quot;,
+     &quot;density&quot;: 1.0,
+     &quot;phase&quot;: &quot;decode&quot;
+    },
+    &quot;max_q&quot;: 0.0035511363636363635,
+    &quot;min_effect_pct&quot;: 12.232331654460493,
+    &quot;contains_missing&quot;: 0,
+    &quot;missing_reasons&quot;: [],
+    &quot;attribution&quot;: &quot;dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it&quot;,
+    &quot;label&quot;: &quot;seq_len=[512, 1024], batch=[1], pattern=[&#x27;dense&#x27;], density=[1.0], phase=[&#x27;prefill&#x27;, &#x27;decode&#x27;]&quot;,
+    &quot;purity&quot;: 0.75
+   }
+  ],
+  &quot;summary&quot;: &quot;implementation loses to reference on 11% of the swept envelope (9/80 cells), across 2 region(s); worst measurable case +5919.6% on latency_ms.&quot;
  },
  &quot;loss_column_placement&quot;: &quot;main&quot;,
  &quot;reproduction&quot;: {
   &quot;command&quot;: &quot;losscolumn run thrust3&quot;,
   &quot;repo&quot;: &quot;local checkout&quot;,
-  &quot;commit&quot;: &quot;7c28f6afb5883db3f479096bf41ae0793cc5bfb3&quot;,
+  &quot;commit&quot;: &quot;adc8b898f5d8b6235b11265490959b0965c1312c&quot;,
   &quot;dirty&quot;: false,
   &quot;container_image&quot;: &quot;ghcr.io/archanachetan07/losscolumn:0.1.0&quot;,
   &quot;hardware&quot;: &quot;NVIDIA T1000 8GB (sm_75, 9 GB)&quot;,
@@ -309,11 +401,15 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
   &quot;data_inputs&quot;: [],
   &quot;notes&quot;: &quot;&quot;
  },
- &quot;attributions&quot;: {},
+ &quot;attributions&quot;: {
+  &quot;512 &lt;= seq_len &lt;= 4096 and 1 &lt;= batch &lt;= 8 and pattern=dense and density=1.0 and phase=decode&quot;: &quot;decode only: one query row is padded to a 64-wide block, so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid&quot;,
+  &quot;512 &lt;= seq_len &lt;= 1024 and batch=1 and pattern=dense and density=1.0 and phase in {prefill, decode}&quot;: &quot;dense pattern: no blocks are skipped, so the comparison is purely code generation against the fused reference; short sequences: the kernel runs for tens of microseconds and fixed per-launch cost is a large share of it&quot;
+ },
  &quot;limitations&quot;: [
   &quot;Measured on NVIDIA T1000 8GB (sm_75), which predates the architecture FlashAttention-3 targets. FA-3&#x27;s warp specialisation, TMA and ping-pong scheduling do not exist on this hardware for either arm to use, so this is not evidence about them.&quot;,
   &quot;Forward pass only. The backward pass has a different arithmetic intensity and a different loss map.&quot;,
   &quot;One head dimension (64) and one dtype (float16). Both are held fixed to keep the sparsity lattice tractable; widening either is a new registration, not an extension of this one.&quot;,
+  &quot;The reference for a sparse pattern is torch computing that same pattern densely under an explicit mask, because that is the only way torch computes this function. An explicit mask precludes the fused backend, so the reference is not a sparsity-optimised kernel and the margin here is not a margin over one. Against a production block-sparse implementation it would be smaller, and this artifact is not evidence about that comparison.&quot;,
   &quot;The block-sparse pattern is one seeded random draw per shape, not an average over draws. A different draw would give a different pattern with the same density, and the artifact records the seed rather than claiming generality over patterns.&quot;,
   &quot;SM clocks are recorded but not controlled. A run taken while the card is throttling is not comparable to one taken cold.&quot;
  ],
@@ -333,21 +429,21 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
    &quot;prefill&quot;: {
     &quot;n_cells&quot;: 72,
     &quot;n_measured&quot;: 40,
-    &quot;median_latency_ms&quot;: 3.9042959213256836,
-    &quot;median_reference_latency_ms&quot;: 24.562416076660156,
-    &quot;median_speedup&quot;: 5.781821044167181,
-    &quot;worst_speedup&quot;: 1.7369492769611163,
-    &quot;best_speedup&quot;: 15.676625513373244,
+    &quot;median_latency_ms&quot;: 4.073279917240143,
+    &quot;median_reference_latency_ms&quot;: 18.07534408569336,
+    &quot;median_speedup&quot;: 5.17515454526209,
+    &quot;worst_speedup&quot;: 0.9094693534393687,
+    &quot;best_speedup&quot;: 16.04832305112581,
     &quot;interpretation&quot;: &quot;time-to-first-token contribution&quot;
    },
    &quot;decode&quot;: {
     &quot;n_cells&quot;: 72,
     &quot;n_measured&quot;: 40,
-    &quot;median_latency_ms&quot;: 0.35395199060440063,
-    &quot;median_reference_latency_ms&quot;: 1.5058640241622925,
-    &quot;median_speedup&quot;: 3.5111213872811633,
-    &quot;worst_speedup&quot;: 0.9857300137839259,
-    &quot;best_speedup&quot;: 7.4905828472620835,
+    &quot;median_latency_ms&quot;: 0.5382159948348999,
+    &quot;median_reference_latency_ms&quot;: 1.0506719946861267,
+    &quot;median_speedup&quot;: 2.675829669284714,
+    &quot;worst_speedup&quot;: 0.016674641767723347,
+    &quot;best_speedup&quot;: 8.25233617568041,
     &quot;interpretation&quot;: &quot;inter-token latency&quot;
    }
   },
@@ -3960,6 +4056,88 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
     &quot;seed&quot;: 20260101
    }
   },
+  &quot;references&quot;: {
+   &quot;seq_len=512, batch=1, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=512, batch=1, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=512, batch=1, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=1, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=512, batch=8, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=512, batch=8, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=512, batch=8, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=1024, batch=1, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=1024, batch=1, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=1, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=1024, batch=8, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=1024, batch=8, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=1024, batch=8, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=2048, batch=1, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=2048, batch=1, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=1, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=2048, batch=8, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=2048, batch=8, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=2048, batch=8, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=4096, batch=1, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=4096, batch=1, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=1, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=dense, density=1.0, phase=prefill&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=4096, batch=8, pattern=dense, density=1.0, phase=decode&quot;: &quot;sdpa, backend chosen by torch for this shape&quot;,
+   &quot;seq_len=4096, batch=8, pattern=sliding_window, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=sliding_window, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=sliding_window, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=sliding_window, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=block_sparse, density=0.125, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=block_sparse, density=0.125, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=block_sparse, density=0.25, phase=prefill&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;,
+   &quot;seq_len=4096, batch=8, pattern=block_sparse, density=0.25, phase=decode&quot;: &quot;sdpa computing the same pattern densely under an explicit mask; an explicit mask precludes the fused backend, which is a property of the reference and not a handicap imposed here&quot;
+  },
   &quot;throughput_envelope&quot;: {
    &quot;kind&quot;: &quot;envelope&quot;,
    &quot;factors&quot;: [
@@ -4046,13 +4224,13 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
     &quot;reference&quot;: 1.0
    },
    &quot;provenance&quot;: {
-    &quot;captured_at&quot;: &quot;2026-08-29T18:29:08Z&quot;,
+    &quot;captured_at&quot;: &quot;2026-08-29T21:38:32Z&quot;,
     &quot;host&quot;: &quot;Archana-PC&quot;,
     &quot;platform&quot;: &quot;Windows-10-10.0.26200-SP0&quot;,
     &quot;python&quot;: &quot;3.11.5&quot;,
     &quot;cpu_count&quot;: 24,
     &quot;git&quot;: {
-     &quot;commit&quot;: &quot;7c28f6afb5883db3f479096bf41ae0793cc5bfb3&quot;,
+     &quot;commit&quot;: &quot;adc8b898f5d8b6235b11265490959b0965c1312c&quot;,
      &quot;dirty&quot;: false,
      &quot;dirty_scope&quot;: [
       &quot;src&quot;,
@@ -4063,7 +4241,7 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      &quot;dirty_files&quot;: [],
      &quot;branch&quot;: &quot;master&quot;,
      &quot;remote&quot;: null,
-     &quot;describe&quot;: &quot;7c28f6a-dirty&quot;
+     &quot;describe&quot;: &quot;adc8b89-dirty&quot;
     },
     &quot;gpu&quot;: {
      &quot;available&quot;: true,
@@ -4107,144 +4285,144 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      NaN,
      NaN,
      NaN,
-     0.4269059940791384,
-     0.22004637642281233,
-     0.30073162123681835,
-     0.07048776497156115,
-     0.3565129863249253,
-     0.11492503173275698,
+     0.3795444994278652,
+     0.16811511337190155,
+     0.18202074272643443,
+     0.02920173733214379,
+     0.27887659055756764,
+     0.07127836300718013,
      NaN,
      NaN,
-     0.2998287200912652,
-     0.06616456501114931,
-     0.2819579578762272,
-     0.10963781170180208,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.546772120667461,
-     0.48090166692735575,
-     0.5138346801437605,
-     0.2989099157061155,
-     0.5353155039135822,
-     0.38400586184284596,
-     NaN,
-     NaN,
-     0.5175517382125843,
-     0.30150988454006844,
-     0.5193892274762986,
-     0.38031500865563755,
+     0.21371160743545697,
+     0.03249383296328987,
+     0.22138840307262908,
+     0.06888103437693242,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.4737720612784311,
-     0.2593158386317003,
-     0.44636185068465123,
-     0.11433605662256542,
-     0.4819205329628189,
-     0.168256740595521,
+     0.5087019492880183,
+     0.42885996880685257,
+     0.4523623900930354,
+     0.17976615259529505,
+     0.49407529705924935,
+     0.30134741687011685,
      NaN,
      NaN,
-     0.38849852172577926,
-     0.11619857819975825,
-     0.42277502007707407,
-     0.17009911523866625,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.5660222556340401,
-     0.50618401080283,
-     0.5603347086581856,
-     0.38325146270112187,
-     0.5658025346969316,
-     0.4409023429395897,
-     NaN,
-     NaN,
-     0.545801695835968,
-     0.3780866407797988,
-     0.5542543189944218,
-     0.44131987809027284,
+     0.4553643486237725,
+     0.188372589576243,
+     0.44685512363425256,
+     0.2939348952930598,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.5254932410708358,
-     0.2768197678791739,
-     0.5240860995532538,
-     0.16897526739957433,
-     0.5358991376087535,
-     0.1976487463119365,
+     0.4389345883530731,
+     0.21842489656853253,
+     0.38549674756244184,
+     0.05978539208115224,
+     0.4283760804414712,
+     0.10646522212313494,
      NaN,
      NaN,
-     0.4818823606950249,
-     0.16556027697676734,
-     0.5122239702315193,
-     0.20088625420974168,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.5741425847386292,
-     0.5174060907316732,
-     0.5740072527398947,
-     0.44431185645344834,
-     0.5754054008136187,
-     0.48106712688685915,
-     NaN,
-     NaN,
-     0.5673520542200642,
-     0.4430329944679399,
-     0.5701609577612848,
-     0.47165430565984123,
+     0.316135416444759,
+     0.06783387290011092,
+     0.3474470916114898,
+     0.1166899625317945,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.5543959648504176,
-     0.301255426867222,
-     0.5602789692929561,
-     0.21467417092226274,
-     0.5647622103817834,
-     0.2565715927078022,
+     0.5579637920471812,
+     0.4835350615419092,
+     0.5330117657562432,
+     0.2191037949275928,
+     0.5357996019042005,
+     0.34359122340644804,
      NaN,
      NaN,
-     0.5406910150959106,
-     0.21716392870827697,
-     0.5476984363863279,
-     0.25946020033505235,
-     NaN,
-     NaN,
-     NaN,
+     0.5101761648158158,
+     0.27554224224999113,
+     0.5320845280745022,
+     0.3959692155248763,
      NaN,
      NaN,
      NaN,
-     0.5789775483951692,
-     0.521038646753735,
-     0.5787644971969341,
-     0.48314515413453796,
-     0.5796845961398066,
-     0.5064819913136347,
      NaN,
      NaN,
-     0.5758239817155463,
-     0.48186850072990156,
-     0.5771077282576228,
-     0.5035405409506308,
+     NaN,
+     0.5191622661404204,
+     0.25908358106110696,
+     0.5067350587698477,
+     0.12144026579905996,
+     0.5224753806102796,
+     0.1751421358650763,
+     NaN,
+     NaN,
+     0.4523066284352114,
+     0.11924444481376105,
+     0.4741869660252243,
+     0.14630101893134226,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5652651768100392,
+     0.5019323860564847,
+     0.5162064133544403,
+     0.3947858933169399,
+     0.5723370032262262,
+     0.4528996655465517,
+     NaN,
+     NaN,
+     0.5599775605312942,
+     0.3932037136407454,
+     0.5650387922016891,
+     0.44725527317004876,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5443235693435606,
+     0.28540689370068895,
+     0.5483212323528254,
+     0.17788302777392329,
+     0.541993935377001,
+     0.22068896101193197,
+     NaN,
+     NaN,
+     0.5218782901327972,
+     0.16339322534721593,
+     0.4982837092885875,
+     0.22774707810884426,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5729660702589983,
+     0.5179431833865876,
+     0.5759910768788329,
+     0.44354247100927796,
+     0.5369026306880096,
+     0.4920329115998053,
+     NaN,
+     NaN,
+     0.5333920491794293,
+     0.47650361973603916,
+     0.5344733446755943,
+     0.49788825067436143,
      NaN,
      NaN
     ],
@@ -4253,144 +4431,144 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
      NaN,
      NaN,
      NaN,
-     0.2457791944425877,
-     0.22323189245107736,
-     0.06003182966051563,
-     0.029704702853024262,
-     0.11029747386690168,
-     0.058684575506405295,
+     0.417325221561925,
+     1.9915973685363082,
+     0.06000520731844142,
+     0.029149783838571027,
+     0.10952176899204555,
+     0.057807817248347874,
      NaN,
      NaN,
-     0.06009634454400375,
-     0.029520720402194587,
-     0.08206921834153161,
-     0.058166971347617294,
-     NaN,
-     NaN,
-     NaN,
+     0.05987415242584326,
+     0.029177360761798537,
+     0.08206104420975506,
+     0.05768696744483317,
      NaN,
      NaN,
      NaN,
-     0.30832473386397297,
-     0.48599322930641026,
-     0.06985107783979329,
-     0.06178543100857461,
-     0.1303048317981511,
-     0.12310661990268945,
      NaN,
      NaN,
-     0.06985020680183267,
-     0.061836443490999746,
-     0.0960952423370993,
+     NaN,
+     0.5533443262957384,
+     3.9144227358050143,
+     0.06398742795795175,
+     0.061660994017728836,
+     0.11547515119385912,
      0.12311203801532794,
      NaN,
      NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.22858488500310922,
-     0.2364853404318759,
-     0.05931119378044459,
-     0.03244758087954664,
-     0.10747251988236053,
-     0.0629038640062163,
-     NaN,
-     NaN,
-     0.040760744767071345,
-     0.03218860479390469,
-     0.06864679649329349,
-     0.06448212282351334,
+     0.06353598148301108,
+     0.061820947262517495,
+     0.09621467913823809,
+     0.12336370039443999,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.2929766990466376,
-     0.4914060270863094,
-     0.06830446428500123,
-     0.06313157340068624,
-     0.12699203670566522,
-     0.12619667379912647,
+     0.4821528007659462,
+     3.949438810617315,
+     0.058343722744746175,
+     0.03242751077900524,
+     0.10566612801223488,
+     0.06175541195495929,
      NaN,
      NaN,
-     0.046396556104217966,
-     0.06311922503570387,
-     0.07930381713940882,
-     0.12614448702583553,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.2362228047878655,
-     0.24763052371256533,
-     0.06146643011069995,
-     0.03430137850005698,
-     0.11068281624266728,
-     0.06801647515402624,
-     NaN,
-     NaN,
-     0.03578283073151729,
-     0.03410391425800366,
-     0.06692067155788392,
-     0.06798781103521091,
+     0.04063693099474092,
+     0.031891968810241776,
+     0.06736442911065528,
+     0.06374128761955591,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.28122460159565965,
-     0.49408692757527123,
-     0.06782089975914188,
-     0.06399902156024409,
-     0.12542151859173475,
-     0.12788730773087573,
+     0.5695198167735315,
+     7.832500422609131,
+     0.06816159691178007,
+     0.06259734971965314,
+     0.12523501314611268,
+     0.12440100115717845,
      NaN,
      NaN,
-     0.03899165053248257,
-     0.06344120274267426,
-     0.0743766580585785,
-     0.12788292093777454,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     NaN,
-     0.20028405026665946,
-     0.24902726838698186,
-     0.06310921128296963,
-     0.03519006628143217,
-     0.1136942894327332,
-     0.06891272173645531,
-     NaN,
-     NaN,
-     0.03449026798749921,
-     0.03518357276203832,
-     0.06480065846695104,
-     0.06903522313267103,
+     0.04520730941579068,
+     0.062109771118530596,
+     0.07852912917498873,
+     0.12399186744141939,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
      NaN,
-     0.278443116706347,
-     0.49838187195775596,
-     0.06726637451155504,
-     0.06450034182735653,
-     0.1253532658612241,
-     0.12774635474602017,
+     0.529946763925206,
+     7.985348185209516,
+     0.059509336136219344,
+     0.03303225851133389,
+     0.10508731398181596,
+     0.06763043032290839,
      NaN,
      NaN,
-     0.03687398969684844,
-     0.06449290448207817,
-     0.07229760892755246,
-     0.1276532894696032,
+     0.033617194203555495,
+     0.03417282341094534,
+     0.06262052526721823,
+     0.06637712271465675,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5695977285107611,
+     15.550657329183174,
+     0.06536698268098183,
+     0.06340499712076436,
+     0.12467419398167537,
+     0.1265770310890734,
+     NaN,
+     NaN,
+     0.038754414343674534,
+     0.06337721179775557,
+     0.07377701083695402,
+     0.12269831331408934,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5509486309178947,
+     15.613974396848484,
+     0.05910394295819615,
+     0.03502813565750713,
+     0.10437842850031277,
+     0.06731133502843986,
+     NaN,
+     NaN,
+     0.032519179011428666,
+     0.035020823747530294,
+     0.06259488023020018,
+     0.06694177704971374,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     NaN,
+     0.5682508773596004,
+     31.06172777811372,
+     0.06680650641469578,
+     0.0641492718092799,
+     0.11509557198888806,
+     0.1203772362278764,
+     NaN,
+     NaN,
+     0.033889566761991965,
+     0.057741663644325675,
+     0.06644826593648455,
+     0.11501130059339504,
      NaN,
      NaN
     ]
@@ -4415,1327 +4593,5 @@ sliding_window at density 1.0 is dense attention under another name</title><rect
        0,
        1
       ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     }
-    ],
-    &quot;reference&quot;: [
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       0,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       1,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       2,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       0,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       0,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       0,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       1,
-       0
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       0,
-       1,
-       1
-      ],
-      &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       1,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       1,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       2,
-       2,
-       0
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     },
-     {
-      &quot;cell&quot;: [
-       3,
-       1,
-       2,
-       2,
-       1
-      ],
-      &quot;reason&quot;: &quot;block_sparse at density 1.0 is dense attention under another name&quot;
-     }
-    ]
-   },
-   &quot;inapplicable&quot;: [
-    {
-     &quot;cell&quot;: [
-      0,
-      0,
-      0,
-      0,
-      0
-     ],
-     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.125, phase=prefill&quot;,
-     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-    },
-    {
-     &quot;cell&quot;: [
-      0,
-      0,
-      0,
-      0,
-      1
-     ],
-     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.125, phase=decode&quot;,
-     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-    },
-    {
-     &quot;cell&quot;: [
-      0,
-      0,
-      0,
-      1,
-      0
-     ],
-     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.25, phase=prefill&quot;,
-     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-    },
-    {
-     &quot;cell&quot;: [
-      0,
-      0,
-      0,
-      1,
-      1
-     ],
-     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=dense, density=0.25, phase=decode&quot;,
-     &quot;reason&quot;: &quot;dense attention has density 1.0 by definition&quot;
-    },
-    {
-     &quot;cell&quot;: [
-      0,
-      0,
-      1,
-      2,
-      0
-     ],
-     &quot;label&quot;: &quot;seq_len=512, batch=1, pattern=sliding_window, density=1.0, phase=prefill&quot;,
-     &quot;reason&quot;: &quot;sliding_window at density 1.0 is dense attention under another name&quot;
-    },
-  </pre></details>
+      &quot;reason&quot;: &quot;dense at</pre></details>
 <footer>Generated by <code>losscolumn</code> against standard LC-1.0. Every number on this page is reproducible from the command above; if it is not, that is a bug and a conformance failure.</footer></div>

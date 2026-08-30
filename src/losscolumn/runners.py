@@ -539,6 +539,7 @@ def _publish_kernel_claim(res, *, pre, outdir: Path, quick: bool,
             "baseline_tuning_policy": env.meta.get("baseline_tuning_policy"),
         },
         limitations=[
+            *_tensor_core_limitation(res),
             f"Measured on {res.limits.get('name', 'this device')} "
             f"({res.limits.get('capability', '?')}), which predates the architecture "
             "FlashAttention-3 targets. FA-3's warp specialisation, TMA and ping-pong "
@@ -576,6 +577,27 @@ def _publish_kernel_claim(res, *, pre, outdir: Path, quick: bool,
             stem=f"thrust3{label.lower()}-{res.implementation}-attention",
         ).items()
     }
+
+
+def _tensor_core_limitation(res) -> list[str]:
+    """State it first when the timings came from a device without tensor cores."""
+    probe = (res.limits or {}).get("tensor_core_probe") or {}
+    if not probe.get("measured") or probe.get("tensor_cores", True):
+        return []
+    return [
+        "THIS DEVICE HAS NO TENSOR CORES. It reports compute capability "
+        f"{res.limits.get('capability', 'sm_75')}, but compute capability names an "
+        "instruction set rather than the units behind it, and this die ships without "
+        f"them: fp16 GEMM measures {probe.get('fp16_tflops')} TFLOP/s against "
+        f"{probe.get('fp32_tflops')} TFLOP/s for fp32, a ratio of "
+        f"{probe.get('fp16_over_fp32')} where a tensor-core part exceeds 2. Every "
+        "timing here is fp16, so both arms ran an emulated path that nobody deploys. "
+        "The comparison stays internally valid -- both arms took the same path -- but "
+        "the absolute rates do not transfer to a tensor-core device, and neither "
+        "necessarily does the ordering: on real hardware the reference's fused "
+        "backend and the kernel's tl.dot would both reach units that are absent here, "
+        "and there is no reason to assume they would gain equally.",
+    ]
 
 
 def _phase_table(res) -> str:
@@ -646,9 +668,10 @@ def run_calibration(*, outdir: Path, prereg_dir: Path, quick: bool = False,
 
     outdir.mkdir(parents=True, exist_ok=True)
     cal = run_thrust_one_calibration(
-        seq_lens=(512, 1024) if quick else (512, 1024, 2048),
+        seq_lens=(512,) if quick else (512, 1024),
+        micro_batches=(1, 2) if quick else (1, 2, 4),
         replicates=5 if quick else 11,
-        iters=3 if quick else 5,
+        iters=2 if quick else 3,
     )
 
     payload = cal.to_dict()

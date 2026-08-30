@@ -300,7 +300,7 @@
       "requirement": "One-command reproduction",
       "severity": "fatal",
       "passed": true,
-      "message": "pinned to `7c28f6afb588`",
+      "message": "pinned to `adc8b898f5d8`",
       "detail": {}
     },
     {
@@ -380,7 +380,7 @@
       "requirement": "Measurement quality",
       "severity": "warning",
       "passed": true,
-      "message": "5 limitation(s) stated",
+      "message": "6 limitation(s) stated",
       "detail": {}
     }
   ]
