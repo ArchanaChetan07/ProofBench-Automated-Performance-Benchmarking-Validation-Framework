@@ -1,0 +1,817 @@
+{
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "budget_gb": 7.902438359040001,
+  "memory_model": {
+    "hidden": 1024,
+    "ffn": 4096,
+    "heads": 16,
+    "bytes_per_elem": 2,
+    "act_tensors_per_block": 6.0,
+    "checkpoint_retained_fraction": 0.125,
+    "overhead_gb": 0.9,
+    "params": 12582912
+  },
+  "plan": {
+    "n_cells": 6,
+    "n_predicted_loss": 1,
+    "n_boundary": 4,
+    "n_anchor": 2,
+    "budget": 8,
+    "viable": true,
+    "warnings": [],
+    "cells": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  "calibration": {
+    "n_cells": 8,
+    "n_compared": 8,
+    "confusion": {
+      "loss": {
+        "loss": 1,
+        "win": 0,
+        "neither": 0
+      },
+      "win": {
+        "loss": 0,
+        "win": 0,
+        "neither": 0
+      },
+      "neither": {
+        "loss": 5,
+        "win": 0,
+        "neither": 2
+      }
+    },
+    "agreement": 0.375,
+    "kappa": 0.09090909090909091,
+    "region_overlap": {
+      "iou": 0.16666666666666666,
+      "n_predicted_loss": 1,
+      "n_measured_loss": 6,
+      "n_false_loss": 0,
+      "n_false_win": 5,
+      "false_loss_cells": [],
+      "false_win_cells": [
+        {
+          "cell": "seq_len=2048, micro_batch=128, checkpointing=False",
+          "coords": {
+            "seq_len": 2048,
+            "micro_batch": 128,
+            "checkpointing": false
+          },
+          "predicted_pct": 0.0,
+          "measured_pct": Infinity,
+          "predicted_verdict": "tie"
+        },
+        {
+          "cell": "seq_len=2048, micro_batch=128, checkpointing=True",
+          "coords": {
+            "seq_len": 2048,
+            "micro_batch": 128,
+            "checkpointing": true
+          },
+          "predicted_pct": 0.0,
+          "measured_pct": Infinity,
+          "predicted_verdict": "tie"
+        },
+        {
+          "cell": "seq_len=4096, micro_batch=64, checkpointing=False",
+          "coords": {
+            "seq_len": 4096,
+            "micro_batch": 64,
+            "checkpointing": false
+          },
+          "predicted_pct": 0.0,
+          "measured_pct": Infinity,
+          "predicted_verdict": "tie"
+        },
+        {
+          "cell": "seq_len=4096, micro_batch=64, checkpointing=True",
+          "coords": {
+            "seq_len": 4096,
+            "micro_batch": 64,
+            "checkpointing": true
+          },
+          "predicted_pct": 0.0,
+          "measured_pct": Infinity,
+          "predicted_verdict": "tie"
+        },
+        {
+          "cell": "seq_len=4096, micro_batch=128, checkpointing=True",
+          "coords": {
+            "seq_len": 4096,
+            "micro_batch": 128,
+            "checkpointing": true
+          },
+          "predicted_pct": 0.0,
+          "measured_pct": Infinity,
+          "predicted_verdict": "tie"
+        }
+      ]
+    },
+    "boundary_error": {
+      "seq_len": {
+        "axis": "seq_len",
+        "n_fibers_compared": 1,
+        "n_fibers_predicted_only": 0,
+        "n_fibers_measured_only": 3,
+        "mean_abs_shift": 1.0,
+        "mean_signed_shift": 1.0,
+        "shifts": [
+          1
+        ]
+      },
+      "micro_batch": {
+        "axis": "micro_batch",
+        "n_fibers_compared": 1,
+        "n_fibers_predicted_only": 0,
+        "n_fibers_measured_only": 3,
+        "mean_abs_shift": 1.0,
+        "mean_signed_shift": 1.0,
+        "shifts": [
+          1
+        ]
+      },
+      "checkpointing": {
+        "axis": "checkpointing",
+        "n_fibers_compared": 1,
+        "n_fibers_predicted_only": 0,
+        "n_fibers_measured_only": 2,
+        "mean_abs_shift": 0.0,
+        "mean_signed_shift": 0.0,
+        "shifts": [
+          0
+        ]
+      }
+    },
+    "cliffs": {
+      "precision": NaN,
+      "recall": NaN,
+      "n_predicted": 0,
+      "n_measured": 0
+    },
+    "calibration_error": {
+      "bias_pct": NaN,
+      "mae_pct": NaN,
+      "rmse_pct": NaN,
+      "slope": NaN,
+      "intercept_pct": NaN,
+      "r_squared": NaN,
+      "fraction_within_mde": NaN
+    },
+    "verdict": "REGION STATISTICS ONLY: 5 false win(s) and 0 false loss(es) over 8 cells, overlap 0.17. The magnitude statistics are absent by construction: this is a feasibility study, so the prediction is a classification and there is no effect size to regress. EVERY false win is a configuration the model cleared and the hardware refused.",
+    "informative": false,
+    "precondition": {
+      "ok": false,
+      "n_predicted_loss": 1,
+      "n_measured_loss": 6,
+      "n_compared": 8,
+      "effect_spread": 0.0,
+      "min_spread": 0.02,
+      "reasons": [
+        "the predicted effects span only 0.0000 in log-ratio (need 0.02), so the model is being checked at a single operating point and no slope can be fitted. This is expected of a feasibility study, where the prediction is a classification rather than a magnitude"
+      ],
+      "regions_computable": true,
+      "effects_computable": false,
+      "effect_reasons": [
+        "the predicted effects span only 0.0000 in log-ratio (need 0.02), so the model is being checked at a single operating point and no slope can be fitted. This is expected of a feasibility study, where the prediction is a classification rather than a magnitude"
+      ],
+      "explanation": "region statistics are computable (1 predicted and 6 measured loss cell(s)); the magnitude statistics are not: the predicted effects span only 0.0000 in log-ratio (need 0.02), so the model is being checked at a single operating point and no slope can be fitted. This is expected of a feasibility study, where the prediction is a classification rather than a magnitude"
+    },
+    "degenerate": false,
+    "degenerate_reason": "the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point",
+    "notes": []
+  },
+  "measured_feasibility": {
+    "seq_len=2048, micro_batch=64, checkpointing=False": {
+      "seq_len": 2048,
+      "micro_batch": 64,
+      "checkpointing": false,
+      "predicted_gb": 3.760515328,
+      "predicted_fits": true,
+      "measured_fits": true,
+      "detail": "peak 5.43 GB",
+      "model_wrong": false
+    },
+    "seq_len=2048, micro_batch=64, checkpointing=True": {
+      "seq_len": 2048,
+      "micro_batch": 64,
+      "checkpointing": true,
+      "predicted_gb": 2.351229184,
+      "predicted_fits": true,
+      "measured_fits": true,
+      "detail": "peak 5.43 GB",
+      "model_wrong": false
+    },
+    "seq_len=2048, micro_batch=128, checkpointing=False": {
+      "seq_len": 2048,
+      "micro_batch": 128,
+      "checkpointing": false,
+      "predicted_gb": 6.444869888,
+      "predicted_fits": true,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": true
+    },
+    "seq_len=2048, micro_batch=128, checkpointing=True": {
+      "seq_len": 2048,
+      "micro_batch": 128,
+      "checkpointing": true,
+      "predicted_gb": 3.6262976,
+      "predicted_fits": true,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": true
+    },
+    "seq_len=4096, micro_batch=64, checkpointing=False": {
+      "seq_len": 4096,
+      "micro_batch": 64,
+      "checkpointing": false,
+      "predicted_gb": 6.444869888,
+      "predicted_fits": true,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": true
+    },
+    "seq_len=4096, micro_batch=64, checkpointing=True": {
+      "seq_len": 4096,
+      "micro_batch": 64,
+      "checkpointing": true,
+      "predicted_gb": 3.6262976,
+      "predicted_fits": true,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": true
+    },
+    "seq_len=4096, micro_batch=128, checkpointing=False": {
+      "seq_len": 4096,
+      "micro_batch": 128,
+      "checkpointing": false,
+      "predicted_gb": 11.813579008,
+      "predicted_fits": false,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": false
+    },
+    "seq_len=4096, micro_batch=128, checkpointing=True": {
+      "seq_len": 4096,
+      "micro_batch": 128,
+      "checkpointing": true,
+      "predicted_gb": 6.176434432000001,
+      "predicted_fits": true,
+      "measured_fits": false,
+      "detail": "CUDA out of memory",
+      "model_wrong": true
+    }
+  },
+  "uncalibrated": [
+    "Communication. Bus bandwidth, the per-collective latency floor and the overlap schedule are the model's other half and need a cluster; Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion are still unchecked.",
+    "Model scale. Calibrated at hidden=1024 on one block, not a 7B-class model across 32 layers. What transfers is the residual of a memory model of this form, not the parameter values.",
+    "Optimizer state. The measured runs hold gradients but no optimizer moments, while the model prices twelve bytes per parameter for them. That term is therefore predicted and not measured here."
+  ],
+  "predicted_envelope": {
+    "kind": "envelope",
+    "factors": [
+      {
+        "name": "seq_len",
+        "levels": [
+          2048,
+          4096
+        ],
+        "ordered": true,
+        "unit": "tokens",
+        "log_scale": true
+      },
+      {
+        "name": "micro_batch",
+        "levels": [
+          64,
+          128
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": true
+      },
+      {
+        "name": "checkpointing",
+        "levels": [
+          false,
+          true
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": false
+      }
+    ],
+    "metric": {
+      "name": "layer_throughput",
+      "unit": "tok/s",
+      "higher_is_better": true,
+      "description": "tokens per second through one block, forward and backward; a configuration that does not fit scores zero"
+    },
+    "systems": [
+      "configuration",
+      "an_oracle_that_always_fits"
+    ],
+    "replicates": 1,
+    "interleaved": true,
+    "workload": "transformer block, hidden=1024, heads=16, ffn=4096",
+    "meta": {
+      "note": "closed-form memory model; deterministic",
+      "budget_gb": 7.902438359040001,
+      "decision": "does this configuration fit in memory?"
+    },
+    "coverage": {
+      "configuration": 0.875,
+      "an_oracle_that_always_fits": 1.0
+    },
+    "provenance": {
+      "captured_at": "2026-08-30T05:51:14Z",
+      "host": "Archana-PC",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.5",
+      "cpu_count": 24,
+      "git": {
+        "commit": "46b814820cdbd2f95914c3126bd3eae8ceef9a6b",
+        "dirty": true,
+        "dirty_scope": [
+          "src",
+          "pyproject.toml",
+          "tests",
+          "configs"
+        ],
+        "dirty_files": [
+          "M src/losscolumn/core/calibration.py",
+          " M src/losscolumn/thrusts/overlap/calibrate.py",
+          " M src/losscolumn/thrusts/overlap/simulate.py",
+          "?? src/losscolumn/thrusts/overlap/memcal.py",
+          "?? src/losscolumn/thrusts/overlap/microbench.py"
+        ],
+        "branch": "master",
+        "remote": null,
+        "describe": "v0.1.0-thrust3-dirty"
+      },
+      "gpu": {
+        "available": true,
+        "devices": [
+          {
+            "index": 0,
+            "name": "NVIDIA T1000 8GB",
+            "capability": "7.5",
+            "total_memory_gb": 8.59,
+            "multi_processor_count": 14
+          }
+        ],
+        "source": "torch",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4"
+      },
+      "packages": {
+        "torch": "2.6.0+cu124",
+        "triton": "3.2.0",
+        "numpy": "1.26.4",
+        "vllm": null,
+        "sglang": null,
+        "tensorrt_llm": null,
+        "transformers": "5.12.1",
+        "flash_attn": null
+      },
+      "container_image": null,
+      "operator": null,
+      "env_overrides": {
+        "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_MODULE_LOADING": "LAZY"
+      },
+      "notes": null,
+      "hardware_fingerprint": "cc72e8eab7a5d10b",
+      "hardware": "1x NVIDIA T1000 8GB"
+    },
+    "summary": {
+      "configuration": [
+        131072000.0,
+        131072000.0,
+        262144000.0,
+        262144000.0,
+        262144000.0,
+        262144000.0,
+        NaN,
+        524288000.0
+      ],
+      "an_oracle_that_always_fits": [
+        131072000.0,
+        131072000.0,
+        262144000.0,
+        262144000.0,
+        262144000.0,
+        262144000.0,
+        524288000.0,
+        524288000.0
+      ]
+    },
+    "missing": {
+      "configuration": [
+        {
+          "cell": [
+            1,
+            1,
+            0
+          ],
+          "reason": "model predicts 11.81 GB, over the 7.90 GB budget"
+        }
+      ],
+      "an_oracle_that_always_fits": []
+    },
+    "inapplicable": [],
+    "n_applicable": 8
+  },
+  "measured_envelope": {
+    "kind": "envelope",
+    "factors": [
+      {
+        "name": "seq_len",
+        "levels": [
+          2048,
+          4096
+        ],
+        "ordered": true,
+        "unit": "tokens",
+        "log_scale": true
+      },
+      {
+        "name": "micro_batch",
+        "levels": [
+          64,
+          128
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": true
+      },
+      {
+        "name": "checkpointing",
+        "levels": [
+          false,
+          true
+        ],
+        "ordered": true,
+        "unit": null,
+        "log_scale": false
+      }
+    ],
+    "metric": {
+      "name": "layer_throughput",
+      "unit": "tok/s",
+      "higher_is_better": true,
+      "description": "tokens per second through one block, forward and backward; a configuration that does not fit scores zero"
+    },
+    "systems": [
+      "configuration",
+      "an_oracle_that_always_fits"
+    ],
+    "replicates": 5,
+    "interleaved": true,
+    "workload": "transformer block, hidden=1024, heads=16, ffn=4096",
+    "meta": {
+      "note": "measured on the local device",
+      "budget_gb": 7.902438359040001,
+      "decision": "does this configuration fit in memory?"
+    },
+    "coverage": {
+      "configuration": 0.25,
+      "an_oracle_that_always_fits": 1.0
+    },
+    "provenance": {
+      "captured_at": "2026-08-30T05:51:15Z",
+      "host": "Archana-PC",
+      "platform": "Windows-10-10.0.26200-SP0",
+      "python": "3.11.5",
+      "cpu_count": 24,
+      "git": {
+        "commit": "46b814820cdbd2f95914c3126bd3eae8ceef9a6b",
+        "dirty": true,
+        "dirty_scope": [
+          "src",
+          "pyproject.toml",
+          "tests",
+          "configs"
+        ],
+        "dirty_files": [
+          "M src/losscolumn/core/calibration.py",
+          " M src/losscolumn/thrusts/overlap/calibrate.py",
+          " M src/losscolumn/thrusts/overlap/simulate.py",
+          "?? src/losscolumn/thrusts/overlap/memcal.py",
+          "?? src/losscolumn/thrusts/overlap/microbench.py"
+        ],
+        "branch": "master",
+        "remote": null,
+        "describe": "v0.1.0-thrust3-dirty"
+      },
+      "gpu": {
+        "available": true,
+        "devices": [
+          {
+            "index": 0,
+            "name": "NVIDIA T1000 8GB",
+            "capability": "7.5",
+            "total_memory_gb": 8.59,
+            "multi_processor_count": 14
+          }
+        ],
+        "source": "torch",
+        "torch_version": "2.6.0+cu124",
+        "cuda_version": "12.4"
+      },
+      "packages": {
+        "torch": "2.6.0+cu124",
+        "triton": "3.2.0",
+        "numpy": "1.26.4",
+        "vllm": null,
+        "sglang": null,
+        "tensorrt_llm": null,
+        "transformers": "5.12.1",
+        "flash_attn": null
+      },
+      "container_image": null,
+      "operator": null,
+      "env_overrides": {
+        "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+        "CUDA_MODULE_LOADING": "LAZY"
+      },
+      "notes": null,
+      "hardware_fingerprint": "cc72e8eab7a5d10b",
+      "hardware": "1x NVIDIA T1000 8GB"
+    },
+    "data": {
+      "configuration": [
+        [
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0
+        ],
+        [
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      ],
+      "an_oracle_that_always_fits": [
+        [
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0
+        ],
+        [
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0,
+          131072000.0
+        ],
+        [
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0
+        ],
+        [
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0
+        ],
+        [
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0
+        ],
+        [
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0,
+          262144000.0
+        ],
+        [
+          524288000.0,
+          524288000.0,
+          524288000.0,
+          524288000.0,
+          524288000.0
+        ],
+        [
+          524288000.0,
+          524288000.0,
+          524288000.0,
+          524288000.0,
+          524288000.0
+        ]
+      ]
+    },
+    "missing": {
+      "configuration": [
+        {
+          "cell": [
+            0,
+            1,
+            0
+          ],
+          "reason": "CUDA out of memory"
+        },
+        {
+          "cell": [
+            0,
+            1,
+            1
+          ],
+          "reason": "CUDA out of memory"
+        },
+        {
+          "cell": [
+            1,
+            0,
+            0
+          ],
+          "reason": "CUDA out of memory"
+        },
+        {
+          "cell": [
+            1,
+            0,
+            1
+          ],
+          "reason": "CUDA out of memory"
+        },
+        {
+          "cell": [
+            1,
+            1,
+            0
+          ],
+          "reason": "CUDA out of memory"
+        },
+        {
+          "cell": [
+            1,
+            1,
+            1
+          ],
+          "reason": "CUDA out of memory"
+        }
+      ],
+      "an_oracle_that_always_fits": []
+    },
+    "inapplicable": [],
+    "n_applicable": 8
+  },
+  "kind": "calibration-report",
+  "standard_version": "LC-1.0",
+  "calibrates": "thrust1",
+  "generated_at": "2026-08-30T05:54:56Z",
+  "command": "python scripts/memcal.py",
+  "provenance": {
+    "captured_at": "2026-08-30T05:54:56Z",
+    "host": "Archana-PC",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "cpu_count": 24,
+    "git": {
+      "commit": "46b814820cdbd2f95914c3126bd3eae8ceef9a6b",
+      "dirty": true,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [
+        "M src/losscolumn/core/calibration.py",
+        " M src/losscolumn/thrusts/overlap/calibrate.py",
+        " M src/losscolumn/thrusts/overlap/simulate.py",
+        "?? src/losscolumn/thrusts/overlap/memcal.py",
+        "?? src/losscolumn/thrusts/overlap/microbench.py"
+      ],
+      "branch": "master",
+      "remote": null,
+      "describe": "v0.1.0-thrust3-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA T1000 8GB",
+          "capability": "7.5",
+          "total_memory_gb": 8.59,
+          "multi_processor_count": 14
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4"
+    },
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "triton": "3.2.0",
+      "numpy": "1.26.4",
+      "vllm": null,
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.12.1",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    },
+    "notes": null,
+    "hardware_fingerprint": "cc72e8eab7a5d10b",
+    "hardware": "1x NVIDIA T1000 8GB"
+  }
+}

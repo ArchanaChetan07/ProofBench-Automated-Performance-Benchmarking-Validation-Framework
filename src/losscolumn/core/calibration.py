@@ -44,6 +44,128 @@ _LOSS = ("loss",)
 _WIN = ("win",)
 
 
+
+@dataclass
+class Precondition:
+    """Whether a calibration dataset can support the statistics at all.
+
+    The previous version of this module computed intersection over union,
+    boundary displacement and calibration error on whatever it was given, and
+    on an empty pair of maps it returned 1.00, undefined, and 0.0 -- three
+    numbers that look like a clean pass and mean nothing. The statistics are
+    now gated behind this check and are simply *absent* when it fails, because
+    a number that cannot be wrong is worse than a missing one: it gets quoted.
+
+    Two conditions, both necessary:
+
+    **At least one loss, predicted or observed.** Every region statistic is a
+    ratio over the loss sets. With both empty, the intersection over union of
+    two empty sets is 1.00, there is no boundary to displace, and false-win and
+    false-loss areas are zero because there was nothing to get wrong.
+
+    **Spread in the predicted effects.** With none, the model was checked at a
+    single operating point: no slope can be fitted, and "100% within MDE"
+    describes one number rather than a surface.
+    """
+
+    ok: bool
+    n_predicted_loss: int = 0
+    n_measured_loss: int = 0
+    n_compared: int = 0
+    effect_spread: float = 0.0
+    min_spread: float = 0.0
+    reasons: list[str] = field(default_factory=list)
+    regions_ok: bool = False
+    effects_ok: bool = False
+    effect_reasons: list[str] = field(default_factory=list)
+
+    def explain(self) -> str:
+        if self.ok:
+            return (
+                f"informative: {self.n_predicted_loss} predicted and "
+                f"{self.n_measured_loss} measured loss cell(s), predicted effects "
+                f"spanning {self.effect_spread:.3f} in log-ratio"
+            )
+        if self.regions_ok:
+            return (
+                f"region statistics are computable ({self.n_predicted_loss} predicted "
+                f"and {self.n_measured_loss} measured loss cell(s)); the magnitude "
+                f"statistics are not: {'; '.join(self.effect_reasons)}"
+            )
+        return "; ".join(self.reasons)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "ok": self.ok,
+            "n_predicted_loss": self.n_predicted_loss,
+            "n_measured_loss": self.n_measured_loss,
+            "n_compared": self.n_compared,
+            "effect_spread": self.effect_spread,
+            "min_spread": self.min_spread,
+            "reasons": self.reasons,
+            "regions_computable": self.regions_ok,
+            "effects_computable": self.effects_ok,
+            "effect_reasons": self.effect_reasons,
+            "explanation": self.explain(),
+        }
+
+
+def check_precondition(
+    predicted: Sequence[CellComparison],
+    measured: Sequence[CellComparison],
+    *,
+    min_spread: float = 0.02,
+) -> Precondition:
+    """Decide whether these two maps can support calibration statistics."""
+    pred = {tuple(c.cell): c for c in predicted}
+    meas = {tuple(c.cell): c for c in measured}
+    shared = sorted(set(pred) & set(meas))
+
+    n_pred_loss = sum(1 for c in shared if _bucket(pred[c].verdict) == "loss")
+    n_meas_loss = sum(1 for c in shared if _bucket(meas[c].verdict) == "loss")
+
+    effects = [pred[c].effect for c in shared if math.isfinite(pred[c].effect)]
+    spread = float(max(effects) - min(effects)) if len(effects) >= 2 else 0.0
+
+    # Two groups of statistic, with different requirements. Conflating them was
+    # wrong: a feasibility study has no continuous effect to regress -- a
+    # configuration either runs or it does not -- yet its region overlap,
+    # boundary displacement and false-win area are perfectly well defined.
+    # Demanding spread there refused to compute four statistics that were
+    # available, which is its own kind of dishonesty.
+    region_reasons: list[str] = []
+    effect_reasons: list[str] = []
+
+    if not shared:
+        region_reasons.append("no cell was both predicted and measured")
+    if n_pred_loss == 0 and n_meas_loss == 0:
+        region_reasons.append(
+            "neither map contains a loss, so every region statistic would be a ratio "
+            "over empty sets: overlap would read 1.00, and false-win and false-loss "
+            "areas would be zero because there was nothing to get wrong"
+        )
+    if spread < min_spread:
+        effect_reasons.append(
+            f"the predicted effects span only {spread:.4f} in log-ratio (need "
+            f"{min_spread}), so the model is being checked at a single operating "
+            "point and no slope can be fitted. This is expected of a feasibility "
+            "study, where the prediction is a classification rather than a magnitude"
+        )
+
+    return Precondition(
+        ok=not region_reasons and not effect_reasons,
+        regions_ok=not region_reasons,
+        effects_ok=not effect_reasons,
+        n_predicted_loss=n_pred_loss,
+        n_measured_loss=n_meas_loss,
+        n_compared=len(shared),
+        effect_spread=spread,
+        min_spread=min_spread,
+        reasons=region_reasons + effect_reasons,
+        effect_reasons=effect_reasons,
+    )
+
+
 @dataclass
 class BoundaryShift:
     """How far the predicted loss boundary sits from the measured one, per axis."""
@@ -111,6 +233,12 @@ class CalibrationResult:
     mde: float = 0.05
     notes: list[str] = field(default_factory=list)
     effect_spread: float = float("nan")
+    precondition: Precondition | None = None
+
+    @property
+    def informative(self) -> bool:
+        """False when the statistics were not computed, because they could not be."""
+        return self.precondition is None or self.precondition.ok
 
     @property
     def n_false_win(self) -> int:
@@ -138,7 +266,13 @@ class CalibrationResult:
         about the model.
         """
         no_losses = self.n_predicted_loss == 0 and self.n_measured_loss == 0
-        no_spread = not math.isfinite(self.slope)
+        # A missing slope is not degeneracy when the study never had a magnitude
+        # to predict. A feasibility study's regions can disagree perfectly well
+        # without one, and five false wins is not an absence of evidence.
+        no_spread = (
+            not math.isfinite(self.slope)
+            and (self.precondition is None or self.precondition.effects_ok)
+        )
         return bool(no_losses or no_spread)
 
     def degenerate_reason(self) -> str:
@@ -158,6 +292,27 @@ class CalibrationResult:
 
     def verdict(self) -> str:
         """A one-line statement of how far the model can be trusted."""
+        if self.precondition is not None and not self.precondition.regions_ok:
+            return (
+                "NOT COMPUTED: this dataset cannot support calibration statistics. "
+                f"{self.precondition.explain()}. No overlap, boundary or error figure "
+                "is reported, because a figure that could not have come out any other "
+                "way is worse than a missing one -- it gets quoted."
+            )
+        if self.precondition is not None and not self.precondition.effects_ok:
+            verdict = (
+                f"REGION STATISTICS ONLY: {self.n_false_win} false win(s) and "
+                f"{self.n_false_loss} false loss(es) over {self.n_compared} cells, "
+                f"overlap {self.region_iou:.2f}. "
+            )
+            return verdict + (
+                "The magnitude statistics are absent by construction: this is a "
+                "feasibility study, so the prediction is a classification and there is "
+                "no effect size to regress."
+            ) + (
+                " EVERY false win is a configuration the model cleared and the hardware "
+                "refused." if self.n_false_win else ""
+            )
         if not math.isfinite(self.rmse_pct):
             return "no overlapping cells: the model has not been calibrated at all"
         if self.degenerate:
@@ -217,6 +372,8 @@ class CalibrationResult:
                 "fraction_within_mde": self.within_mde,
             },
             "verdict": self.verdict(),
+            "informative": self.informative,
+            "precondition": self.precondition.to_dict() if self.precondition else None,
             "degenerate": self.degenerate,
             "degenerate_reason": self.degenerate_reason(),
             "notes": self.notes,
@@ -229,6 +386,23 @@ class CalibrationResult:
             f"**{self.verdict()}**",
             "",
         ]
+        if self.precondition is not None and not self.precondition.regions_ok:
+            lines += [
+                "| Requirement | Needed | Found |",
+                "|---|---|---|",
+                f"| A loss in either map | at least 1 | "
+                f"{self.precondition.n_predicted_loss} predicted, "
+                f"{self.precondition.n_measured_loss} measured |",
+                f"| Spread in predicted effects | {self.precondition.min_spread} | "
+                f"{self.precondition.effect_spread:.4f} |",
+                f"| Cells compared | at least 1 | {self.precondition.n_compared} |",
+                "",
+                "The measurement plan needs to reach cells where the model predicts a "
+                "loss. `losscolumn.core.calibration.plan_calibration` selects them from "
+                "the model's own predicted decision boundary.",
+                "",
+            ]
+            return "\n".join(lines)
         if self.degenerate:
             lines += [
                 "> The statistics below are reported for completeness and should not "
@@ -244,18 +418,28 @@ class CalibrationResult:
             f"- **{self.n_false_win} false win(s)** -- predicted a win, measured a loss.",
             f"- {self.n_false_loss} false loss(es) -- predicted a loss, measurement cleared it.",
             "",
-            "| Calibration statistic | Value | Reading |",
-            "|---|---|---|",
-            f"| Bias | {self.bias_pct:+.2f} pp | "
-            f"{'model is optimistic' if self.bias_pct < 0 else 'model is pessimistic'} |",
-            f"| Mean absolute error | {self.mae_pct:.2f} pp | typical miss |",
-            f"| RMSE | {self.rmse_pct:.2f} pp | miss including the tails |",
-            f"| Slope | {self.slope:.2f} | "
-            f"{'exaggerates effects' if self.slope < 0.9 else 'understates effects' if self.slope > 1.1 else 'scales correctly'} |",
-            f"| R-squared | {self.r_squared:.2f} | share of variation the model tracks |",
-            f"| Within MDE | {self.within_mde:.0%} | cells predicted to within {self.mde:.0%} |",
-            "",
         ]
+        if self.precondition is None or self.precondition.effects_ok:
+            lines += [
+                "| Calibration statistic | Value | Reading |",
+                "|---|---|---|",
+                f"| Bias | {self.bias_pct:+.2f} pp | "
+                f"{'model is optimistic' if self.bias_pct < 0 else 'model is pessimistic'} |",
+                f"| Mean absolute error | {self.mae_pct:.2f} pp | typical miss |",
+                f"| RMSE | {self.rmse_pct:.2f} pp | miss including the tails |",
+                f"| Slope | {self.slope:.2f} | "
+                f"{'exaggerates effects' if self.slope < 0.9 else 'understates effects' if self.slope > 1.1 else 'scales correctly'} |",
+                f"| R-squared | {self.r_squared:.2f} | share of variation the model tracks |",
+                f"| Within MDE | {self.within_mde:.0%} | cells predicted to within {self.mde:.0%} |",
+                "",
+            ]
+        else:
+            lines += [
+                "_No magnitude statistics: the prediction here is a classification, "
+                "so there is no effect size to regress. The region statistics above "
+                "are the whole of what this study measures._",
+                "",
+            ]
         if self.boundary:
             lines += ["**Boundary displacement**", ""]
             lines += [f"- {b.describe()}" for b in self.boundary.values()]
@@ -330,6 +514,7 @@ def calibrate(
     measured: Sequence[CellComparison],
     *,
     mde: float = 0.05,
+    min_spread: float = 0.02,
     predicted_cliffs: Sequence[Any] = (),
     measured_cliffs: Sequence[Any] = (),
 ) -> CalibrationResult:
@@ -344,6 +529,18 @@ def calibrate(
     shared = sorted(set(pred) & set(meas))
 
     res = CalibrationResult(n_cells=len(pred), n_compared=len(shared), mde=mde)
+    res.precondition = check_precondition(predicted, measured, min_spread=min_spread)
+
+    # The statistics are not computed when they cannot mean anything. Returning
+    # them as absent rather than as vacuous values is the whole point: 1.00
+    # overlap and 0.0pp error read as a pass, and were reported as one here
+    # before this gate existed.
+    if not res.precondition.regions_ok:
+        res.n_predicted_loss = res.precondition.n_predicted_loss
+        res.n_measured_loss = res.precondition.n_measured_loss
+        res.effect_spread = res.precondition.effect_spread
+        res.notes.extend(res.precondition.reasons)
+        return res
     if not shared:
         res.notes.append(
             "no cell was both predicted and measured, so nothing here is calibrated"
@@ -395,7 +592,7 @@ def calibrate(
     y = np.array([meas[c].effect for c in shared], dtype=float)
     ok = np.isfinite(x) & np.isfinite(y)
     x, y = x[ok], y[ok]
-    if x.size >= 2:
+    if res.precondition.effects_ok and x.size >= 2:
         err_pct = (np.exp(y) - np.exp(x)) * 100
         res.bias_pct = float(np.mean(err_pct))
         res.mae_pct = float(np.mean(np.abs(err_pct)))
@@ -459,3 +656,155 @@ def suggest_update(res: CalibrationResult, *, parameter: str = "achievable_mfu",
         else "the model scales correctly; residual error is not a scale error"
     )
     return out
+
+
+# --------------------------------------------------------------------------
+# model-guided selection of what to measure
+# --------------------------------------------------------------------------
+
+
+@dataclass
+class CalibrationPlan:
+    """Which cells to measure, and why each one was chosen.
+
+    A fixed grid is the wrong instrument for calibrating a model. Most of a
+    grid sits deep inside a region where the model and the hardware agree and
+    would agree under almost any parameters, so measuring it buys very little;
+    and if the grid happens to miss the region where the model predicts a loss,
+    the study cannot say anything at all -- which is exactly how this project's
+    first calibration came back empty.
+
+    The model is free to evaluate, so it is swept densely first and asked where
+    its own verdict *changes*. Those transitions are the decision boundary: the
+    only places where being slightly wrong changes an answer rather than a
+    number. Measurement effort goes there, plus a few anchors deep inside each
+    region so the region statistics and the effect regression have something to
+    stand on.
+    """
+
+    cells: list[Cell] = field(default_factory=list)
+    rationale: dict[Cell, str] = field(default_factory=dict)
+    n_predicted_loss: int = 0
+    n_boundary: int = 0
+    n_anchor: int = 0
+    budget: int = 0
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def viable(self) -> bool:
+        """Whether measuring this plan could produce a usable calibration."""
+        return self.n_predicted_loss > 0 and len(self.cells) >= 4
+
+    def describe(self, env: Envelope) -> str:
+        lines = [
+            f"{len(self.cells)} cell(s) selected of a {self.budget} budget: "
+            f"{self.n_boundary} at a predicted decision boundary, {self.n_anchor} as "
+            f"region anchors; {self.n_predicted_loss} are predicted losses.",
+        ]
+        if not self.viable:
+            lines.append(
+                "NOT VIABLE: the model predicts no loss anywhere on this grid, so no "
+                "measurement of it can produce calibration statistics. Widen the grid "
+                "into a regime the model expects to be adverse."
+            )
+        lines += [f"  {env.label(c)}  <- {r}" for c, r in
+                  sorted(self.rationale.items(), key=lambda kv: str(kv[0]))[:24]]
+        return "\n".join(lines)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "n_cells": len(self.cells),
+            "n_predicted_loss": self.n_predicted_loss,
+            "n_boundary": self.n_boundary,
+            "n_anchor": self.n_anchor,
+            "budget": self.budget,
+            "viable": self.viable,
+            "warnings": self.warnings,
+            "cells": [list(c) for c in self.cells],
+        }
+
+
+def find_boundaries(
+    env: Envelope, predicted: Sequence[CellComparison]
+) -> list[tuple[Cell, Cell, str]]:
+    """Adjacent cell pairs where the model's predicted verdict changes.
+
+    Walks every ordered axis. A transition from win to loss, or tie to loss, is
+    a place the model has committed to an answer that measurement can falsify;
+    everywhere else it is only committed to a number.
+    """
+    by_cell = {tuple(c.cell): _bucket(c.verdict) for c in predicted}
+    out: list[tuple[Cell, Cell, str]] = []
+    for f in env.factors:
+        if not f.ordered or len(f.levels) < 2:
+            continue
+        for _fixed, base in env.fibers(f.name):
+            cells = env.fiber_cells(f.name, base)
+            for a, b in zip(cells[:-1], cells[1:], strict=False):
+                va, vb = by_cell.get(tuple(a)), by_cell.get(tuple(b))
+                if va is None or vb is None or va == vb:
+                    continue
+                out.append((a, b, f.name))
+    return out
+
+
+def plan_calibration(
+    env: Envelope,
+    predicted: Sequence[CellComparison],
+    *,
+    budget: int = 12,
+    n_anchors: int = 2,
+) -> CalibrationPlan:
+    """Choose the cells worth measuring, given what the model predicts."""
+    plan = CalibrationPlan(budget=budget)
+    by_cell = {tuple(c.cell): c for c in predicted}
+    buckets = {k: _bucket(v.verdict) for k, v in by_cell.items()}
+
+    chosen: dict[Cell, str] = {}
+
+    # 1. Straddle every predicted boundary, worst-effect boundaries first.
+    bounds = find_boundaries(env, predicted)
+    bounds.sort(
+        key=lambda t: -abs(by_cell[tuple(t[1])].effect - by_cell[tuple(t[0])].effect)
+    )
+    for a, b, axis in bounds:
+        if len(chosen) + 2 > budget:
+            break
+        for cell, side in ((a, "below"), (b, "above")):
+            chosen.setdefault(
+                tuple(cell),
+                f"{side} a predicted {buckets[tuple(a)]}->{buckets[tuple(b)]} "
+                f"transition on {axis}",
+            )
+    plan.n_boundary = len(chosen)
+
+    # 2. Anchor each region away from its edge, so the region statistics and the
+    #    effect regression are not resting entirely on boundary cells -- which
+    #    are the cells where the model is least certain.
+    for want in ("loss", "win", "neither"):
+        pool = [c for c, v in buckets.items() if v == want and c not in chosen]
+        pool.sort(key=lambda c: -abs(by_cell[c].effect))
+        for c in pool[:n_anchors]:
+            if len(chosen) >= budget:
+                break
+            chosen[c] = f"anchor inside the predicted {want} region"
+    plan.n_anchor = len(chosen) - plan.n_boundary
+
+    plan.cells = sorted(chosen)
+    plan.rationale = chosen
+    plan.n_predicted_loss = sum(1 for c in plan.cells if buckets.get(c) == "loss")
+
+    if plan.n_predicted_loss == 0:
+        plan.warnings.append(
+            "the model predicts no loss anywhere on this grid. Measuring it cannot "
+            "produce calibration statistics, because every region statistic would be "
+            "a ratio over an empty set. Extend the grid into a regime the model "
+            "expects to be adverse before spending measurement time."
+        )
+    if not bounds:
+        plan.warnings.append(
+            "the model's verdict is constant across every ordered axis, so there is no "
+            "predicted boundary to measure against and boundary displacement is "
+            "undefined."
+        )
+    return plan

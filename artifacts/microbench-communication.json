@@ -1,0 +1,247 @@
+{
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "fits": [
+    {
+      "transport": "pcie_h2d",
+      "kind": "copy",
+      "world": 1,
+      "alpha_us": 13.599257083787153,
+      "beta_gbs": 11.923036769015686,
+      "r_squared": 0.9999973137628576,
+      "n_points": 8,
+      "residual_pct": 2.9208194159066143,
+      "n_half_bytes": 162144.44224129125,
+      "points": [
+        {
+          "nbytes": 4096,
+          "effective_bytes": 4096.0,
+          "seconds": 1.5812799334526063e-05,
+          "gbs": 0.2590306696080491
+        },
+        {
+          "nbytes": 16384,
+          "effective_bytes": 16384.0,
+          "seconds": 1.595519930124283e-05,
+          "gbs": 1.0268752956739167
+        },
+        {
+          "nbytes": 65536,
+          "effective_bytes": 65536.0,
+          "seconds": 1.8408000469207762e-05,
+          "gbs": 3.56019113046125
+        },
+        {
+          "nbytes": 262144,
+          "effective_bytes": 262144.0,
+          "seconds": 3.427039980888367e-05,
+          "gbs": 7.649283389219355
+        },
+        {
+          "nbytes": 1048576,
+          "effective_bytes": 1048576.0,
+          "seconds": 9.945120215415955e-05,
+          "gbs": 10.543623176868186
+        },
+        {
+          "nbytes": 4194304,
+          "effective_bytes": 4194304.0,
+          "seconds": 0.0003709536075592041,
+          "gbs": 11.30681550072428
+        },
+        {
+          "nbytes": 16777216,
+          "effective_bytes": 16777216.0,
+          "seconds": 0.0014153679847717286,
+          "gbs": 11.853607104661082
+        },
+        {
+          "nbytes": 67108864,
+          "effective_bytes": 67108864.0,
+          "seconds": 0.005643132781982422,
+          "gbs": 11.892129175883895
+        }
+      ],
+      "note": "",
+      "fit_accepted": true,
+      "min_r_squared": 0.9,
+      "usable_for_fabric": false
+    },
+    {
+      "transport": "pcie_d2h",
+      "kind": "copy",
+      "world": 1,
+      "alpha_us": 8.83539203941203,
+      "beta_gbs": 12.613906167993365,
+      "r_squared": 0.9999813751511487,
+      "n_points": 8,
+      "residual_pct": 6.218232761333173,
+      "n_half_bytes": 111448.80614257888,
+      "points": [
+        {
+          "nbytes": 4096,
+          "effective_bytes": 4096.0,
+          "seconds": 8.30560028553009e-06,
+          "gbs": 0.49316122365483905
+        },
+        {
+          "nbytes": 16384,
+          "effective_bytes": 16384.0,
+          "seconds": 1.1952000111341476e-05,
+          "gbs": 1.3708165869621198
+        },
+        {
+          "nbytes": 65536,
+          "effective_bytes": 65536.0,
+          "seconds": 1.5940800309181213e-05,
+          "gbs": 4.111211402745826
+        },
+        {
+          "nbytes": 262144,
+          "effective_bytes": 262144.0,
+          "seconds": 2.752160131931305e-05,
+          "gbs": 9.525027158068838
+        },
+        {
+          "nbytes": 1048576,
+          "effective_bytes": 1048576.0,
+          "seconds": 8.773440122604369e-05,
+          "gbs": 11.951708626794998
+        },
+        {
+          "nbytes": 4194304,
+          "effective_bytes": 4194304.0,
+          "seconds": 0.00033114399909973144,
+          "gbs": 12.666102998704172
+        },
+        {
+          "nbytes": 16777216,
+          "effective_bytes": 16777216.0,
+          "seconds": 0.0013561568260192871,
+          "gbs": 12.37114740575099
+        },
+        {
+          "nbytes": 67108864,
+          "effective_bytes": 67108864.0,
+          "seconds": 0.005325457763671875,
+          "gbs": 12.601520278273465
+        }
+      ],
+      "note": "",
+      "fit_accepted": true,
+      "min_r_squared": 0.9,
+      "usable_for_fabric": false
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 2,
+      "alpha_us": 180.05744880553064,
+      "beta_gbs": 0.18698648730132403,
+      "r_squared": 0.9836053619960504,
+      "n_points": 6,
+      "residual_pct": 22.094643430917817,
+      "n_half_bytes": 33668.30986458415,
+      "points": [
+        {
+          "nbytes": 4096,
+          "effective_bytes": 4096.0,
+          "seconds": 0.0001994699938222766,
+          "gbs": 0.020534416838902832
+        },
+        {
+          "nbytes": 16384,
+          "effective_bytes": 16384.0,
+          "seconds": 0.00022787500638514756,
+          "gbs": 0.07189906545656109
+        },
+        {
+          "nbytes": 65536,
+          "effective_bytes": 65536.0,
+          "seconds": 0.0002101949998177588,
+          "gbs": 0.31178667454896825
+        },
+        {
+          "nbytes": 262144,
+          "effective_bytes": 262144.0,
+          "seconds": 0.00027481999713927505,
+          "gbs": 0.9538752737383552
+        },
+        {
+          "nbytes": 1048576,
+          "effective_bytes": 1048576.0,
+          "seconds": 0.00789843499660492,
+          "gbs": 0.13275743871421647
+        },
+        {
+          "nbytes": 4194304,
+          "effective_bytes": 4194304.0,
+          "seconds": 0.022170319966971875,
+          "gbs": 0.1891855420331526
+        }
+      ],
+      "note": "",
+      "fit_accepted": true,
+      "min_r_squared": 0.9,
+      "usable_for_fabric": false
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 2,
+      "alpha_us": 1429.361380292657,
+      "beta_gbs": 0.14453785980054168,
+      "r_squared": 0.7153200181829784,
+      "n_points": 6,
+      "residual_pct": 507.4372281203638,
+      "n_half_bytes": 206596.83478904882,
+      "points": [
+        {
+          "nbytes": 4096,
+          "effective_bytes": 2048.0,
+          "seconds": 0.0001293349894694984,
+          "gbs": 0.015834848778357755
+        },
+        {
+          "nbytes": 16384,
+          "effective_bytes": 8192.0,
+          "seconds": 0.00014117499813437462,
+          "gbs": 0.058027271884236946
+        },
+        {
+          "nbytes": 65536,
+          "effective_bytes": 32768.0,
+          "seconds": 0.00017577499384060502,
+          "gbs": 0.18642014591514897
+        },
+        {
+          "nbytes": 262144,
+          "effective_bytes": 131072.0,
+          "seconds": 0.0008566250093281269,
+          "gbs": 0.15300977507393015
+        },
+        {
+          "nbytes": 1048576,
+          "effective_bytes": 524288.0,
+          "seconds": 0.012385750003159047,
+          "gbs": 0.04232993560069255
+        },
+        {
+          "nbytes": 4194304,
+          "effective_bytes": 2097152.0,
+          "seconds": 0.014228599984198809,
+          "gbs": 0.14738990500322843
+        }
+      ],
+      "note": "a latency-plus-bandwidth line explains only 72% of the variance here (need 90%), so the fitted alpha and beta are not parameters of this transport -- the model form does not describe it. Most likely the transport changes algorithm across the size range, which a single line cannot represent.",
+      "fit_accepted": false,
+      "min_r_squared": 0.9,
+      "usable_for_fabric": false
+    }
+  ],
+  "unavailable": {
+    "nvlink": "requires at least two GPUs on one node; this machine has one",
+    "infiniband": "requires a multi-node allocation"
+  },
+  "usable_for_registered_fabric": false,
+  "why": "The registered protocol is about NVLink and InfiniBand on an eight-GPU node. Neither is present here, so none of these fits is a value for the fabric the protocol registers. What they calibrate is the functional form and the fitting procedure."
+}

@@ -43,6 +43,18 @@ from losscolumn.thrusts.overlap.attrib import Span, StepTrace
 BYTES_PER_PARAM = 2  # bf16
 
 
+# How a layer's forward-plus-backward time divides between the two passes.
+# The backward computes gradients with respect to both inputs and weights,
+# roughly twice the forward's FLOPs, so the forward takes a third.
+#
+# This was previously two independent constants that did not partition anything:
+# the forward span took the whole of compute_ms and the backward span took 4/3
+# of it, stretching every synthesised step to 2.33x the time the model had
+# computed. Overlap efficiency is a ratio and survived that unharmed, which is
+# why it went unnoticed, but the step durations in the timeline were inflated.
+FWD_SHARE = 1.0 / 3.0
+
+
 @dataclass
 class ModelSpec:
     """A 7B-class decoder, the size the proposal names for Thrust I."""
@@ -77,6 +89,24 @@ class Fabric:
     name: str = "a100-80gb-nvlink3"
     peak_tflops: float = 312.0            # bf16 dense
     achievable_mfu: float = 0.48          # what a real step sustains
+    # The cost of activation checkpointing, as a multiplier on layer compute.
+    #
+    # The conventional 4/3 comes from counting FLOPs: recomputation replays one
+    # forward pass on top of the usual forward-plus-backward, so 4 passes where
+    # there were 3. That accounting assumes the extra forward costs exactly what
+    # the original forward cost, which is only true if both are equally
+    # compute-bound.
+    #
+    # Measured on this project's development card the penalty is 1.22, flat
+    # across sequence length -- so the *form* of the model is right and the
+    # constant is about 9% too high. The recomputed forward is cheaper than the
+    # original because it runs with the activations already resident and writes
+    # nothing back for the backward pass to consume.
+    #
+    # Kept as a parameter rather than a literal so a calibration study can
+    # replace it, and so the value in force is visible in every artifact that
+    # records the fabric.
+    checkpoint_recompute_factor: float = 4.0 / 3.0
     intra_busbw_gbs: float = 235.0        # NVLink all-reduce bus bandwidth
     inter_busbw_gbs: float = 22.0         # per-rank effective IB bandwidth
     intra_latency_us: float = 8.0
@@ -198,7 +228,7 @@ class StepSimulator:
         attn_fwd = 4 * b * m.n_heads * s * s * (h // m.n_heads)
         flops = 3.0 * (gemm_fwd + attn_fwd) / tp
         if cfg.activation_checkpointing:
-            flops *= 4.0 / 3.0  # one extra forward
+            flops *= f.checkpoint_recompute_factor
         compute_ms = flops / (f.peak_tflops * 1e12 * f.achievable_mfu) * 1e3
         compute_ms += f.kernel_launch_us * 1e-3 * 12  # ~12 kernels per layer
 
@@ -268,7 +298,11 @@ class StepSimulator:
         for i in range(L):
             if lb.ag_ms > 0 and i in ag_done:
                 t = max(t, ag_done[i])          # wait for this layer's parameters
-            c_dur = j(lb.compute_ms)
+            # compute_ms is the layer's FULL forward-plus-backward time, so the
+            # two passes have to partition it rather than each take all of it.
+            # The conventional split is 1:2 -- the backward computes both input
+            # and weight gradients, roughly twice the forward's FLOPs.
+            c_dur = j(lb.compute_ms * FWD_SHARE)
             spans.append(
                 Span(f"ampere_bf16_gemm[layer{i}]", t, t + c_dur, stream=0, category="compute")
             )
@@ -288,7 +322,7 @@ class StepSimulator:
         # reduce-scatter that is launched asynchronously and hides under the
         # next layer's compute -- until the comm stream saturates.
         for i in reversed(range(L)):
-            c_dur = j(lb.compute_ms * 4.0 / 3.0)   # backward ~2x forward FLOPs, minus recompute
+            c_dur = j(lb.compute_ms * (1.0 - FWD_SHARE))
             spans.append(
                 Span(f"ampere_bf16_wgrad[layer{i}]", t, t + c_dur, stream=0, category="compute")
             )
@@ -358,7 +392,9 @@ class StepSimulator:
 
 
 def calibrate(fabric: Fabric, *, measured_busbw_gbs: float | None = None,
-              measured_tflops: float | None = None) -> Fabric:
+              measured_tflops: float | None = None,
+              measured_checkpoint_factor: float | None = None,
+              measured_latency_us: float | None = None) -> Fabric:
     """Replace model parameters with measured ones from the target cluster.
 
     ``measured_busbw_gbs`` comes from ``all_reduce_perf`` in nccl-tests at the
@@ -374,5 +410,9 @@ def calibrate(fabric: Fabric, *, measured_busbw_gbs: float | None = None,
             f.inter_busbw_gbs = measured_busbw_gbs
     if measured_tflops is not None:
         f.achievable_mfu = measured_tflops / f.peak_tflops
+    if measured_checkpoint_factor is not None:
+        f.checkpoint_recompute_factor = measured_checkpoint_factor
+    if measured_latency_us is not None:
+        f.intra_latency_us = measured_latency_us
     f.name = f"{fabric.name}+calibrated"
     return f

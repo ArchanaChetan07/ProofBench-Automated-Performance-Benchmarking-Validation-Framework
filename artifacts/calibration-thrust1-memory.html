@@ -1,0 +1,104 @@
+<title>Calibration -- Thrust I memory feasibility</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Calibration -- Thrust I memory feasibility</h1>
+<p class="lede">Does the recommended configuration fit? The model predicts, the hardware answers.</p>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Verdict</b> <code>REGION STATISTICS ONLY: 5 false win(s) and 0 false loss(es) over 8 cells, overlap 0.17. Th</code></span><span><b>False wins</b> <code>5</code></span></div>
+<h4>Calibration study -- Thrust I, memory feasibility</h4>
+<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB), budget 7.9 GB. The model was asked for its prediction before anything was measured, and was not adjusted afterwards.</p>
+<p>The question is one the model can get wrong at a cost: <b>does the recommended micro batch fit?</b> A false win here is a run that dies.</p>
+<h4>Calibration -- predicted against measured</h4>
+<p><b>REGION STATISTICS ONLY: 5 false win(s) and 0 false loss(es) over 8 cells, overlap 0.17. The magnitude statistics are absent by construction: this is a feasibility study, so the prediction is a classification and there is no effect size to regress. EVERY false win is a configuration the model cleared and the hardware refused.</b></p>
+<ul>
+<li>8 of 8 cells measured and compared.</li>
+<li>Verdict agreement 38% (Cohen's kappa 0.09).</li>
+<li>Loss-region overlap (IoU) 0.17: 1 predicted, 6 measured.</li>
+<li><b>5 false win(s)</b> -- predicted a win, measured a loss.</li>
+<li>0 false loss(es) -- predicted a loss, measurement cleared it.</li>
+</ul>
+<p><i>No magnitude statistics: the prediction here is a classification, so there is no effect size to regress. The region statistics above are the whole of what this study measures.</i></p>
+<p><b>Boundary displacement</b></p>
+<ul>
+<li>seq_len: the model puts the boundary 1.00 level(s) too late on average (|shift| 1.00 over 1 fiber(s))</li>
+<li>micro_batch: the model puts the boundary 1.00 level(s) too late on average (|shift| 1.00 over 1 fiber(s))</li>
+<li>checkpointing: the model puts the boundary 0.00 level(s) too late on average (|shift| 0.00 over 1 fiber(s))</li>
+</ul>
+<p><b>Feasibility agreement</b>: the model is right about 3 of 8 configurations.</p>
+<div class="scroll"><table><thead><tr>
+<th>Sequence</th>
+<th>Micro batch</th>
+<th>Checkpointing</th>
+<th>Model</th>
+<th>Actual</th>
+<th>Predicted GB</th>
+</tr></thead><tbody>
+<tr><td>2048</td><td>128</td><td>False</td><td>fits</td><td>OOM</td><td>6.44</td></tr>
+<tr><td>2048</td><td>128</td><td>True</td><td>fits</td><td>OOM</td><td>3.63</td></tr>
+<tr><td>4096</td><td>64</td><td>False</td><td>fits</td><td>OOM</td><td>6.44</td></tr>
+<tr><td>4096</td><td>64</td><td>True</td><td>fits</td><td>OOM</td><td>3.63</td></tr>
+<tr><td>4096</td><td>128</td><td>True</td><td>fits</td><td>OOM</td><td>6.18</td></tr>
+</tbody></table></div>
+<p><b>Not calibrated by this study</b></p>
+<ul>
+<li>Communication. Bus bandwidth, the per-collective latency floor and the overlap schedule are the model's other half and need a cluster; Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion are still unchecked.</li>
+<li>Model scale. Calibrated at hidden=1024 on one block, not a 7B-class model across 32 layers. What transfers is the residual of a memory model of this form, not the parameter values.</li>
+<li>Optimizer state. The measured runs hold gradients but no optimizer moments, while the model prices twelve bytes per parameter for them. That term is therefore predicted and not measured here.</li>
+</ul>
+</div>

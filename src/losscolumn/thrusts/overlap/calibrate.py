@@ -131,7 +131,26 @@ def deterministic_comparisons(
     out: list[CellComparison] = []
     sign = -1.0 if env.metric.higher_is_better else 1.0
     for cell in env.cells():
-        if not (env.is_measured(method, cell) and env.is_measured(baseline, cell)):
+        if not env.is_measured(baseline, cell):
+            continue
+        # A configuration the model says cannot run is a LOSS, not a cell to
+        # skip. Skipping it was a real bug here: four cells the model predicted
+        # infeasible vanished from the comparison, the predicted loss map came
+        # back empty, and the calibration reported that it could establish
+        # nothing -- when in fact the model had made four falsifiable
+        # predictions and two of them were wrong.
+        if not env.is_measured(method, cell):
+            reason = (env.missing.get(method, {}) or {}).get(tuple(cell), "unavailable")
+            out.append(CellComparison(
+                cell=cell, coords=env.coords(cell), effect=float("inf"),
+                ci_lo=float("inf"), ci_hi=float("inf"),
+                p_worse=0.0, p_better=1.0, q_worse=0.0, q_better=1.0, p_equiv=1.0,
+                verdict="loss", n_method=0, n_baseline=1,
+                method_point=float("nan"),
+                baseline_point=float(np.median(env.replicates_at(baseline, cell))),
+                paired=False, reason=reason,
+                meta={"deterministic": True, "unrunnable": True},
+            ))
             continue
         m = float(np.median(env.replicates_at(method, cell)))
         b = float(np.median(env.replicates_at(baseline, cell)))
