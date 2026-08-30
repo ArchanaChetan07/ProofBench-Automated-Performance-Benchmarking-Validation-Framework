@@ -60,7 +60,7 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Calibration -- Thrust I compute model</h1>
 <p class="lede">How far the simulated overlap envelope can be trusted, and which half of the model remains unchecked</p>
-<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Verdict</b> <code>USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.</code></span><span><b>Cells compared</b> <code>4</code></span><span><b>False wins</b> <code>0</code></span></div>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Verdict</b> <code>ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model&#x27;s reliability is supported.</code></span><span><b>Cells compared</b> <code>4</code></span><span><b>False wins</b> <code>0</code></span></div>
 <h4>Calibration study -- Thrust I, compute half</h4>
 <p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). The model was asked for its prediction before anything was measured, and was not adjusted afterwards.</p>
 <div class="scroll"><table><thead><tr>
@@ -69,11 +69,12 @@ color:var(--muted)}
 <th>Measured</th>
 <th>Ratio</th>
 </tr></thead><tbody>
-<tr><td>Achievable MFU</td><td>0.480</td><td>1.406</td><td>2.93x</td></tr>
+<tr><td>Achievable MFU</td><td>0.480</td><td>1.340</td><td>2.79x</td></tr>
 <tr><td>Checkpointing penalty</td><td>1.33x</td><td>1.22x</td><td>0.92x</td></tr>
 </tbody></table></div>
 <h4>Calibration -- predicted against measured</h4>
-<p><b>USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.</b></p>
+<p><b>ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model's reliability is supported.</b></p>
+<p>&gt; The statistics below are reported for completeness and should not be read as agreement. A study that could not have found a disagreement has not found their absence.</p>
 <ul>
 <li>4 of 4 cells measured and compared.</li>
 <li>Verdict agreement 100% (Cohen's kappa nan).</li>
@@ -103,6 +104,7 @@ color:var(--muted)}
 </ul>
 <p><b>Not calibrated by this study</b></p>
 <ul>
+<li>The MFU reference is invalid on this device. A single large fp16 GEMM measured 0.34 TFLOP/s while the layer GEMMs it is supposed to bound reached more, giving a nominal utilisation of 1.34 -- above one, which is impossible. The cause is the absent tensor cores: the large fp16 GEMM falls on an emulated path that the smaller layer shapes avoid. No MFU calibration is available here, and the figure below is retained only to show the contradiction.</li>
 <li>Scale. Calibrated over micro batches [1, 2, 4] and sequence lengths [512, 1024] at hidden=1024, which is what a development card can measure in a usable time. The registered Thrust I grid is wider in every direction, and a slope fitted here is not evidence about the corners this grid does not reach.</li>
 <li>Collective time. Bus bandwidth, the per-collective latency floor and the bandwidth-against-message-size curve are the model's other half, and none of them is measurable on a single device. Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion remain unchecked by this study.</li>
 <li>Whether a real runtime achieves the overlap schedule the model assumes. That is the question Thrust I exists to ask and it needs a cluster.</li>

@@ -1,8 +1,8 @@
 # Artifact index
 
-Generated 2026-08-29T18:07:32Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-30T01:46:08Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
-**3 claims** &mdash; 0 conforming, 1 measured, 2 simulated.
+**4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
 ---
 
@@ -53,7 +53,16 @@ Superseded and still verifiable: [`prereg-thrust-III-v1-20260828T224806Z.json`](
 
 | Claim | Evidence | Grade | Loss cells | Artifacts |
 |---|---|---|---|---|
-| **Sparse attention, portable implementation: a loss map over prefill and decode**<br><code>implementation</code> vs <code>reference</code> | measured | non-conforming (1w) | 46/144 | [conformance.json](thrust3a-portable-attention.conformance.json) [html](thrust3a-portable-attention.html) [md](thrust3a-portable-attention.md) |
+| **Sparse attention, portable implementation: a loss map over prefill and decode**<br><code>implementation</code> vs <code>reference</code> | measured | conforming | 44/80 | [conformance.json](thrust3a-portable-attention.conformance.json) [html](thrust3a-portable-attention.html) [md](thrust3a-portable-attention.md) |
+| **Sparse attention, triton implementation: a loss map over prefill and decode**<br><code>implementation</code> vs <code>reference</code> | measured | conforming | 8/80 | [conformance.json](thrust3b-triton-attention.conformance.json) [html](thrust3b-triton-attention.html) [md](thrust3b-triton-attention.md) |
+
+---
+
+## CALIBRATION
+
+Evidence *about* a claim rather than a claim. A simulated thrust predicts a loss map; a calibration study measures a subset of it and reports how far the prediction can be trusted.
+
+- [`calibration-thrust1-compute.json`](calibration-thrust1-compute.json) &mdash; ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model's reliability is supported.
 
 ---
 

@@ -289,21 +289,59 @@ tell truth from falsehood:
 
 ## Status and honesty
 
-This is a research instrument, not a benchmark result. Thrusts I and II run
-their calibratable models here and are stamped `evidence_class="simulated"`;
-Thrust III is measured, running the Triton FlashAttention kernel against
-`torch.nn.functional.scaled_dot_product_attention` on the local GPU. Every
-artifact says which it is on its own front page.
+This is a research instrument, not a benchmark result.
 
-Thrust III's measured result on an sm_75 device: the kernel passes 18/18
-correctness shapes and loses to the reference on **1 of 18 cells** (+33% at
-`head_dim=128, seq_len=128, batch=1`, a launch-bound corner). The protocol
-registers `bfloat16`, which needs Ampere, so the run declares a deviation
-against the seal rather than quietly dropping the level.
+**Thrust III is measured.** Both implementations were swept over the full
+registered lattice — 144 cells, 80 of them applicable configurations — at 11
+replicates, on a local sm_75 card. Both claims grade **conforming with zero
+fatal findings and zero warnings**, and both pass **80/80** correctness shapes
+against an fp64 ground truth before any timing.
+
+| | portable (eager ops) | Triton (fused, block-skipping) |
+|---|---|---|
+| Prefill speedup, median | 0.38x | **5.76x** |
+| Decode speedup, median | 0.96x | **3.46x** |
+| Losing cells | 44 / 80 | **8 / 80** |
+| Worst case | 493x slower | 69x slower |
+| Correctness | 80/80 | 80/80 |
+
+Both lose in the same place — the **dense** pattern, where there are no blocks
+to skip and the comparison is purely code generation against a fused kernel
+that has had years of work. Everywhere sparsity is real, block-skipping wins.
+
+**Two findings from this repository's own artifacts are worth more than the
+numbers.**
+
+*The baseline was unfair, and the loss column found it.* An earlier revision
+routed the reference through an explicit attention mask for **every** pattern,
+including dense — and an explicit mask precludes torch's fused backend. Against
+that handicapped baseline the Triton kernel reported **zero losses**: a clean
+sweep. Giving the reference the backend torch would have chosen turned that
+into **8 losses, worst case 69x**. The empty loss column was an artifact of the
+comparator, which is the exact failure this project exists to make visible.
+
+*The device has no tensor cores, and compute capability does not say so.* The
+T1000 reports sm_75, but TU117 ships without the units: measured here, fp16
+GEMM runs at 0.33 TFLOP/s against 1.83 for fp32 — five times **slower**, on an
+emulated path. Every timing above is fp16. The comparison stays internally
+valid because both arms took the same path, but the absolute rates do not
+transfer to a tensor-core device and neither necessarily does the ordering.
+This is detected by microbenchmark and printed as the first limitation on both
+claims.
+
+**Thrusts I and II are simulated** and stamped `evidence_class="simulated"`,
+with a banner on their own front page. The calibration study for Thrust I ran
+and reports **ESTABLISHES NOTHING**: neither the predicted nor the measured map
+contained a loss, so its region overlap of 1.00 was two empty sets agreeing,
+and no slope could be fitted. That is the LC-1.8 failure turned on the
+calibration itself, and it is stated at the top of the report rather than
+buried under statistics that look like agreement. What the study *does*
+establish stands: the model's flat 4/3 activation-checkpointing multiplier
+overstates the measured penalty of 1.22x.
 
 The numbers that would appear in a paper come from the funded allocation on
 Hopper, where the FA-3 mechanisms this kernel cannot express actually exist.
-The analysis, the standard and the conformance machinery are what is finished
+The standard, the analysis and the conformance machinery are what is finished
 here.
 
 If Triton fails to import under Anaconda on Windows, see

@@ -16,20 +16,20 @@
     "ffn": 4096,
     "dtype": "float16"
   },
-  "peak_tflops": 0.31755807909855804,
-  "measured_mfu": 1.4060096740599266,
+  "peak_tflops": 0.344205794312525,
+  "measured_mfu": 1.3401993314225418,
   "assumed_mfu": 0.48,
   "checkpoint_penalty": {
     "assumed": 1.3333333333333333,
-    "measured_median": 1.2210900805862097,
-    "measured_min": 1.2199053711825156,
-    "measured_max": 1.2222747899899038,
-    "ratio": 0.9158175604396573,
+    "measured_median": 1.2211907266829702,
+    "measured_min": 1.2199913883451001,
+    "measured_max": 1.2223900650208406,
+    "ratio": 0.9158930450122277,
     "varies": false,
     "n": 2,
     "per_seq_len": {
-      "512": 1.2199053711825156,
-      "1024": 1.2222747899899038
+      "512": 1.2199913883451001,
+      "1024": 1.2223900650208406
     }
   },
   "calibration": {
@@ -98,7 +98,9 @@
       "r_squared": NaN,
       "fraction_within_mde": 1.0
     },
-    "verdict": "USABLE FOR RANKING: no false wins, and a typical error of 0.0 percentage points, inside the 5% MDE.",
+    "verdict": "ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model's reliability is supported.",
+    "degenerate": true,
+    "degenerate_reason": "neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point",
     "notes": [
       "the predicted effects have no spread, so no slope can be fitted: the model is being checked at a single operating point"
     ]
@@ -113,6 +115,7 @@
     "reading": "the model scales correctly; residual error is not a scale error"
   },
   "uncalibrated": [
+    "The MFU reference is invalid on this device. A single large fp16 GEMM measured 0.34 TFLOP/s while the layer GEMMs it is supposed to bound reached more, giving a nominal utilisation of 1.34 -- above one, which is impossible. The cause is the absent tensor cores: the large fp16 GEMM falls on an emulated path that the smaller layer shapes avoid. No MFU calibration is available here, and the figure below is retained only to show the contradiction.",
     "Scale. Calibrated over micro batches [1, 2, 4] and sequence lengths [512, 1024] at hidden=1024, which is what a development card can measure in a usable time. The registered Thrust I grid is wider in every direction, and a slope fitted here is not evidence about the corners this grid does not reach.",
     "Collective time. Bus bandwidth, the per-collective latency floor and the bandwidth-against-message-size curve are the model's other half, and none of them is measurable on a single device. Thrust I's loss regions are driven by exposed communication, so the parameters that matter most to its published conclusion remain unchecked by this study.",
     "Whether a real runtime achieves the overlap schedule the model assumes. That is the question Thrust I exists to ask and it needs a cluster.",
@@ -170,13 +173,13 @@
       "best_of_swept": 1.0
     },
     "provenance": {
-      "captured_at": "2026-08-30T01:07:53Z",
+      "captured_at": "2026-08-30T01:22:31Z",
       "host": "Archana-PC",
       "platform": "Windows-10-10.0.26200-SP0",
       "python": "3.11.5",
       "cpu_count": 24,
       "git": {
-        "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+        "commit": "40d8a04ee2d60a6e9427fa63682c9faf3bbbcaad",
         "dirty": false,
         "dirty_scope": [
           "src",
@@ -187,7 +190,7 @@
         "dirty_files": [],
         "branch": "master",
         "remote": null,
-        "describe": "ced1ad4-dirty"
+        "describe": "40d8a04"
       },
       "gpu": {
         "available": true,
@@ -297,13 +300,13 @@
       "best_of_swept": 1.0
     },
     "provenance": {
-      "captured_at": "2026-08-30T01:07:53Z",
+      "captured_at": "2026-08-30T01:22:31Z",
       "host": "Archana-PC",
       "platform": "Windows-10-10.0.26200-SP0",
       "python": "3.11.5",
       "cpu_count": 24,
       "git": {
-        "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+        "commit": "40d8a04ee2d60a6e9427fa63682c9faf3bbbcaad",
         "dirty": false,
         "dirty_scope": [
           "src",
@@ -314,7 +317,7 @@
         "dirty_files": [],
         "branch": "master",
         "remote": null,
-        "describe": "ced1ad4-dirty"
+        "describe": "40d8a04"
       },
       "gpu": {
         "available": true,
@@ -355,110 +358,110 @@
     "data": {
       "recommended": [
         [
-          3923.9075319718213,
-          3919.9253922357407,
-          3935.6441211999513,
-          3930.555381472977,
-          3937.2863160234133,
-          3932.826583380675,
-          3933.9101290023127,
-          3935.7835344579544,
-          3937.7830311127086,
-          3936.7440000741485,
-          3919.828769915766
+          4232.102761306183,
+          4211.212016245225,
+          4211.164713921156,
+          4210.938523084472,
+          4211.164713921156,
+          4211.005373687717,
+          4210.130670590249,
+          4210.711035550021,
+          4211.41022189506,
+          4210.3211140983085,
+          4210.510253967521
         ],
         [
-          3224.5720102219366,
-          3212.02438403807,
-          3228.098895116228,
-          3219.780640514498,
-          3229.1004471737456,
-          3227.6458534894277,
-          3228.340217304504,
-          3222.7397987585587,
-          3224.8493771384633,
-          3224.7666269302313,
-          3223.7126307688904
+          3450.4073822178284,
+          3452.656187618589,
+          3451.5488155293624,
+          3451.6752146493823,
+          3452.5407291975885,
+          3451.4298809912843,
+          3451.6681133297852,
+          3452.728308642812,
+          3452.8121575620335,
+          3451.387989583636,
+          3451.427040863716
         ],
         [
-          4170.054870300772,
-          4169.86235182478,
-          4169.468819568045,
-          4170.115764770917,
-          4169.932827589155,
-          4169.95096511983,
-          4169.488248318073,
-          4170.674262961766,
-          4170.742433308631,
-          4169.820119328093,
-          4169.853024328593
+          4170.672707770726,
+          4169.811051112149,
+          4169.867792883491,
+          4170.243519374748,
+          4169.69705404767,
+          4170.201279156793,
+          4169.549644358298,
+          4170.111618708018,
+          4299.989959472021,
+          3965.5722699518465,
+          3893.320628822246
         ],
         [
-          3411.2984360728824,
-          3412.345077877125,
-          3412.327726905838,
-          3411.8398898268715,
-          3411.368492797219,
-          3411.5894330951633,
-          3411.6164889759357,
-          3411.1240003956586,
-          3412.078586416637,
-          3411.55231867478,
-          3411.813524228658
+          3440.2872193755175,
+          3411.391383241717,
+          3406.312042143762,
+          3294.5241538707755,
+          3411.076839936309,
+          3411.241560452636,
+          3410.558160936551,
+          3411.909621859856,
+          3411.787505945691,
+          3412.1171001872704,
+          3411.1753235537535
         ]
       ],
       "best_of_swept": [
         [
-          3923.9075319718213,
-          3919.9253922357407,
-          3935.6441211999513,
-          3930.555381472977,
-          3937.2863160234133,
-          3932.826583380675,
-          3933.9101290023127,
-          3935.7835344579544,
-          3937.7830311127086,
-          3936.7440000741485,
-          3919.828769915766
+          4232.102761306183,
+          4211.212016245225,
+          4211.164713921156,
+          4210.938523084472,
+          4211.164713921156,
+          4211.005373687717,
+          4210.130670590249,
+          4210.711035550021,
+          4211.41022189506,
+          4210.3211140983085,
+          4210.510253967521
         ],
         [
-          3224.5720102219366,
-          3212.02438403807,
-          3228.098895116228,
-          3219.780640514498,
-          3229.1004471737456,
-          3227.6458534894277,
-          3228.340217304504,
-          3222.7397987585587,
-          3224.8493771384633,
-          3224.7666269302313,
-          3223.7126307688904
+          3450.4073822178284,
+          3452.656187618589,
+          3451.5488155293624,
+          3451.6752146493823,
+          3452.5407291975885,
+          3451.4298809912843,
+          3451.6681133297852,
+          3452.728308642812,
+          3452.8121575620335,
+          3451.387989583636,
+          3451.427040863716
         ],
         [
-          4170.054870300772,
-          4169.86235182478,
-          4169.468819568045,
-          4170.115764770917,
-          4169.932827589155,
-          4169.95096511983,
-          4169.488248318073,
-          4170.674262961766,
-          4170.742433308631,
-          4169.820119328093,
-          4169.853024328593
+          4170.672707770726,
+          4169.811051112149,
+          4169.867792883491,
+          4170.243519374748,
+          4169.69705404767,
+          4170.201279156793,
+          4169.549644358298,
+          4170.111618708018,
+          4299.989959472021,
+          3965.5722699518465,
+          3893.320628822246
         ],
         [
-          3411.2984360728824,
-          3412.345077877125,
-          3412.327726905838,
-          3411.8398898268715,
-          3411.368492797219,
-          3411.5894330951633,
-          3411.6164889759357,
-          3411.1240003956586,
-          3412.078586416637,
-          3411.55231867478,
-          3411.813524228658
+          3440.2872193755175,
+          3411.391383241717,
+          3406.312042143762,
+          3294.5241538707755,
+          3411.076839936309,
+          3411.241560452636,
+          3410.558160936551,
+          3411.909621859856,
+          3411.787505945691,
+          3412.1171001872704,
+          3411.1753235537535
         ]
       ]
     },
@@ -472,16 +475,16 @@
   "kind": "calibration-report",
   "standard_version": "LC-1.0",
   "calibrates": "thrust1",
-  "generated_at": "2026-08-30T01:19:39Z",
+  "generated_at": "2026-08-30T01:45:24Z",
   "command": "losscolumn calibrate thrust1",
   "provenance": {
-    "captured_at": "2026-08-30T01:19:39Z",
+    "captured_at": "2026-08-30T01:45:24Z",
     "host": "Archana-PC",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "cpu_count": 24,
     "git": {
-      "commit": "ced1ad46b08e0026787352e966ecae1a1fe8fa64",
+      "commit": "40d8a04ee2d60a6e9427fa63682c9faf3bbbcaad",
       "dirty": false,
       "dirty_scope": [
         "src",
@@ -492,7 +495,7 @@
       "dirty_files": [],
       "branch": "master",
       "remote": null,
-      "describe": "ced1ad4-dirty"
+      "describe": "40d8a04"
     },
     "gpu": {
       "available": true,
