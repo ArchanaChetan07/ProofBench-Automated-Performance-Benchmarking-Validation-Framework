@@ -1,0 +1,337 @@
+{
+  "kind": "memory-model-protocol",
+  "study": "thrust1-memory-v2",
+  "sealed_at": "2026-08-30T17:59:18Z",
+  "memory_model_version": "block-memory-v2",
+  "model_parameters": {
+    "name": "block-memory-v2",
+    "summary": {
+      "registered": 10
+    },
+    "n_usable": 10,
+    "n_unusable": 0,
+    "n_evidence_backed": 0,
+    "parameters": [
+      {
+        "name": "activation_tensors_per_block",
+        "value": 4.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "tensors",
+        "source": "counted from the block's forward graph: the residual input, the attention output, the post-projection residual, and the FFN activation input",
+        "note": "the tensors autograd must keep between blocks for the backward pass",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "allocator_reserve_fraction",
+        "value": 0.12,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "fraction",
+        "source": "caching-allocator fragmentation headroom; a block-structured workload does not achieve perfect packing",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "attention_workspace_tensors",
+        "value": 4.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "tensors",
+        "source": "q, k, v and the fused attention output, live simultaneously inside one block",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "autograd_overhead_tensors",
+        "value": 2.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "tensors",
+        "source": "gradient buffers autograd materialises for the residual path",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "checkpoint_retained_fraction",
+        "value": 0.25,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "fraction",
+        "source": "a checkpointed block keeps its input boundary tensor and discards the interior; one of four saved tensors survives",
+        "note": "APPLIES ONLY to saved_activations. Weights, optimizer state and the live workspace are untouched by checkpointing, which is the structural error that made version 1 unusable",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "context_bytes",
+        "value": 750000000.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "bytes",
+        "source": "CUDA context, kernel images and cuBLAS/cuDNN workspaces, independent of shape",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "ffn_workspace_tensors",
+        "value": 2.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "tensors",
+        "source": "the up-projection output and its activation, live simultaneously",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "gradient_bytes_per_param",
+        "value": 2.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "bytes",
+        "source": "one gradient per parameter at the model's own precision",
+        "note": "",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "optimizer_bytes_per_param",
+        "value": 0.0,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "bytes",
+        "source": "zero for the local calibration harness, which holds gradients but runs no optimizer step",
+        "note": "a training run with Adam would register 12: fp32 master weights plus two moments. It is a parameter precisely so the calibration harness and the simulated trainer do not have to share a number that is only true for one of them",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "safety_margin_fraction",
+        "value": 0.1,
+        "provenance": "registered",
+        "usable": true,
+        "is_evidence": false,
+        "unit": "fraction",
+        "source": "uncertainty reserve, registered before validation and NOT tuned against it",
+        "note": "A model used to decide what to launch must be conservative near the boundary, because its two errors are not equally bad. Tuning this against the validation grid would be fitting on the data the model is graded by, so its value is fixed in the sealed protocol",
+        "quality": {},
+        "superseded_value": null
+      }
+    ]
+  },
+  "precision_bytes_per_element": 2,
+  "device_memory_budget_bytes": 7902438359,
+  "device_memory_budget_gb": 7.902438359,
+  "allocator_mechanism": {
+    "budget_fraction": 0.92,
+    "budget_bytes": 7902438359,
+    "total_bytes": 8589606912,
+    "device_index": 0,
+    "cap_installed": true,
+    "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+    "allocator_backend": "default caching allocator",
+    "env": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    }
+  },
+  "checkpointing_policy": "activation checkpointing affects the saved-activation term only. Weights, gradients, optimizer state and the live per-block workspace are untouched, because a recomputed block still materialises its full workspace. Applying one multiplier to the whole expression is the structural error that made version 1 unusable.",
+  "grid_split": {
+    "created_at": "2026-08-30T17:59:18Z",
+    "frozen": true,
+    "frozen_at": "2026-08-30T18:03:15Z",
+    "digest": "sha256:e5623786935e6c2191d7c4c59774d36a40d6e0737f9acfbdb52a2864b4cdd6f2",
+    "n_calibration": 8,
+    "n_validation": 10,
+    "fitted_parameters": [],
+    "calibration": [
+      [
+        64,
+        2048,
+        false
+      ],
+      [
+        64,
+        2048,
+        true
+      ],
+      [
+        128,
+        2048,
+        false
+      ],
+      [
+        128,
+        2048,
+        true
+      ],
+      [
+        64,
+        4096,
+        false
+      ],
+      [
+        64,
+        4096,
+        true
+      ],
+      [
+        128,
+        4096,
+        false
+      ],
+      [
+        128,
+        4096,
+        true
+      ]
+    ],
+    "validation": [
+      [
+        96,
+        1536,
+        false
+      ],
+      [
+        48,
+        3072,
+        false
+      ],
+      [
+        192,
+        1024,
+        true
+      ],
+      [
+        128,
+        1536,
+        true
+      ],
+      [
+        96,
+        2048,
+        true
+      ],
+      [
+        64,
+        3072,
+        true
+      ],
+      [
+        8,
+        512,
+        true
+      ],
+      [
+        8,
+        512,
+        false
+      ],
+      [
+        256,
+        4096,
+        false
+      ],
+      [
+        256,
+        4096,
+        true
+      ]
+    ],
+    "rationale": {
+      "(64, 2048, False)": "the grid that diagnosed version 1",
+      "(64, 2048, True)": "the grid that diagnosed version 1",
+      "(128, 2048, False)": "the grid that diagnosed version 1",
+      "(128, 2048, True)": "the grid that diagnosed version 1",
+      "(64, 4096, False)": "the grid that diagnosed version 1",
+      "(64, 4096, True)": "the grid that diagnosed version 1",
+      "(128, 4096, False)": "the grid that diagnosed version 1",
+      "(128, 4096, True)": "the grid that diagnosed version 1",
+      "(96, 1536, False)": "boundary: |log(required/budget)| = 0.028",
+      "(48, 3072, False)": "boundary: |log(required/budget)| = 0.028",
+      "(192, 1024, True)": "boundary: |log(required/budget)| = 0.064",
+      "(128, 1536, True)": "boundary: |log(required/budget)| = 0.064",
+      "(96, 2048, True)": "boundary: |log(required/budget)| = 0.064",
+      "(64, 3072, True)": "boundary: |log(required/budget)| = 0.064",
+      "(8, 512, True)": "anchor: predicted feasible with margin",
+      "(8, 512, False)": "anchor: predicted feasible with margin",
+      "(256, 4096, False)": "anchor: predicted infeasible with margin",
+      "(256, 4096, True)": "anchor: predicted infeasible with margin"
+    }
+  },
+  "scaling": {
+    "local": {
+      "hidden": 1024,
+      "heads": 16,
+      "ffn": 4096,
+      "micro_batch": 1,
+      "seq_len": 1,
+      "n_layers": 1,
+      "bytes_per_elem": 2,
+      "checkpointing": false,
+      "tokens": 1,
+      "head_dim": 64,
+      "params": 12582912
+    },
+    "target": {
+      "hidden": 4096,
+      "heads": 32,
+      "ffn": 11008,
+      "layers": 32,
+      "bytes_per_elem": 2,
+      "shard_degree": 1
+    },
+    "width_ratio": 4.0,
+    "depth_ratio": 32.0,
+    "parameters_claimed_to_transfer": [
+      "activation_tensors_per_block",
+      "attention_workspace_tensors",
+      "ffn_workspace_tensors",
+      "autograd_overhead_tensors",
+      "checkpoint_retained_fraction",
+      "allocator_reserve_fraction"
+    ],
+    "parameters_re_registered_per_target": [
+      "context_bytes",
+      "optimizer_bytes_per_param",
+      "gradient_bytes_per_param"
+    ],
+    "caveat": "Calibrating these parameters on the local block establishes them for block-shaped workloads on this allocator. It does not establish the re-registered parameters, and it exercises no sharding at all: the local block runs on one device."
+  },
+  "metric_definitions": {
+    "false_win": "model predicts feasible, measurement says infeasible",
+    "false_loss": "model predicts infeasible, measurement says feasible",
+    "infeasible_iou": "intersection over union of the predicted and measured infeasible cell sets; undefined, not 1.0, when both are empty",
+    "false_win_rate": "false wins as a share of the cells the model cleared",
+    "false_loss_rate": "false losses as a share of the cells it rejected",
+    "dangerous_error_score": "(10 * false_wins + false_losses) / comparable cells",
+    "comparable": "both sides gave a definite FEASIBLE or INFEASIBLE; HOST_FALLBACK, INVALID and NOT_MEASURED are excluded rather than rounded"
+  },
+  "false_win_severity": {
+    "weight": 10.0,
+    "policy": "A false win kills a job launched on the model's advice; a false loss leaves capacity unused. The weight is a policy choice, fixed here before the data, and the raw counts are always reported beside the weighted score."
+  },
+  "acceptance_criteria": {
+    "primary": "zero false wins on the validation grid",
+    "secondary": "false-loss rate below 0.5, so the model is conservative without being useless",
+    "stopping": "the validation grid is fixed and measured once; there is no interim analysis and no cell is added after the seal"
+  },
+  "safety_margin_policy": "The safety margin is registered at 10% and is NOT tuned against validation results. Tuning it there would be fitting on the data the model is graded by.",
+  "seal_hash": "sha256:9e8525992c8f34773336dff601a756fe78922b7d88b7cd9ce253ca8b6070a879"
+}

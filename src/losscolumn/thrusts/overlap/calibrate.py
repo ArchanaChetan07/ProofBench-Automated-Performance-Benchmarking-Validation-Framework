@@ -154,7 +154,23 @@ def deterministic_comparisons(
             continue
         m = float(np.median(env.replicates_at(method, cell)))
         b = float(np.median(env.replicates_at(baseline, cell)))
-        if not (m > 0 and b > 0):
+        if b <= 0:
+            # No reference to compare against; nothing can be said about this cell.
+            continue
+        if m <= 0:
+            # A measured zero is a MEASUREMENT, not an absence. Skipping it was
+            # the defect that made predicted losses vanish from the map: a
+            # configuration that produced no throughput is the most extreme loss
+            # there is, and dropping it reported the opposite.
+            out.append(CellComparison(
+                cell=cell, coords=env.coords(cell), effect=float("inf"),
+                ci_lo=float("inf"), ci_hi=float("inf"),
+                p_worse=0.0, p_better=1.0, q_worse=0.0, q_better=1.0, p_equiv=1.0,
+                verdict="loss", n_method=1, n_baseline=1,
+                method_point=m, baseline_point=b, paired=False,
+                reason="measured a throughput of zero",
+                meta={"deterministic": True, "zero_throughput": True},
+            ))
             continue
         effect = sign * (math.log(m) - math.log(b))
         verdict = "loss" if effect >= math.log1p(mde) else (
