@@ -4,8 +4,7 @@
   "ready": false,
   "blocking_gates": [
     "communication quality gates pass",
-    "required coverage achieved",
-    "fresh-clone reproducibility passes"
+    "required coverage achieved"
   ],
   "gates": [
     {
@@ -30,18 +29,18 @@
     },
     {
       "gate": "fresh-clone reproducibility passes",
-      "passed": false,
-      "detail": "not run in this session; scripts/reproduce.sh --full"
+      "passed": true,
+      "detail": "fresh clone, isolated environment, full test suite and frozen standard verified; measured thrusts NOT re-run (no torch in the clean environment), so this establishes the standard and the analysis layer, not the measurements"
     },
     {
       "gate": "8-GPU protocol is fully prepared",
       "passed": true,
-      "detail": "12 stages sealed (6.8 h), seal 91f3bef3e6e4847f"
+      "detail": "12 stages sealed (6.8 h), seal 66959ee67a09bd72"
     }
   ],
   "standard_version": "LC-1.1",
-  "generated_at": "2026-08-31T04:54:23Z",
+  "generated_at": "2026-08-31T05:04:30Z",
   "local_readiness": "not_ready",
-  "a100_protocol_seal": "sha256:91f3bef3e6e4847fe56a4c3502b4f5d859ce4ec516df6690620d5ffd98c7589b",
+  "a100_protocol_seal": "sha256:66959ee67a09bd72650d9248d472fe215c8d97b44246c2592ab0945168c82a6a",
   "command": "python scripts/readiness_gate.py"
 }

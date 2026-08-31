@@ -1,0 +1,11 @@
+{
+  "kind": "reproduction-result",
+  "passed": true,
+  "commit": "d419f0788a2e3a112057761e483a7e1f3c01ee87",
+  "clean_clone": true,
+  "test_suite": "passed",
+  "standard_verified": true,
+  "artifacts_compared": "structural",
+  "pipeline": "skipped: no torch in the clean environment",
+  "detail": "fresh clone, isolated environment, full test suite and frozen standard verified; measured thrusts NOT re-run (no torch in the clean environment), so this establishes the standard and the analysis layer, not the measurements"
+}

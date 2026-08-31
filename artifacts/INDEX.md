@@ -1,6 +1,6 @@
 # Artifact index
 
-Generated 2026-08-31T04:16:16Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-31T05:05:07Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
 **4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
