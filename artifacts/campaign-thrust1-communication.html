@@ -1,0 +1,120 @@
+<title>Communication readiness campaign</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Communication readiness campaign</h1>
+<p class="lede">Coverage, not just acceptance.</p>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Readiness</b> <code>not_ready</code></span><span><b>Seal</b> <code>9c4e116661484581</code></span></div>
+<h4>Communication coverage and readiness campaign</h4>
+<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). 46 message sizes, 2 independent passes, 2 repeats per point.</p>
+<h5>Peak reproducibility</h5>
+<div class="scroll"><table><thead><tr>
+<th>Group</th>
+<th>pass 0 peak</th>
+<th>pass 1 peak</th>
+<th>magnitude ratio</th>
+<th>ordering</th>
+<th>reproducible</th>
+</tr></thead><tbody>
+<tr><td>all_gather/world2</td><td>32768 KiB (large)</td><td>121 KiB (small)</td><td>1.37x</td><td>stable</td><td><b>no</b></td></tr>
+<tr><td>all_gather/world3</td><td>512 KiB (medium)</td><td>403 KiB (medium)</td><td>1.03x</td><td>stable</td><td>yes</td></tr>
+<tr><td>all_gather/world4</td><td>512 KiB (medium)</td><td>512 KiB (medium)</td><td>1.05x</td><td>stable</td><td>yes</td></tr>
+<tr><td>all_reduce/world2</td><td>601 KiB (medium)</td><td>403 KiB (medium)</td><td>1.27x</td><td>CHANGED</td><td><b>no</b></td></tr>
+<tr><td>all_reduce/world3</td><td>1337 KiB (medium)</td><td>1337 KiB (medium)</td><td>1.06x</td><td>stable</td><td>yes</td></tr>
+<tr><td>all_reduce/world4</td><td>1603 KiB (medium)</td><td>1994 KiB (medium)</td><td>1.02x</td><td>stable</td><td>yes</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>all_gather/world2</b>: NOT reproducible: the peak moved from large to small; its magnitude differs by 1.37x. The peak must not be reported as a physical property on this evidence.</li>
+<li><b>all_gather/world3</b>: the peak lands in the medium regime in both passes, within 1.03x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
+<li><b>all_gather/world4</b>: the peak lands in the medium regime in both passes, within 1.05x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
+<li><b>all_reduce/world2</b>: NOT reproducible: its magnitude differs by 1.27x; the regime ordering changed between passes. The peak must not be reported as a physical property on this evidence.</li>
+<li><b>all_reduce/world3</b>: the peak lands in the medium regime in both passes, within 1.06x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
+<li><b>all_reduce/world4</b>: the peak lands in the medium regime in both passes, within 1.02x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
+</ul>
+<h5>Coverage matrix</h5>
+<p><b>Subsystem readiness: NOT READY</b></p>
+<p>Parameter validity: 2 of 6 groups have an accepted model. Model coverage: 6 of 24 (group x regime) cells (25%). These are different numbers and neither implies readiness on its own.</p>
+<div class="scroll"><table><thead><tr>
+<th>Collective</th>
+<th>World</th>
+<th>tiny</th>
+<th>small</th>
+<th>medium</th>
+<th>large</th>
+<th>Model</th>
+<th>Verdict</th>
+<th>Covered</th>
+</tr></thead><tbody>
+<tr><td>all_reduce</td><td>2</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
+<tr><td>all_reduce</td><td>3</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
+<tr><td>all_reduce</td><td>4</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
+<tr><td>all_gather</td><td>2</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
+<tr><td>all_gather</td><td>3</td><td>4%</td><td>8%</td><td>14%</td><td>4%</td><td><code>piecewise</code></td><td>accepted</td><td>yes</td></tr>
+<tr><td>all_gather</td><td>4</td><td>6%</td><td><i>error</i>too<i>high</i></td><td><i>error</i>too<i>high</i></td><td>12%</td><td><code>linear</code></td><td>accepted</td><td><b>no</b></td></tr>
+</tbody></table></div>
+<p><b>Blocking gates</b></p>
+<ul>
+<li>5 of 6 required groups are not covered: all<i>reduce/world2 (insufficient</i>coverage), all<i>reduce/world3 (insufficient</i>coverage), all<i>reduce/world4 (insufficient</i>coverage), all<i>gather/world2 (insufficient</i>coverage), all<i>gather/world4 (insufficient</i>coverage)</li>
+<li>4 group(s) have no accepted model: all<i>reduce/world2, all</i>reduce/world3, all<i>reduce/world4, all</i>gather/world2</li>
+<li>18 of 24 (group x regime) cells are uncovered: error<i>too</i>high x2, model_rejected x16</li>
+</ul>
+<ul>
+<li>24 calibration sizes and 22 validation sizes, alternating within each regime so neither half is missing a regime.</li>
+</ul>
+</div>

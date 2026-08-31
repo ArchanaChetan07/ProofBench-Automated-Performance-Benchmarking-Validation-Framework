@@ -1,0 +1,47 @@
+{
+  "kind": "readiness-gate",
+  "verdict": "NOT_READY_FOR_8X_A100",
+  "ready": false,
+  "blocking_gates": [
+    "communication quality gates pass",
+    "required coverage achieved",
+    "fresh-clone reproducibility passes"
+  ],
+  "gates": [
+    {
+      "gate": "communication quality gates pass",
+      "passed": false,
+      "detail": "2 of 6 groups have an accepted model"
+    },
+    {
+      "gate": "required coverage achieved",
+      "passed": false,
+      "detail": "6 of 24 (group x regime) cells covered (25%)"
+    },
+    {
+      "gate": "no rejected parameter is active",
+      "passed": true,
+      "detail": "no group is counted as covered without an accepted model"
+    },
+    {
+      "gate": "validation is independent",
+      "passed": true,
+      "detail": "264 held-out validation points on sizes no fit saw; calibration and validation sizes alternate within each regime"
+    },
+    {
+      "gate": "fresh-clone reproducibility passes",
+      "passed": false,
+      "detail": "not run in this session; scripts/reproduce.sh --full"
+    },
+    {
+      "gate": "8-GPU protocol is fully prepared",
+      "passed": true,
+      "detail": "12 stages sealed (6.8 h), seal 91f3bef3e6e4847f"
+    }
+  ],
+  "standard_version": "LC-1.1",
+  "generated_at": "2026-08-31T04:54:23Z",
+  "local_readiness": "not_ready",
+  "a100_protocol_seal": "sha256:91f3bef3e6e4847fe56a4c3502b4f5d859ce4ec516df6690620d5ffd98c7589b",
+  "command": "python scripts/readiness_gate.py"
+}

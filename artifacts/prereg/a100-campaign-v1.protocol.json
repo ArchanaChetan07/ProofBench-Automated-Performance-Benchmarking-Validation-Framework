@@ -1,0 +1,146 @@
+{
+  "kind": "a100-campaign-protocol",
+  "protocol": "thrust1-a100-v1",
+  "sealed_at": "2026-08-31T04:54:23Z",
+  "status": "PREPARED, NOT EXECUTED",
+  "standard_version": "LC-1.1",
+  "preconditions": {
+    "local_communication_readiness": "not_ready",
+    "local_campaign_seal": "sha256:9c4e116661484581d28f5a7cd029fa72cfaf217c727b98b5673ff844c6f64728",
+    "memory_model": "block-memory-v2",
+    "memory_model_milestone": "v0.3.0-memory-v2",
+    "note": "The local readiness verdict gates whether this protocol should be executed. NOT_READY does not make the protocol wrong; it makes running it premature."
+  },
+  "stages": [
+    {
+      "order": 1,
+      "name": "environment smoke test",
+      "purpose": "Prove the harness runs at all before anything expensive depends on it: import the package, run the test suite, confirm the measurement lock and the allocator cap behave as they do locally.",
+      "produces": "a pass/fail record and the environment fingerprint",
+      "abort_if": "the suite does not pass on the target machine",
+      "estimated_minutes": 20,
+      "cost_if_skipped": "an hour of allocation spent discovering a packaging problem"
+    },
+    {
+      "order": 2,
+      "name": "topology verification",
+      "purpose": "Establish which GPUs are actually connected how. nvidia-smi topo -m, NVLink presence and width per pair, NUMA affinity, and whether the eight devices are one NVSwitch domain or two quads.",
+      "produces": "a topology map recorded in the artifact",
+      "abort_if": "the topology differs from the one the protocol assumes, in which case the grid of world sizes is re-derived and the change is recorded as a declared deviation before measurement",
+      "estimated_minutes": 15,
+      "cost_if_skipped": "fitting one fabric model across two fabrics, which is the error the local campaign's inter_node flag exists to prevent"
+    },
+    {
+      "order": 3,
+      "name": "device and allocator verification",
+      "purpose": "Confirm memory capacity per device, that the allocator cap installs, and that an over-large allocation raises rather than falling back. This is the check that made local feasibility measurable at all.",
+      "produces": "ProbeConfig with cap_installed true, per device",
+      "abort_if": "the cap cannot be installed on any device",
+      "estimated_minutes": 15,
+      "cost_if_skipped": "feasibility measurements that mean 'eventually returned' rather than 'fits'"
+    },
+    {
+      "order": 4,
+      "name": "fabric identification",
+      "purpose": "Determine, by measurement rather than by assumption, which transport each world size actually traverses: intra-node NVLink, intra-node PCIe fallback, or inter-node. A four-rank group with one rank per node runs at IB speed, not NVLink speed.",
+      "produces": "a transport label per (world size, rank placement)",
+      "abort_if": "a group's transport cannot be identified",
+      "estimated_minutes": 30,
+      "cost_if_skipped": "pricing an inter-node collective at NVLink bandwidth, which flatters every sharding recommendation that depends on it"
+    },
+    {
+      "order": 5,
+      "name": "communication calibration",
+      "purpose": "Run the dense campaign grid, unchanged, against NCCL on the real fabric. Same sizes, same oversampled regions, same two passes, same repeats.",
+      "produces": "raw PointRecords, per collective per world per pass",
+      "abort_if": "peak reproducibility fails, which is reported rather than worked around",
+      "estimated_minutes": 90,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 6,
+      "name": "parameter quality gates",
+      "purpose": "Family selection under every registered estimator, stratified k-fold cross-validation, worst-regime acceptance. Identical code to the local campaign; only the data differs.",
+      "produces": "a ParameterVerdict per group and a coverage matrix",
+      "abort_if": "no group is accepted, which ends the campaign honestly rather than loosening the gate",
+      "estimated_minutes": 10,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 7,
+      "name": "model freeze",
+      "purpose": "Freeze the accepted communication parameters into a Fabric. Rejected and diagnostic parameters are recorded and remain unusable.",
+      "produces": "a sealed Fabric with parameter provenance",
+      "abort_if": "any rejected parameter is reachable as a model input",
+      "estimated_minutes": 5,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 8,
+      "name": "Thrust I prediction generation",
+      "purpose": "Run the simulator with the frozen memory model and the frozen communication model, over the registered sharding grid, and extract the predicted loss regions.",
+      "produces": "a predicted loss map and its regions",
+      "abort_if": "the memory or communication model is not frozen",
+      "estimated_minutes": 15,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 9,
+      "name": "prediction lock",
+      "purpose": "Seal the prediction: hash it, record the hash, and stop. This is the step that makes the next one a test rather than a fit.",
+      "produces": "a sealed prediction hash",
+      "abort_if": "the prediction is not sealed before measurement begins",
+      "estimated_minutes": 5,
+      "cost_if_skipped": "a comparison that cannot distinguish a good model from a well-chosen narrative, which is the whole failure this project is about"
+    },
+    {
+      "order": 10,
+      "name": "independent 8-GPU measurement",
+      "purpose": "Measure the registered sharding grid under torchrun on all eight devices, with GPU exclusivity enforced and the registered replicate count.",
+      "produces": "the measured envelope",
+      "abort_if": "the measurement shares hardware with another job",
+      "estimated_minutes": 180,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 11,
+      "name": "measured loss-region extraction",
+      "purpose": "Extract loss regions from the measurement using the same extractor, at the registered MDE and FDR level.",
+      "produces": "the measured loss map",
+      "abort_if": "the design check reports the sweep could not have declared a loss",
+      "estimated_minutes": 10,
+      "cost_if_skipped": ""
+    },
+    {
+      "order": 12,
+      "name": "prediction against measurement",
+      "purpose": "Score the sealed prediction: region overlap, boundary displacement, false wins, false losses, dangerous-error score, per-regime error.",
+      "produces": "the calibration report and the final Thrust I claim",
+      "abort_if": "the prediction hash does not match what was sealed at stage 9",
+      "estimated_minutes": 10,
+      "cost_if_skipped": ""
+    }
+  ],
+  "estimated_total_minutes": 405,
+  "estimated_total_hours": 6.8,
+  "transferability": {
+    "local_parameters_are_not_fabric_parameters": true,
+    "statement": "No value measured locally is used here. The local campaign ran gloo over shared memory on one host; it cannot produce NVLink or InfiniBand parameters and none of its fits is copied into an A100 Fabric. What transfers is the method: grid construction, estimator families, selection rule, coverage criteria and the readiness gate, all unchanged.",
+    "what_the_local_campaign_establishes": [
+      "methodology readiness",
+      "model-family readiness",
+      "coverage methodology",
+      "measurement protocol maturity"
+    ],
+    "what_it_does_not_establish": [
+      "NVLink latency or bandwidth",
+      "InfiniBand latency or bandwidth",
+      "any Thrust I communication parameter",
+      "that Thrust I communication is calibrated"
+    ]
+  },
+  "ordering_is_binding": "Stages 8 and 9 run before stage 10. A prediction produced after seeing the measurement is not a prediction, and no result from an out-of-order run is admissible.",
+  "abort_policy": "Each stage names its own abort condition. Aborting is a successful outcome of the stage: the allocation is expensive and a campaign that stops at stage 2 with a recorded topology surprise is worth more than one that proceeds on a wrong assumption.",
+  "notes": [],
+  "seal_hash": "sha256:91f3bef3e6e4847fe56a4c3502b4f5d859ce4ec516df6690620d5ffd98c7589b"
+}

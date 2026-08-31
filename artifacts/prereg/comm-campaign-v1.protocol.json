@@ -1,0 +1,158 @@
+{
+  "kind": "communication-campaign-protocol",
+  "campaign": "thrust1-comm-campaign-v1",
+  "sealed_at": "2026-08-31T04:50:59Z",
+  "collectives": [
+    "all_reduce",
+    "all_gather"
+  ],
+  "world_sizes": [
+    2,
+    3,
+    4
+  ],
+  "transport": "gloo over shared memory, one host",
+  "message_size_range_bytes": [
+    1024,
+    33554432
+  ],
+  "dense_grid": [
+    1024,
+    1528,
+    2280,
+    3400,
+    5068,
+    7564,
+    8192,
+    11280,
+    13776,
+    16828,
+    23172,
+    25100,
+    37440,
+    38968,
+    55848,
+    65536,
+    83308,
+    124268,
+    185364,
+    276500,
+    412448,
+    524288,
+    615232,
+    881744,
+    917720,
+    1048576,
+    1368928,
+    1482912,
+    1641112,
+    2041980,
+    2493948,
+    2568476,
+    3045952,
+    4019884,
+    4194304,
+    4543536,
+    5931640,
+    6291456,
+    6777432,
+    8388608,
+    10109656,
+    11863284,
+    15080216,
+    16777216,
+    22494624,
+    33554432
+  ],
+  "n_grid_points": 46,
+  "grid_construction": "log-spaced backbone rounded to 4-byte words, NOT restricted to powers of two, plus oversampling in four named regions",
+  "oversampled_regions": [
+    {
+      "name": "latency_to_bandwidth",
+      "lo": 8192,
+      "hi": 65536,
+      "why": "where the latency floor gives way to a bandwidth slope"
+    },
+    {
+      "name": "cache_peak",
+      "lo": 524288,
+      "hi": 4194304,
+      "why": "where effective bandwidth peaked in the previous campaign, consistent with the buffer still fitting in cache"
+    },
+    {
+      "name": "peak_decline",
+      "lo": 4194304,
+      "hi": 16777216,
+      "why": "where bandwidth fell again past the peak"
+    },
+    {
+      "name": "prior_breakpoints",
+      "lo": 1048576,
+      "hi": 6291456,
+      "why": "where the earlier two-segment fits placed their breakpoints"
+    }
+  ],
+  "regime_definitions": [
+    {
+      "name": "tiny",
+      "lo": 1024,
+      "hi": 16384
+    },
+    {
+      "name": "small",
+      "lo": 16384,
+      "hi": 262144
+    },
+    {
+      "name": "medium",
+      "lo": 262144,
+      "hi": 4194304
+    },
+    {
+      "name": "large",
+      "lo": 4194304,
+      "hi": 33554433
+    }
+  ],
+  "passes": 2,
+  "repeats_per_point_per_pass": 2,
+  "pass_purpose": "two independent passes so the bandwidth peak's location, magnitude and regime ordering can be compared; a peak seen once is not a property of the transport",
+  "estimator_families": [
+    "weighted",
+    "log",
+    "huber"
+  ],
+  "model_families": [
+    "linear",
+    "piecewise",
+    "regime"
+  ],
+  "segmentation": "greedy top-down, stopping on AIC",
+  "cross_validation": "stratified k-fold over message size, folds assigned round-robin within each regime so no fold can be missing a regime",
+  "acceptance": {
+    "criterion": "worst-regime cross-validated relative error",
+    "max_worst_regime_err": 0.15,
+    "why_not_pooled": "a pooled median lets one useless regime hide behind three good ones, which is how a model 35% wrong in the medium tier was previously accepted",
+    "max_noise_cv": 0.2,
+    "min_points_per_regime": 3
+  },
+  "coverage_requirements": {
+    "required_groups": 6,
+    "required_regimes_per_group": [
+      "tiny",
+      "small",
+      "medium",
+      "large"
+    ],
+    "a_regime_is_covered_when": [
+      "it was measured with at least min_points_per_regime valid points",
+      "the group's model was ACCEPTED",
+      "held-out validation graded the model in that regime",
+      "the regime's cross-validated error is within the threshold",
+      "measurement noise in that regime is within max_noise_cv"
+    ]
+  },
+  "subsystem_readiness": "conjunctive: every required group covered, every required regime covered, accepted models only, held-out validation present in every cell. There is no arithmetic that trades a covered group against a missing one.",
+  "transferability": "NOTHING measured here is a value for NVLink or InfiniBand. This is gloo over shared memory on one host. What the campaign can establish is methodology readiness -- that the grid, the estimators, the selection rule and the coverage criteria work -- not fabric parameters for an A100 node.",
+  "seal_hash": "sha256:9c4e116661484581d28f5a7cd029fa72cfaf217c727b98b5673ff844c6f64728"
+}
