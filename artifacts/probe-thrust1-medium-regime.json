@@ -1,0 +1,2201 @@
+{
+  "probe": "thrust1-comm-medium-probe-v1",
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "protocol": {
+    "kind": "targeted-probe-protocol",
+    "probe": "thrust1-comm-medium-probe-v1",
+    "sealed_at": "2026-08-31T05:35:13Z",
+    "hypothesis": "The medium regime is model-limited because there are too few points in it to justify the segments the surface needs. With 16 medium points on the campaign grid, AIC refuses a segmentation that may be real.",
+    "discriminates_between": {
+      "evidence_was_thin": "a richer segmentation now clears the gate",
+      "surface_is_not_modellable": "the error stays where it is, at this granularity"
+    },
+    "why_this_and_nothing_else": "Every other regime is already classified as noise-limited or covered. Re-measuring them would cost time without changing a verdict, and this experiment changes one either way.",
+    "collective": "all_reduce",
+    "worlds": [
+      2,
+      3,
+      4
+    ],
+    "regime": "medium",
+    "size_range_bytes": [
+      262144,
+      4194304
+    ],
+    "grid": [
+      275252,
+      328932,
+      393080,
+      469744,
+      561356,
+      670832,
+      801660,
+      958004,
+      1144840,
+      1368112,
+      1634928,
+      1953780,
+      2334816,
+      2790164,
+      3334316,
+      3984588
+    ],
+    "n_points": 16,
+    "grid_offset_from_powers_of_two": "the campaign already sampled the powers of two in this regime; repeating them would add repeats rather than resolution",
+    "acceptance": {
+      "criterion": "worst-regime cross-validated relative error, unchanged",
+      "max_err": 0.15,
+      "note": "the gate is the campaign's. It is not relaxed for this probe."
+    },
+    "is_new_protocol_not_an_extension": "Adding points to a sealed grid after seeing its results, and then reporting one number, would be choosing the grid to suit the answer. This is registered separately and its result is reported separately.",
+    "seal_hash": "sha256:9564e7e980b2c3bea98d04dacc49f1488e158b549b4300e1f5af8c5c219ff81b"
+  },
+  "n_records": 96,
+  "records": [
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00028255999786779283,
+        0.00027399499667808415,
+        0.00031140000792220237
+      ],
+      "median_s": 0.00028255999786779283,
+      "iqr_s": 1.8702505622059085e-05,
+      "cv": 0.055305289830239225,
+      "effective_bytes": 275252.0,
+      "bandwidth_gbs": 0.9741364739420327,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0002752200001850724,
+        0.00028562500374391676,
+        0.0002816949971020222
+      ],
+      "median_s": 0.0002816949971020222,
+      "iqr_s": 5.202501779422153e-06,
+      "cv": 0.015275134759950591,
+      "effective_bytes": 328932.0,
+      "bandwidth_gbs": 1.1676884693868732,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0002879400039091706,
+        0.0002999149961397052,
+        0.0002888799994252622
+      ],
+      "median_s": 0.0002888799994252622,
+      "iqr_s": 5.9874961152672984e-06,
+      "cv": 0.018604479227052276,
+      "effective_bytes": 393080.0,
+      "bandwidth_gbs": 1.3607034089658256,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00030191499972715975,
+        0.0004401199985295534,
+        0.0003320649964734912
+      ],
+      "median_s": 0.0003320649964734912,
+      "iqr_s": 6.91024994011968e-05,
+      "cv": 0.16572413319017598,
+      "effective_bytes": 469744.0,
+      "bandwidth_gbs": 1.4146146236087842,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0012046849937178195,
+        0.0005418049986474216,
+        0.0003826700034551322
+      ],
+      "median_s": 0.0005418049986474216,
+      "iqr_s": 0.00041100749513134366,
+      "cv": 0.5015663533358593,
+      "effective_bytes": 561356.0,
+      "bandwidth_gbs": 1.0360849408945767,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0017887350055389105,
+        0.0017434149980545045,
+        0.0015343450009822845
+      ],
+      "median_s": 0.0017434149980545045,
+      "iqr_s": 0.00012719500227831304,
+      "cv": 0.06560412540620647,
+      "effective_bytes": 670832.0,
+      "bandwidth_gbs": 0.3847804457048888,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0007125600008293986,
+        0.0013887199922464788,
+        0.00625199000351131
+      ],
+      "median_s": 0.0013887199922464788,
+      "iqr_s": 0.002769715001340956,
+      "cv": 0.8861545619296844,
+      "effective_bytes": 801660.0,
+      "bandwidth_gbs": 0.5772653986950858,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.003132579999510199,
+        0.004562874999828636,
+        0.0020854600006714463
+      ],
+      "median_s": 0.003132579999510199,
+      "iqr_s": 0.001238707499578595,
+      "cv": 0.3114508853209987,
+      "effective_bytes": 958004.0,
+      "bandwidth_gbs": 0.30581948430679845,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.012359720002859832,
+        0.012221860000863671,
+        0.009601840004324912
+      ],
+      "median_s": 0.012221860000863671,
+      "iqr_s": 0.0013789399992674596,
+      "cv": 0.11135503873829294,
+      "effective_bytes": 1144840.0,
+      "bandwidth_gbs": 0.09367150334884368,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.009423960000276566,
+        0.012620140006765724,
+        0.015318599995225668
+      ],
+      "median_s": 0.012620140006765724,
+      "iqr_s": 0.002947319997474551,
+      "cv": 0.19345506164111667,
+      "effective_bytes": 1368112.0,
+      "bandwidth_gbs": 0.1084070382156258,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.012038139998912812,
+        0.009686420019716025,
+        0.01229054001159966
+      ],
+      "median_s": 0.012038139998912812,
+      "iqr_s": 0.0013020599959418164,
+      "cv": 0.10342218834413452,
+      "effective_bytes": 1634928.0,
+      "bandwidth_gbs": 0.13581234311510362,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.012670799996703863,
+        0.02199093997478485,
+        0.015360300010070205
+      ],
+      "median_s": 0.015360300010070205,
+      "iqr_s": 0.004660069989040491,
+      "cv": 0.23489756861839184,
+      "effective_bytes": 1953780.0,
+      "bandwidth_gbs": 0.12719673435539036,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.009756619995459914,
+        0.009524059994146229,
+        0.006530740018934012
+      ],
+      "median_s": 0.009524059994146229,
+      "iqr_s": 0.0016129399882629514,
+      "cv": 0.17073266970221845,
+      "effective_bytes": 2334816.0,
+      "bandwidth_gbs": 0.2451492327258593,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.009555179998278618,
+        0.005814020009711385,
+        0.011963279964402319
+      ],
+      "median_s": 0.009555179998278618,
+      "iqr_s": 0.0030746299773454673,
+      "cv": 0.2776928534045342,
+      "effective_bytes": 2790164.0,
+      "bandwidth_gbs": 0.292005383520002,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.009656560001894831,
+        0.006292960001155734,
+        0.006527119968086481
+      ],
+      "median_s": 0.006527119968086481,
+      "iqr_s": 0.0016818000003695488,
+      "cv": 0.204666744566765,
+      "effective_bytes": 3334316.0,
+      "bandwidth_gbs": 0.5108403118531162,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.006421979982405901,
+        0.009994659991934895,
+        0.009271580027416348
+      ],
+      "median_s": 0.009271580027416348,
+      "iqr_s": 0.001786340004764497,
+      "cv": 0.18011296807160124,
+      "effective_bytes": 3984588.0,
+      "bandwidth_gbs": 0.4297636420348474,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00045988999772816896,
+        0.0005412949947640299,
+        0.0004270699922926724
+      ],
+      "median_s": 0.00045988999772816896,
+      "iqr_s": 5.711250123567878e-05,
+      "cv": 0.10085946739447638,
+      "effective_bytes": 367002.6666666666,
+      "bandwidth_gbs": 0.7980227195191012,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00048326000105589626,
+        0.000493455003015697,
+        0.00044984500855207445
+      ],
+      "median_s": 0.00048326000105589626,
+      "iqr_s": 2.1804997231811285e-05,
+      "cv": 0.03916962848797933,
+      "effective_bytes": 438576.0,
+      "bandwidth_gbs": 0.9075363138719029,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005311850109137595,
+        0.0004546700045466423,
+        0.0005025949911214411
+      ],
+      "median_s": 0.0005025949911214411,
+      "iqr_s": 3.8257503183558605e-05,
+      "cv": 0.06362553676045796,
+      "effective_bytes": 524106.6666666666,
+      "bandwidth_gbs": 1.0428012135521416,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005390299949795008,
+        0.0004930200055241584,
+        0.0005393899977207184
+      ],
+      "median_s": 0.0005390299949795008,
+      "iqr_s": 2.318499609827991e-05,
+      "cv": 0.0415695155736454,
+      "effective_bytes": 626325.3333333333,
+      "bandwidth_gbs": 1.1619489437821586,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0012584550073370337,
+        0.0005227999994531274,
+        0.0005750899901613594
+      ],
+      "median_s": 0.0005750899901613594,
+      "iqr_s": 0.0003678275039419532,
+      "cv": 0.426694878241007,
+      "effective_bytes": 748474.6666666666,
+      "bandwidth_gbs": 1.3014913830384334,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005867000087164343,
+        0.0005316299968399108,
+        0.0006249550031498074
+      ],
+      "median_s": 0.0005867000087164343,
+      "iqr_s": 4.666250315494831e-05,
+      "cv": 0.06591927817669216,
+      "effective_bytes": 894442.6666666666,
+      "bandwidth_gbs": 1.5245315380572486,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006429950008168817,
+        0.0006629400071687996,
+        0.0006011249963194132
+      ],
+      "median_s": 0.0006429950008168817,
+      "iqr_s": 3.090750542469325e-05,
+      "cv": 0.040522422511877904,
+      "effective_bytes": 1068880.0,
+      "bandwidth_gbs": 1.6623457393013326,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006280049914494157,
+        0.000692874996457249,
+        0.0006680549937300384
+      ],
+      "median_s": 0.0006680549937300384,
+      "iqr_s": 3.243500250391671e-05,
+      "cv": 0.040310901292740974,
+      "effective_bytes": 1277338.6666666665,
+      "bandwidth_gbs": 1.9120262233723233,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006638600025326014,
+        0.0007918199989944696,
+        0.0007176599930971861
+      ],
+      "median_s": 0.0007176599930971861,
+      "iqr_s": 6.397999823093414e-05,
+      "cv": 0.07241307242232332,
+      "effective_bytes": 1526453.3333333333,
+      "bandwidth_gbs": 2.126986801571116,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0007304000202566386,
+        0.000724499998614192,
+        0.0009700400289148093
+      ],
+      "median_s": 0.0007304000202566386,
+      "iqr_s": 0.00012277001515030865,
+      "cv": 0.14150872999888994,
+      "effective_bytes": 1824149.3333333333,
+      "bandwidth_gbs": 2.49746615928678,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010743199847638607,
+        0.001124839996919036,
+        0.0015380399767309428
+      ],
+      "median_s": 0.001124839996919036,
+      "iqr_s": 0.00023185999598354114,
+      "cv": 0.1667439435364266,
+      "effective_bytes": 2179904.0,
+      "bandwidth_gbs": 1.9379680718776093,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0012839800212532282,
+        0.0057844799943268296,
+        0.0011626199819147586
+      ],
+      "median_s": 0.0012839800212532282,
+      "iqr_s": 0.0023109300062060354,
+      "cv": 0.7838819257033038,
+      "effective_bytes": 2605040.0,
+      "bandwidth_gbs": 2.028878920917595,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0017556200269609689,
+        0.0013906999956816435,
+        0.003914040001109243
+      ],
+      "median_s": 0.0017556200269609689,
+      "iqr_s": 0.0012616700027137993,
+      "cv": 0.4731397691927765,
+      "effective_bytes": 3113088.0,
+      "bandwidth_gbs": 1.7732128548276183,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.007891799975186586,
+        0.0021247599739581346,
+        0.0045165600255131725
+      ],
+      "median_s": 0.0045165600255131725,
+      "iqr_s": 0.0028835200006142253,
+      "cv": 0.4883536706880861,
+      "effective_bytes": 3720218.6666666665,
+      "bandwidth_gbs": 0.823684097111933,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0026840400416404007,
+        0.006101519986987114,
+        0.0029645999893546104
+      ],
+      "median_s": 0.0029645999893546104,
+      "iqr_s": 0.0017087399726733563,
+      "cv": 0.39551640063080584,
+      "effective_bytes": 4445754.666666666,
+      "bandwidth_gbs": 1.4996136688358086,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.009169260039925575,
+        0.003358880011364818,
+        0.00929478001780808
+      ],
+      "median_s": 0.009169260039925575,
+      "iqr_s": 0.0029679500032216317,
+      "cv": 0.38066843392070854,
+      "effective_bytes": 5312784.0,
+      "bandwidth_gbs": 0.5794125127727453,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0008192700101062655,
+        0.0009293150040321052,
+        0.0007536750053986907
+      ],
+      "median_s": 0.0008192700101062655,
+      "iqr_s": 8.781999931670712e-05,
+      "cv": 0.08688077322139715,
+      "effective_bytes": 412878.0,
+      "bandwidth_gbs": 0.5039583957753397,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0007830600021407008,
+        0.000783244997728616,
+        0.0008130099973641336
+      ],
+      "median_s": 0.000783244997728616,
+      "iqr_s": 1.497499761171639e-05,
+      "cv": 0.017746908553451186,
+      "effective_bytes": 493398.0,
+      "bandwidth_gbs": 0.629940824940903,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0008125549997203052,
+        0.0008304849965497851,
+        0.0008432450005784631
+      ],
+      "median_s": 0.0008304849965497851,
+      "iqr_s": 1.5345000429078915e-05,
+      "cv": 0.01518924036838741,
+      "effective_bytes": 589620.0,
+      "bandwidth_gbs": 0.7099706827330432,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.001644194999244064,
+        0.0009980399976484478,
+        0.0008532200008630753
+      ],
+      "median_s": 0.0009980399976484478,
+      "iqr_s": 0.0003954874991904944,
+      "cv": 0.29511667131995467,
+      "effective_bytes": 704616.0,
+      "bandwidth_gbs": 0.7059997611921319,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010364449932239949,
+        0.0010237500071525573,
+        0.0009499349980615079
+      ],
+      "median_s": 0.0010237500071525573,
+      "iqr_s": 4.3254997581243255e-05,
+      "cv": 0.038014349059123966,
+      "effective_bytes": 842034.0,
+      "bandwidth_gbs": 0.8224996279531372,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.001042675005737692,
+        0.0010253999964334071,
+        0.0012359100044704973
+      ],
+      "median_s": 0.001042675005737692,
+      "iqr_s": 0.00010525500401854511,
+      "cv": 0.08664498759545242,
+      "effective_bytes": 1006248.0,
+      "bandwidth_gbs": 0.9650638928359849,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010722100036218763,
+        0.0010210949927568435,
+        0.0010146899963729083
+      ],
+      "median_s": 0.0010210949927568435,
+      "iqr_s": 2.876000362448403e-05,
+      "cv": 0.024844331397234992,
+      "effective_bytes": 1202490.0,
+      "bandwidth_gbs": 1.177647533804284,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010186200030148028,
+        0.0011146550066769123,
+        0.0010614149970933795
+      ],
+      "median_s": 0.0010614149970933795,
+      "iqr_s": 4.80175018310546e-05,
+      "cv": 0.03688935087270406,
+      "effective_bytes": 1437006.0,
+      "bandwidth_gbs": 1.3538587677158829,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0011454000137746333,
+        0.0012798800133168697,
+        0.0010645399801433087
+      ],
+      "median_s": 0.0011454000137746333,
+      "iqr_s": 0.00010767001658678037,
+      "cv": 0.0763500740428421,
+      "effective_bytes": 1717260.0,
+      "bandwidth_gbs": 1.4992666137141193,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0025454199872910976,
+        0.001343880034983158,
+        0.0011267600115388633
+      ],
+      "median_s": 0.001343880034983158,
+      "iqr_s": 0.0007093299878761171,
+      "cv": 0.373150765432866,
+      "effective_bytes": 2052168.0,
+      "bandwidth_gbs": 1.5270470180217526,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0013888200279325246,
+        0.0011521600186824798,
+        0.0016620600130409003
+      ],
+      "median_s": 0.0013888200279325246,
+      "iqr_s": 0.00025494999717921027,
+      "cv": 0.14870970374188328,
+      "effective_bytes": 2452392.0,
+      "bandwidth_gbs": 1.7658097886525788,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0017595400102436542,
+        0.0014958399813622236,
+        0.0013388799969106912
+      ],
+      "median_s": 0.0014958399813622236,
+      "iqr_s": 0.0002103300066664815,
+      "cv": 0.11333718166615171,
+      "effective_bytes": 2930670.0,
+      "bandwidth_gbs": 1.959213576662868,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.002251200005412102,
+        0.002108879992738366,
+        0.004242040030658245
+      ],
+      "median_s": 0.002251200005412102,
+      "iqr_s": 0.0010665800189599397,
+      "cv": 0.33960386250417324,
+      "effective_bytes": 3502224.0,
+      "bandwidth_gbs": 1.5557142819741985,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.004377139965072274,
+        0.009288220014423133,
+        0.003951560007408261
+      ],
+      "median_s": 0.004377139965072274,
+      "iqr_s": 0.0026683300035074357,
+      "cv": 0.4123858419489661,
+      "effective_bytes": 4185246.0,
+      "bandwidth_gbs": 0.9561599659587067,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.004224260011687875,
+        0.003383780037984252,
+        0.004758559959009289
+      ],
+      "median_s": 0.004224260011687875,
+      "iqr_s": 0.0006873899605125185,
+      "cv": 0.13727433684127116,
+      "effective_bytes": 5001474.0,
+      "bandwidth_gbs": 1.1839881982078977,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 0,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00776207996532321,
+        0.004236060008406639,
+        0.011965120024979115
+      ],
+      "median_s": 0.00776207996532321,
+      "iqr_s": 0.0038645300082862395,
+      "cv": 0.3955314950718359,
+      "effective_bytes": 5976882.0,
+      "bandwidth_gbs": 0.7700103614883494,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0003182449960149825,
+        0.0002785299904644489,
+        0.0002757249982096255
+      ],
+      "median_s": 0.0002785299904644489,
+      "iqr_s": 2.125999890267849e-05,
+      "cv": 0.06676254637804409,
+      "effective_bytes": 275252.0,
+      "bandwidth_gbs": 0.9882311040940946,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0002981700003147125,
+        0.0002749400096945465,
+        0.00026776499580591915
+      ],
+      "median_s": 0.0002749400096945465,
+      "iqr_s": 1.5202502254396677e-05,
+      "cv": 0.046297510991588915,
+      "effective_bytes": 328932.0,
+      "bandwidth_gbs": 1.1963773492458871,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00033331000013276936,
+        0.00029283500043675303,
+        0.00030812500044703485
+      ],
+      "median_s": 0.00030812500044703485,
+      "iqr_s": 2.023749984800819e-05,
+      "cv": 0.05358504445265957,
+      "effective_bytes": 393080.0,
+      "bandwidth_gbs": 1.2757160224899324,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0003113299957476556,
+        0.0002900900086387992,
+        0.00031720499973744156
+      ],
+      "median_s": 0.0003113299957476556,
+      "iqr_s": 1.3557495549321175e-05,
+      "cv": 0.038036226159683086,
+      "effective_bytes": 469744.0,
+      "bandwidth_gbs": 1.5088298796006305,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00035283499164506793,
+        0.00036862000124529006,
+        0.001838679995853454
+      ],
+      "median_s": 0.00036862000124529006,
+      "iqr_s": 0.0007429225021041931,
+      "cv": 0.8164529934168027,
+      "effective_bytes": 561356.0,
+      "bandwidth_gbs": 1.5228582228408654,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0009573800023645162,
+        0.0022097299923188986,
+        0.0003840149962343276
+      ],
+      "median_s": 0.0009573800023645162,
+      "iqr_s": 0.0009128574980422856,
+      "cv": 0.6440209038661806,
+      "effective_bytes": 670832.0,
+      "bandwidth_gbs": 0.7006956468102464,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.001126824994571507,
+        0.002354559989180416,
+        0.0009682600037194788
+      ],
+      "median_s": 0.001126824994571507,
+      "iqr_s": 0.0006931499927304685,
+      "cv": 0.41769078871340054,
+      "effective_bytes": 801660.0,
+      "bandwidth_gbs": 0.7114325683775269,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.005284670006949455,
+        0.00043654500041157007,
+        0.0012329449993558228
+      ],
+      "median_s": 0.0012329449993558228,
+      "iqr_s": 0.0024240625032689424,
+      "cv": 0.9157517610006595,
+      "effective_bytes": 958004.0,
+      "bandwidth_gbs": 0.7770046518705447,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.012209980003535747,
+        0.0008510400075465441,
+        0.011777660017833114
+      ],
+      "median_s": 0.011777660017833114,
+      "iqr_s": 0.005679469997994602,
+      "cv": 0.634782662823206,
+      "effective_bytes": 1144840.0,
+      "bandwidth_gbs": 0.09720436812291604,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.01903125997632742,
+        0.012256460031494498,
+        0.012454420002177358
+      ],
+      "median_s": 0.012454420002177358,
+      "iqr_s": 0.0033873999724164626,
+      "cv": 0.21590502283061097,
+      "effective_bytes": 1368112.0,
+      "bandwidth_gbs": 0.10984951525328504,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.006753659993410111,
+        0.01508561996743083,
+        0.020203280029818416
+      ],
+      "median_s": 0.01508561996743083,
+      "iqr_s": 0.006724810018204153,
+      "cv": 0.3955139236834649,
+      "effective_bytes": 1634928.0,
+      "bandwidth_gbs": 0.1083765866785545,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.02203310001641512,
+        0.016656100004911422,
+        0.02052667997777462
+      ],
+      "median_s": 0.02052667997777462,
+      "iqr_s": 0.002688500005751847,
+      "cv": 0.1147381853327935,
+      "effective_bytes": 1953780.0,
+      "bandwidth_gbs": 0.09518246507060403,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.01188019998371601,
+        0.012612520018592477,
+        0.002822640025988221
+      ],
+      "median_s": 0.01188019998371601,
+      "iqr_s": 0.0048949399963021285,
+      "cv": 0.4890032178994078,
+      "effective_bytes": 2334816.0,
+      "bandwidth_gbs": 0.19653002501643851,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0037574400193989277,
+        0.0062607799656689165,
+        0.021444140002131462
+      ],
+      "median_s": 0.0062607799656689165,
+      "iqr_s": 0.008843349991366267,
+      "cv": 0.7451439184524934,
+      "effective_bytes": 2790164.0,
+      "bandwidth_gbs": 0.44565757226733843,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.008627020008862018,
+        0.012352479994297028,
+        0.018696439964696766
+      ],
+      "median_s": 0.012352479994297028,
+      "iqr_s": 0.005034709977917374,
+      "cv": 0.31431365165649316,
+      "effective_bytes": 3334316.0,
+      "bandwidth_gbs": 0.26993089659237723,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 2,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.007178959995508194,
+        0.017962680011987687,
+        0.012162019964307547
+      ],
+      "median_s": 0.012162019964307547,
+      "iqr_s": 0.005391860008239746,
+      "cv": 0.35438756278672745,
+      "effective_bytes": 3984588.0,
+      "bandwidth_gbs": 0.32762551053967665,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.000495879992377013,
+        0.00040873499820008873,
+        0.000446164992172271
+      ],
+      "median_s": 0.000446164992172271,
+      "iqr_s": 4.357249708846216e-05,
+      "cv": 0.07927516941745007,
+      "effective_bytes": 367002.6666666666,
+      "bandwidth_gbs": 0.8225716340491397,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00041858999757096174,
+        0.0004680900019593537,
+        0.00042136000702157616
+      ],
+      "median_s": 0.00042136000702157616,
+      "iqr_s": 2.475000219419603e-05,
+      "cv": 0.052085107925564374,
+      "effective_bytes": 438576.0,
+      "bandwidth_gbs": 1.0408581561883785,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005096299923025071,
+        0.00047464999370276927,
+        0.0004444750025868416
+      ],
+      "median_s": 0.00047464999370276927,
+      "iqr_s": 3.257749485783277e-05,
+      "cv": 0.05590219464560295,
+      "effective_bytes": 524106.6666666666,
+      "bandwidth_gbs": 1.1041960889498454,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005227650050073862,
+        0.0004913849988952279,
+        0.0005485199973918498
+      ],
+      "median_s": 0.0005227650050073862,
+      "iqr_s": 2.8567499248311054e-05,
+      "cv": 0.04485191821578482,
+      "effective_bytes": 626325.3333333333,
+      "bandwidth_gbs": 1.198101111080463,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005600749980658292,
+        0.0005271299974992872,
+        0.0005425399984233081
+      ],
+      "median_s": 0.0005425399984233081,
+      "iqr_s": 1.6472500283270988e-05,
+      "cv": 0.02477515764379341,
+      "effective_bytes": 748474.6666666666,
+      "bandwidth_gbs": 1.3795750891027971,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005816000048071146,
+        0.0007291450048796833,
+        0.0005309599917382001
+      ],
+      "median_s": 0.0005816000048071146,
+      "iqr_s": 9.909250657074158e-05,
+      "cv": 0.13694521255123623,
+      "effective_bytes": 894442.6666666666,
+      "bandwidth_gbs": 1.5379000331392794,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0005907449987716973,
+        0.0006240749964490533,
+        0.0006125349900685251
+      ],
+      "median_s": 0.0006125349900685251,
+      "iqr_s": 1.6664998838678002e-05,
+      "cv": 0.022688086142401,
+      "effective_bytes": 1068880.0,
+      "bandwidth_gbs": 1.7450105174896589,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006682949955575168,
+        0.0006196200032718479,
+        0.0006900200038217008
+      ],
+      "median_s": 0.0006682949955575168,
+      "iqr_s": 3.5200000274926446e-05,
+      "cv": 0.04464395260233144,
+      "effective_bytes": 1277338.6666666665,
+      "bandwidth_gbs": 1.9113395658470593,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0007725600153207779,
+        0.0006868199910968542,
+        0.0006578400265425443
+      ],
+      "median_s": 0.0006868199910968542,
+      "iqr_s": 5.735999438911683e-05,
+      "cv": 0.06901633963916558,
+      "effective_bytes": 1526453.3333333333,
+      "bandwidth_gbs": 2.222494035002652,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.000749540003016591,
+        0.0008651200216263533,
+        0.0007615000009536743
+      ],
+      "median_s": 0.0007615000009536743,
+      "iqr_s": 5.779000930488114e-05,
+      "cv": 0.06552102560781008,
+      "effective_bytes": 1824149.3333333333,
+      "bandwidth_gbs": 2.3954685896898704,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010378200095146894,
+        0.0011970399878919124,
+        0.0010855999775230885
+      ],
+      "median_s": 0.0010855999775230885,
+      "iqr_s": 7.960998918861146e-05,
+      "cv": 0.060272361328260436,
+      "effective_bytes": 2179904.0,
+      "bandwidth_gbs": 2.0080177276474176,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0012241799850016832,
+        0.002890119981020689,
+        0.0014216400217264892
+      ],
+      "median_s": 0.0014216400217264892,
+      "iqr_s": 0.0008329699980095032,
+      "cv": 0.402736410010483,
+      "effective_bytes": 2605040.0,
+      "bandwidth_gbs": 1.832418868481452,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0013290000148117541,
+        0.005780600011348724,
+        0.002056519966572523
+      ],
+      "median_s": 0.002056519966572523,
+      "iqr_s": 0.002225799998268485,
+      "cv": 0.6381480765078043,
+      "effective_bytes": 3113088.0,
+      "bandwidth_gbs": 1.5137650256750945,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.007550340006127953,
+        0.0017849399708211422,
+        0.006115820026025176
+      ],
+      "median_s": 0.006115820026025176,
+      "iqr_s": 0.002882700017653406,
+      "cv": 0.4758338651674842,
+      "effective_bytes": 3720218.6666666665,
+      "bandwidth_gbs": 0.6082943335212121,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.007156620034947991,
+        0.010588619997724891,
+        0.004335380019620061
+      ],
+      "median_s": 0.007156620034947991,
+      "iqr_s": 0.0031266199890524144,
+      "cv": 0.3473992411258237,
+      "effective_bytes": 4445754.666666666,
+      "bandwidth_gbs": 0.6212087053604453,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 3,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.00467954003252089,
+        0.0031095199752599,
+        0.004602080024778843
+      ],
+      "median_s": 0.004602080024778843,
+      "iqr_s": 0.0007850100286304947,
+      "cv": 0.17493532893154512,
+      "effective_bytes": 5312784.0,
+      "bandwidth_gbs": 1.154431033661852,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 275252,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0010779749951325356,
+        0.0011660100077278911,
+        0.0006990749971009791
+      ],
+      "median_s": 0.0010779749951325356,
+      "iqr_s": 0.00023346750531345602,
+      "cv": 0.206498174912303,
+      "effective_bytes": 412878.0,
+      "bandwidth_gbs": 0.3830125947858718,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 328932,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006357100093737245,
+        0.0006666900007985532,
+        0.0007119650021195411
+      ],
+      "median_s": 0.0006666900007985532,
+      "iqr_s": 3.8127496372908375e-05,
+      "cv": 0.0466342136456075,
+      "effective_bytes": 493398.0,
+      "bandwidth_gbs": 0.7400710966251389,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 393080,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0006972150062210858,
+        0.0006754349917173386,
+        0.0006693400093354285
+      ],
+      "median_s": 0.0006754349917173386,
+      "iqr_s": 1.3937498442828569e-05,
+      "cv": 0.017579001764363885,
+      "effective_bytes": 589620.0,
+      "bandwidth_gbs": 0.8729485549761817,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 469744,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.000681839999742806,
+        0.0006446000072173775,
+        0.0006989349960349501
+      ],
+      "median_s": 0.000681839999742806,
+      "iqr_s": 2.7167494408786297e-05,
+      "cv": 0.033600691308484094,
+      "effective_bytes": 704616.0,
+      "bandwidth_gbs": 1.0334037314704114,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 561356,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.000777195009868592,
+        0.0007626599981449544,
+        0.0008086649933829904
+      ],
+      "median_s": 0.000777195009868592,
+      "iqr_s": 2.3002497619017872e-05,
+      "cv": 0.024527289479340766,
+      "effective_bytes": 842034.0,
+      "bandwidth_gbs": 1.0834269254281124,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 670832,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.000843619997613132,
+        0.0008288549957796931,
+        0.0009164699935354292
+      ],
+      "median_s": 0.000843619997613132,
+      "iqr_s": 4.3807498877867926e-05,
+      "cv": 0.044380180570024616,
+      "effective_bytes": 1006248.0,
+      "bandwidth_gbs": 1.1927740011462438,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 801660,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0009134249994531274,
+        0.0010133950039744378,
+        0.0009175750077702105
+      ],
+      "median_s": 0.0009175750077702105,
+      "iqr_s": 4.998500226065521e-05,
+      "cv": 0.04870550879110015,
+      "effective_bytes": 1202490.0,
+      "bandwidth_gbs": 1.3105086666671082,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 958004,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0009268400026485324,
+        0.0009313449962064623,
+        0.0009624149999581278
+      ],
+      "median_s": 0.0009313449962064623,
+      "iqr_s": 1.7787498654797695e-05,
+      "cv": 0.016821608428227768,
+      "effective_bytes": 1437006.0,
+      "bandwidth_gbs": 1.5429362973475855,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1144840,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0009385999757796526,
+        0.000994020001962781,
+        0.0012798800133168697
+      ],
+      "median_s": 0.000994020001962781,
+      "iqr_s": 0.00017064001876860842,
+      "cv": 0.13964807074937222,
+      "effective_bytes": 1717260.0,
+      "bandwidth_gbs": 1.7275909907337048,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1368112,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0009654599707573652,
+        0.0011283400002866984,
+        0.0012051600031554699
+      ],
+      "median_s": 0.0011283400002866984,
+      "iqr_s": 0.0001198500161990522,
+      "cv": 0.09088080713786081,
+      "effective_bytes": 2052168.0,
+      "bandwidth_gbs": 1.818749667191243,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1634928,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0012319799978286027,
+        0.0014462999999523163,
+        0.001067919982597232
+      ],
+      "median_s": 0.0012319799978286027,
+      "iqr_s": 0.0001891900086775423,
+      "cv": 0.12406698090136944,
+      "effective_bytes": 2452392.0,
+      "bandwidth_gbs": 1.990610240687678,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 1953780,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0014575399924069642,
+        0.0012460399884730577,
+        0.0034266400150954725
+      ],
+      "median_s": 0.0014575399924069642,
+      "iqr_s": 0.0010903000133112072,
+      "cv": 0.4805198487079616,
+      "effective_bytes": 2930670.0,
+      "bandwidth_gbs": 2.010696114869772,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 2334816,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.0047029400244355205,
+        0.0019000400323420763,
+        0.006068579992279411
+      ],
+      "median_s": 0.0047029400244355205,
+      "iqr_s": 0.002084269979968667,
+      "cv": 0.410807253106288,
+      "effective_bytes": 3502224.0,
+      "bandwidth_gbs": 0.7446882124379974,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 2790164,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.002214779984205961,
+        0.0024047600105404853,
+        0.0023654600139707328
+      ],
+      "median_s": 0.0023654600139707328,
+      "iqr_s": 9.499001316726208e-05,
+      "cv": 0.0351674742025305,
+      "effective_bytes": 4185246.0,
+      "bandwidth_gbs": 1.7693158942790663,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 3334316,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.002900179987773299,
+        0.003075980022549629,
+        0.002797699999064207
+      ],
+      "median_s": 0.002900179987773299,
+      "iqr_s": 0.0001391400117427108,
+      "cv": 0.03929202898025595,
+      "effective_bytes": 5001474.0,
+      "bandwidth_gbs": 1.7245391738048759,
+      "n_runs": 3,
+      "n_failures": 0
+    },
+    {
+      "collective": "all_reduce",
+      "world": 4,
+      "nbytes": 3984588,
+      "regime": "medium",
+      "pass_index": 1,
+      "valid": true,
+      "invalid_reason": "",
+      "timings_s": [
+        0.006332379998639226,
+        0.005680919997394085,
+        0.009547179983928799
+      ],
+      "median_s": 0.006332379998639226,
+      "iqr_s": 0.0019331299932673568,
+      "cv": 0.23516346641457858,
+      "effective_bytes": 5976882.0,
+      "bandwidth_gbs": 0.9438602865406657,
+      "n_runs": 3,
+      "n_failures": 0
+    }
+  ],
+  "before": {
+    "all_reduce/world2": {
+      "n_medium": 30,
+      "medium_err": 0.3848139147948282,
+      "n_segments": 2,
+      "family": "piecewise/huber"
+    },
+    "all_reduce/world3": {
+      "n_medium": 30,
+      "medium_err": 0.1963406377079972,
+      "n_segments": 4,
+      "family": "regime/huber"
+    },
+    "all_reduce/world4": {
+      "n_medium": 30,
+      "medium_err": 0.1354040618292885,
+      "n_segments": 2,
+      "family": "regime/huber"
+    }
+  },
+  "after": {
+    "all_reduce/world2": {
+      "n_medium": 32,
+      "medium_err": 0.3438219500765881,
+      "n_segments": 2,
+      "family": "piecewise/huber",
+      "note": "fresh session only; NOT pooled with the campaign"
+    },
+    "all_reduce/world3": {
+      "n_medium": 32,
+      "medium_err": 0.07178531650680928,
+      "n_segments": 2,
+      "family": "regime/weighted",
+      "note": "fresh session only; NOT pooled with the campaign"
+    },
+    "all_reduce/world4": {
+      "n_medium": 32,
+      "medium_err": 0.10114477486729201,
+      "n_segments": 2,
+      "family": "piecewise/huber",
+      "note": "fresh session only; NOT pooled with the campaign"
+    }
+  },
+  "verdict": "INCONCLUSIVE -- THE SESSIONS ARE NOT COMPARABLE. the two sessions differ by 1.42x in median bandwidth over the same size range (0.747 against 1.063 GB/s), beyond the 1.15x this protocol allows. Pooling them would describe the drift rather than the transport, and adding points would make the best achievable fit worse -- which is impossible for a consistent surface. The hypothesis is untested: this measurement cannot distinguish a model-limited surface from a drifting machine.",
+  "session_comparability": {
+    "comparable": false,
+    "prior_median_gbs": 0.7470259116285602,
+    "fresh_median_gbs": 1.063114069490127,
+    "drift_ratio": 1.4231287736358116,
+    "threshold": 1.15,
+    "overlap_range_bytes": [
+      275252,
+      3984588
+    ],
+    "reason": "the two sessions differ by 1.42x in median bandwidth over the same size range (0.747 against 1.063 GB/s), beyond the 1.15x this protocol allows. Pooling them would describe the drift rather than the transport, and adding points would make the best achievable fit worse -- which is impossible for a consistent surface."
+  },
+  "errors": {},
+  "notes": [
+    "The probe's own method was unsound: it pooled records across two measurement sessions without checking they were comparable. The check now exists, and it fails, which is how this was found.",
+    "The signature was in the result and not recognised at first: adding 32 points made all_reduce/world4's best achievable medium error RISE from 13.5% to 32.5%. That is impossible on a consistent surface.",
+    "The remedy is to measure the campaign grid and the denser medium grid in ONE session. Nothing here changes any campaign verdict.",
+    "The first verdict is preserved unedited under artifacts/history."
+  ],
+  "provenance": {
+    "captured_at": "2026-08-31T05:35:18Z",
+    "host": "Archana-PC",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "cpu_count": 24,
+    "git": {
+      "commit": "a1668eb1fdae8ea7585e0ee299b3c5cb56fa0b41",
+      "dirty": true,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [
+        "M src/losscolumn/thrusts/overlap/campaign.py",
+        " M src/losscolumn/thrusts/overlap/commodel.py",
+        "?? src/losscolumn/core/debt.py",
+        "?? src/losscolumn/thrusts/overlap/medium_probe.py",
+        "?? tests/test_regressions.py"
+      ],
+      "branch": "master",
+      "remote": null,
+      "describe": "v0.6.0-comm-campaign-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA T1000 8GB",
+          "capability": "7.5",
+          "total_memory_gb": 8.59,
+          "multi_processor_count": 14
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4"
+    },
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "triton": "3.2.0",
+      "numpy": "1.26.4",
+      "vllm": null,
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.12.1",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    },
+    "notes": null,
+    "hardware_fingerprint": "cc72e8eab7a5d10b",
+    "hardware": "1x NVIDIA T1000 8GB"
+  },
+  "kind": "probe-report",
+  "standard_version": "LC-1.1",
+  "generated_at": "2026-08-31T05:32:56Z",
+  "command": "python scripts/medium_probe.py"
+}

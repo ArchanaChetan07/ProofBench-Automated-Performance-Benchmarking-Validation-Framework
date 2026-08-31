@@ -4,7 +4,7 @@
   "protocol": {
     "kind": "communication-campaign-protocol",
     "campaign": "thrust1-comm-campaign-v1",
-    "sealed_at": "2026-08-31T04:50:59Z",
+    "sealed_at": "2026-08-31T05:28:48Z",
     "collectives": [
       "all_reduce",
       "all_gather"
@@ -157,7 +157,7 @@
     },
     "subsystem_readiness": "conjunctive: every required group covered, every required regime covered, accepted models only, held-out validation present in every cell. There is no arithmetic that trades a covered group against a missing one.",
     "transferability": "NOTHING measured here is a value for NVLink or InfiniBand. This is gloo over shared memory on one host. What the campaign can establish is methodology readiness -- that the grid, the estimators, the selection rule and the coverage criteria work -- not fabric parameters for an A100 node.",
-    "seal_hash": "sha256:9c4e116661484581d28f5a7cd029fa72cfaf217c727b98b5673ff844c6f64728"
+    "seal_hash": "sha256:4ec68376d8808ad48b4dd028a876351e1be3b2f10b941c9d09a533d797167aeb"
   },
   "n_records": 552,
   "n_valid": 552,
@@ -11214,6 +11214,8 @@
           "peak_bytes": 33554432,
           "peak_regime": "large",
           "peak_bandwidth_gbs": 0.23792457895396796,
+          "neighbour_support": 0.8063485314484702,
+          "runner_up_ratio": 0.8955607126946347,
           "regime_bandwidths": {
             "tiny": 0.010586628817224716,
             "small": 0.08800818988208214,
@@ -11227,6 +11229,8 @@
           "peak_bytes": 124268,
           "peak_regime": "small",
           "peak_bandwidth_gbs": 0.3248879101726579,
+          "neighbour_support": 0.743683728852179,
+          "runner_up_ratio": 0.805358365267049,
           "regime_bandwidths": {
             "tiny": 0.014428880662314493,
             "small": 0.15430068977127867,
@@ -11240,6 +11244,7 @@
       "peak_location_ratio": 270.01667364084074,
       "peak_magnitude_ratio": 1.3655079756829789,
       "ordering_stable": true,
+      "well_defined": true,
       "finding": "NOT reproducible: the peak moved from large to small; its magnitude differs by 1.37x. The peak must not be reported as a physical property on this evidence"
     },
     "all_gather/world3": {
@@ -11251,6 +11256,8 @@
           "peak_bytes": 524288,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 0.2772789247077647,
+          "neighbour_support": 0.9283474877020476,
+          "runner_up_ratio": 0.958560507481039,
           "regime_bandwidths": {
             "tiny": 0.008059459996757428,
             "small": 0.06928410551598128,
@@ -11264,6 +11271,8 @@
           "peak_bytes": 412448,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 0.2693203803879805,
+          "neighbour_support": 0.8537551889979335,
+          "runner_up_ratio": 0.9139538028100088,
           "regime_bandwidths": {
             "tiny": 0.007123142394794632,
             "small": 0.053547484192992684,
@@ -11273,11 +11282,12 @@
           "n_points": 46
         }
       ],
-      "reproducible": true,
+      "reproducible": false,
       "peak_location_ratio": 1.271161455504694,
       "peak_magnitude_ratio": 1.0295504718518487,
       "ordering_stable": true,
-      "finding": "the peak lands in the medium regime in both passes, within 1.03x in magnitude and with the same regime ordering: a property of the transport, not of one run"
+      "well_defined": false,
+      "finding": "NO WELL-DEFINED PEAK: a size far from the maximum is within 10% of it, so the location is not determined by the data. Reproducibility is not the question here -- there is no peak to reproduce, and reporting a location would be reporting an argmax"
     },
     "all_gather/world4": {
       "collective": "all_gather",
@@ -11288,6 +11298,8 @@
           "peak_bytes": 524288,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 0.19692110389034193,
+          "neighbour_support": 0.7683282796847496,
+          "runner_up_ratio": 0.7378796986837984,
           "regime_bandwidths": {
             "tiny": 0.006232859066878594,
             "small": 0.05099298330697684,
@@ -11301,6 +11313,8 @@
           "peak_bytes": 524288,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 0.18794401610009204,
+          "neighbour_support": 0.8632829870586006,
+          "runner_up_ratio": 0.7695664267923806,
           "regime_bandwidths": {
             "tiny": 0.005668607943631883,
             "small": 0.04269684304365297,
@@ -11314,6 +11328,7 @@
       "peak_location_ratio": 1.0,
       "peak_magnitude_ratio": 1.0477646906591005,
       "ordering_stable": true,
+      "well_defined": true,
       "finding": "the peak lands in the medium regime in both passes, within 1.05x in magnitude and with the same regime ordering: a property of the transport, not of one run"
     },
     "all_reduce/world2": {
@@ -11325,6 +11340,8 @@
           "peak_bytes": 615232,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 1.6043810555215945,
+          "neighbour_support": 0.2325041172782224,
+          "runner_up_ratio": 0.47895096292393197,
           "regime_bandwidths": {
             "tiny": 0.026127415558944947,
             "small": 0.20648417873397545,
@@ -11338,6 +11355,8 @@
           "peak_bytes": 412448,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 1.2600950114626193,
+          "neighbour_support": 0.39460087913874087,
+          "runner_up_ratio": 0.26181602891841055,
           "regime_bandwidths": {
             "tiny": 0.022194486576158294,
             "small": 0.22121053359611187,
@@ -11351,7 +11370,8 @@
       "peak_location_ratio": 1.4916595546590115,
       "peak_magnitude_ratio": 1.2732222895314498,
       "ordering_stable": false,
-      "finding": "NOT reproducible: its magnitude differs by 1.27x; the regime ordering changed between passes. The peak must not be reported as a physical property on this evidence"
+      "well_defined": false,
+      "finding": "NO WELL-DEFINED PEAK: the maximum is 4.3x its own neighbours, which is a spike rather than a peak. Reproducibility is not the question here -- there is no peak to reproduce, and reporting a location would be reporting an argmax"
     },
     "all_reduce/world3": {
       "collective": "all_reduce",
@@ -11362,6 +11382,8 @@
           "peak_bytes": 1368928,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 2.2516003096974075,
+          "neighbour_support": 0.8222470878215172,
+          "runner_up_ratio": 0.6404043008778143,
           "regime_bandwidths": {
             "tiny": 0.013821292018967448,
             "small": 0.12892468907797405,
@@ -11375,6 +11397,8 @@
           "peak_bytes": 1368928,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 2.3820389273707003,
+          "neighbour_support": 0.8973903516508235,
+          "runner_up_ratio": 0.7086413302709185,
           "regime_bandwidths": {
             "tiny": 0.01646463564893396,
             "small": 0.15323722160684594,
@@ -11388,6 +11412,7 @@
       "peak_location_ratio": 1.0,
       "peak_magnitude_ratio": 1.0579315152478472,
       "ordering_stable": true,
+      "well_defined": true,
       "finding": "the peak lands in the medium regime in both passes, within 1.06x in magnitude and with the same regime ordering: a property of the transport, not of one run"
     },
     "all_reduce/world4": {
@@ -11399,6 +11424,8 @@
           "peak_bytes": 1641112,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 1.071231249508952,
+          "neighbour_support": 0.9705874888705667,
+          "runner_up_ratio": 0.7714800436998527,
           "regime_bandwidths": {
             "tiny": 0.007943635902618611,
             "small": 0.0949308811046649,
@@ -11412,6 +11439,8 @@
           "peak_bytes": 2041980,
           "peak_regime": "medium",
           "peak_bandwidth_gbs": 1.0960512386738601,
+          "neighbour_support": 0.8767426966736623,
+          "runner_up_ratio": 0.7073936026263722,
           "regime_bandwidths": {
             "tiny": 0.006105325255687647,
             "small": 0.09145873037461105,
@@ -11425,6 +11454,7 @@
       "peak_location_ratio": 1.2442660829973822,
       "peak_magnitude_ratio": 1.023169590297413,
       "ordering_stable": true,
+      "well_defined": true,
       "finding": "the peak lands in the medium regime in both passes, within 1.02x in magnitude and with the same regime ordering: a property of the transport, not of one run"
     }
   },
@@ -12245,12 +12275,30 @@
       "kind": "all_gather",
       "world": 4,
       "noise_floor": 0.02798685782698021,
-      "chosen_family": "linear/log",
+      "chosen_family": "regime/weighted",
       "chosen": {
-        "family": "linear",
-        "n_params": 2,
-        "alpha_us": 591.3130867525033,
-        "beta_gbs": 0.14111743525231762
+        "family": "regime",
+        "n_params": 5,
+        "edges_bytes": [
+          527262.0
+        ],
+        "edges_kib": [
+          514.904296875
+        ],
+        "segments": [
+          {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 645.5244940773064,
+            "beta_gbs": 0.2887982603226652
+          },
+          {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 0.0,
+            "beta_gbs": 0.12135025013492268
+          }
+        ]
       },
       "n_fit": 48,
       "n_heldout": 0,
@@ -12632,7 +12680,7 @@
           }
         }
       ],
-      "reason": "`linear/log` is within 10% of `regime/weighted` on held-out error with fewer parameters, so the simpler family is preferred."
+      "reason": "`regime/weighted` wins on worst-tier held-out error (11.2%) against `piecewise/weighted` 11.3%, `linear/log` 14.9%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
     },
     "all_reduce/world2": {
       "transport": "gloo_shm",
@@ -13820,20 +13868,21 @@
       ]
     },
     "model_coverage": {
-      "n_covered_groups": 1,
-      "n_covered_cells": 6,
-      "coverage_fraction": 0.25,
+      "n_covered_groups": 2,
+      "n_covered_cells": 8,
+      "coverage_fraction": 0.3333333333333333,
       "covered": [
-        "all_gather/world3"
+        "all_gather/world3",
+        "all_gather/world4"
       ]
     },
     "subsystem_readiness": {
       "verdict": "not_ready",
       "ready": false,
       "blocking": [
-        "5 of 6 required groups are not covered: all_reduce/world2 (insufficient_coverage), all_reduce/world3 (insufficient_coverage), all_reduce/world4 (insufficient_coverage), all_gather/world2 (insufficient_coverage), all_gather/world4 (insufficient_coverage)",
+        "4 of 6 required groups are not covered: all_reduce/world2 (insufficient_coverage), all_reduce/world3 (insufficient_coverage), all_reduce/world4 (insufficient_coverage), all_gather/world2 (insufficient_coverage)",
         "4 group(s) have no accepted model: all_reduce/world2, all_reduce/world3, all_reduce/world4, all_gather/world2",
-        "18 of 24 (group x regime) cells are uncovered: error_too_high x2, model_rejected x16"
+        "16 of 24 (group x regime) cells are uncovered: model_rejected x16"
       ]
     },
     "groups": {
@@ -14117,12 +14166,12 @@
         "collective": "all_gather",
         "world": 4,
         "parameter_verdict": "accepted",
-        "coverage_verdict": "insufficient_coverage",
-        "covered": false,
-        "model_family": "linear",
-        "estimator": "log",
-        "n_segments": 1,
-        "worst_regime_err": 0.148764631950629,
+        "coverage_verdict": "covered",
+        "covered": true,
+        "model_family": "regime",
+        "estimator": "weighted",
+        "n_segments": 2,
+        "worst_regime_err": 0.11163266324343576,
         "regimes": {
           "tiny": {
             "regime": "tiny",
@@ -14130,29 +14179,29 @@
             "covered": true,
             "n_points": 18,
             "n_validation_points": 8,
-            "heldout_err": 0.06345797062216013,
+            "heldout_err": 0.04885985829866921,
             "noise_cv": 0.015321942816637563,
-            "detail": "held-out error 6.3% over 8 point(s)"
+            "detail": "held-out error 4.9% over 8 point(s)"
           },
           "small": {
             "regime": "small",
-            "status": "error_too_high",
-            "covered": false,
+            "status": "covered",
+            "covered": true,
             "n_points": 20,
             "n_validation_points": 10,
-            "heldout_err": 0.16065945161332557,
+            "heldout_err": 0.09314247540080339,
             "noise_cv": 0.02490173656239543,
-            "detail": "held-out error 16.1% exceeds the 15% threshold"
+            "detail": "held-out error 9.3% over 10 point(s)"
           },
           "medium": {
             "regime": "medium",
-            "status": "error_too_high",
-            "covered": false,
+            "status": "covered",
+            "covered": true,
             "n_points": 30,
             "n_validation_points": 14,
-            "heldout_err": 0.15483270322340348,
+            "heldout_err": 0.11800173409689778,
             "noise_cv": 0.04841764809037735,
-            "detail": "held-out error 15.5% exceeds the 15% threshold"
+            "detail": "held-out error 11.8% over 14 point(s)"
           },
           "large": {
             "regime": "large",
@@ -14160,9 +14209,9 @@
             "covered": true,
             "n_points": 24,
             "n_validation_points": 12,
-            "heldout_err": 0.11901965335581881,
+            "heldout_err": 0.055824081601662585,
             "noise_cv": 0.031071979091564988,
-            "detail": "held-out error 11.9% over 12 point(s)"
+            "detail": "held-out error 5.6% over 12 point(s)"
           }
         },
         "detail": ""
@@ -14175,13 +14224,13 @@
   "errors": {},
   "notes": [],
   "provenance": {
-    "captured_at": "2026-08-31T04:53:26Z",
+    "captured_at": "2026-08-31T05:29:06Z",
     "host": "Archana-PC",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "cpu_count": 24,
     "git": {
-      "commit": "ef1e6e5e95218e009d22c73daa5dc19c71832812",
+      "commit": "a1668eb1fdae8ea7585e0ee299b3c5cb56fa0b41",
       "dirty": true,
       "dirty_scope": [
         "src",
@@ -14190,14 +14239,12 @@
         "configs"
       ],
       "dirty_files": [
-        "?? src/losscolumn/core/coverage.py",
-        "?? src/losscolumn/thrusts/overlap/a100_protocol.py",
-        "?? src/losscolumn/thrusts/overlap/campaign.py",
-        "?? tests/test_coverage.py"
+        "M src/losscolumn/thrusts/overlap/campaign.py",
+        " M src/losscolumn/thrusts/overlap/commodel.py"
       ],
       "branch": "master",
       "remote": null,
-      "describe": "v0.5.0-lc11"
+      "describe": "v0.6.0-comm-campaign-dirty"
     },
     "gpu": {
       "available": true,
@@ -14229,8 +14276,7 @@
     "env_overrides": {
       "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
       "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
-      "CUDA_MODULE_LOADING": "LAZY",
-      "LC_COMM_PORT": "29725"
+      "CUDA_MODULE_LOADING": "LAZY"
     },
     "notes": null,
     "hardware_fingerprint": "cc72e8eab7a5d10b",

@@ -324,6 +324,7 @@ class PeakReport:
     peak_location_ratio: float = float("nan")
     peak_magnitude_ratio: float = float("nan")
     ordering_stable: bool = False
+    well_defined: bool = False
     finding: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -333,8 +334,37 @@ class PeakReport:
             "peak_location_ratio": self.peak_location_ratio,
             "peak_magnitude_ratio": self.peak_magnitude_ratio,
             "ordering_stable": self.ordering_stable,
+            "well_defined": self.well_defined,
             "finding": self.finding,
         }
+
+
+# A maximum whose neighbours are slower than this fraction of it is a spike.
+MIN_NEIGHBOUR_SUPPORT = 0.60
+# A size far from the maximum that reaches this fraction of it makes the
+# location undetermined, however sharp the maximum itself looks.
+MAX_RUNNER_UP = 0.90
+# "Far" means this many grid steps away.
+RUNNER_UP_DISTANCE = 3
+
+
+def _locate_peak(group: Sequence[PointRecord]
+                 ) -> tuple[PointRecord, float, float]:
+    """The maximum, how well its neighbours support it, and its rival.
+
+    Returns the argmax together with two numbers that say whether calling it a
+    peak is justified: the ratio of its neighbours' bandwidth to its own, and
+    the ratio of the best distant competitor to its own.
+    """
+    ordered = sorted(group, key=lambda r: r.nbytes)
+    bw = [r.bandwidth_gbs for r in ordered]
+    i = max(range(len(ordered)), key=lambda k: bw[k])
+    peak = ordered[i]
+    nb = [bw[j] for j in (i - 1, i + 1) if 0 <= j < len(bw)]
+    support = float(np.median(nb) / bw[i]) if nb and bw[i] > 0 else 0.0
+    far = [bw[j] for j in range(len(bw)) if abs(j - i) > RUNNER_UP_DISTANCE]
+    runner_up = float(max(far) / bw[i]) if far and bw[i] > 0 else 0.0
+    return peak, support, runner_up
 
 
 def analyse_peak(records: Sequence[PointRecord]) -> PeakReport:
@@ -349,7 +379,7 @@ def analyse_peak(records: Sequence[PointRecord]) -> PeakReport:
         by_pass.setdefault(r.pass_index, []).append(r)
 
     for idx, group in sorted(by_pass.items()):
-        peak = max(group, key=lambda r: r.bandwidth_gbs)
+        peak, support, runner_up = _locate_peak(group)
         order = [
             float(np.median([x.bandwidth_gbs for x in group if x.regime == reg]))
             if any(x.regime == reg for x in group) else float("nan")
@@ -359,6 +389,8 @@ def analyse_peak(records: Sequence[PointRecord]) -> PeakReport:
             "pass": idx, "peak_bytes": peak.nbytes,
             "peak_regime": peak.regime,
             "peak_bandwidth_gbs": peak.bandwidth_gbs,
+            "neighbour_support": support,
+            "runner_up_ratio": runner_up,
             "regime_bandwidths": dict(zip(REQUIRED_REGIMES, order, strict=False)),
             "n_points": len(group),
         })
@@ -383,14 +415,47 @@ def analyse_peak(records: Sequence[PointRecord]) -> PeakReport:
         return [i for i, _ in sorted(finite, key=lambda t: -t[1])]
 
     rep.ordering_stable = rank(ord_a) == rank(ord_b)
+    # A maximum is only a peak if its neighbours are fast too, and only
+    # well located if nothing far away is nearly as fast. An argmax over a
+    # noisy curve satisfies neither and is not a peak estimator: it picked a
+    # 4x spike in one group and flipped between two near-equal maxima 270x
+    # apart in size in another.
+    rep.well_defined = all(
+        p["neighbour_support"] >= MIN_NEIGHBOUR_SUPPORT
+        and p["runner_up_ratio"] <= MAX_RUNNER_UP
+        for p in rep.per_pass
+    )
     # Within one regime step and within 25% in magnitude counts as the same
     # peak. Tighter than that would call ordinary run-to-run variation a
     # different peak; looser would call two different peaks the same one.
     rep.reproducible = (
-        a["peak_regime"] == b["peak_regime"]
+        rep.well_defined
+        and a["peak_regime"] == b["peak_regime"]
         and rep.peak_magnitude_ratio <= 1.25
         and rep.ordering_stable
     )
+    if not rep.well_defined:
+        weak = [p for p in rep.per_pass
+                if p["neighbour_support"] < MIN_NEIGHBOUR_SUPPORT]
+        flat = [p for p in rep.per_pass if p["runner_up_ratio"] > MAX_RUNNER_UP]
+        bits = []
+        if weak:
+            bits.append(
+                f"the maximum is {1 / max(weak[0]['neighbour_support'], 1e-9):.1f}x its "
+                "own neighbours, which is a spike rather than a peak"
+            )
+        if flat:
+            bits.append(
+                "a size far from the maximum is within "
+                f"{(1 - MAX_RUNNER_UP) * 100:.0f}% of it, so the location is not "
+                "determined by the data"
+            )
+        rep.finding = (
+            "NO WELL-DEFINED PEAK: " + "; ".join(bits)
+            + ". Reproducibility is not the question here -- there is no peak to "
+              "reproduce, and reporting a location would be reporting an argmax"
+        )
+        return rep
     if rep.reproducible:
         rep.finding = (
             f"the peak lands in the {a['peak_regime']} regime in both passes, within "

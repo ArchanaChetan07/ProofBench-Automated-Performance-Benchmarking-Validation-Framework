@@ -60,7 +60,7 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Communication readiness campaign</h1>
 <p class="lede">Coverage, not just acceptance.</p>
-<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Readiness</b> <code>not_ready</code></span><span><b>Seal</b> <code>9c4e116661484581</code></span></div>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Readiness</b> <code>not_ready</code></span></div>
 <h4>Communication coverage and readiness campaign</h4>
 <p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). 46 message sizes, 2 independent passes, 2 repeats per point.</p>
 <h5>Peak reproducibility</h5>
@@ -73,7 +73,7 @@ color:var(--muted)}
 <th>reproducible</th>
 </tr></thead><tbody>
 <tr><td>all_gather/world2</td><td>32768 KiB (large)</td><td>121 KiB (small)</td><td>1.37x</td><td>stable</td><td><b>no</b></td></tr>
-<tr><td>all_gather/world3</td><td>512 KiB (medium)</td><td>403 KiB (medium)</td><td>1.03x</td><td>stable</td><td>yes</td></tr>
+<tr><td>all_gather/world3</td><td>512 KiB (medium)</td><td>403 KiB (medium)</td><td>1.03x</td><td>stable</td><td><b>no</b></td></tr>
 <tr><td>all_gather/world4</td><td>512 KiB (medium)</td><td>512 KiB (medium)</td><td>1.05x</td><td>stable</td><td>yes</td></tr>
 <tr><td>all_reduce/world2</td><td>601 KiB (medium)</td><td>403 KiB (medium)</td><td>1.27x</td><td>CHANGED</td><td><b>no</b></td></tr>
 <tr><td>all_reduce/world3</td><td>1337 KiB (medium)</td><td>1337 KiB (medium)</td><td>1.06x</td><td>stable</td><td>yes</td></tr>
@@ -81,15 +81,15 @@ color:var(--muted)}
 </tbody></table></div>
 <ul>
 <li><b>all_gather/world2</b>: NOT reproducible: the peak moved from large to small; its magnitude differs by 1.37x. The peak must not be reported as a physical property on this evidence.</li>
-<li><b>all_gather/world3</b>: the peak lands in the medium regime in both passes, within 1.03x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
+<li><b>all_gather/world3</b>: NO WELL-DEFINED PEAK: a size far from the maximum is within 10% of it, so the location is not determined by the data. Reproducibility is not the question here -- there is no peak to reproduce, and reporting a location would be reporting an argmax.</li>
 <li><b>all_gather/world4</b>: the peak lands in the medium regime in both passes, within 1.05x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
-<li><b>all_reduce/world2</b>: NOT reproducible: its magnitude differs by 1.27x; the regime ordering changed between passes. The peak must not be reported as a physical property on this evidence.</li>
+<li><b>all_reduce/world2</b>: NO WELL-DEFINED PEAK: the maximum is 4.3x its own neighbours, which is a spike rather than a peak. Reproducibility is not the question here -- there is no peak to reproduce, and reporting a location would be reporting an argmax.</li>
 <li><b>all_reduce/world3</b>: the peak lands in the medium regime in both passes, within 1.06x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
 <li><b>all_reduce/world4</b>: the peak lands in the medium regime in both passes, within 1.02x in magnitude and with the same regime ordering: a property of the transport, not of one run.</li>
 </ul>
 <h5>Coverage matrix</h5>
 <p><b>Subsystem readiness: NOT READY</b></p>
-<p>Parameter validity: 2 of 6 groups have an accepted model. Model coverage: 6 of 24 (group x regime) cells (25%). These are different numbers and neither implies readiness on its own.</p>
+<p>Parameter validity: 2 of 6 groups have an accepted model. Model coverage: 8 of 24 (group x regime) cells (33%). These are different numbers and neither implies readiness on its own.</p>
 <div class="scroll"><table><thead><tr>
 <th>Collective</th>
 <th>World</th>
@@ -106,13 +106,13 @@ color:var(--muted)}
 <tr><td>all_reduce</td><td>4</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
 <tr><td>all_gather</td><td>2</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td><i>model</i>rejected_</td><td>—</td><td>diagnostic</td><td><b>no</b></td></tr>
 <tr><td>all_gather</td><td>3</td><td>4%</td><td>8%</td><td>14%</td><td>4%</td><td><code>piecewise</code></td><td>accepted</td><td>yes</td></tr>
-<tr><td>all_gather</td><td>4</td><td>6%</td><td><i>error</i>too<i>high</i></td><td><i>error</i>too<i>high</i></td><td>12%</td><td><code>linear</code></td><td>accepted</td><td><b>no</b></td></tr>
+<tr><td>all_gather</td><td>4</td><td>5%</td><td>9%</td><td>12%</td><td>6%</td><td><code>regime</code></td><td>accepted</td><td>yes</td></tr>
 </tbody></table></div>
 <p><b>Blocking gates</b></p>
 <ul>
-<li>5 of 6 required groups are not covered: all<i>reduce/world2 (insufficient</i>coverage), all<i>reduce/world3 (insufficient</i>coverage), all<i>reduce/world4 (insufficient</i>coverage), all<i>gather/world2 (insufficient</i>coverage), all<i>gather/world4 (insufficient</i>coverage)</li>
+<li>4 of 6 required groups are not covered: all<i>reduce/world2 (insufficient</i>coverage), all<i>reduce/world3 (insufficient</i>coverage), all<i>reduce/world4 (insufficient</i>coverage), all<i>gather/world2 (insufficient</i>coverage)</li>
 <li>4 group(s) have no accepted model: all<i>reduce/world2, all</i>reduce/world3, all<i>reduce/world4, all</i>gather/world2</li>
-<li>18 of 24 (group x regime) cells are uncovered: error<i>too</i>high x2, model_rejected x16</li>
+<li>16 of 24 (group x regime) cells are uncovered: model_rejected x16</li>
 </ul>
 <ul>
 <li>24 calibration sizes and 22 validation sizes, alternating within each regime so neither half is missing a regime.</li>

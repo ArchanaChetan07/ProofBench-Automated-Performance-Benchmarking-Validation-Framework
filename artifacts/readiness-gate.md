@@ -7,17 +7,17 @@ Every requirement is checked from an artifact on disk, so the gate cannot pass o
 | Gate | Result | Detail |
 |---|---|---|
 | communication quality gates pass | **FAIL** | 2 of 6 groups have an accepted model |
-| required coverage achieved | **FAIL** | 6 of 24 (group x regime) cells covered (25%) |
+| required coverage achieved | **FAIL** | 8 of 24 (group x regime) cells covered (33%) |
 | no rejected parameter is active | PASS | no group is counted as covered without an accepted model |
 | validation is independent | PASS | 264 held-out validation points on sizes no fit saw; calibration and validation sizes alternate within each regime |
 | fresh-clone reproducibility passes | PASS | fresh clone, isolated environment, full test suite and frozen standard verified; measured thrusts NOT re-run (no torch in the clean environment), so this establishes the standard and the analysis layer, not the measurements |
-| 8-GPU protocol is fully prepared | PASS | 12 stages sealed (6.8 h), seal 66959ee67a09bd72 |
+| 8-GPU protocol is fully prepared | PASS | 12 stages sealed (6.8 h), seal 16a8b46786fc9366 |
 
 **Blocking: communication quality gates pass; required coverage achieved**
 
 ### 8x A100 campaign protocol
 
-**PREPARED, NOT EXECUTED** &mdash; seal `66959ee67a09bd72...`, about 6.8 hours of allocation.
+**PREPARED, NOT EXECUTED** &mdash; seal `16a8b46786fc9366...`, about 6.8 hours of allocation.
 
 Local communication readiness at sealing: **not_ready**. That verdict gates whether this should be executed; it does not make the protocol wrong, it makes running it premature.
 

@@ -1,7 +1,7 @@
 {
   "kind": "withdrawal-manifest",
-  "generated_at": "2026-08-30T02:51:08Z",
-  "n_withdrawn": 2,
+  "generated_at": "2026-08-31T05:35:12Z",
+  "n_withdrawn": 3,
   "withdrawals": [
     {
       "slug": "2026-08-29-unfair-baseline",
@@ -21,6 +21,16 @@
       "withdrawn_at": "2026-08-30T02:51:08Z",
       "superseded_by": "calibration-thrust1-compute @ 0d6d57b",
       "original_commit": "40d8a04",
+      "n_files": 2
+    },
+    {
+      "slug": "2026-08-30-uncomparable-sessions",
+      "artifact_id": "probe-thrust1-medium-regime",
+      "title": "Medium-regime probe, first verdict (2026-08-30 22:33)",
+      "reason": "invalid-measurement",
+      "withdrawn_at": "2026-08-31T05:35:12Z",
+      "superseded_by": "probe-thrust1-medium-regime, re-reported with a session check",
+      "original_commit": "a1668eb",
       "n_files": 2
     }
   ]

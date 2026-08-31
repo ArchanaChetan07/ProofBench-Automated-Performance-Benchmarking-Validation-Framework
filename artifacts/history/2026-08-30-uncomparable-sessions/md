@@ -1,0 +1,13 @@
+### Targeted probe: is the medium regime model-limited or evidence-thin?
+
+Measured on NVIDIA T1000 8GB (sm_75, 9 GB). 16 additional medium-regime sizes, all_reduce only, worlds [2, 3, 4]. Nothing else was measured.
+
+**PARTIAL: 1 of 3 groups clear the gate with a denser medium grid. Evidence was part of the problem and not all of it.**
+
+| Group | medium points before | after | error before | error after | segments after |
+|---|---|---|---|---|---|
+| all_reduce/world2 | 30 | 62 | 38.5% | 29.5% | 3 |
+| all_reduce/world3 | 30 | 62 | 19.6% | 14.9% | 4 |
+| all_reduce/world4 | 30 | 62 | 13.5% | 32.5% | 1 |
+
+- Only the medium regime of one collective was measured. No other verdict in the campaign is changed by this probe, and none was re-derived from it.

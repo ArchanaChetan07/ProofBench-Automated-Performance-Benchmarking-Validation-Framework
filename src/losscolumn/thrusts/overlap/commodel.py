@@ -639,16 +639,27 @@ def select_model(
         return sel
 
     sel.chosen, sel.chosen_family = model, name
+    # The parsimony tiebreak must compare the SAME metric the score uses.
+    # It used to filter on the pooled median while `score` was the worst
+    # regime, which is apples to oranges: a simpler family with a good median
+    # and a bad worst regime displaced a better model, reintroducing exactly
+    # the failure the worst-regime criterion exists to prevent. It really did:
+    # all_gather/world4 selected linear at 14.9% worst-regime error when a
+    # regime model scoring 11.2% was available and under the gate.
+    def _score_of(c: dict[str, Any]) -> float:
+        v = (c.get("heldout_worst_tier_err") if c.get("heldout_per_tier_err")
+             else c.get("heldout_median_rel_err"))
+        return v if v is not None and v == v else float("inf")
+
     simpler = [c for c in sel.candidates
-               if c["n_params"] < model.n_params
-               and math.isfinite(c.get("heldout_median_rel_err", float("nan")))]
-    close = [c for c in simpler
-             if c["heldout_median_rel_err"] <= score * 1.1]
+               if c["n_params"] < model.n_params and math.isfinite(_score_of(c))]
+    close = [c for c in simpler if _score_of(c) <= score * 1.1]
     if close:
         pick = min(close, key=lambda c: c["n_params"])
         sel.reason = (
-            f"`{pick['family']}` is within 10% of `{name}` on held-out error with "
-            f"fewer parameters, so the simpler family is preferred."
+            f"`{pick['family']}` is within 10% of `{name}` on worst-regime held-out "
+            f"error ({_score_of(pick):.1%} against {score:.1%}) with fewer "
+            "parameters, so the simpler family is preferred."
         )
         for c in sel.candidates:
             if c["family"] == pick["family"]:

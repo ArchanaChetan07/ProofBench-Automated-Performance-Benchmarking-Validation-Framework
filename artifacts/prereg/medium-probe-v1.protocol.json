@@ -1,0 +1,49 @@
+{
+  "kind": "targeted-probe-protocol",
+  "probe": "thrust1-comm-medium-probe-v1",
+  "sealed_at": "2026-08-31T05:31:35Z",
+  "hypothesis": "The medium regime is model-limited because there are too few points in it to justify the segments the surface needs. With 16 medium points on the campaign grid, AIC refuses a segmentation that may be real.",
+  "discriminates_between": {
+    "evidence_was_thin": "a richer segmentation now clears the gate",
+    "surface_is_not_modellable": "the error stays where it is, at this granularity"
+  },
+  "why_this_and_nothing_else": "Every other regime is already classified as noise-limited or covered. Re-measuring them would cost time without changing a verdict, and this experiment changes one either way.",
+  "collective": "all_reduce",
+  "worlds": [
+    2,
+    3,
+    4
+  ],
+  "regime": "medium",
+  "size_range_bytes": [
+    262144,
+    4194304
+  ],
+  "grid": [
+    275252,
+    328932,
+    393080,
+    469744,
+    561356,
+    670832,
+    801660,
+    958004,
+    1144840,
+    1368112,
+    1634928,
+    1953780,
+    2334816,
+    2790164,
+    3334316,
+    3984588
+  ],
+  "n_points": 16,
+  "grid_offset_from_powers_of_two": "the campaign already sampled the powers of two in this regime; repeating them would add repeats rather than resolution",
+  "acceptance": {
+    "criterion": "worst-regime cross-validated relative error, unchanged",
+    "max_err": 0.15,
+    "note": "the gate is the campaign's. It is not relaxed for this probe."
+  },
+  "is_new_protocol_not_an_extension": "Adding points to a sealed grid after seeing its results, and then reporting one number, would be choosing the grid to suit the answer. This is registered separately and its result is reported separately.",
+  "seal_hash": "sha256:f13a732ee12373e959abd7317bd49ef44d0a8bf834a95884c9a57d4d437230ed"
+}

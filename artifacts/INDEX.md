@@ -1,6 +1,6 @@
 # Artifact index
 
-Generated 2026-08-31T05:05:07Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-31T05:36:01Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
 **4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
@@ -79,6 +79,7 @@ Integrity: **all preserved files match their withdrawal digests**.
 |---|---|---|---|
 | Sparse attention, Triton implementation (run of 2026-08-29 11:09) | `unfair-comparison` | `lc-thrust3b-triton-attention @ 0d6d57b` | [NOTE.md](history/2026-08-29-unfair-baseline/NOTE.md) |
 | Thrust I compute-model calibration (run of 2026-08-29 18:20) | `vacuous-result` | `calibration-thrust1-compute @ 0d6d57b` | [NOTE.md](history/2026-08-29-vacuous-calibration/NOTE.md) |
+| Medium-regime probe, first verdict (2026-08-30 22:33) | `invalid-measurement` | `probe-thrust1-medium-regime, re-reported with a session check` | [NOTE.md](history/2026-08-30-uncomparable-sessions/NOTE.md) |
 
 **Discarded runs** &mdash; no artifact was published, so there is nothing to withdraw; what is recorded is that the run happened and what changed as a result.
 
