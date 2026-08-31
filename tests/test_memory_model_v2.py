@@ -332,3 +332,82 @@ class TestModelSerialisation:
         )
         with pytest.raises(RejectedParameterError):
             m.predict_bytes(shape())
+
+
+class TestV2IsFrozen:
+    """block-memory-v2 is a milestone. Retuning it is a new version, not an edit.
+
+    The point of a validated model is that its numbers stay the ones that were
+    validated. A parameter quietly nudged after the fact inherits a validation
+    it never earned, so the frozen values are asserted literally here and any
+    change fails.
+    """
+
+    FROZEN = {
+        "activation_tensors_per_block": 4.0,
+        "attention_workspace_tensors": 4.0,
+        "ffn_workspace_tensors": 2.0,
+        "autograd_overhead_tensors": 2.0,
+        "optimizer_bytes_per_param": 0.0,
+        "gradient_bytes_per_param": 2.0,
+        "checkpoint_retained_fraction": 0.25,
+        "allocator_reserve_fraction": 0.12,
+        "safety_margin_fraction": 0.10,
+        "context_bytes": 0.75e9,
+    }
+
+    def test_every_frozen_parameter_holds_its_validated_value(self):
+        params = default_parameters()
+        for name, expected in self.FROZEN.items():
+            assert params.get(name) == pytest.approx(expected), (
+                f"{name} changed from the value validated at v0.3.0-memory-v2. "
+                "That is a new model version, not an edit to this one."
+            )
+
+    def test_the_parameter_set_has_not_grown_or_shrunk(self):
+        assert set(default_parameters().params) == set(self.FROZEN)
+
+    def test_every_parameter_is_registered_not_fitted(self):
+        """v2 earned its validation by having nothing fitted to absorb it."""
+        for p in default_parameters():
+            assert p.provenance is Provenance.REGISTERED, p.name
+
+    def test_the_model_version_string_is_pinned(self):
+        from losscolumn.core.memory_model import MODEL_VERSION
+
+        assert MODEL_VERSION == "block-memory-v2"
+
+    def test_a_known_prediction_is_stable(self):
+        """One end-to-end number, so a refactor that changes arithmetic is caught."""
+        m = BlockMemoryModel()
+        got = m.predict_gb(shape(mb=64, seq=2048, ckpt=False))
+        assert got == pytest.approx(6.308, abs=0.002)
+
+
+class TestMilestonePreserved:
+    def test_the_validation_artifact_is_preserved_and_intact(self):
+        from pathlib import Path
+
+        from losscolumn.history import load_milestones, verify_milestones
+
+        art = Path(__file__).resolve().parents[1] / "artifacts"
+        if not (art / "history" / "milestones").exists():
+            pytest.skip("no milestone recorded yet")
+        assert verify_milestones(art) == []
+        ids = {m.milestone_id for _, m in load_milestones(art)}
+        assert "block-memory-v2" in ids
+
+    def test_the_milestone_carries_what_it_does_not_establish(self):
+        from pathlib import Path
+
+        from losscolumn.history import load_milestones
+
+        art = Path(__file__).resolve().parents[1] / "artifacts"
+        if not (art / "history" / "milestones").exists():
+            pytest.skip("no milestone recorded yet")
+        _, m = next(x for x in load_milestones(art)
+                    if x[1].milestone_id == "block-memory-v2")
+        joined = " ".join(m.does_not_establish).lower()
+        assert "another gpu" in joined
+        assert "ten cells" in joined or "small grid" in joined
+        assert "communication" in joined

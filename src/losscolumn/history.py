@@ -159,11 +159,10 @@ def load(artifacts: str | Path) -> list[tuple[Path, Withdrawal]]:
 
 
 def verify(artifacts: str | Path) -> list[str]:
-    """Re-hash every preserved file. Empty list means nothing was edited.
+    """Re-hash every preserved file, withdrawn and milestone alike.
 
-    This is the check that makes preservation mean something. A withdrawn
-    artifact that anyone can quietly tidy up is not a record of an error; it is
-    a second draft.
+    This is the check that makes preservation mean something. A preserved
+    artifact anyone can quietly tidy up is not a record; it is a second draft.
     """
     problems: list[str] = []
     for d, w in load(artifacts):
@@ -179,6 +178,7 @@ def verify(artifacts: str | Path) -> list[str]:
                     f"(recorded {expected[:19]}..., found {actual[:19]}...). A "
                     "withdrawn artifact must not be edited."
                 )
+    problems.extend(verify_milestones(artifacts))
     return problems
 
 
@@ -215,6 +215,7 @@ def summarise(artifacts: str | Path) -> dict[str, Any]:
     return {
         "n_withdrawn": len(items),
         "n_incidents": len(load_incidents(artifacts)),
+        "n_milestones": len(load_milestones(artifacts)),
         "by_reason": {
             r: sum(1 for _, w in items if w.reason == r)
             for r in sorted({w.reason for _, w in items})
@@ -299,3 +300,130 @@ def load_incidents(artifacts: str | Path) -> list[Incident]:
         except Exception:
             continue
     return out
+
+
+# --------------------------------------------------------------------------
+# milestones
+# --------------------------------------------------------------------------
+
+
+@dataclass
+class Milestone:
+    """A result that stands, preserved so it cannot drift.
+
+    The mirror of a withdrawal. A withdrawal preserves something that turned
+    out to be wrong; a milestone preserves something that turned out to be
+    right, for the same reason: a result nobody can quietly edit is the only
+    kind that can still be cited a year later.
+
+    It also carries what the result does NOT establish. A validation on ten
+    cells of one card is a real result and a narrow one, and the narrowness has
+    to travel with it -- otherwise "zero false wins" detaches from the grid it
+    was measured on and becomes a claim about the model in general.
+    """
+
+    milestone_id: str
+    title: str
+    tag: str = ""
+    commit: str = ""
+    recorded_at: str = field(default_factory=utcnow)
+    headline: dict[str, Any] = field(default_factory=dict)
+    preserved: dict[str, str] = field(default_factory=dict)
+    establishes: list[str] = field(default_factory=list)
+    does_not_establish: list[str] = field(default_factory=list)
+    frozen_parameters: dict[str, float] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        d = asdict(self)
+        d["kind"] = "milestone"
+        return d
+
+    def to_markdown(self) -> str:
+        lines = [
+            f"# Milestone: {self.title}",
+            "",
+            f"**Tag** `{self.tag}` &middot; **commit** `{self.commit}` &middot; "
+            f"recorded {self.recorded_at}",
+            "",
+            "> Preserved unedited. The files here are hash-locked and re-checked by "
+            "`losscolumn history verify`; a milestone nobody can quietly edit is the "
+            "only kind that can still be cited later.",
+            "",
+        ]
+        if self.headline:
+            lines += ["## Result", "", "| Metric | Value |", "|---|---|"]
+            lines += [f"| {k} | {v} |" for k, v in self.headline.items()]
+            lines.append("")
+        if self.establishes:
+            lines += ["## What this establishes", ""]
+            lines += [f"- {x}" for x in self.establishes] + [""]
+        if self.does_not_establish:
+            lines += ["## What it does NOT establish", "",
+                      "Carried with the result on purpose: a narrow validation whose "
+                      "narrowness gets separated from it becomes a claim it never "
+                      "supported.", ""]
+            lines += [f"- {x}" for x in self.does_not_establish] + [""]
+        if self.frozen_parameters:
+            lines += ["## Frozen parameters", "",
+                      "Asserted by test. Any change is a new model version, not an "
+                      "edit to this one.", "",
+                      "| Parameter | Value |", "|---|---|"]
+            lines += [f"| `{k}` | {v:g} |" for k, v in sorted(self.frozen_parameters.items())]
+            lines.append("")
+        if self.preserved:
+            lines += ["## Preserved files", "", "| File | Digest |", "|---|---|"]
+            lines += [f"| `{n}` | `{d[:23]}...` |" for n, d in sorted(self.preserved.items())]
+        return "\n".join(lines)
+
+
+def record_milestone(artifacts: str | Path, slug: str, milestone: Milestone,
+                     files: dict[str, bytes | str]) -> Path:
+    d = history_dir(artifacts) / "milestones" / slug
+    d.mkdir(parents=True, exist_ok=True)
+    digests: dict[str, str] = {}
+    for name, content in files.items():
+        q = d / name
+        if isinstance(content, bytes):
+            q.write_bytes(content)
+        else:
+            q.write_text(content, encoding="utf-8")
+        digests[name] = file_hash(q)
+    milestone.preserved = digests
+    (d / "milestone.json").write_text(
+        json.dumps(milestone.to_dict(), indent=2, default=str), encoding="utf-8"
+    )
+    (d / "NOTE.md").write_text(milestone.to_markdown(), encoding="utf-8")
+    return d
+
+
+def load_milestones(artifacts: str | Path) -> list[tuple[Path, Milestone]]:
+    root = history_dir(artifacts) / "milestones"
+    out: list[tuple[Path, Milestone]] = []
+    if not root.exists():
+        return out
+    for f in sorted(root.glob("*/milestone.json")):
+        try:
+            raw = json.loads(f.read_text(encoding="utf-8"))
+            allowed = set(Milestone.__dataclass_fields__)
+            out.append((f.parent, Milestone(**{k: v for k, v in raw.items()
+                                               if k in allowed})))
+        except Exception:
+            continue
+    return out
+
+
+def verify_milestones(artifacts: str | Path) -> list[str]:
+    problems: list[str] = []
+    for d, m in load_milestones(artifacts):
+        for name, expected in m.preserved.items():
+            q = d / name
+            if not q.exists():
+                problems.append(f"milestone {d.name}/{name}: file is missing")
+                continue
+            actual = file_hash(q)
+            if actual != expected:
+                problems.append(
+                    f"milestone {d.name}/{name}: content changed since it was recorded "
+                    f"(recorded {expected[:19]}..., found {actual[:19]}...)"
+                )
+    return problems

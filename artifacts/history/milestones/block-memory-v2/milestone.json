@@ -1,0 +1,45 @@
+{
+  "milestone_id": "block-memory-v2",
+  "title": "Thrust I memory model v2, validated on an untouched 10-cell grid",
+  "tag": "v0.3.0-memory-v2",
+  "commit": "f802694",
+  "recorded_at": "2026-08-31T02:44:00Z",
+  "headline": {
+    "Infeasible-region IoU": "1.00",
+    "Boundary error": "0 levels on all 3 axes",
+    "False wins": "0/10",
+    "False losses": "0/10",
+    "Dangerous-error score (w=10)": "0.00",
+    "Accuracy": "100%"
+  },
+  "preserved": {
+    "calibration-thrust1-memory-v2.json": "sha256:22ffb1989d581408a8d09cbcbca9e00d36ebad08d39b775a5e1b7b89dbe03fe4",
+    "calibration-thrust1-memory-v2.md": "sha256:e005313ee154e27d6090aa05c3f5cddd320e91eb8b8b109da83126905d32e502",
+    "memory-model-v2.protocol.json": "sha256:7bfca2b2b0442068445b3d692d99d381a535fd0720b29288f048335a441689ea"
+  },
+  "establishes": [
+    "On this device, at this block shape, block-memory-v2 made no dangerous error across ten configurations, six of which lay within 25% of its own predicted memory boundary.",
+    "The component decomposition survives contact with hardware: checkpointing applied to the saved-activation term alone reproduces the measured feasibility boundary exactly, where a global multiplier did not.",
+    "No parameter was fitted. Every value is registered from what a block allocates, so the validation had no fitted quantity to flatter."
+  ],
+  "does_not_establish": [
+    "Generalisation to another GPU. One card was available: an NVIDIA T1000, 8 GB, sm_75, with no tensor cores. Allocator behaviour, context cost and fragmentation all differ across devices and drivers.",
+    "Generalisation to another memory capacity. Every cell was measured against one 7.9 GB budget, so the model's behaviour as the budget moves is untested.",
+    "Generalisation to the simulated architecture. Calibrated on one block at hidden=1024; the target is 7B-class across 32 layers, and the ScalingMap records which parameters are claimed to transfer and which are not.",
+    "Statistical strength. Ten cells is a small grid. Zero false wins in ten is consistent with a true false-win rate up to roughly 26% at 95% confidence; it is evidence of no gross error, not of a small one.",
+    "Anything about communication. The Thrust I communication model is entirely uncalibrated, and Thrust I's published loss regions turn on it."
+  ],
+  "frozen_parameters": {
+    "activation_tensors_per_block": 4.0,
+    "attention_workspace_tensors": 4.0,
+    "ffn_workspace_tensors": 2.0,
+    "autograd_overhead_tensors": 2.0,
+    "optimizer_bytes_per_param": 0.0,
+    "gradient_bytes_per_param": 2.0,
+    "checkpoint_retained_fraction": 0.25,
+    "allocator_reserve_fraction": 0.12,
+    "context_bytes": 750000000.0,
+    "safety_margin_fraction": 0.1
+  },
+  "kind": "milestone"
+}

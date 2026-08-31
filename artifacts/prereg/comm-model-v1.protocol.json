@@ -1,0 +1,60 @@
+{
+  "kind": "communication-model-protocol",
+  "study": "thrust1-comm-v1",
+  "sealed_at": "2026-08-31T02:47:24Z",
+  "transports": [
+    "gloo_shm"
+  ],
+  "collectives": [
+    "all_reduce",
+    "all_gather"
+  ],
+  "world_sizes": [
+    2,
+    3,
+    4
+  ],
+  "size_tiers": {
+    "tiny": [
+      1024,
+      2048,
+      4096,
+      8192
+    ],
+    "small": [
+      16384,
+      32768,
+      65536,
+      131072
+    ],
+    "medium": [
+      262144,
+      524288,
+      1048576,
+      2097152
+    ],
+    "large": [
+      4194304,
+      8388608,
+      16777216,
+      33554432
+    ]
+  },
+  "model_families_considered": [
+    "linear",
+    "piecewise",
+    "regime"
+  ],
+  "family_selection_rule": "held-out error on calibration points the fit never saw. A more flexible family always fits its own data better, so fit quality cannot decide. AIC is reported beside it; the simpler family wins ties within 10%.",
+  "quality_gate": {
+    "max_heldout_median_relative_error": 0.15,
+    "on_failure": "the parameters remain DIAGNOSTIC and are not promoted into Fabric; the fit stays visible in the report"
+  },
+  "split_rule": "message sizes are partitioned by index into calibration and validation before any fitting; the validation sizes are not read until the model is frozen",
+  "known_limitations": [
+    "gloo over shared memory between processes on one host. This is not NVLink and not InfiniBand, and no parameter fitted here is a value for the fabric the Thrust I protocol registers.",
+    "One host, so no inter-node hop and no NIC is exercised.",
+    "World sizes 2 to 4, against the 8 and 32 the protocol registers."
+  ],
+  "seal_hash": "sha256:be677b2fce7a28cd62790b8d9c56d4282db9df341ed831c0f54f3d7c8bbb37a2"
+}

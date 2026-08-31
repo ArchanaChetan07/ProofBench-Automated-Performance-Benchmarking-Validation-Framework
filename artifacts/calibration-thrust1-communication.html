@@ -1,0 +1,231 @@
+<title>Thrust I communication model</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Thrust I communication model</h1>
+<p class="lede">Why one collective fits a straight line and the other does not.</p>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Samples</b> <code>288</code></span><span><b>Accepted</b> <code>12</code></span></div>
+<h4>Thrust I communication model</h4>
+<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). Protocol seal <code>7863b8219ff9b483...</code>.</p>
+<h5>Diagnosis: why one collective fits and the other does not</h5>
+<div class="scroll"><table><thead><tr>
+<th>Collective</th>
+<th>world</th>
+<th>linear R²</th>
+<th>tiny GB/s</th>
+<th>large GB/s</th>
+<th>ratio</th>
+<th>run-to-run</th>
+</tr></thead><tbody>
+<tr><td><code>all_gather</code></td><td>2</td><td>0.836</td><td>0.008</td><td>0.269</td><td>34.7x</td><td>13.5%</td></tr>
+<tr><td><code>all_gather</code></td><td>3</td><td>0.806</td><td>0.009</td><td>0.238</td><td>27.5x</td><td>5.8%</td></tr>
+<tr><td><code>all_gather</code></td><td>4</td><td>0.852</td><td>0.006</td><td>0.152</td><td>25.7x</td><td>5.5%</td></tr>
+<tr><td><code>all_reduce</code></td><td>2</td><td>0.106</td><td>0.015</td><td>0.187</td><td>12.7x</td><td>8.6%</td></tr>
+<tr><td><code>all_reduce</code></td><td>3</td><td>0.391</td><td>0.006</td><td>0.794</td><td>130.6x</td><td>11.5%</td></tr>
+<tr><td><code>all_reduce</code></td><td>4</td><td>0.493</td><td>0.004</td><td>0.613</td><td>144.6x</td><td>11.4%</td></tr>
+</tbody></table></div>
+<ul>
+<li><b>all_gather, world 2</b>: effective bandwidth rises 35x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 13.5%, small enough that the misfit is structural rather than noise.</li>
+<li><b>all_gather, world 3</b>: effective bandwidth rises 28x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 5.8%, small enough that the misfit is structural rather than noise.</li>
+<li><b>all_gather, world 4</b>: effective bandwidth rises 26x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 5.5%, small enough that the misfit is structural rather than noise.</li>
+<li><b>all_reduce, world 2</b>: effective bandwidth rises 13x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 8.6%, small enough that the misfit is structural rather than noise.</li>
+<li><b>all_reduce, world 3</b>: effective bandwidth rises 131x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 11.5%, small enough that the misfit is structural rather than noise.</li>
+<li><b>all_reduce, world 4</b>: effective bandwidth rises 145x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 11.4%, small enough that the misfit is structural rather than noise.</li>
+</ul>
+<h5>Model family, chosen on held-out points</h5>
+<p><b>gloo<i>shm / all</i>gather / world 2</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 13.5%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.602</td><td>25.2%</td><td>87.3%</td><td>-138.2</td></tr>
+<tr><td><code>piecewise</code></td><td>5</td><td>0.790</td><td>18.1%</td><td>83.4%</td><td>-139.9</td></tr>
+<tr><td><code>regime</code></td><td>5</td><td>0.790</td><td>18.1%</td><td>83.4%</td><td>-139.9</td></tr>
+</tbody></table></div>
+<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.</p>
+<p><b>gloo<i>shm / all</i>gather / world 3</b> &amp;mdash; chosen family: <code>piecewise</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.8%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.889</td><td>28.0%</td><td>37.4%</td><td>-150.7</td></tr>
+<tr><td><code>piecewise</code> <b>&lt;-</b></td><td>5</td><td>0.992</td><td>5.7%</td><td>74.2%</td><td>-176.0</td></tr>
+<tr><td><code>regime</code></td><td>5</td><td>0.992</td><td>5.7%</td><td>74.2%</td><td>-176.0</td></tr>
+</tbody></table></div>
+<p><code>piecewise</code> wins on held-out error (5.7% median) against <code>linear</code> 28.0%, <code>regime</code> 5.7%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better.</p>
+<p><b>gloo<i>shm / all</i>gather / world 4</b> &amp;mdash; chosen family: <code>piecewise</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.5%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.721</td><td>17.3%</td><td>44.5%</td><td>-123.4</td></tr>
+<tr><td><code>piecewise</code> <b>&lt;-</b></td><td>5</td><td>0.944</td><td>10.6%</td><td>45.8%</td><td>-136.6</td></tr>
+<tr><td><code>regime</code></td><td>5</td><td>0.944</td><td>10.6%</td><td>45.8%</td><td>-136.6</td></tr>
+</tbody></table></div>
+<p><code>piecewise</code> wins on held-out error (10.6% median) against <code>linear</code> 17.3%, <code>regime</code> 10.6%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better.</p>
+<p><b>gloo<i>shm / all</i>reduce / world 2</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 8.6%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.030</td><td>53.9%</td><td>93.4%</td><td>-117.2</td></tr>
+<tr><td><code>piecewise</code></td><td>5</td><td>0.976</td><td>28.4%</td><td>67.1%</td><td>-155.8</td></tr>
+<tr><td><code>regime</code></td><td>5</td><td>0.976</td><td>28.4%</td><td>67.1%</td><td>-155.8</td></tr>
+</tbody></table></div>
+<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p><b>gloo<i>shm / all</i>reduce / world 3</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 11.5%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.391</td><td>50.5%</td><td>82.4%</td><td>-136.6</td></tr>
+<tr><td><code>piecewise</code></td><td>5</td><td>0.474</td><td>39.1%</td><td>89.6%</td><td>-132.4</td></tr>
+<tr><td><code>regime</code></td><td>2</td><td>0.391</td><td>50.5%</td><td>82.4%</td><td>-136.6</td></tr>
+</tbody></table></div>
+<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p><b>gloo<i>shm / all</i>reduce / world 4</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 11.4%</p>
+<div class="scroll"><table><thead><tr>
+<th>Family</th>
+<th>params</th>
+<th>fit R²</th>
+<th>held-out median err</th>
+<th>held-out max err</th>
+<th>AIC</th>
+</tr></thead><tbody>
+<tr><td><code>linear</code></td><td>2</td><td>0.635</td><td>45.8%</td><td>89.5%</td><td>-143.1</td></tr>
+<tr><td><code>piecewise</code></td><td>5</td><td>0.686</td><td>39.3%</td><td>86.7%</td><td>-138.9</td></tr>
+<tr><td><code>regime</code></td><td>2</td><td>0.635</td><td>45.8%</td><td>89.5%</td><td>-143.1</td></tr>
+</tbody></table></div>
+<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<h5>Validation on untouched message sizes</h5>
+<div class="scroll"><table><thead><tr>
+<th>Collective</th>
+<th>median err</th>
+<th>max err</th>
+<th>R²</th>
+<th>latency err</th>
+<th>bandwidth err</th>
+<th>covered</th>
+</tr></thead><tbody>
+<tr><td><code>gloo<i>shm/all</i>gather/world3</code></td><td>12.1%</td><td>52.5%</td><td>0.991</td><td>9.6%</td><td>15.8%</td><td>75%</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4</code></td><td>13.4%</td><td>63.0%</td><td>0.995</td><td>10.1%</td><td>16.1%</td><td>71%</td></tr>
+</tbody></table></div>
+<p>Errors by regime:</p>
+<ul>
+<li><code>gloo<i>shm/all</i>gather/world3</code>: tiny 6.1%, small 18.0%, medium 35.5%, large 8.3%</li>
+<li><code>gloo<i>shm/all</i>gather/world4</code>: tiny 4.6%, small 21.9%, medium 43.5%, large 4.9%</li>
+</ul>
+<h5>Parameters</h5>
+<div class="scroll"><table><thead><tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Provenance</th>
+<th>Source</th>
+</tr></thead><tbody>
+<tr><td><code>gloo<i>shm/all</i>gather/world2/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/breakpoint_kib</code></td><td>2730.67 KiB</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/family</code></td><td>5 params</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/high<i>alpha</i>us</code></td><td>459.872 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/high<i>beta</i>gbs</code></td><td>0.242362 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/low<i>alpha</i>us</code></td><td>208.791 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world3/low<i>beta</i>gbs</code></td><td>0.407424 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/breakpoint_kib</code></td><td>3072 KiB</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/family</code></td><td>5 params</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/high<i>alpha</i>us</code></td><td>772.034 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/high<i>beta</i>gbs</code></td><td>0.14744 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/low<i>alpha</i>us</code></td><td>376.821 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/low<i>beta</i>gbs</code></td><td>0.281859 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>reduce/world2/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
+<tr><td><code>gloo<i>shm/all</i>reduce/world3/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
+<tr><td><code>gloo<i>shm/all</i>reduce/world4/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
+</tbody></table></div>
+<p>Parameters not used by the model, and why:</p>
+<ul>
+<li><code>gloo<i>shm/all</i>gather/world2/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.</li>
+<li><code>gloo<i>shm/all</i>reduce/world2/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>reduce/world3/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>reduce/world4/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+</ul>
+<h5>Limitations</h5>
+<ul>
+<li>gloo over shared memory between processes on one host. This is not NVLink and not InfiniBand, and no parameter fitted here is a value for the fabric the Thrust I protocol registers.</li>
+<li>One host, so no inter-node hop and no NIC is exercised.</li>
+<li>World sizes 2 to 4, against the 8 and 32 the protocol registers.</li>
+</ul>
+</div>

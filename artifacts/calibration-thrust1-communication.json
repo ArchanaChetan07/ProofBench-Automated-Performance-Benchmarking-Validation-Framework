@@ -1,0 +1,3484 @@
+{
+  "study": "thrust1-comm-v1",
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "protocol": {
+    "kind": "communication-model-protocol",
+    "study": "thrust1-comm-v1",
+    "sealed_at": "2026-08-31T02:52:48Z",
+    "transports": [
+      "gloo_shm"
+    ],
+    "collectives": [
+      "all_reduce",
+      "all_gather"
+    ],
+    "world_sizes": [
+      2,
+      3,
+      4
+    ],
+    "size_tiers": {
+      "tiny": [
+        1024,
+        2048,
+        4096,
+        8192
+      ],
+      "small": [
+        16384,
+        32768,
+        65536,
+        131072
+      ],
+      "medium": [
+        262144,
+        524288,
+        1048576,
+        2097152
+      ],
+      "large": [
+        4194304,
+        8388608,
+        16777216,
+        33554432
+      ]
+    },
+    "model_families_considered": [
+      "linear",
+      "piecewise",
+      "regime"
+    ],
+    "family_selection_rule": "held-out error on calibration points the fit never saw. A more flexible family always fits its own data better, so fit quality cannot decide. AIC is reported beside it; the simpler family wins ties within 10%.",
+    "quality_gate": {
+      "max_heldout_median_relative_error": 0.15,
+      "on_failure": "the parameters remain DIAGNOSTIC and are not promoted into Fabric; the fit stays visible in the report"
+    },
+    "split_rule": "message sizes are partitioned by index into calibration and validation before any fitting; the validation sizes are not read until the model is frozen",
+    "known_limitations": [
+      "gloo over shared memory between processes on one host. This is not NVLink and not InfiniBand, and no parameter fitted here is a value for the fabric the Thrust I protocol registers.",
+      "One host, so no inter-node hop and no NIC is exercised.",
+      "World sizes 2 to 4, against the 8 and 32 the protocol registers."
+    ],
+    "seal_hash": "sha256:7863b8219ff9b483126996fb1faa3112ced326328c908e2208f25e02d558b0b1"
+  },
+  "n_samples": 288,
+  "diagnoses": [
+    {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 2,
+      "n_samples": 48,
+      "linear_r2": 0.8362882092199682,
+      "per_tier_gbs": {
+        "tiny": 0.0077449121791982375,
+        "small": 0.14337892191924034,
+        "medium": 0.07268541082919591,
+        "large": 0.2689481647137872
+      },
+      "per_tier_rel_spread": {
+        "tiny": 3.6025194405134693,
+        "small": 2.2547588877327356,
+        "medium": 5.093116062459506,
+        "large": 1.0158188032928988
+      },
+      "bandwidth_ratio_large_over_tiny": 34.72578623113955,
+      "replicate_cv": 0.13535770175036707,
+      "finding": "effective bandwidth rises 35x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 13.5%, small enough that the misfit is structural rather than noise"
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 3,
+      "n_samples": 48,
+      "linear_r2": 0.805874324903783,
+      "per_tier_gbs": {
+        "tiny": 0.008640395338822058,
+        "small": 0.12671458586390574,
+        "medium": 0.3290242472437085,
+        "large": 0.23790971984260156
+      },
+      "per_tier_rel_spread": {
+        "tiny": 2.4991306148945784,
+        "small": 2.0739227429539855,
+        "medium": 0.9320047866366772,
+        "large": 0.26931398795406686
+      },
+      "bandwidth_ratio_large_over_tiny": 27.534587309176956,
+      "replicate_cv": 0.05788237545729294,
+      "finding": "effective bandwidth rises 28x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 5.8%, small enough that the misfit is structural rather than noise"
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 4,
+      "n_samples": 48,
+      "linear_r2": 0.8516242354142638,
+      "per_tier_gbs": {
+        "tiny": 0.005915818149531456,
+        "small": 0.08309180359733978,
+        "medium": 0.2007879629399619,
+        "large": 0.1521304436929422
+      },
+      "per_tier_rel_spread": {
+        "tiny": 2.5786152252694343,
+        "small": 2.0171668115174555,
+        "medium": 1.0981742627848377,
+        "large": 0.3996178981248485
+      },
+      "bandwidth_ratio_large_over_tiny": 25.715875614768724,
+      "replicate_cv": 0.05486445430810253,
+      "finding": "effective bandwidth rises 26x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 5.5%, small enough that the misfit is structural rather than noise"
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 2,
+      "n_samples": 48,
+      "linear_r2": 0.10605306890292321,
+      "per_tier_gbs": {
+        "tiny": 0.014672213030747052,
+        "small": 0.23249515826730455,
+        "medium": 0.3100048357894417,
+        "large": 0.18664845031214067
+      },
+      "per_tier_rel_spread": {
+        "tiny": 2.4444203124745276,
+        "small": 2.0036743367505485,
+        "medium": 4.704765456210927,
+        "large": 0.9248234531152685
+      },
+      "bandwidth_ratio_large_over_tiny": 12.721220031429523,
+      "replicate_cv": 0.08627319660751254,
+      "finding": "effective bandwidth rises 13x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 8.6%, small enough that the misfit is structural rather than noise"
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 3,
+      "n_samples": 48,
+      "linear_r2": 0.39091055801070107,
+      "per_tier_gbs": {
+        "tiny": 0.006078052021625256,
+        "small": 0.14752867106092665,
+        "medium": 1.3299149766898144,
+        "large": 0.7939287397048971
+      },
+      "per_tier_rel_spread": {
+        "tiny": 4.445115852818772,
+        "small": 2.570412425766155,
+        "medium": 1.1025264975108537,
+        "large": 1.6647571147881117
+      },
+      "bandwidth_ratio_large_over_tiny": 130.6222350319079,
+      "replicate_cv": 0.11494571375240042,
+      "finding": "effective bandwidth rises 131x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 11.5%, small enough that the misfit is structural rather than noise"
+    },
+    {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 4,
+      "n_samples": 48,
+      "linear_r2": 0.4929596109040709,
+      "per_tier_gbs": {
+        "tiny": 0.0042413688094449925,
+        "small": 0.09125919881346473,
+        "medium": 0.9522683750855944,
+        "large": 0.6132683235227228
+      },
+      "per_tier_rel_spread": {
+        "tiny": 3.4451693111010915,
+        "small": 2.5855070942108473,
+        "medium": 1.7161356809144186,
+        "large": 1.2292297357868183
+      },
+      "bandwidth_ratio_large_over_tiny": 144.59207653836933,
+      "replicate_cv": 0.11361994042283174,
+      "finding": "effective bandwidth rises 145x from the tiny tier to the large tier, so the transport is latency-dominated at the small end and bandwidth-dominated at the large end. One straight line has to pass through both, and cannot; run-to-run variation is 11.4%, small enough that the misfit is structural rather than noise"
+    }
+  ],
+  "model_selection": {
+    "gloo_shm/all_gather/world2": {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 2,
+      "noise_floor": 0.13535770175036707,
+      "chosen_family": "",
+      "chosen": null,
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.6016471668284749,
+          "heldout_r2": 0.6922411081511695,
+          "heldout_median_rel_err": 0.2520820162458224,
+          "heldout_max_rel_err": 0.8727906718639667,
+          "aic": -138.24831817425436,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 131.40778950131002,
+            "beta_gbs": 0.4240275240598104
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.7900646775804501,
+          "heldout_r2": 0.8440185499361195,
+          "heldout_median_rel_err": 0.18050821289245433,
+          "heldout_max_rel_err": 0.8339919343006873,
+          "aic": -139.934781773459,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 131072.0,
+            "breakpoint_kib": 128.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 142.0747714263787,
+              "beta_gbs": 0.7588933015674496
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.0,
+              "beta_gbs": 0.29371042543842674
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 5,
+          "fit_r2": 0.7900646775804501,
+          "heldout_r2": 0.8440185499361195,
+          "heldout_median_rel_err": 0.18050821289245433,
+          "heldout_max_rel_err": 0.8339919343006873,
+          "aic": -139.934781773459,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              131072.0
+            ],
+            "edges_kib": [
+              128.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 142.0747714263787,
+                "beta_gbs": 0.7588933015674496
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.0,
+                "beta_gbs": 0.29371042543842674
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "The best family, `piecewise`, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model."
+    },
+    "gloo_shm/all_gather/world3": {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 3,
+      "noise_floor": 0.05788237545729294,
+      "chosen_family": "piecewise",
+      "chosen": {
+        "family": "piecewise",
+        "n_params": 5,
+        "breakpoint_bytes": 92842.66666666666,
+        "breakpoint_kib": 90.66666666666666,
+        "low": {
+          "family": "linear",
+          "n_params": 2,
+          "alpha_us": 238.764447136002,
+          "beta_gbs": 1.6224898977120081
+        },
+        "high": {
+          "family": "linear",
+          "n_params": 2,
+          "alpha_us": 0.0,
+          "beta_gbs": 0.248367682544602
+        }
+      },
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.8886372696068165,
+          "heldout_r2": 0.8663345339792159,
+          "heldout_median_rel_err": 0.28029893412992657,
+          "heldout_max_rel_err": 0.3737543775663172,
+          "aic": -150.73382712927597,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 215.75120535762727,
+            "beta_gbs": 0.34890859402150004
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.9917946136358924,
+          "heldout_r2": 0.9962483204378247,
+          "heldout_median_rel_err": 0.057141108426366424,
+          "heldout_max_rel_err": 0.7422452782952281,
+          "aic": -176.02984996056836,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 92842.66666666666,
+            "breakpoint_kib": 90.66666666666666,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 238.764447136002,
+              "beta_gbs": 1.6224898977120081
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.0,
+              "beta_gbs": 0.248367682544602
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 5,
+          "fit_r2": 0.9917946136358924,
+          "heldout_r2": 0.9962483204378247,
+          "heldout_median_rel_err": 0.057141108426366424,
+          "heldout_max_rel_err": 0.7422452782952281,
+          "aic": -176.02984996056836,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              92842.66666666666
+            ],
+            "edges_kib": [
+              90.66666666666666
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 238.764447136002,
+                "beta_gbs": 1.6224898977120081
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.0,
+                "beta_gbs": 0.248367682544602
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "`piecewise` wins on held-out error (5.7% median) against `linear` 28.0%, `regime` 5.7%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
+    },
+    "gloo_shm/all_gather/world4": {
+      "transport": "gloo_shm",
+      "kind": "all_gather",
+      "world": 4,
+      "noise_floor": 0.05486445430810253,
+      "chosen_family": "piecewise",
+      "chosen": {
+        "family": "piecewise",
+        "n_params": 5,
+        "breakpoint_bytes": 196608.0,
+        "breakpoint_kib": 192.0,
+        "low": {
+          "family": "linear",
+          "n_params": 2,
+          "alpha_us": 433.1507297584953,
+          "beta_gbs": 0.4529180135660152
+        },
+        "high": {
+          "family": "linear",
+          "n_params": 2,
+          "alpha_us": 0.0,
+          "beta_gbs": 0.15195352706685455
+        }
+      },
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.7212851809307044,
+          "heldout_r2": 0.7545911580254195,
+          "heldout_median_rel_err": 0.1733195753854898,
+          "heldout_max_rel_err": 0.4453999285080031,
+          "aic": -123.36404144595583,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 391.6883233638181,
+            "beta_gbs": 0.2531528354346776
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.9437879092380069,
+          "heldout_r2": 0.9951056386239682,
+          "heldout_median_rel_err": 0.10625772773469164,
+          "heldout_max_rel_err": 0.45771662782851746,
+          "aic": -136.5767282457698,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 196608.0,
+            "breakpoint_kib": 192.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 433.1507297584953,
+              "beta_gbs": 0.4529180135660152
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.0,
+              "beta_gbs": 0.15195352706685455
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 5,
+          "fit_r2": 0.9437879092380069,
+          "heldout_r2": 0.9951056386239682,
+          "heldout_median_rel_err": 0.10625772773469164,
+          "heldout_max_rel_err": 0.45771662782851746,
+          "aic": -136.5767282457698,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              196608.0
+            ],
+            "edges_kib": [
+              192.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 433.1507297584953,
+                "beta_gbs": 0.4529180135660152
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.0,
+                "beta_gbs": 0.15195352706685455
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "`piecewise` wins on held-out error (10.6% median) against `linear` 17.3%, `regime` 10.6%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
+    },
+    "gloo_shm/all_reduce/world2": {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 2,
+      "noise_floor": 0.08627319660751254,
+      "chosen_family": "",
+      "chosen": null,
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.030075770318427675,
+          "heldout_r2": -0.170701614306763,
+          "heldout_median_rel_err": 0.5388759587909399,
+          "heldout_max_rel_err": 0.934321196085977,
+          "aic": -117.22673527780574,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 204.6209264909096,
+            "beta_gbs": 1.874108237241466
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.976423899771295,
+          "heldout_r2": 0.8403684624721868,
+          "heldout_median_rel_err": 0.28407281428748254,
+          "heldout_max_rel_err": 0.6709733881879576,
+          "aic": -155.8305487736535,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 262144.0,
+            "breakpoint_kib": 256.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 232.41038906290643,
+              "beta_gbs": 6.257198521444881
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.0,
+              "beta_gbs": 0.27392284682268975
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 5,
+          "fit_r2": 0.976423899771295,
+          "heldout_r2": 0.8403684624721868,
+          "heldout_median_rel_err": 0.28407281428748254,
+          "heldout_max_rel_err": 0.6709733881879576,
+          "aic": -155.8305487736535,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              262144.0
+            ],
+            "edges_kib": [
+              256.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 232.41038906290643,
+                "beta_gbs": 6.257198521444881
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.0,
+                "beta_gbs": 0.27392284682268975
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "The best family, `piecewise`, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+    },
+    "gloo_shm/all_reduce/world3": {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 3,
+      "noise_floor": 0.11494571375240042,
+      "chosen_family": "",
+      "chosen": null,
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.3911347921587208,
+          "heldout_r2": 0.38897108848157913,
+          "heldout_median_rel_err": 0.5048939314204313,
+          "heldout_max_rel_err": 0.8241197185848461,
+          "aic": -136.6069090200363,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 378.021189696279,
+            "beta_gbs": 1.7621215184553318
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.47383253594231456,
+          "heldout_r2": 0.5070789612069488,
+          "heldout_median_rel_err": 0.39109706472749556,
+          "heldout_max_rel_err": 0.8955703614837002,
+          "aic": -132.35863751783953,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 349525.3333333333,
+            "breakpoint_kib": 341.3333333333333,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 427.6953714051404,
+              "beta_gbs": 10.855673523664581
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 226.65338057021845,
+              "beta_gbs": 1.4112650239572295
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 2,
+          "fit_r2": 0.39113479215872105,
+          "heldout_r2": 0.38897108848157935,
+          "heldout_median_rel_err": 0.5048939314204312,
+          "heldout_max_rel_err": 0.8241197185848458,
+          "aic": -136.6069090200363,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 378.02118969627867,
+                "beta_gbs": 1.7621215184553314
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+    },
+    "gloo_shm/all_reduce/world4": {
+      "transport": "gloo_shm",
+      "kind": "all_reduce",
+      "world": 4,
+      "noise_floor": 0.11361994042283174,
+      "chosen_family": "",
+      "chosen": null,
+      "n_fit": 12,
+      "n_heldout": 12,
+      "candidates": [
+        {
+          "family": "linear",
+          "n_params": 2,
+          "fit_r2": 0.634533061066649,
+          "heldout_r2": 0.6496910935312687,
+          "heldout_median_rel_err": 0.4575921541587792,
+          "heldout_max_rel_err": 0.8946005713641044,
+          "aic": -143.07638169742177,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 754.0828731441486,
+            "beta_gbs": 1.2917041481252995
+          }
+        },
+        {
+          "family": "piecewise",
+          "n_params": 5,
+          "fit_r2": 0.6857752995513821,
+          "heldout_r2": 0.7472883294873576,
+          "heldout_median_rel_err": 0.39344970261781936,
+          "heldout_max_rel_err": 0.8670539658039585,
+          "aic": -138.88919150824924,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 208896.0,
+            "breakpoint_kib": 204.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 812.4256949481404,
+              "beta_gbs": 0.45126133373946126
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 519.6665552273746,
+              "beta_gbs": 1.1049941722885601
+            }
+          }
+        },
+        {
+          "family": "regime",
+          "n_params": 2,
+          "fit_r2": 0.6345330610666488,
+          "heldout_r2": 0.6496910935312685,
+          "heldout_median_rel_err": 0.45759215415877913,
+          "heldout_max_rel_err": 0.894600571364104,
+          "aic": -143.07638169742177,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 754.0828731441488,
+                "beta_gbs": 1.2917041481253002
+              }
+            ]
+          }
+        }
+      ],
+      "reason": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+    }
+  },
+  "parameters": {
+    "name": "thrust1-comm",
+    "summary": {
+      "diagnostic": 4,
+      "accepted": 12
+    },
+    "n_usable": 12,
+    "n_unusable": 4,
+    "n_evidence_backed": 12,
+    "parameters": [
+      {
+        "name": "gloo_shm/all_gather/world2/alpha_us",
+        "value": NaN,
+        "provenance": "diagnostic",
+        "usable": false,
+        "is_evidence": false,
+        "unit": "us",
+        "source": "thrust1-comm-v1 family selection",
+        "note": "The best family, `piecewise`, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/breakpoint_kib",
+        "value": 2730.6666666666665,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "KiB",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "the size at which the collective changes algorithm",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/family",
+        "value": 5.0,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "params",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "piecewise",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/high_alpha_us",
+        "value": 459.8715706472048,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "us",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/high_beta_gbs",
+        "value": 0.24236220549753884,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "GB/s",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/low_alpha_us",
+        "value": 208.79083480251614,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "us",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world3/low_beta_gbs",
+        "value": 0.4074240684442736,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "GB/s",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9978030291610936
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/breakpoint_kib",
+        "value": 3072.0,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "KiB",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "the size at which the collective changes algorithm",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/family",
+        "value": 5.0,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "params",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "piecewise",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/high_alpha_us",
+        "value": 772.0340545126044,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "us",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/high_beta_gbs",
+        "value": 0.147439693614734,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "GB/s",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/low_alpha_us",
+        "value": 376.82148958367736,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "us",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_gather/world4/low_beta_gbs",
+        "value": 0.28185932173087724,
+        "provenance": "accepted",
+        "usable": true,
+        "is_evidence": true,
+        "unit": "GB/s",
+        "source": "thrust1-comm-v1 calibration",
+        "note": "",
+        "quality": {
+          "family": "piecewise",
+          "heldout_median_rel_err": 0.10625772773469164,
+          "fit_r2": 0.9950909228407128
+        },
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_reduce/world2/alpha_us",
+        "value": NaN,
+        "provenance": "diagnostic",
+        "usable": false,
+        "is_evidence": false,
+        "unit": "us",
+        "source": "thrust1-comm-v1 family selection",
+        "note": "The best family, `piecewise`, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_reduce/world3/alpha_us",
+        "value": NaN,
+        "provenance": "diagnostic",
+        "usable": false,
+        "is_evidence": false,
+        "unit": "us",
+        "source": "thrust1-comm-v1 family selection",
+        "note": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "quality": {},
+        "superseded_value": null
+      },
+      {
+        "name": "gloo_shm/all_reduce/world4/alpha_us",
+        "value": NaN,
+        "provenance": "diagnostic",
+        "usable": false,
+        "is_evidence": false,
+        "unit": "us",
+        "source": "thrust1-comm-v1 family selection",
+        "note": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "quality": {},
+        "superseded_value": null
+      }
+    ]
+  },
+  "split": {
+    "created_at": "2026-08-31T02:52:48Z",
+    "frozen": true,
+    "frozen_at": "2026-08-31T02:52:48Z",
+    "digest": "sha256:d1576eeb43cb2914ae75af29e31eb9a2a7006ad96c9820b1dbad9708dd4d3ca7",
+    "n_calibration": 8,
+    "n_validation": 8,
+    "fitted_parameters": [
+      "gloo_shm/all_gather/world3",
+      "gloo_shm/all_gather/world4"
+    ],
+    "calibration": [
+      [
+        1024
+      ],
+      [
+        4096
+      ],
+      [
+        16384
+      ],
+      [
+        65536
+      ],
+      [
+        262144
+      ],
+      [
+        1048576
+      ],
+      [
+        4194304
+      ],
+      [
+        16777216
+      ]
+    ],
+    "validation": [
+      [
+        2048
+      ],
+      [
+        8192
+      ],
+      [
+        32768
+      ],
+      [
+        131072
+      ],
+      [
+        524288
+      ],
+      [
+        2097152
+      ],
+      [
+        8388608
+      ],
+      [
+        33554432
+      ]
+    ],
+    "rationale": {
+      "(1024,)": "alternating sizes, so both sets span every regime",
+      "(2048,)": "alternating sizes, so both sets span every regime",
+      "(4096,)": "alternating sizes, so both sets span every regime",
+      "(8192,)": "alternating sizes, so both sets span every regime",
+      "(16384,)": "alternating sizes, so both sets span every regime",
+      "(32768,)": "alternating sizes, so both sets span every regime",
+      "(65536,)": "alternating sizes, so both sets span every regime",
+      "(131072,)": "alternating sizes, so both sets span every regime",
+      "(262144,)": "alternating sizes, so both sets span every regime",
+      "(524288,)": "alternating sizes, so both sets span every regime",
+      "(1048576,)": "alternating sizes, so both sets span every regime",
+      "(2097152,)": "alternating sizes, so both sets span every regime",
+      "(4194304,)": "alternating sizes, so both sets span every regime",
+      "(8388608,)": "alternating sizes, so both sets span every regime",
+      "(16777216,)": "alternating sizes, so both sets span every regime",
+      "(33554432,)": "alternating sizes, so both sets span every regime"
+    }
+  },
+  "validation": {
+    "gloo_shm/all_gather/world3": {
+      "n_points": 24,
+      "median_rel_err": 0.12084309458397423,
+      "max_rel_err": 0.5245270844551886,
+      "r2": 0.9911889547803646,
+      "latency_rel_err": 0.0959148257206506,
+      "bandwidth_rel_err": 0.15843264386785838,
+      "per_tier_err": {
+        "tiny": 0.06058116238871382,
+        "small": 0.18015695528338477,
+        "medium": 0.3546127557633536,
+        "large": 0.08259623083997955
+      },
+      "coverage": 0.75
+    },
+    "gloo_shm/all_gather/world4": {
+      "n_points": 24,
+      "median_rel_err": 0.13417103155849047,
+      "max_rel_err": 0.6295026973704285,
+      "r2": 0.9947288584847599,
+      "latency_rel_err": 0.10070122927899024,
+      "bandwidth_rel_err": 0.1609704751410877,
+      "per_tier_err": {
+        "tiny": 0.046098474786040275,
+        "small": 0.21858300329370917,
+        "medium": 0.4354543044411443,
+        "large": 0.04940452915626099
+      },
+      "coverage": 0.7083333333333334
+    }
+  },
+  "errors": {},
+  "notes": [],
+  "samples": [
+    {
+      "nbytes": 1024,
+      "seconds": 0.0002314249984920025,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00018994000274688005,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00018612999701872468,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.000208534998819232,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0002011599950492382,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0001953250030055642,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00020304000936448573,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00025774999521672727,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.00029864999232813715,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.00044426999520510437,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.008541980001609772,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.0125288600102067,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.017214260017499327,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.05133384000509977,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.08954159999266267,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.20610847999341786,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00016932999715209008,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.0001405750052072108,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00013002000050619245,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00017036499921232461,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.000176470004953444,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00012599501060321926,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00017399999778717757,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00017726499354466795,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0003241300000809133,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.00454593999311328,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.009372614999301731,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.009760159999132156,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.012849439959973097,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.0157417600043118,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.02249670000746846,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.054114620015025136,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0002550500095821917,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00021551500540226698,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0002122650039382279,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00020917499205097556,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00021856999956071377,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00020541000412777066,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0002078850055113435,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0002505950047634542,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0002603400032967329,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0016947400057688356,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.01163430999731645,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.01245101997628808,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.015436180029064417,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.05303505999036133,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.09023449998348951,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.1397131800185889,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00014000999508425593,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00014402000233530997,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00012697000056505203,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00014556499663740397,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00013486000243574382,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00014128499897196888,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00020908500300720334,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00018659000052139162,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.00033255498856306077,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.00549170000012964,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0077721750014461575,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.009172060014680027,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.009962760005146265,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.034080319991335276,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.036653959983959795,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.0530636599753052,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0002995449933223426,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00024359499802812935,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0002206649980507791,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00021133499685674906,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00023751999251544475,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00021858999971300364,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00022049000253900885,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00024507499765604737,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0002731199958361685,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.00033855000510811805,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.010920825006905943,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.006750900018960238,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.012679739994928241,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.04098713998682797,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.09280199999921024,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.20456186002120375,
+      "world": 2,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00015875999815762043,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00012479500146582722,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0003478350001387298,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00013244999572634698,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00013094000751152636,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00013335499679669737,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00017170499777421355,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0001785850035957992,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0014239949989132584,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.007668229995761067,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.01075279499636963,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.013458159985020757,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.005292179994285107,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.030491539975628257,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.028000980010256173,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.06180547997355461,
+      "world": 2,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00038255999097600577,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00040531499544158576,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0003814650001004338,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00040483499178662897,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0003888700040988624,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0005015449947677553,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0004242249997332692,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0004144049948081374,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0004699149983935058,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0005041449912823737,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.000642194994725287,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.0013275400269776583,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.013224720023572445,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.012886520009487867,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.02318472000770271,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.07901495997793972,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00023865499533712864,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.0002263349946588278,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00024641999043524266,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00022433999693021177,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00022420500172302127,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0002272950019687414,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0002777199959382415,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0003155349986627698,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0005345849902369082,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0007599300006404519,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.001843515003565699,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.007656279997900128,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.011759599996730685,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.02197082000784576,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.0447280999738723,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.09771261997520923,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0006342299981042743,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.0005039099953137339,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00040451500099152325,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.0003749200026504695,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00038086500717327,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00043399001006036995,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00043346500024199486,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00040459500160068275,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0004917350015603006,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.000557819998357445,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0006686000037007034,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.0014657400082796813,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.003205600008368492,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.019193420000374318,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.05205633998848498,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.05212645996361971,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00023182500153779985,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.0002733799978159368,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00021718500647693872,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00023599000414833426,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00028842000756412745,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.000238144991453737,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00025437000440433624,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.00035101500106975435,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0006141199963167309,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.000817024998832494,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.003091444994788617,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.004609340010210872,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.010083720041438936,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.02151182000525296,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.04841089998371899,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.09959036000072956,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0006453400012105704,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.000533165002707392,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0010624199989251793,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00045621999306604265,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00040294999489560724,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00037721999688073994,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00048752500442788004,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0004032149910926819,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.00045913999201729894,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0005490400013513863,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0006606800016015768,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.0037705200258642433,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.005543820001184941,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.010369740007445217,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.03066117996349931,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.07199454000219703,
+      "world": 3,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00024819499813020227,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00022023499477654695,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0002171300002373755,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00023931500036269426,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00024016499519348146,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00024075499968603253,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0002648400026373565,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0002906249952502549,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0006327150040306151,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0007143949973396957,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0016154899960383773,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.004222139995545149,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.011997159989550709,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.01996015999466181,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.04698729999363423,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.10351228001527488,
+      "world": 3,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0007669899961911142,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.000994384998921305,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0007184349931776523,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00074798499699682,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0007533799973316491,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00077342001022771,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0007534150034189224,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0007649499922990799,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0007709400029852987,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0011544100008904934,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0010407199966721236,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.003134540002793074,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.013097860012203455,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.02154947998933494,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.041246759984642264,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.10288742003031075,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0007758399937301874,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00033650998957455156,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00040422499878332017,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.0003782200044952333,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0004122150014154613,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00038295499980449675,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.00045428499579429625,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0005112299928441644,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0008980800048448145,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.002042195003014058,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0038750250008888544,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.016078759962692857,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.01808059997856617,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.03651977996341884,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.08196568000130355,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.16694136001169682,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 0,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0008458600030280649,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.000793645007070154,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0007915850030258298,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.0009720800095237792,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0008522299933247269,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0008644149987958371,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0008374899975024164,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0008399100042879581,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0008142750011757016,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0009479149943217635,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.001142760005313903,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.002211080025881529,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.006325499992817641,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.025389739964157342,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.039279880002141,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.0861292399931699,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0004609850002452731,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00035879999632015824,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.00042272499995306135,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.0003839299897663295,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.00038383499486371875,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.00040231499588117003,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0004327549948357046,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0005540949990972876,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0009087799931876362,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.001235274993814528,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0035503999912180006,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.010571499960497022,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.01935181999579072,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.042071299999952315,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.086877779988572,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.1608126000035554,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 1,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.0008451499976217747,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.0008113699965178967,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0013321799924597144,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.0007500200066715479,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0011664299992844463,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0007545700063928962,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0008214399917051196,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.000785744993481785,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0014058299944736063,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0008728750050067902,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.0011302250088192523,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.0016435999888926745,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.0050976399797946215,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.019670039974153043,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.040826559998095036,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.07308942000381649,
+      "world": 4,
+      "kind": "all_reduce",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 1024,
+      "seconds": 0.00042106000473722814,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 2048,
+      "seconds": 0.00038172499043866994,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 4096,
+      "seconds": 0.0004167299950495362,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 8192,
+      "seconds": 0.00040550000267103314,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "tiny"
+    },
+    {
+      "nbytes": 16384,
+      "seconds": 0.0004979099961929023,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 32768,
+      "seconds": 0.0004893050063401461,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 65536,
+      "seconds": 0.0004818400018848479,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 131072,
+      "seconds": 0.0009368499973788858,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "small"
+    },
+    {
+      "nbytes": 262144,
+      "seconds": 0.0009898350108414888,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 524288,
+      "seconds": 0.0013250450021587313,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 1048576,
+      "seconds": 0.004024589993059635,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 2097152,
+      "seconds": 0.012209000019356608,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "medium"
+    },
+    {
+      "nbytes": 4194304,
+      "seconds": 0.02779168002307415,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 8388608,
+      "seconds": 0.03993346001952887,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 16777216,
+      "seconds": 0.09032904002815485,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    },
+    {
+      "nbytes": 33554432,
+      "seconds": 0.17527804002165795,
+      "world": 4,
+      "kind": "all_gather",
+      "replicate": 2,
+      "tier": "large"
+    }
+  ],
+  "provenance": {
+    "captured_at": "2026-08-31T02:52:48Z",
+    "host": "Archana-PC",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "cpu_count": 24,
+    "git": {
+      "commit": "f80269441b7e739f0ef0345d844480b59248f336",
+      "dirty": true,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [
+        "M src/losscolumn/history.py",
+        " M tests/test_memory_model_v2.py",
+        "?? src/losscolumn/thrusts/overlap/comcal.py",
+        "?? src/losscolumn/thrusts/overlap/commodel.py",
+        "?? tests/test_commodel.py"
+      ],
+      "branch": "master",
+      "remote": null,
+      "describe": "v0.3.0-memory-v2-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA T1000 8GB",
+          "capability": "7.5",
+          "total_memory_gb": 8.59,
+          "multi_processor_count": 14
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4"
+    },
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "triton": "3.2.0",
+      "numpy": "1.26.4",
+      "vllm": null,
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.12.1",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    },
+    "notes": null,
+    "hardware_fingerprint": "cc72e8eab7a5d10b",
+    "hardware": "1x NVIDIA T1000 8GB"
+  },
+  "kind": "calibration-report",
+  "standard_version": "LC-1.0",
+  "calibrates": "thrust1-communication",
+  "generated_at": "2026-08-31T02:48:03Z",
+  "command": "python scripts/comcal.py"
+}

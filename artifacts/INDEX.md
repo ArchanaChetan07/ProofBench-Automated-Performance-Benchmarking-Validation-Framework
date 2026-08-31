@@ -1,6 +1,6 @@
 # Artifact index
 
-Generated 2026-08-30T18:09:53Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-31T02:53:52Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
 **4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
@@ -62,6 +62,7 @@ Superseded and still verifiable: [`prereg-thrust-III-v1-20260828T224806Z.json`](
 
 Evidence *about* a claim rather than a claim. A simulated thrust predicts a loss map; a calibration study measures a subset of it and reports how far the prediction can be trusted.
 
+- [`calibration-thrust1-communication.json`](calibration-thrust1-communication.json) &mdash; 
 - [`calibration-thrust1-compute.json`](calibration-thrust1-compute.json) &mdash; ESTABLISHES NOTHING: this study could not have detected a disagreement. neither the predicted nor the measured map contains a loss, so the region overlap of 1.00 is two empty sets agreeing and the boundary statistics are undefined; the predicted effects have no spread, so no slope can be fitted and the model was checked at a single operating point. A wider grid, or one chosen so the model predicts a loss somewhere, is needed before any statement about the model's reliability is supported.
 - [`calibration-thrust1-memory-v2.json`](calibration-thrust1-memory-v2.json) &mdash; 
 - [`calibration-thrust1-memory.json`](calibration-thrust1-memory.json) &mdash; REGION STATISTICS ONLY: 5 false win(s) and 0 false loss(es) over 8 cells, overlap 0.17. The magnitude statistics are absent by construction: this is a feasibility study, so the prediction is a classification and there is no effect size to regress. EVERY false win is a configuration the model cleared and the hardware refused.
