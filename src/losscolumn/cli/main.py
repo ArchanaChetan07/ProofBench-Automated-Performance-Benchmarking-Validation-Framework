@@ -244,7 +244,9 @@ def cmd_standard(args: argparse.Namespace) -> int:
 
     uncaught = [r.defect for r in results if not r.caught]
     both = sum(1 for v in cov.values() if v["passing_case"] and v["failing_case"])
-    print(f"LC-1.0  {registry.N_RULES} rules ({registry.N_FATAL} fatal)")
+    print(f"{STANDARD_VERSION}  {registry.N_RULES} rules ({registry.N_FATAL} fatal)")
+    print(f"  supersedes       LC-1.0, unchanged "
+          f"({registry.compute_lc_1_0_digest()[:19]}...)")
     print(f"  registry digest  {registry.compute_digest()}")
     print(f"  schema digest    {schema.schema_digest()}")
     print(f"  frozen           {'YES' if registry.compute_digest() == registry.FROZEN_DIGEST else 'NO -- DIGEST MISMATCH'}")

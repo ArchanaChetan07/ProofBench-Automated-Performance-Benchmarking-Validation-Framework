@@ -1,7 +1,7 @@
 {
-  "standard": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
-  "n_defects": 46,
-  "n_caught": 46,
+  "standard": "sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684",
+  "n_defects": 53,
+  "n_caught": 53,
   "defects": [
     {
       "name": "insufficient-replicates",
@@ -14,7 +14,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-insufficient-replicates",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -181,7 +181,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-bh-impossible-power",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -348,7 +348,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-inverted-tost-bounds",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -515,7 +515,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-mde-differs-from-seal",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -691,7 +691,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-simulated-unlabeled",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -858,7 +858,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-simulated-unexplained",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -1025,7 +1025,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-tuned-baseline-called-default",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -1232,7 +1232,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unsupported-headline",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -1399,7 +1399,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-dirty-tree",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -1566,7 +1566,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unsupported-loss-region",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -1719,6 +1719,1743 @@
             "median_cv": 0.012,
             "p95_cv": 0.03,
             "n": 24
+          }
+        }
+      }
+    },
+    {
+      "name": "feasibility-sentinel",
+      "description": "An out-of-memory configuration encoded as a throughput of zero rather than as a state. Comparison paths skip zero-valued cells, so the prediction disappears from the map.",
+      "expect_fail": [
+        "LC-6.1"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-feasibility-sentinel",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "oom",
+                  "throughput": 0.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "unrun-cell-carries-a-number",
+      "description": "A cell recorded as infeasible that nonetheless carries a throughput, collapsing 'did not run' into 'ran and measured zero'.",
+      "expect_fail": [
+        "LC-6.2"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-unrun-cell-carries-a-number",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": 0.0
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "host-fallback-counted-as-fit",
+      "description": "A run served from host memory counted as device-feasible. It completed; it did not fit.",
+      "expect_fail": [
+        "LC-6.3"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-host-fallback-counted-as-fit",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "correct_feasible"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "calibration-validation-leakage",
+      "description": "A cell used to choose a parameter also offered as evidence that the parameter was right.",
+      "expect_fail": [
+        "LC-7.1"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-calibration-validation-leakage",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "never-frozen-model",
+      "description": "Parameters fitted with no freeze recorded, so nothing distinguishes the validation data from the training data.",
+      "expect_fail": [
+        "LC-7.2"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-never-frozen-model",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": false,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "rejected-parameter-used",
+      "description": "A parameter that failed its quality gate marked usable, so a rejected fit feeds an active model.",
+      "expect_fail": [
+        "LC-7.3"
+      ],
+      "severity": "fatal",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-rejected-parameter-used",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "per_regime_error": {
+            "tiny": 0.06,
+            "small": 0.1,
+            "medium": 0.11,
+            "large": 0.05
+          },
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": true,
+                "note": "held-out error above the gate"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "pooled-error-over-log-domain",
+      "description": "A fit spanning four orders of magnitude in message size, reporting only a pooled error. One useless regime hides behind three good ones.",
+      "expect_fail": [
+        "LC-7.4"
+      ],
+      "severity": "warning",
+      "base": "model",
+      "document": {
+        "kind": "claim",
+        "standard_version": "LC-1.1",
+        "id": "adversarial-pooled-error-over-log-domain",
+        "title": "A conforming baseline claim",
+        "thrust": "III",
+        "method": "candidate",
+        "baseline": "reference",
+        "evidence_class": "measured",
+        "evidence_note": "",
+        "loss_column_placement": "main",
+        "authors": [
+          "corpus"
+        ],
+        "headline": {
+          "statement": "Faster in some regions of the envelope and slower in others.",
+          "best_pct": 18.0,
+          "worst_pct": -24.0,
+          "median_pct": 1.5,
+          "conditions_best": {
+            "seq_len": 2048,
+            "dtype": "float16"
+          },
+          "conditions_worst": {
+            "seq_len": 128,
+            "dtype": "bfloat16"
+          }
+        },
+        "loss_column": {
+          "metric": "throughput",
+          "unit": "TFLOP/s",
+          "method": "candidate",
+          "baseline": "reference",
+          "mde_pct": 5.0,
+          "q_level": 0.05,
+          "n_cells": 24,
+          "counts": {
+            "loss": 3,
+            "win": 5,
+            "tie": 14,
+            "inconclusive": 2,
+            "missing": 0
+          },
+          "loss_fraction": 0.125,
+          "inconclusive_fraction": 0.08333333333333333,
+          "win_fraction": 0.20833333333333334,
+          "n_unrunnable": 0,
+          "design_check": {
+            "can_reject": true,
+            "replicates": 11,
+            "n_tests": 24,
+            "min_replicates": 9,
+            "p_floor": 0.00048828125,
+            "message": ""
+          },
+          "regions": [
+            {
+              "label": "seq_len=[128]",
+              "bounds": {
+                "seq_len": [
+                  128
+                ]
+              },
+              "n_cells": 4,
+              "n_loss": 3,
+              "frac_of_envelope": 0.16666666666666666,
+              "median_regression_pct": 19.0,
+              "worst_regression_pct": 24.0,
+              "max_q": 0.004,
+              "attribution": "launch bound at short sequences",
+              "missing_reasons": []
+            }
+          ],
+          "notes": []
+        },
+        "envelope": {
+          "kind": "envelope",
+          "replicates": 11,
+          "interleaved": true,
+          "systems": [
+            "candidate",
+            "reference"
+          ],
+          "coverage": {
+            "candidate": 1.0,
+            "reference": 1.0
+          },
+          "metric": {
+            "name": "throughput",
+            "unit": "TFLOP/s",
+            "higher_is_better": true
+          },
+          "factors": [
+            {
+              "name": "seq_len",
+              "levels": [
+                128,
+                512,
+                2048
+              ]
+            },
+            {
+              "name": "head_dim",
+              "levels": [
+                64,
+                128
+              ]
+            },
+            {
+              "name": "batch",
+              "levels": [
+                1,
+                4
+              ]
+            },
+            {
+              "name": "dtype",
+              "levels": [
+                "float16",
+                "bfloat16"
+              ]
+            }
+          ]
+        },
+        "reproduction": {
+          "command": "losscolumn run thrust3",
+          "repo": "https://example.invalid/losscolumn",
+          "commit": "0123456789abcdef",
+          "dirty": false,
+          "container_image": "ghcr.io/example/losscolumn:1.0",
+          "hardware": "1x H100 80GB",
+          "estimated_runtime_min": 45
+        },
+        "prereg": {
+          "sealed_at": "2026-01-01T00:00:00Z",
+          "seal_hash": "sha256:0f0f",
+          "normative_hash": "sha256:0f0f",
+          "anchor": "git:v1.0.0",
+          "deviations": [],
+          "mde": 0.05,
+          "q_level": 0.05,
+          "replicates": 11
+        },
+        "prereg_verification": {
+          "ok": true,
+          "findings": []
+        },
+        "limitations": [
+          "forward pass only"
+        ],
+        "supporting": {
+          "noise": {
+            "median_cv": 0.012,
+            "p95_cv": 0.03,
+            "n": 24
+          },
+          "log_scaled_domain": true,
+          "feasibility": {
+            "cells": [
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "feasible",
+                  "throughput": 1234.0
+                },
+                "outcome": "correct_feasible"
+              },
+              {
+                "predicted": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "infeasible",
+                  "throughput": null
+                },
+                "outcome": "correct_infeasible"
+              },
+              {
+                "predicted": {
+                  "status": "feasible",
+                  "throughput": null
+                },
+                "measured": {
+                  "status": "host_fallback",
+                  "throughput": null
+                },
+                "outcome": "not_comparable"
+              }
+            ]
+          },
+          "grid_split": {
+            "calibration": [
+              [
+                1,
+                1,
+                false
+              ]
+            ],
+            "validation": [
+              [
+                2,
+                2,
+                false
+              ]
+            ],
+            "frozen": true,
+            "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": [
+              "alpha"
+            ]
+          },
+          "model_parameters": {
+            "parameters": [
+              {
+                "name": "alpha",
+                "value": 1.0,
+                "provenance": "accepted",
+                "usable": true
+              },
+              {
+                "name": "beta",
+                "value": 2.0,
+                "provenance": "rejected",
+                "usable": false,
+                "note": "held-out error above the gate"
+              }
+            ]
           }
         }
       }
@@ -1900,7 +3637,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-loss-column",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2020,7 +3757,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-losses-without-regions",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2170,7 +3907,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-self-declared-incomplete",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2339,7 +4076,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-loss-column-in-appendix",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2506,7 +4243,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unattributed-region",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2673,7 +4410,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unaccounted-missing-cells",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -2840,7 +4577,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-mostly-inconclusive",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -3007,7 +4744,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-parity-certificate",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -3173,7 +4910,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-parity-violated",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -3380,7 +5117,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-one-system-only",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -3572,7 +5309,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unequal-trial-counts",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -3779,7 +5516,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-budget-was-binding",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -3986,7 +5723,7 @@
       "base": "tuned",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-untuned-baseline",
         "title": "A conforming baseline claim",
         "thrust": "II",
@@ -4192,7 +5929,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-single-factor",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -4338,7 +6075,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-too-few-cells",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -4505,7 +6242,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-headline-without-range",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -4671,7 +6408,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-degenerate-range",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -4838,7 +6575,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-worst-without-conditions",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5002,7 +6739,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unbounded-superlative",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5169,7 +6906,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-preregistration",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5327,7 +7064,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unsealed-protocol",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5494,7 +7231,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-protocol-edited-after-sealing",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5661,7 +7398,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unverified-protocol",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -5825,7 +7562,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-declared-deviation",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6000,7 +7737,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unanchored-seal",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6167,7 +7904,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-reproduction-command",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6334,7 +8071,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-pipeline-not-command",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6501,7 +8238,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unpinned-commit",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6668,7 +8405,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-unpinned-image",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -6835,7 +8572,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-undocumented-hardware",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -7002,7 +8739,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-runtime-estimate",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -7169,7 +8906,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-blocked-measurement",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -7336,7 +9073,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-sparse-coverage",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -7503,7 +9240,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-noise-swamps-effect",
         "title": "A conforming baseline claim",
         "thrust": "III",
@@ -7669,7 +9406,7 @@
       "base": "plain",
       "document": {
         "kind": "claim",
-        "standard_version": "LC-1.0",
+        "standard_version": "LC-1.1",
         "id": "adversarial-no-limitations",
         "title": "A conforming baseline claim",
         "thrust": "III",

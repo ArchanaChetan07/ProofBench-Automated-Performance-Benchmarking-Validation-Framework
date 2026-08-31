@@ -60,9 +60,9 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Thrust I communication model</h1>
 <p class="lede">Why one collective fits a straight line and the other does not.</p>
-<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Samples</b> <code>288</code></span><span><b>Accepted</b> <code>12</code></span></div>
+<div class="meta"><span><b>Device</b> <code>NVIDIA T1000 8GB (sm_75, 9 GB)</code></span><span><b>Samples</b> <code>288</code></span><span><b>Accepted</b> <code>6</code></span></div>
 <h4>Thrust I communication model</h4>
-<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). Protocol seal <code>7863b8219ff9b483...</code>.</p>
+<p>Measured on NVIDIA T1000 8GB (sm_75, 9 GB). Protocol seal <code>80cbfea2450c14a0...</code>.</p>
 <h5>Diagnosis: why one collective fits and the other does not</h5>
 <div class="scroll"><table><thead><tr>
 <th>Collective</th>
@@ -94,85 +94,121 @@ color:var(--muted)}
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.602</td><td>25.2%</td><td>87.3%</td><td>-138.2</td></tr>
-<tr><td><code>piecewise</code></td><td>5</td><td>0.790</td><td>18.1%</td><td>83.4%</td><td>-139.9</td></tr>
-<tr><td><code>regime</code></td><td>5</td><td>0.790</td><td>18.1%</td><td>83.4%</td><td>-139.9</td></tr>
+<tr><td><code>regime/weighted</code></td><td>5</td><td>0.854</td><td>12.9%</td><td>69.9%</td><td>-258.3</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.853</td><td>13.2%</td><td>70.0%</td><td>-258.2</td></tr>
+<tr><td><code>regime/huber</code></td><td>5</td><td>0.853</td><td>13.2%</td><td>70.0%</td><td>-258.2</td></tr>
+<tr><td><code>piecewise/log</code></td><td>5</td><td>0.833</td><td>29.4%</td><td>72.8%</td><td>-255.2</td></tr>
+<tr><td><code>linear/huber</code></td><td>2</td><td>0.713</td><td>30.3%</td><td>74.0%</td><td>-248.2</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>0.724</td><td>29.1%</td><td>75.2%</td><td>-249.1</td></tr>
+<tr><td><code>regime/log</code></td><td>2</td><td>0.865</td><td>33.7%</td><td>76.4%</td><td>-266.3</td></tr>
+<tr><td><code>piecewise/weighted</code></td><td>5</td><td>0.860</td><td>14.4%</td><td>77.7%</td><td>-259.3</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.</p>
-<p><b>gloo<i>shm / all</i>gather / world 3</b> &amp;mdash; chosen family: <code>piecewise</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.8%</p>
+<p>The best family, <code>regime/weighted</code>, still misses its worst-fitting regime by 70% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p><b>gloo<i>shm / all</i>gather / world 3</b> &amp;mdash; chosen family: <code>piecewise/weighted</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.8%</p>
 <div class="scroll"><table><thead><tr>
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.889</td><td>28.0%</td><td>37.4%</td><td>-150.7</td></tr>
-<tr><td><code>piecewise</code> <b>&lt;-</b></td><td>5</td><td>0.992</td><td>5.7%</td><td>74.2%</td><td>-176.0</td></tr>
-<tr><td><code>regime</code></td><td>5</td><td>0.992</td><td>5.7%</td><td>74.2%</td><td>-176.0</td></tr>
+<tr><td><code>piecewise/weighted</code> <b>&lt;-</b></td><td>5</td><td>0.996</td><td>8.0%</td><td>11.5%</td><td>-325.9</td></tr>
+<tr><td><code>regime/weighted</code></td><td>5</td><td>0.996</td><td>9.3%</td><td>16.2%</td><td>-323.6</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.992</td><td>12.1%</td><td>16.2%</td><td>-306.6</td></tr>
+<tr><td><code>regime/huber</code></td><td>5</td><td>0.992</td><td>12.1%</td><td>16.2%</td><td>-306.6</td></tr>
+<tr><td><code>piecewise/log</code></td><td>5</td><td>0.993</td><td>11.1%</td><td>17.1%</td><td>-311.4</td></tr>
+<tr><td><code>regime/log</code></td><td>5</td><td>0.993</td><td>11.1%</td><td>17.1%</td><td>-311.4</td></tr>
+<tr><td><code>linear/log</code></td><td>2</td><td>0.934</td><td>22.2%</td><td>27.7%</td><td>-262.3</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>0.880</td><td>24.1%</td><td>31.0%</td><td>-247.9</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p><code>piecewise</code> wins on held-out error (5.7% median) against <code>linear</code> 28.0%, <code>regime</code> 5.7%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better.</p>
-<p><b>gloo<i>shm / all</i>gather / world 4</b> &amp;mdash; chosen family: <code>piecewise</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.5%</p>
+<p><code>piecewise/weighted</code> wins on worst-tier held-out error (11.5%) against <code>regime/weighted</code> 16.2%, <code>piecewise/huber</code> 16.2%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better.</p>
+<p><b>gloo<i>shm / all</i>gather / world 4</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 5.5%</p>
 <div class="scroll"><table><thead><tr>
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.721</td><td>17.3%</td><td>44.5%</td><td>-123.4</td></tr>
-<tr><td><code>piecewise</code> <b>&lt;-</b></td><td>5</td><td>0.944</td><td>10.6%</td><td>45.8%</td><td>-136.6</td></tr>
-<tr><td><code>regime</code></td><td>5</td><td>0.944</td><td>10.6%</td><td>45.8%</td><td>-136.6</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.972</td><td>16.6%</td><td>19.2%</td><td>-247.3</td></tr>
+<tr><td><code>regime/huber</code></td><td>5</td><td>0.972</td><td>16.6%</td><td>19.2%</td><td>-247.3</td></tr>
+<tr><td><code>piecewise/log</code></td><td>5</td><td>0.986</td><td>17.5%</td><td>22.9%</td><td>-264.4</td></tr>
+<tr><td><code>regime/log</code></td><td>5</td><td>0.986</td><td>17.5%</td><td>22.9%</td><td>-264.4</td></tr>
+<tr><td><code>piecewise/weighted</code></td><td>5</td><td>0.993</td><td>17.9%</td><td>24.2%</td><td>-279.4</td></tr>
+<tr><td><code>regime/weighted</code></td><td>5</td><td>0.993</td><td>17.9%</td><td>24.2%</td><td>-279.4</td></tr>
+<tr><td><code>linear/log</code></td><td>2</td><td>0.898</td><td>22.3%</td><td>28.6%</td><td>-222.1</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>0.775</td><td>24.8%</td><td>40.6%</td><td>-203.2</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p><code>piecewise</code> wins on held-out error (10.6% median) against <code>linear</code> 17.3%, <code>regime</code> 10.6%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better.</p>
+<p>The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 19% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
 <p><b>gloo<i>shm / all</i>reduce / world 2</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 8.6%</p>
 <div class="scroll"><table><thead><tr>
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.030</td><td>53.9%</td><td>93.4%</td><td>-117.2</td></tr>
-<tr><td><code>piecewise</code></td><td>5</td><td>0.976</td><td>28.4%</td><td>67.1%</td><td>-155.8</td></tr>
-<tr><td><code>regime</code></td><td>5</td><td>0.976</td><td>28.4%</td><td>67.1%</td><td>-155.8</td></tr>
+<tr><td><code>piecewise/weighted</code></td><td>5</td><td>0.865</td><td>21.8%</td><td>43.0%</td><td>-207.5</td></tr>
+<tr><td><code>regime/weighted</code></td><td>5</td><td>0.865</td><td>21.8%</td><td>43.0%</td><td>-207.5</td></tr>
+<tr><td><code>piecewise/log</code></td><td>5</td><td>0.670</td><td>22.9%</td><td>52.8%</td><td>-186.1</td></tr>
+<tr><td><code>regime/log</code></td><td>5</td><td>0.670</td><td>22.9%</td><td>52.8%</td><td>-186.1</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.361</td><td>21.8%</td><td>71.3%</td><td>-170.2</td></tr>
+<tr><td><code>regime/huber</code></td><td>5</td><td>0.361</td><td>21.8%</td><td>71.3%</td><td>-170.2</td></tr>
+<tr><td><code>linear/huber</code></td><td>2</td><td>-0.041</td><td>45.7%</td><td>154.6%</td><td>-164.5</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>-0.009</td><td>46.3%</td><td>155.6%</td><td>-165.2</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p>The best family, <code>piecewise/weighted</code>, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
 <p><b>gloo<i>shm / all</i>reduce / world 3</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 11.5%</p>
 <div class="scroll"><table><thead><tr>
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.391</td><td>50.5%</td><td>82.4%</td><td>-136.6</td></tr>
-<tr><td><code>piecewise</code></td><td>5</td><td>0.474</td><td>39.1%</td><td>89.6%</td><td>-132.4</td></tr>
-<tr><td><code>regime</code></td><td>2</td><td>0.391</td><td>50.5%</td><td>82.4%</td><td>-136.6</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.539</td><td>17.0%</td><td>43.2%</td><td>-219.8</td></tr>
+<tr><td><code>piecewise/weighted</code></td><td>5</td><td>0.546</td><td>22.7%</td><td>45.4%</td><td>-220.1</td></tr>
+<tr><td><code>regime/weighted</code></td><td>2</td><td>0.440</td><td>23.1%</td><td>50.5%</td><td>-221.1</td></tr>
+<tr><td><code>regime/huber</code></td><td>2</td><td>0.429</td><td>17.0%</td><td>51.5%</td><td>-220.6</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>0.440</td><td>22.9%</td><td>59.4%</td><td>-221.1</td></tr>
+<tr><td><code>linear/huber</code></td><td>2</td><td>0.429</td><td>25.0%</td><td>61.0%</td><td>-220.6</td></tr>
+<tr><td><code>regime/log</code></td><td>2</td><td>0.652</td><td>23.6%</td><td>75.1%</td><td>-232.5</td></tr>
+<tr><td><code>linear/log</code></td><td>2</td><td>0.652</td><td>36.2%</td><td>91.3%</td><td>-232.5</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p>The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
 <p><b>gloo<i>shm / all</i>reduce / world 4</b> &amp;mdash; chosen family: <code>none</code> &amp;nbsp;&amp;middot;&amp;nbsp; measurement noise floor 11.4%</p>
 <div class="scroll"><table><thead><tr>
 <th>Family</th>
 <th>params</th>
 <th>fit R²</th>
-<th>held-out median err</th>
-<th>held-out max err</th>
+<th>held-out median</th>
+<th><b>worst tier</b></th>
 <th>AIC</th>
 </tr></thead><tbody>
-<tr><td><code>linear</code></td><td>2</td><td>0.635</td><td>45.8%</td><td>89.5%</td><td>-143.1</td></tr>
-<tr><td><code>piecewise</code></td><td>5</td><td>0.686</td><td>39.3%</td><td>86.7%</td><td>-138.9</td></tr>
-<tr><td><code>regime</code></td><td>2</td><td>0.635</td><td>45.8%</td><td>89.5%</td><td>-143.1</td></tr>
+<tr><td><code>piecewise/huber</code></td><td>5</td><td>0.764</td><td>27.8%</td><td>53.3%</td><td>-233.0</td></tr>
+<tr><td><code>piecewise/weighted</code></td><td>5</td><td>0.769</td><td>27.9%</td><td>54.3%</td><td>-233.6</td></tr>
+<tr><td><code>linear/huber</code></td><td>2</td><td>0.677</td><td>24.0%</td><td>54.4%</td><td>-231.5</td></tr>
+<tr><td><code>regime/huber</code></td><td>2</td><td>0.677</td><td>11.9%</td><td>54.8%</td><td>-231.5</td></tr>
+<tr><td><code>linear/weighted</code></td><td>2</td><td>0.683</td><td>22.7%</td><td>54.8%</td><td>-232.0</td></tr>
+<tr><td><code>regime/weighted</code></td><td>2</td><td>0.683</td><td>16.8%</td><td>55.1%</td><td>-232.0</td></tr>
+<tr><td><code>piecewise/log</code></td><td>5</td><td>0.884</td><td>30.4%</td><td>67.4%</td><td>-250.2</td></tr>
+<tr><td><code>regime/log</code></td><td>2</td><td>0.818</td><td>29.3%</td><td>83.6%</td><td>-245.3</td></tr>
+<tr><td><i>1 further combinations</i></td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table></div>
-<p>The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
+<p>The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 53% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</p>
 <h5>Validation on untouched message sizes</h5>
 <div class="scroll"><table><thead><tr>
 <th>Collective</th>
@@ -184,12 +220,10 @@ color:var(--muted)}
 <th>covered</th>
 </tr></thead><tbody>
 <tr><td><code>gloo<i>shm/all</i>gather/world3</code></td><td>12.1%</td><td>52.5%</td><td>0.991</td><td>9.6%</td><td>15.8%</td><td>75%</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4</code></td><td>13.4%</td><td>63.0%</td><td>0.995</td><td>10.1%</td><td>16.1%</td><td>71%</td></tr>
 </tbody></table></div>
 <p>Errors by regime:</p>
 <ul>
 <li><code>gloo<i>shm/all</i>gather/world3</code>: tiny 6.1%, small 18.0%, medium 35.5%, large 8.3%</li>
-<li><code>gloo<i>shm/all</i>gather/world4</code>: tiny 4.6%, small 21.9%, medium 43.5%, large 4.9%</li>
 </ul>
 <h5>Parameters</h5>
 <div class="scroll"><table><thead><tr>
@@ -205,22 +239,18 @@ color:var(--muted)}
 <tr><td><code>gloo<i>shm/all</i>gather/world3/high<i>beta</i>gbs</code></td><td>0.242362 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
 <tr><td><code>gloo<i>shm/all</i>gather/world3/low<i>alpha</i>us</code></td><td>208.791 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
 <tr><td><code>gloo<i>shm/all</i>gather/world3/low<i>beta</i>gbs</code></td><td>0.407424 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/breakpoint_kib</code></td><td>3072 KiB</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/family</code></td><td>5 params</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/high<i>alpha</i>us</code></td><td>772.034 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/high<i>beta</i>gbs</code></td><td>0.14744 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/low<i>alpha</i>us</code></td><td>376.821 us</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
-<tr><td><code>gloo<i>shm/all</i>gather/world4/low<i>beta</i>gbs</code></td><td>0.281859 GB/s</td><td>accepted</td><td>thrust1-comm-v1 calibration</td></tr>
+<tr><td><code>gloo<i>shm/all</i>gather/world4/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
 <tr><td><code>gloo<i>shm/all</i>reduce/world2/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
 <tr><td><code>gloo<i>shm/all</i>reduce/world3/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
 <tr><td><code>gloo<i>shm/all</i>reduce/world4/alpha_us</code></td><td>nan us</td><td>diagnostic <b>not used</b></td><td>thrust1-comm-v1 family selection</td></tr>
 </tbody></table></div>
 <p>Parameters not used by the model, and why:</p>
 <ul>
-<li><code>gloo<i>shm/all</i>gather/world2/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.</li>
-<li><code>gloo<i>shm/all</i>reduce/world2/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
-<li><code>gloo<i>shm/all</i>reduce/world3/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
-<li><code>gloo<i>shm/all</i>reduce/world4/alpha_us</code>: The best family, <code>piecewise</code>, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>gather/world2/alpha_us</code>: The best family, <code>regime/weighted</code>, still misses its worst-fitting regime by 70% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>gather/world4/alpha_us</code>: The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 19% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>reduce/world2/alpha_us</code>: The best family, <code>piecewise/weighted</code>, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>reduce/world3/alpha_us</code>: The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
+<li><code>gloo<i>shm/all</i>reduce/world4/alpha_us</code>: The best family, <code>piecewise/huber</code>, still misses its worst-fitting regime by 53% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.</li>
 </ul>
 <h5>Limitations</h5>
 <ul>

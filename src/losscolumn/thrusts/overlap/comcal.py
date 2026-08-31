@@ -320,6 +320,12 @@ class CommStudy:
                 "ties within 10%."
             ),
             "quality_gate": {
+                "criterion": "worst-regime held-out relative error",
+                "why": (
+                    "a pooled median lets a family hide one useless regime behind "
+                    "three good ones, which is how a model 35% wrong in the medium "
+                    "tier was accepted"
+                ),
                 "max_heldout_median_relative_error": self.max_heldout_err,
                 "on_failure": "the parameters remain DIAGNOSTIC and are not promoted "
                               "into Fabric; the fit stays visible in the report",
@@ -490,7 +496,7 @@ def run_analysis(study: CommStudy, *, max_heldout_err: float | None = None) -> C
         nf = next((d.replicate_cv for d in study.diagnoses
                    if d.kind == kind and d.world == world), float("nan"))
         sel = select_model(fit_pts, held_pts, transport="gloo_shm", kind=kind,
-                           world=world, noise_floor=nf,
+                           world=world, noise_floor=nf, tier_fn=tier_of,
                            max_heldout_median_err=study.max_heldout_err)
         study.selections[key] = sel
 
@@ -509,9 +515,10 @@ def run_analysis(study: CommStudy, *, max_heldout_err: float | None = None) -> C
             fit_regime,
         )
 
+        fam, _, lname = sel.chosen_family.partition("/")
         builder = {"linear": fit_linear, "piecewise": fit_piecewise,
-                   "regime": fit_regime}[sel.chosen_family]
-        final = builder(cal)
+                   "regime": fit_regime}[fam]
+        final = builder(cal, loss=lname or "weighted")
         if final is None:
             continue
         study.split.record_fit(key)

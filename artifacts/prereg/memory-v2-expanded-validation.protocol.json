@@ -1,0 +1,59 @@
+{
+  "kind": "memory-validation-protocol",
+  "study": "thrust1-memory-v2-expanded-validation",
+  "sealed_at": "2026-08-31T04:04:08Z",
+  "validates": "block-memory-v2",
+  "model_frozen": true,
+  "fitting_permitted": false,
+  "fitting_policy": "Nothing is fitted. block-memory-v2 is frozen and its parameters are asserted by test. A disagreement found here is a finding about the model's range of validity, recorded and carried; it is not licence to retune, because a model retuned on the data that found its limits has been fitted by them.",
+  "axes": {
+    "sequence_lengths": [
+      512,
+      768,
+      1024,
+      1536,
+      2048,
+      2560,
+      3072,
+      3584,
+      4096
+    ],
+    "micro_batches": [
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "checkpointing": [
+      false,
+      true
+    ],
+    "precision": [
+      "float16",
+      "float32"
+    ],
+    "budget_fractions": [
+      0.35,
+      0.6,
+      0.92
+    ]
+  },
+  "capacity_method": "torch.cuda.set_per_process_memory_fraction. The cap is a real allocator budget, so a lower fraction makes the device behave as a smaller one. This reaches the 'another memory capacity' axis without a second card, and does not reach 'another GPU' -- allocator behaviour, context cost and fragmentation are properties of this device and driver.",
+  "disjointness": "every cell carries its precision and budget in the key, so no cell here repeats a question the calibration or first validation grid already answered; shapes that coincide at fp16 and 0.92 are excluded explicitly as well",
+  "metrics": [
+    "false_win",
+    "false_loss",
+    "infeasible_iou",
+    "boundary_displacement",
+    "dangerous_error_score"
+  ],
+  "acceptance": "zero false wins, as at v0.3.0-memory-v2",
+  "seal_hash": "sha256:90e6c61137af26617b5ef70fe96ba05a4e5c31f75351643ac603c06457da9cf6"
+}

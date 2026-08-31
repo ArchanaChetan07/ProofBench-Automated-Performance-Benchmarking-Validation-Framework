@@ -23,7 +23,29 @@ from losscolumn.version import STANDARD_VERSION
 
 class TestFrozenRegistry:
     def test_standard_version(self):
-        assert STANDARD_VERSION == "LC-1.0"
+        assert STANDARD_VERSION == "LC-1.1"
+
+    def test_lc_1_0_is_not_edited(self):
+        """LC-1.1 adds rules. It does not touch the ones 1.0 defined.
+
+        A claim graded `conforming` under 1.0 must go on meaning what it meant,
+        so 1.0's table is hashed independently of whatever 1.1 adds and that
+        hash is pinned here.
+        """
+        assert registry.compute_lc_1_0_digest() == registry.LC_1_0_DIGEST, (
+            "the LC-1.0 rule table changed. 1.0 is frozen: add rules to "
+            "LC_1_1_ADDITIONS instead of editing LC_1_0_RULES."
+        )
+
+    def test_lc_1_1_only_adds(self):
+        old = {r.id for r in registry.LC_1_0_RULES}
+        new = {r.id for r in registry.LC_1_1_ADDITIONS}
+        assert not (old & new), "LC-1.1 redefines an LC-1.0 rule id"
+        assert set(registry.RULES) == old | new
+
+    def test_every_lc_1_0_severity_is_unchanged(self):
+        for r in registry.LC_1_0_RULES:
+            assert registry.RULES[r.id].severity == r.severity, r.id
 
     def test_registry_digest_is_frozen(self):
         """If this fails, a rule id or severity changed.
@@ -38,8 +60,10 @@ class TestFrozenRegistry:
         )
 
     def test_rule_count(self):
-        assert registry.N_RULES == 47
-        assert registry.N_FATAL == 28
+        assert registry.N_RULES == 54
+        assert registry.N_FATAL == 34
+        assert len(registry.LC_1_0_RULES) == 47
+        assert len(registry.LC_1_1_ADDITIONS) == 7
 
     @pytest.mark.parametrize(
         "rule_id,severity",
@@ -61,6 +85,14 @@ class TestFrozenRegistry:
             ("LC-5.4", registry.FATAL),
             ("LC-Q1", registry.WARNING),
             ("LC-Q6", registry.FATAL),
+            # LC-1.1
+            ("LC-6.1", registry.FATAL),
+            ("LC-6.2", registry.FATAL),
+            ("LC-6.3", registry.FATAL),
+            ("LC-7.1", registry.FATAL),
+            ("LC-7.2", registry.FATAL),
+            ("LC-7.3", registry.FATAL),
+            ("LC-7.4", registry.WARNING),
         ],
     )
     def test_severity_is_pinned(self, rule_id, severity):
@@ -126,8 +158,9 @@ class TestFrozenSchemas:
 class TestBaselinesConform:
     @pytest.mark.parametrize(
         "builder",
-        [adv.conforming_claim, adv.conforming_tuned_claim, adv.conforming_simulated_claim],
-        ids=["measured", "tuned", "simulated"],
+        [adv.conforming_claim, adv.conforming_tuned_claim,
+         adv.conforming_simulated_claim, adv.conforming_model_claim],
+        ids=["measured", "tuned", "simulated", "model"],
     )
     def test_baseline_is_clean(self, builder):
         rep = validate_claim(builder())
@@ -159,6 +192,8 @@ class TestAdversarialCorpus:
     def test_the_nine_named_defects_are_all_fatal(self):
         """The freeze request named nine defects and required all to be fatal."""
         named = {
+            "feasibility-sentinel", "host-fallback-counted-as-fit",
+            "calibration-validation-leakage", "rejected-parameter-used",
             "insufficient-replicates", "bh-impossible-power", "inverted-tost-bounds",
             "mde-differs-from-seal", "simulated-unlabeled",
             "tuned-baseline-called-default", "unsupported-headline", "dirty-tree",

@@ -207,7 +207,7 @@ class RegimeModel(CostModel):
 # --------------------------------------------------------------------------
 
 
-def _ols(samples: Sequence[Sample]) -> LinearModel | None:
+def _ols(samples: Sequence[Sample], *, loss: str = "weighted") -> LinearModel | None:
     """Fit ``t = alpha + n/beta``, weighted for proportional error.
 
     Unweighted least squares minimises absolute residuals, so on a log-spaced
@@ -226,19 +226,71 @@ def _ols(samples: Sequence[Sample]) -> LinearModel | None:
     y = np.array([s.seconds for s in samples], dtype=float)
     if np.ptp(x) <= 0 or not (y > 0).all():
         return None
-    w = 1.0 / y
-    slope, intercept = np.polyfit(x, y, 1, w=w)
+    if loss == "weighted":
+        slope, intercept = np.polyfit(x, y, 1, w=1.0 / y)
+    elif loss in ("log", "huber"):
+        fitted = _fit_nonlinear(x, y, loss=loss)
+        if fitted is None:
+            return None
+        intercept, slope = fitted
+    else:
+        raise ValueError(f"unknown loss {loss!r}")
     if slope <= 0:
         return None
     return LinearModel(alpha_s=max(intercept, 0.0), beta_bytes_per_s=1.0 / slope)
 
 
-def fit_linear(samples: Sequence[Sample]) -> LinearModel | None:
-    return _ols(samples)
+def _fit_nonlinear(x: np.ndarray, y: np.ndarray, *, loss: str
+                   ) -> tuple[float, float] | None:
+    """Fit alpha and the slope under a log-relative or robust loss.
+
+    ``log``   minimises squared error in log time, which is the exact form of
+              "get every message size equally right" rather than the 1/t
+              weighting's approximation to it.
+    ``huber`` uses a soft-L1 loss on relative residuals, so a single
+              pathological point -- a scheduling hiccup on one repeat -- moves
+              the fit far less than it would under least squares.
+
+    Both need an iterative solver. Where SciPy is unavailable the weighted
+    linear fit is returned instead, and the caller records which was used.
+    """
+    try:
+        from scipy.optimize import least_squares
+    except Exception:
+        return None
+
+    slope0, inter0 = np.polyfit(x, y, 1, w=1.0 / y)
+    if slope0 <= 0:
+        return None
+
+    def resid(theta: np.ndarray) -> np.ndarray:
+        a, b = theta
+        pred = np.maximum(a + b * x, 1e-12)
+        if loss == "log":
+            return np.log(pred) - np.log(y)
+        return (pred - y) / y
+
+    try:
+        out = least_squares(
+            resid, x0=np.array([max(inter0, 1e-9), slope0]),
+            loss="soft_l1" if loss == "huber" else "linear",
+            bounds=(np.array([0.0, 1e-18]), np.array([np.inf, np.inf])),
+            max_nfev=2000,
+        )
+    except Exception:
+        return None
+    if not out.success:
+        return None
+    return float(out.x[0]), float(out.x[1])
 
 
-def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3
-                  ) -> PiecewiseModel | None:
+def fit_linear(samples: Sequence[Sample], *, loss: str = "weighted"
+               ) -> LinearModel | None:
+    return _ols(samples, loss=loss)
+
+
+def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3,
+                  loss: str = "weighted") -> PiecewiseModel | None:
     """Fit two regimes, choosing the breakpoint by exhaustive search.
 
     The breakpoint is a real physical quantity -- the size at which the
@@ -251,7 +303,7 @@ def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3
     best: tuple[float, PiecewiseModel] | None = None
     for i in range(min_per_side, len(ordered) - min_per_side + 1):
         lo, hi = ordered[:i], ordered[i:]
-        ml, mh = _ols(lo), _ols(hi)
+        ml, mh = _ols(lo, loss=loss), _ols(hi, loss=loss)
         if ml is None or mh is None:
             continue
         bp = (ordered[i - 1].effective_bytes + ordered[i].effective_bytes) / 2
@@ -262,28 +314,61 @@ def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3
     return best[1] if best else None
 
 
-def fit_regime(samples: Sequence[Sample], *, max_segments: int = 3,
-               min_per_side: int = 3) -> RegimeModel | None:
-    """Greedy segmentation: split the worst-fitting segment until it stops paying.
+def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
+               min_per_side: int = 3, loss: str = "weighted") -> RegimeModel | None:
+    """Segment the size range into up to ``max_segments`` linear regimes.
 
-    Stops on AIC rather than on residual, so each extra pair of parameters has
-    to earn itself.
+    Greedy top-down: repeatedly split the segment whose residual is worst,
+    keeping the split only if it lowers AIC. That matters because a transport
+    can have more than one transition -- a latency-to-bandwidth crossover at the
+    small end and a cache-to-DRAM crossover higher up -- and the two-segment
+    model this replaced could express only one of them, so it placed its single
+    breakpoint between them and fitted neither side of the middle.
+
+    The measured signature of that case is a *non-monotonic* effective
+    bandwidth: it rises out of the latency floor, peaks where the buffer still
+    fits in cache, and falls again once it does not. No two-segment model can
+    reproduce a peak.
     """
     ordered = sorted(samples, key=lambda s: s.effective_bytes)
-    base = _ols(ordered)
+    base = _ols(ordered, loss=loss)
     if base is None:
         return None
-    current = RegimeModel(edges=(), segments=(base,))
-    for _ in range(max_segments - 1):
-        pw = fit_piecewise(ordered, min_per_side=min_per_side)
-        if pw is None:
+
+    # Each entry is (slice_of_ordered, fitted_model).
+    segs: list[tuple[list[Sample], LinearModel]] = [(list(ordered), base)]
+
+    def rss_of(pieces: list[tuple[list[Sample], LinearModel]]) -> float:
+        return float(sum(np.sum(m.residuals(g) ** 2) for g, m in pieces))
+
+    def build(pieces: list[tuple[list[Sample], LinearModel]]) -> RegimeModel:
+        edges = tuple(
+            (pieces[i][0][-1].effective_bytes + pieces[i + 1][0][0].effective_bytes) / 2
+            for i in range(len(pieces) - 1)
+        )
+        return RegimeModel(edges=edges, segments=tuple(m for _, m in pieces))
+
+    current = build(segs)
+    while len(segs) < max_segments:
+        best: tuple[float, int, list[tuple[list[Sample], LinearModel]]] | None = None
+        for i, (group, _) in enumerate(segs):
+            if len(group) < 2 * min_per_side:
+                continue
+            for k in range(min_per_side, len(group) - min_per_side + 1):
+                lo, hi = group[:k], group[k:]
+                ml, mh = _ols(lo, loss=loss), _ols(hi, loss=loss)
+                if ml is None or mh is None:
+                    continue
+                trial = segs[:i] + [(lo, ml), (hi, mh)] + segs[i + 1:]
+                r = rss_of(trial)
+                if best is None or r < best[0]:
+                    best = (r, i, trial)
+        if best is None:
             break
-        cand = RegimeModel(edges=(pw.breakpoint_bytes,), segments=(pw.low, pw.high))
-        if cand.aic(ordered) >= current.aic(ordered):
+        candidate = build(best[2])
+        if candidate.aic(ordered) >= current.aic(ordered):
             break
-        current = cand
-        break   # a second split needs per-segment recursion; two regimes is the
-                # honest limit of what this many points can support
+        segs, current = best[2], candidate
     return current
 
 
@@ -327,18 +412,114 @@ class ModelSelection:
             + (f" &nbsp;&middot;&nbsp; measurement noise floor "
                f"{self.noise_floor:.1%}" if self.noise_floor == self.noise_floor else ""),
             "",
-            "| Family | params | fit R² | held-out median err | held-out max err | AIC |",
+            "| Family | params | fit R² | held-out median | **worst tier** | AIC |",
             "|---|---|---|---|---|---|",
         ]
-        for c in self.candidates:
+        ranked = sorted(
+            self.candidates,
+            key=lambda c: c.get("heldout_worst_tier_err", float("inf"))
+            if c.get("heldout_worst_tier_err") == c.get("heldout_worst_tier_err")
+            else float("inf"),
+        )
+        for c in ranked[:8]:
             mark = " **<-**" if c["family"] == self.chosen_family else ""
+            worst = c.get("heldout_worst_tier_err", float("nan"))
             lines.append(
                 f"| `{c['family']}`{mark} | {c['n_params']} | {c['fit_r2']:.3f} | "
-                f"{c['heldout_median_rel_err']:.1%} | {c['heldout_max_rel_err']:.1%} | "
+                f"{c['heldout_median_rel_err']:.1%} | {worst:.1%} | "
                 f"{c['aic']:.1f} |"
             )
+        if len(ranked) > 8:
+            lines.append(f"| _{len(ranked) - 8} further combinations_ | | | | | |")
         lines += ["", self.reason]
         return "\n".join(lines)
+
+
+
+
+def cross_validate(
+    samples: Sequence[Sample],
+    build: Any,
+    *,
+    k: int = 4,
+    tier_fn: Any = None,
+) -> dict[str, Any]:
+    """K-fold cross-validation over message sizes, stratified by regime.
+
+    A single nested hold-out leaves about one size per regime, and a
+    worst-regime score computed on one point is mostly noise -- pessimistic
+    when that point is unlucky, optimistic when it is not. Cross-validation
+    uses every calibration size as held-out exactly once, so each regime gets
+    as many out-of-sample predictions as it has sizes.
+
+    Folds are assigned by round-robin over size *within* each regime, so no
+    fold can be missing a regime entirely, which would make its worst-regime
+    score incomparable with the others.
+    """
+    sizes = sorted({s.effective_bytes for s in samples})
+    if len(sizes) < 2 * k:
+        k = max(2, len(sizes) // 2)
+    if len(sizes) < 4:
+        return {"ok": False, "reason": "too few distinct sizes to cross-validate"}
+
+    by_tier: dict[str, list[float]] = {}
+    for x in sizes:
+        raw = next((s.nbytes for s in samples if s.effective_bytes == x), int(x))
+        by_tier.setdefault(str(tier_fn(raw)) if tier_fn else "all", []).append(x)
+
+    fold_of: dict[float, int] = {}
+    for group in by_tier.values():
+        for i, x in enumerate(sorted(group)):
+            fold_of[x] = i % k
+
+    errs: list[float] = []
+    per_tier: dict[str, list[float]] = {}
+    n_fitted = 0
+    for f in range(k):
+        train = [s for s in samples if fold_of.get(s.effective_bytes, 0) != f]
+        test = [s for s in samples if fold_of.get(s.effective_bytes, 0) == f]
+        if not train or not test:
+            continue
+        try:
+            model = build(train)
+        except Exception:
+            model = None
+        if model is None:
+            continue
+        n_fitted += 1
+        for t in test:
+            if t.seconds <= 0:
+                continue
+            e = abs(model.predict(t.effective_bytes) - t.seconds) / t.seconds
+            errs.append(e)
+            tier = str(tier_fn(t.nbytes)) if tier_fn else "all"
+            per_tier.setdefault(tier, []).append(e)
+
+    if not errs or n_fitted < 2:
+        return {"ok": False, "reason": "the family could not be fitted on enough folds"}
+    tier_medians = {t: float(np.median(v)) for t, v in per_tier.items()}
+    return {
+        "ok": True,
+        "k": k,
+        "n_folds_fitted": n_fitted,
+        "n_predictions": len(errs),
+        "median_rel_err": float(np.median(errs)),
+        "max_rel_err": float(np.max(errs)),
+        "per_tier_err": tier_medians,
+        "worst_tier_err": max(tier_medians.values()) if tier_medians else float("nan"),
+        "n_per_tier": {t: len(v) for t, v in per_tier.items()},
+    }
+
+
+def _per_tier_error(model: CostModel, samples: Sequence[Sample],
+                    tier_fn: Any) -> dict[str, float]:
+    """Median relative error within each size regime."""
+    if tier_fn is None or not samples:
+        return {}
+    groups: dict[str, list[Sample]] = {}
+    for s in samples:
+        groups.setdefault(str(tier_fn(s.nbytes)), []).append(s)
+    return {t: model.median_rel_error(g) for t, g in groups.items() if g}
 
 
 def select_model(
@@ -350,6 +531,8 @@ def select_model(
     world: int = 0,
     noise_floor: float = float("nan"),
     max_heldout_median_err: float = 0.15,
+    tier_fn: Any = None,
+    losses: Sequence[str] = ("weighted", "log", "huber"),
 ) -> ModelSelection:
     """Choose the family by held-out error, not by fit quality.
 
@@ -362,13 +545,21 @@ def select_model(
     sel = ModelSelection(transport=transport, kind=kind, world=world,
                          noise_floor=noise_floor,
                          n_fit=len(fit_samples), n_heldout=len(heldout_samples))
-    builders = (
-        ("linear", fit_linear),
-        ("piecewise", fit_piecewise),
-        ("regime", fit_regime),
-    )
+    # Each family is tried under each loss. A family that only wins under one
+    # estimator is telling you about the estimator, and the report shows both.
+    builders: list[tuple[str, Any]] = []
+    for lname in losses:
+        builders += [
+            (f"linear/{lname}", lambda s, ln=lname: fit_linear(s, loss=ln)),
+            (f"piecewise/{lname}", lambda s, ln=lname: fit_piecewise(s, loss=ln)),
+            (f"regime/{lname}", lambda s, ln=lname: fit_regime(s, loss=ln)),
+        ]
     best: tuple[float, CostModel, str] | None = None
+    # Every point the selector is allowed to see, used through cross-validation
+    # rather than a single nested split.
+    pool = list(fit_samples) + list(heldout_samples)
     for name, build in builders:
+        cv = cross_validate(pool, build, tier_fn=tier_fn)
         try:
             model = build(fit_samples)
         except Exception:
@@ -384,17 +575,26 @@ def select_model(
         entry = {
             "family": name,
             "n_params": model.n_params,
-            "fit_r2": model.r_squared(fit_samples),
-            "heldout_r2": model.r_squared(heldout_samples) if heldout_samples else float("nan"),
-            "heldout_median_rel_err": model.median_rel_error(heldout_samples)
-            if heldout_samples else float("nan"),
-            "heldout_max_rel_err": model.max_rel_error(heldout_samples)
-            if heldout_samples else float("nan"),
-            "aic": model.aic(fit_samples),
+            "fit_r2": model.r_squared(pool),
+            "cv_ok": cv.get("ok", False),
+            "cv_note": cv.get("reason", ""),
+            "heldout_median_rel_err": cv.get("median_rel_err", float("nan")),
+            "heldout_max_rel_err": cv.get("max_rel_err", float("nan")),
+            "heldout_per_tier_err": cv.get("per_tier_err", {}),
+            "heldout_worst_tier_err": cv.get("worst_tier_err", float("nan")),
+            "cv_n_predictions": cv.get("n_predictions", 0),
+            "cv_n_per_tier": cv.get("n_per_tier", {}),
+            "aic": model.aic(pool),
             "model": model.to_dict(),
         }
         sel.candidates.append(entry)
-        score = entry["heldout_median_rel_err"]
+        # Selection is on the WORST tier, not the pooled median. Pooling lets a
+        # family win by being excellent on the tiers with the most points while
+        # being useless on one regime -- which is exactly how a model that was
+        # 35% wrong in the medium tier came to be accepted.
+        score = (entry["heldout_worst_tier_err"]
+                 if entry["heldout_per_tier_err"]
+                 else entry["heldout_median_rel_err"])
         if math.isfinite(score) and (best is None or score < best[0]):
             best = (score, model, name)
 
@@ -410,7 +610,7 @@ def select_model(
             math.isfinite(noise_floor) and score <= noise_floor * 1.5
         )
         sel.reason = (
-            f"The best family, `{name}`, still misses held-out points by a median of "
+            f"The best family, `{name}`, still misses its worst-fitting regime by "
             f"{score:.0%} (gate: {max_heldout_median_err:.0%}). No family here "
             f"describes this transport, so none is promoted; all remain diagnostic. "
             "Widening the gate to admit one would be choosing the answer."
@@ -438,17 +638,18 @@ def select_model(
         )
         for c in sel.candidates:
             if c["family"] == pick["family"]:
-                rebuilt = dict(builders)[pick["family"]](fit_samples)
+                rebuilt = dict(builders)[pick["family"]](pool)
                 sel.chosen, sel.chosen_family = rebuilt, pick["family"]
         return sel
 
     sel.reason = (
-        f"`{name}` wins on held-out error ({score:.1%} median) against "
+        f"`{name}` wins on worst-tier held-out error ({score:.1%}) against "
         + ", ".join(
-            f"`{c['family']}` {c['heldout_median_rel_err']:.1%}"
-            for c in sel.candidates
-            if c["family"] != name and math.isfinite(
-                c.get("heldout_median_rel_err", float("nan")))
+            f"`{c['family']}` {c.get('heldout_worst_tier_err', float('nan')):.1%}"
+            for c in sorted(
+                sel.candidates,
+                key=lambda c: c.get("heldout_worst_tier_err", float("inf")))[:3]
+            if c["family"] != name
         )
         + ". The decision is held-out error, not fit quality: a more flexible family "
           "always fits its own data better."

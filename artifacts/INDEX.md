@@ -1,6 +1,6 @@
 # Artifact index
 
-Generated 2026-08-31T02:53:52Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
+Generated 2026-08-31T04:16:16Z by `losscolumn index`. Do not edit: an index maintained by hand drifts from the files it describes, and an index that lists an artifact nobody produced is the kind of unfalsifiable furniture this project exists to argue against.
 
 **4 claims** &mdash; 2 conforming, 2 measured, 2 simulated.
 
@@ -8,7 +8,7 @@ Generated 2026-08-31T02:53:52Z by `losscolumn index`. Do not edit: an index main
 
 ## STANDARD
 
-LC-1483dc1b908f... &mdash; **47 rules**, 28 fatal.
+LC-c167b1a695a8... &mdash; **54 rules**, 34 fatal.
 
 | Document | What it is |
 |---|---|
@@ -17,8 +17,8 @@ LC-1483dc1b908f... &mdash; **47 rules**, 28 fatal.
 | [`adversarial-corpus.json`](standard/adversarial-corpus.json) | Deliberately defective artifacts, for checking another implementation |
 | [`schema/`](standard/schema) | The four frozen document shapes as JSON Schema |
 
-Registry digest `sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3`  
-Schema digest `sha256:0a5260d50e842389dcd01008f1cfba0cdb3bda1aa54b6ce32a099c8dea52b9ea`
+Registry digest `sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684`  
+Schema digest `sha256:49729bd2610b893b183ba5aa27a7df0f7a6319ea496c9265ae172b43a595f529`
 
 Both are asserted by `tests/test_standard_frozen.py`. Changing a rule id or a severity fails that test, which makes a version bump a deliberate act rather than an edit that slips through.
 

@@ -1,8 +1,8 @@
 # Validator coverage matrix -- LC-1.0
 
-Registry digest `sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3` &mdash; 47 rules, 28 fatal.
+Registry digest `sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684` &mdash; 54 rules, 34 fatal.
 
-**47/47** rules have both a passing and a failing case. The corpus contains 46 deliberately defective artifacts.
+**54/54** rules have both a passing and a failing case. The corpus contains 53 deliberately defective artifacts.
 
 A rule with no failing case is a rule nobody has shown can fire. Where that is structural, the reason is given.
 
@@ -49,6 +49,13 @@ A rule with no failing case is a rule nobody has shown can fire. Where that is s
 | `LC-5.5` | One-command reproduction | warning | yes | yes |  |
 | `LC-5.6` | One-command reproduction | fatal | yes | yes |  |
 | `LC-5.7` | One-command reproduction | warning | yes | yes |  |
+| `LC-6.1` | Semantic state | fatal | yes | yes |  |
+| `LC-6.2` | Semantic state | fatal | yes | yes |  |
+| `LC-6.3` | Semantic state | fatal | yes | yes |  |
+| `LC-7.1` | Model validation | fatal | yes | yes |  |
+| `LC-7.2` | Model validation | fatal | yes | yes |  |
+| `LC-7.3` | Model validation | fatal | yes | yes |  |
+| `LC-7.4` | Model validation | warning | yes | yes |  |
 | `LC-Q1` | Measurement quality | warning | yes | yes |  |
 | `LC-Q2` | Measurement quality | warning | yes | yes |  |
 | `LC-Q3` | Measurement quality | warning | yes | yes |  |
@@ -70,6 +77,13 @@ A rule with no failing case is a rule nobody has shown can fire. Where that is s
 | `unsupported-headline` | `LC-3.7` | The headline reports a worst case of -4% while the loss column contains a region at -24%. |
 | `dirty-tree` | `LC-5.4` | Produced from a modified working tree, so the pinned commit does not identify the code that ran. |
 | `unsupported-loss-region` | `LC-1.9` | A region asserted as a loss whose q-value exceeds the threshold the claim itself declares, and whose worst case is milder than its own median. |
+| `feasibility-sentinel` | `LC-6.1` | An out-of-memory configuration encoded as a throughput of zero rather than as a state. Comparison paths skip zero-valued cells, so the prediction disappears from the map. |
+| `unrun-cell-carries-a-number` | `LC-6.2` | A cell recorded as infeasible that nonetheless carries a throughput, collapsing 'did not run' into 'ran and measured zero'. |
+| `host-fallback-counted-as-fit` | `LC-6.3` | A run served from host memory counted as device-feasible. It completed; it did not fit. |
+| `calibration-validation-leakage` | `LC-7.1` | A cell used to choose a parameter also offered as evidence that the parameter was right. |
+| `never-frozen-model` | `LC-7.2` | Parameters fitted with no freeze recorded, so nothing distinguishes the validation data from the training data. |
+| `rejected-parameter-used` | `LC-7.3` | A parameter that failed its quality gate marked usable, so a rejected fit feeds an active model. |
+| `pooled-error-over-log-domain` | `LC-7.4` | A fit spanning four orders of magnitude in message size, reporting only a pooled error. One useless regime hides behind three good ones. |
 | `wrong-standard-version` | `LC-0.1` | Declares a revision the validator does not implement. |
 | `no-loss-column` | `LC-1.1` | Ships no loss column at all. |
 | `losses-without-regions` | `LC-1.2` | Reports losing cells but describes no region. |

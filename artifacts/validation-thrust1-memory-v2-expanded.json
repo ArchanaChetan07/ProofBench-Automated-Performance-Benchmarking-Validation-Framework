@@ -1,0 +1,4302 @@
+{
+  "study": "thrust1-memory-v2-expanded-validation",
+  "device": "NVIDIA T1000 8GB (sm_75, 9 GB)",
+  "total_bytes": 8589606912,
+  "protocol": {
+    "kind": "memory-validation-protocol",
+    "study": "thrust1-memory-v2-expanded-validation",
+    "sealed_at": "2026-08-31T04:04:08Z",
+    "validates": "block-memory-v2",
+    "model_frozen": true,
+    "fitting_permitted": false,
+    "fitting_policy": "Nothing is fitted. block-memory-v2 is frozen and its parameters are asserted by test. A disagreement found here is a finding about the model's range of validity, recorded and carried; it is not licence to retune, because a model retuned on the data that found its limits has been fitted by them.",
+    "axes": {
+      "sequence_lengths": [
+        512,
+        768,
+        1024,
+        1536,
+        2048,
+        2560,
+        3072,
+        3584,
+        4096
+      ],
+      "micro_batches": [
+        8,
+        12,
+        16,
+        24,
+        32,
+        48,
+        64,
+        96,
+        128,
+        192,
+        256
+      ],
+      "checkpointing": [
+        false,
+        true
+      ],
+      "precision": [
+        "float16",
+        "float32"
+      ],
+      "budget_fractions": [
+        0.35,
+        0.6,
+        0.92
+      ]
+    },
+    "capacity_method": "torch.cuda.set_per_process_memory_fraction. The cap is a real allocator budget, so a lower fraction makes the device behave as a smaller one. This reaches the 'another memory capacity' axis without a second card, and does not reach 'another GPU' -- allocator behaviour, context cost and fragmentation are properties of this device and driver.",
+    "disjointness": "every cell carries its precision and budget in the key, so no cell here repeats a question the calibration or first validation grid already answered; shapes that coincide at fp16 and 0.92 are excluded explicitly as well",
+    "metrics": [
+      "false_win",
+      "false_loss",
+      "infeasible_iou",
+      "boundary_displacement",
+      "dangerous_error_score"
+    ],
+    "acceptance": "zero false wins, as at v0.3.0-memory-v2",
+    "seal_hash": "sha256:90e6c61137af26617b5ef70fe96ba05a4e5c31f75351643ac603c06457da9cf6"
+  },
+  "preflight": {
+    "0.35": {
+      "label": "budget 35%",
+      "n_cells": 20,
+      "n_predicted_feasible": 15,
+      "n_predicted_infeasible": 5,
+      "n_boundary": 12,
+      "boundary_threshold": 0.25,
+      "informative": true,
+      "can_classify": true,
+      "reasons": [],
+      "cells": [
+        {
+          "cell": [
+            12,
+            3584,
+            false,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.022566472899657127,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            16,
+            3584,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.048672537473794714,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            96,
+            512,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05472278397371234,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            64,
+            768,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05472278397371234,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            48,
+            1024,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05472278397371234,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            32,
+            1536,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05472278397371234,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.9687994280761449,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.9419898400548943,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            false,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.783069743436001,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float16",
+            0.35
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.65243196749653,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            48,
+            512,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            32,
+            768,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            24,
+            1024,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            16,
+            1536,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            12,
+            2048,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            2560,
+            false,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.043888714412575115,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.8177680171106617,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.7721004025326664,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            false,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 3.4663449484324786,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float32",
+            0.35
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 3.3343217076395106,
+          "near_boundary": false
+        }
+      ]
+    },
+    "0.6": {
+      "label": "budget 60%",
+      "n_cells": 20,
+      "n_predicted_feasible": 6,
+      "n_predicted_infeasible": 14,
+      "n_boundary": 12,
+      "boundary_threshold": 0.25,
+      "informative": true,
+      "can_classify": true,
+      "reasons": [],
+      "cells": [
+        {
+          "cell": [
+            32,
+            3584,
+            true,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.03298764707764935,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            24,
+            3584,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05201375476450321,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            192,
+            512,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.05600331520651249,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            128,
+            768,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.05600331520651249,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            96,
+            1024,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.05600331520651249,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            64,
+            1536,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.05600331520651249,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.507795928808832,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.4809863407875812,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.244073242703314,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float16",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.113435466763843,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            16,
+            3584,
+            true,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.03879141566949567,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            12,
+            3584,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.04569670704000403,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            96,
+            512,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06167540544052634,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            64,
+            768,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06167540544052634,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            48,
+            1024,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06167540544052634,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            32,
+            1536,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06167540544052634,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.3567645178433487,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.3110969032653534,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.9273484476997917,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float32",
+            0.6
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.7953252069068237,
+          "near_boundary": false
+        }
+      ]
+    },
+    "0.92": {
+      "label": "budget 92%",
+      "n_cells": 20,
+      "n_predicted_feasible": 11,
+      "n_predicted_infeasible": 9,
+      "n_boundary": 12,
+      "boundary_threshold": 0.25,
+      "informative": true,
+      "can_classify": true,
+      "reasons": [],
+      "cells": [
+        {
+          "cell": [
+            192,
+            768,
+            false,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.028169554004971065,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            48,
+            3584,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.05268035246508577,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            256,
+            768,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06427415097260275,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            64,
+            2560,
+            false,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06427415097260275,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            48,
+            4096,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.06427415097260275,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            64,
+            2560,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.0949159453964337,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            768,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.8695172842169638,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            12,
+            512,
+            true,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.8695172842169638,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 1.6859914519369035,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            192,
+            4096,
+            false,
+            "float16",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 1.535685948881487,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            96,
+            768,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.02414220000354559,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            48,
+            1536,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.02414220000354559,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            24,
+            3072,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.02414220000354559,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            24,
+            3584,
+            true,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.048553271017638254,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            192,
+            512,
+            true,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.0679465439037524,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            128,
+            768,
+            true,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 0.0679465439037524,
+          "near_boundary": true
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.7842085326702886,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.738540918092293,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.499904432872852,
+          "near_boundary": false
+        },
+        {
+          "cell": [
+            256,
+            3584,
+            false,
+            "float32",
+            0.92
+          ],
+          "predicted_feasible": false,
+          "boundary_distance": 2.367881192079884,
+          "near_boundary": false
+        }
+      ]
+    }
+  },
+  "result": {
+    "n_total": 60,
+    "n_comparable": 60,
+    "n_excluded": 0,
+    "excluded_by_status": {},
+    "confusion": {
+      "predicted_feasible": {
+        "measured_feasible": 32,
+        "measured_infeasible": 0
+      },
+      "predicted_infeasible": {
+        "measured_feasible": 10,
+        "measured_infeasible": 18
+      }
+    },
+    "counts": {
+      "correct_feasible": 32,
+      "correct_infeasible": 18,
+      "false_win": 0,
+      "false_loss": 10
+    },
+    "rates": {
+      "accuracy": 0.8333333333333334,
+      "false_win_rate": 0.0,
+      "false_loss_rate": 0.35714285714285715,
+      "false_win_area": 0.0,
+      "false_loss_area": 0.16666666666666666
+    },
+    "infeasible_iou": 0.6428571428571429,
+    "dangerous_error_score": 0.16666666666666666,
+    "danger_weight": 10.0,
+    "danger_weight_policy": "A false win kills a job launched on the model's advice; a false loss leaves capacity unused. The weight is a policy choice, not a measurement, and the raw counts are reported beside it so a reader who weighs them differently can do so.",
+    "safe": true,
+    "verdict": "SAFE BUT CONSERVATIVE: no false wins; 10 configuration(s) the model rejected would in fact have run (36% of its rejections).",
+    "boundary_displacement": [
+      {
+        "axis": "micro_batch",
+        "n_fibers_compared": 18,
+        "n_fibers_predicted_boundary_only": 10,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": 0.0,
+        "mean_abs_shift": 0.0,
+        "max_abs_shift": 0,
+        "shifts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "axis": "seq_len",
+        "n_fibers_compared": 13,
+        "n_fibers_predicted_boundary_only": 10,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": 0.0,
+        "mean_abs_shift": 0.0,
+        "max_abs_shift": 0,
+        "shifts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "axis": "checkpointing",
+        "n_fibers_compared": 18,
+        "n_fibers_predicted_boundary_only": 10,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": 0.0,
+        "mean_abs_shift": 0.0,
+        "max_abs_shift": 0,
+        "shifts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "axis": "dtype",
+        "n_fibers_compared": 13,
+        "n_fibers_predicted_boundary_only": 10,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": 0.0,
+        "mean_abs_shift": 0.0,
+        "max_abs_shift": 0,
+        "shifts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "axis": "budget_fraction",
+        "n_fibers_compared": 11,
+        "n_fibers_predicted_boundary_only": 10,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": 0.0,
+        "mean_abs_shift": 0.0,
+        "max_abs_shift": 0,
+        "shifts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "cells": [
+      {
+        "key": [
+          12,
+          3584,
+          false,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 12,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2672071987,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.67 GB estimated + 0.27 GB margin = 2.94 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1814955008,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 1.81 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 12.420219700085
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          16,
+          3584,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 16,
+          "seq_len": 3584,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 2869372047,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.87 GB estimated + 0.29 GB margin = 3.16 GB against a 3.01 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2403468288,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.40 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 20.425128600094467
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          96,
+          512,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 96,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2587514818,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.59 GB estimated + 0.26 GB margin = 2.85 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2067923968,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.07 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 14.429482499836013
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          768,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 768,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2587514818,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.59 GB estimated + 0.26 GB margin = 2.85 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2067923968,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.07 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 14.674778399989009
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          1024,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 1024,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2587514818,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.59 GB estimated + 0.26 GB margin = 2.85 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2067923968,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.07 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 14.969982800073922
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          32,
+          1536,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 32,
+          "seq_len": 1536,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2587514818,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.59 GB estimated + 0.26 GB margin = 2.85 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2067923968,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.07 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 15.436161099933088
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1037300060,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "1.04 GB estimated + 0.10 GB margin = 1.14 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 218629120,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.22 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.2787200000602752
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1065485783,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "1.07 GB estimated + 0.11 GB margin = 1.17 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 218629120,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.22 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.071570600150153
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          false,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 44189641789,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "44.19 GB estimated + 4.42 GB margin = 48.61 GB against a 3.01 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 6.00 GiB. GPU 0 has a total capacity of 8.00 GiB of which 4.90 GiB is free. 2.80 GiB allowed; Of the allocated memory 2.04",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.03776689991354942
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float16",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 38777982996,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "38.78 GB estimated + 3.88 GB margin = 42.66 GB against a 3.01 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 5.25 GiB. GPU 0 has a total capacity of 8.00 GiB of which 5.15 GiB is free. 2.80 GiB allowed; Of the allocated memory 1.79",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.03804549993947148
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          512,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2098988032,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.607789000030607
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          32,
+          768,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 32,
+          "seq_len": 768,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2098988032,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.6631452001165599
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          24,
+          1024,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 24,
+          "seq_len": 1024,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2098988032,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.715812699869275
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          16,
+          1536,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 16,
+          "seq_len": 1536,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2098988032,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.8412889000028372
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          12,
+          2048,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 12,
+          "seq_len": 2048,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2098988032,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 2.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.9854338001459837
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          2560,
+          false,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 2560,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 2615700541,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "2.62 GB estimated + 0.26 GB margin = 2.88 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1763181568,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 1.76 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.5154611999168992
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1206414397,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "1.21 GB estimated + 0.12 GB margin = 1.33 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.2861583000048995
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1262785843,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "1.26 GB estimated + 0.13 GB margin = 1.39 GB against a 3.01 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.23716300004161894
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          false,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 87511097856,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "87.51 GB estimated + 8.75 GB margin = 96.26 GB against a 3.01 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 4.00 GiB. GPU 0 has a total capacity of 8.00 GiB of which 6.90 GiB is free. 2.80 GiB allowed; Of the allocated memory 64.2",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.04393150005489588
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float32",
+          0.35
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.35
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 76687780270,
+          "budget_bytes": 3006362419,
+          "method": "model",
+          "detail": "76.69 GB estimated + 7.67 GB margin = 84.36 GB against a 3.01 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 3006362419,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 3.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 6.90 GiB is free. 2.80 GiB allowed; Of the allocated memory 64.2",
+          "runtime_config": {
+            "budget_fraction": 0.35,
+            "budget_bytes": 3006362419,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.03659379994496703
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          32,
+          3584,
+          true,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 32,
+          "seq_len": 3584,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4842372648,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.84 GB estimated + 0.48 GB margin = 5.33 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 896.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 2.96 GiB is free. 4.80 GiB allowed; Of the allocated memory 3.",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 21.154932500096038
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          24,
+          3584,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 24,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4447772528,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.45 GB estimated + 0.44 GB margin = 4.89 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 3579315200,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 3.58 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 24.53548500011675
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          512,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4955115540,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.96 GB estimated + 0.50 GB margin = 5.45 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4083418112,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.08 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 23.993390300078318
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          768,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 768,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4955115540,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.96 GB estimated + 0.50 GB margin = 5.45 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4083418112,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.08 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 24.301522199995816
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          96,
+          1024,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 96,
+          "seq_len": 1024,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4955115540,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.96 GB estimated + 0.50 GB margin = 5.45 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4083418112,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.08 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 24.61799759999849
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          1536,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 1536,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4955115540,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.96 GB estimated + 0.50 GB margin = 5.45 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4083418112,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.08 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 26.273083599982783
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1037300060,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "1.04 GB estimated + 0.10 GB margin = 1.14 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 218629120,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.22 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.3904421001207083
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1065485783,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "1.07 GB estimated + 0.11 GB margin = 1.17 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 218629120,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.22 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 1.1966105999890715
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 44189641789,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "44.19 GB estimated + 4.42 GB margin = 48.61 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 6.00 GiB. GPU 0 has a total capacity of 8.00 GiB of which 4.90 GiB is free. 4.80 GiB allowed; Of the allocated memory 2.04",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.04100039997138083
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float16",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 38777982996,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "38.78 GB estimated + 3.88 GB margin = 42.66 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 5.25 GiB. GPU 0 has a total capacity of 8.00 GiB of which 5.15 GiB is free. 4.80 GiB allowed; Of the allocated memory 1.79",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.04093250003643334
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          16,
+          3584,
+          true,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 16,
+          "seq_len": 3584,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4870558371,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.87 GB estimated + 0.49 GB margin = 5.36 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 896.00 MiB. GPU 0 has a total capacity of 8.00 GiB of which 2.96 GiB is free. 4.80 GiB allowed; Of the allocated memory 3.",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.0882395000662655
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          12,
+          3584,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 12,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4475958251,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.48 GB estimated + 0.45 GB margin = 4.92 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 3610117120,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 3.61 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.7224608999677002
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          96,
+          512,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 96,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4983301263,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.98 GB estimated + 0.50 GB margin = 5.48 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4114744320,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.11 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 2.9557985002174973
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          768,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 768,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4983301263,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.98 GB estimated + 0.50 GB margin = 5.48 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4114744320,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.11 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.083561799954623
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          1024,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 1024,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4983301263,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.98 GB estimated + 0.50 GB margin = 5.48 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4114744320,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.11 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.1575803000014275
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          32,
+          1536,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 32,
+          "seq_len": 1536,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 4983301263,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "4.98 GB estimated + 0.50 GB margin = 5.48 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 4114744320,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 4.11 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.4019696000032127
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1206414397,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "1.21 GB estimated + 0.12 GB margin = 1.33 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.30228209984488785
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1262785843,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "1.26 GB estimated + 0.13 GB margin = 1.39 GB against a 5.15 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.2554298001341522
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 87511097856,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "87.51 GB estimated + 8.75 GB margin = 96.26 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 12.00 GiB. GPU 0 has a total capacity of 8.00 GiB of which 2.90 GiB is free. 4.80 GiB allowed; Of the allocated memory 4.0",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.03983849985525012
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float32",
+          0.6
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.6
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 76687780270,
+          "budget_bytes": 5153764147,
+          "method": "model",
+          "detail": "76.69 GB estimated + 7.67 GB margin = 84.36 GB against a 5.15 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 5153764147,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 10.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 3.40 GiB is free. 4.80 GiB allowed; Of the allocated memory 3.5",
+          "runtime_config": {
+            "budget_fraction": 0.6,
+            "budget_bytes": 5153764147,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.04032499995082617
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          768,
+          false,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 768,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6984487587,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "6.98 GB estimated + 0.70 GB margin = 7.68 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6099829760,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.10 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 40.4708757000044
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          3584,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 3584,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6815373250,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "6.82 GB estimated + 0.68 GB margin = 7.50 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 7108035584,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 7.11 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 67.2435280000791
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          768,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 768,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 7660944936,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.66 GB estimated + 0.77 GB margin = 8.43 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. 7.36 GiB allowed; Of the allocated memory 5.68 ",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 35.50445379992016
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          2560,
+          false,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 2560,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 7660944936,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.66 GB estimated + 0.77 GB margin = 8.43 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6771966976,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.77 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 73.23128379997797
+        },
+        "outcome": "false_loss",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          4096,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 4096,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 7660944936,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.66 GB estimated + 0.77 GB margin = 8.43 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. 7.36 GiB allowed; Of the allocated memory 5.68 ",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 41.07938649994321
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          2560,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 2560,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6533516021,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "6.53 GB estimated + 0.65 GB margin = 7.19 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6771966976,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.77 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 60.95891120005399
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          768,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 768,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1107764367,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "1.11 GB estimated + 0.11 GB margin = 1.22 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 302646272,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.30 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 2.1240839001256973
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          12,
+          512,
+          true,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 12,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1107764367,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "1.11 GB estimated + 0.11 GB margin = 1.22 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 302646272,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.30 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 2.0887466999702156
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 38777982996,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "38.78 GB estimated + 3.88 GB margin = 42.66 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.75 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. 7.36 GiB allowed; Of the allocated memory 7.04 ",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.05993109988048673
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          4096,
+          false,
+          "float16",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float16",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 33366324203,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "33.37 GB estimated + 3.34 GB margin = 36.70 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 925.00 MiB is free. 7.36 GiB allowed; Of the allocated memory 6.",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.047574999975040555
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          96,
+          768,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 96,
+          "seq_len": 768,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 7012673310,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.01 GB estimated + 0.70 GB margin = 7.71 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6128665600,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.13 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 4.664403999922797
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          48,
+          1536,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 48,
+          "seq_len": 1536,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 7012673310,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.01 GB estimated + 0.70 GB margin = 7.71 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6128665600,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.13 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 5.220431099878624
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          24,
+          3072,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 24,
+          "seq_len": 3072,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 7012673310,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.01 GB estimated + 0.70 GB margin = 7.71 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6128665600,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 6.13 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 6.459434299962595
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          24,
+          3584,
+          true,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 24,
+          "seq_len": 3584,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6843558973,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "6.84 GB estimated + 0.68 GB margin = 7.53 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 7136084992,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 7.14 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 10.055415299953893
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          512,
+          true,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 7689130659,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.69 GB estimated + 0.77 GB margin = 8.46 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. 7.36 GiB allowed; Of the allocated memory 5.71 ",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.8470882999245077
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          768,
+          true,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 768,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 7689130659,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "7.69 GB estimated + 0.77 GB margin = 8.46 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 1.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 0 bytes is free. 7.36 GiB allowed; Of the allocated memory 5.71 ",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 3.981964699923992
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1206414397,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "1.21 GB estimated + 0.12 GB margin = 1.33 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.32412140001542866
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1262785843,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "1.26 GB estimated + 0.13 GB margin = 1.39 GB against a 7.90 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 419955712,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.42 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.2702448000200093
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 87511097856,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "87.51 GB estimated + 8.75 GB margin = 96.26 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 12.00 GiB. GPU 0 has a total capacity of 8.00 GiB of which 2.90 GiB is free. 7.36 GiB allowed; Of the allocated memory 4.0",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.04152019997127354
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3584,
+          false,
+          "float32",
+          0.92
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3584,
+          "checkpointing": false,
+          "dtype": "float32",
+          "budget_fraction": 0.92
+        },
+        "predicted": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": 76687780270,
+          "budget_bytes": 7902438359,
+          "method": "model",
+          "detail": "76.69 GB estimated + 7.67 GB margin = 84.36 GB against a 7.90 GB budget (does not fit)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "infeasible",
+          "throughput": null,
+          "peak_bytes": null,
+          "budget_bytes": 7902438359,
+          "method": "allocator-cap",
+          "detail": "allocator refused inside the budget: CUDA out of memory. Tried to allocate 10.50 GiB. GPU 0 has a total capacity of 8.00 GiB of which 3.40 GiB is free. 7.36 GiB allowed; Of the allocated memory 3.5",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 7902438359,
+            "total_bytes": 8589606912,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+              "CUDA_MODULE_LOADING": "LAZY"
+            }
+          },
+          "elapsed_s": 0.03992470004595816
+        },
+        "outcome": "correct_infeasible",
+        "comparable": true
+      }
+    ]
+  },
+  "per_budget": {
+    "0.35": {
+      "n": 20,
+      "false_win": 0,
+      "false_loss": 1,
+      "accuracy": 0.95,
+      "infeasible_iou": 0.8,
+      "budget_gb": 3.0063624192
+    },
+    "0.6": {
+      "n": 20,
+      "false_win": 0,
+      "false_loss": 8,
+      "accuracy": 0.6,
+      "infeasible_iou": 0.42857142857142855,
+      "budget_gb": 5.1537641471999995
+    },
+    "0.92": {
+      "n": 20,
+      "false_win": 0,
+      "false_loss": 1,
+      "accuracy": 0.95,
+      "infeasible_iou": 0.8888888888888888,
+      "budget_gb": 7.90243835904
+    }
+  },
+  "per_dtype": {
+    "float16": {
+      "n": 30,
+      "false_win": 0,
+      "false_loss": 6,
+      "accuracy": 0.8,
+      "infeasible_iou": 0.6
+    },
+    "float32": {
+      "n": 30,
+      "false_win": 0,
+      "false_loss": 4,
+      "accuracy": 0.8666666666666667,
+      "infeasible_iou": 0.6923076923076923
+    }
+  },
+  "model": {
+    "version": "block-memory-v2",
+    "parameters": {
+      "name": "block-memory-v2",
+      "summary": {
+        "registered": 10
+      },
+      "n_usable": 10,
+      "n_unusable": 0,
+      "n_evidence_backed": 0,
+      "parameters": [
+        {
+          "name": "activation_tensors_per_block",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "counted from the block's forward graph: the residual input, the attention output, the post-projection residual, and the FFN activation input",
+          "note": "the tensors autograd must keep between blocks for the backward pass",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "allocator_reserve_fraction",
+          "value": 0.12,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "caching-allocator fragmentation headroom; a block-structured workload does not achieve perfect packing",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "attention_workspace_tensors",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "q, k, v and the fused attention output, live simultaneously inside one block",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "autograd_overhead_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "gradient buffers autograd materialises for the residual path",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "checkpoint_retained_fraction",
+          "value": 0.25,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "a checkpointed block keeps its input boundary tensor and discards the interior; one of four saved tensors survives",
+          "note": "APPLIES ONLY to saved_activations. Weights, optimizer state and the live workspace are untouched by checkpointing, which is the structural error that made version 1 unusable",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "context_bytes",
+          "value": 750000000.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "CUDA context, kernel images and cuBLAS/cuDNN workspaces, independent of shape",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "ffn_workspace_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "the up-projection output and its activation, live simultaneously",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "gradient_bytes_per_param",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "one gradient per parameter at the model's own precision",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "optimizer_bytes_per_param",
+          "value": 0.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "zero for the local calibration harness, which holds gradients but runs no optimizer step",
+          "note": "a training run with Adam would register 12: fp32 master weights plus two moments. It is a parameter precisely so the calibration harness and the simulated trainer do not have to share a number that is only true for one of them",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "safety_margin_fraction",
+          "value": 0.1,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "uncertainty reserve, registered before validation and NOT tuned against it",
+          "note": "A model used to decide what to launch must be conservative near the boundary, because its two errors are not equally bad. Tuning this against the validation grid would be fitting on the data the model is graded by, so its value is fixed in the sealed protocol",
+          "quality": {},
+          "superseded_value": null
+        }
+      ]
+    }
+  },
+  "notes": [
+    "block-memory-v2 was not modified. Its parameters are the values validated at v0.3.0-memory-v2 and are asserted by test."
+  ],
+  "provenance": {
+    "captured_at": "2026-08-31T04:15:18Z",
+    "host": "Archana-PC",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "cpu_count": 24,
+    "git": {
+      "commit": "660cd5f849a897918f2e1f786b0b36e2e4676a99",
+      "dirty": true,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [
+        "M src/losscolumn/spec/registry.py",
+        " M src/losscolumn/spec/schema.py",
+        " M src/losscolumn/thrusts/overlap/comcal.py",
+        " M src/losscolumn/thrusts/overlap/commodel.py",
+        " M src/losscolumn/validate/adversarial.py",
+        " M src/losscolumn/validate/validator.py",
+        " M src/losscolumn/version.py",
+        " M tests/test_commodel.py",
+        " M tests/test_standard_frozen.py",
+        "?? src/losscolumn/thrusts/overlap/memval2.py"
+      ],
+      "branch": "master",
+      "remote": null,
+      "describe": "v0.4.0-comm-v1-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA T1000 8GB",
+          "capability": "7.5",
+          "total_memory_gb": 8.59,
+          "multi_processor_count": 14
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.6.0+cu124",
+      "cuda_version": "12.4"
+    },
+    "packages": {
+      "torch": "2.6.0+cu124",
+      "triton": "3.2.0",
+      "numpy": "1.26.4",
+      "vllm": null,
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.12.1",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "CUDA_PATH": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_PATH_V12_5": "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.5",
+      "CUDA_MODULE_LOADING": "LAZY"
+    },
+    "notes": null,
+    "hardware_fingerprint": "cc72e8eab7a5d10b",
+    "hardware": "1x NVIDIA T1000 8GB"
+  },
+  "kind": "validation-report",
+  "standard_version": "LC-1.0",
+  "generated_at": "2026-08-31T04:15:18Z",
+  "command": "python scripts/memval2.py"
+}

@@ -23,7 +23,11 @@ from typing import Any
 
 from losscolumn.core.provenance import content_hash
 
-SCHEMA_VERSION = "LC-1.0"
+SCHEMA_VERSION = "LC-1.1"
+
+# Every revision whose claims this implementation can read. A 1.0 claim must go
+# on validating: the revision that superseded it did not change what it said.
+KNOWN_STANDARD_VERSIONS = ("LC-1.0", "LC-1.1")
 
 # --------------------------------------------------------------------------
 # schemas
@@ -174,7 +178,7 @@ CLAIM_SCHEMA: dict[str, Any] = {
                  "evidence_class", "headline", "loss_column", "reproduction"],
     "properties": {
         "kind": {"const": "claim"},
-        "standard_version": {"const": "LC-1.0"},
+        "standard_version": {"enum": list(KNOWN_STANDARD_VERSIONS)},
         "id": {"type": "string", "minLength": 1},
         "title": {"type": "string", "minLength": 1},
         "thrust": {"type": "string"},
@@ -231,7 +235,9 @@ def schema_digest() -> str:
     return content_hash(SCHEMAS)
 
 
-FROZEN_SCHEMA_DIGEST = "sha256:0a5260d50e842389dcd01008f1cfba0cdb3bda1aa54b6ce32a099c8dea52b9ea"
+# LC-1.1: standard_version widened from a const to an enum so LC-1.0
+# claims keep validating. No other shape changed.
+FROZEN_SCHEMA_DIGEST = "sha256:49729bd2610b893b183ba5aa27a7df0f7a6319ea496c9265ae172b43a595f529"
 
 
 # --------------------------------------------------------------------------

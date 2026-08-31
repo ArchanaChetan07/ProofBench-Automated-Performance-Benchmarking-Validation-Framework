@@ -1,8 +1,19 @@
 {
-  "standard": "LC-1.0",
-  "digest": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
-  "n_rules": 47,
-  "n_fatal": 28,
+  "standard": "LC-1.1",
+  "digest": "sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684",
+  "supersedes": "LC-1.0",
+  "lc_1_0_digest": "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3",
+  "added_in_1_1": [
+    "LC-6.1",
+    "LC-6.2",
+    "LC-6.3",
+    "LC-7.1",
+    "LC-7.2",
+    "LC-7.3",
+    "LC-7.4"
+  ],
+  "n_rules": 54,
+  "n_fatal": 34,
   "rules": [
     {
       "id": "LC-0.1",
@@ -290,6 +301,55 @@
       "severity": "warning",
       "summary": "A runtime estimate is given.",
       "forecloses": "a reproducer unable to budget for the attempt"
+    },
+    {
+      "id": "LC-6.1",
+      "requirement": "Semantic state",
+      "severity": "fatal",
+      "summary": "Feasibility is a state, never a sentinel value.",
+      "forecloses": "an out-of-memory configuration encoded as a throughput of zero, which comparison paths then skip"
+    },
+    {
+      "id": "LC-6.2",
+      "requirement": "Semantic state",
+      "severity": "fatal",
+      "summary": "A cell that did not run carries no measurement.",
+      "forecloses": "'did not run' and 'ran and measured zero' collapsing into one number"
+    },
+    {
+      "id": "LC-6.3",
+      "requirement": "Semantic state",
+      "severity": "fatal",
+      "summary": "A completed run served from host memory is not device-feasible.",
+      "forecloses": "a run that thrashes for hours being recorded as fitting"
+    },
+    {
+      "id": "LC-7.1",
+      "requirement": "Model validation",
+      "severity": "fatal",
+      "summary": "Calibration and validation data are disjoint and the split is recorded.",
+      "forecloses": "a model graded on the data that chose its parameters"
+    },
+    {
+      "id": "LC-7.2",
+      "requirement": "Model validation",
+      "severity": "fatal",
+      "summary": "No parameter is fitted after the model is frozen.",
+      "forecloses": "a validation set quietly becoming a training set"
+    },
+    {
+      "id": "LC-7.3",
+      "requirement": "Model validation",
+      "severity": "fatal",
+      "summary": "A parameter that failed its quality gate is not used.",
+      "forecloses": "a rejected fit promoted into an active model because nobody re-read its provenance"
+    },
+    {
+      "id": "LC-7.4",
+      "requirement": "Model validation",
+      "severity": "warning",
+      "summary": "A fit over a log-scaled domain reports per-regime error, not only a pooled figure.",
+      "forecloses": "one useless regime hiding behind three good ones, and R^2 dominated by the largest points"
     },
     {
       "id": "LC-Q1",

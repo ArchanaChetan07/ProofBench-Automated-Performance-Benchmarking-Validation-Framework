@@ -141,7 +141,9 @@ class Validator:
         add = _adder(rep)
 
         declared = claim.get("standard_version")
-        add("LC-0.1", declared == STANDARD_VERSION,
+        from losscolumn.spec.schema import KNOWN_STANDARD_VERSIONS
+
+        add("LC-0.1", declared in KNOWN_STANDARD_VERSIONS,
             f"claim declares standard `{declared}`, validator implements `{STANDARD_VERSION}`"
             if declared != STANDARD_VERSION
             else f"claim declares `{declared}`",
@@ -165,6 +167,8 @@ class Validator:
         self._check_envelope(claim, add)
         self._check_prereg(claim, add)
         self._check_reproduction(claim, add)
+        self._check_semantic_state(claim, add)
+        self._check_model_validation(claim, add)
         self._check_quality(claim, add)
         return rep
 
@@ -496,6 +500,110 @@ class Validator:
             else f"~{r.get('estimated_runtime_min')} min")
 
     # ---- LC-Q -------------------------------------------------------------
+
+
+    def _check_semantic_state(self, c: dict[str, Any], add: Callable) -> None:
+        """LC-6: feasibility is a state, not a number.
+
+        Only applies to a claim that reports feasibility at all. Where it does,
+        the encoding is checked structurally rather than by inspection, because
+        the defect this catches was invisible to inspection: a zero looks like
+        a measurement until you notice which code path skips it.
+        """
+        feas = (c.get("supporting", {}) or {}).get("feasibility")
+        if not isinstance(feas, dict) or not feas.get("cells"):
+            for rid in ("LC-6.1", "LC-6.2", "LC-6.3"):
+                add(rid, True, "the claim reports no feasibility data", na=True)
+            return
+
+        cells = feas.get("cells") or []
+        valid = {"feasible", "infeasible", "host_fallback", "invalid", "not_measured"}
+        sentinels, numeric = [], []
+        for i, cell in enumerate(cells):
+            for side in ("predicted", "measured"):
+                obs = cell.get(side) or {}
+                st = obs.get("status")
+                if st not in valid:
+                    sentinels.append(f"cell {i} {side} status={st!r}")
+                if st in ("infeasible", "invalid", "not_measured") \
+                        and obs.get("throughput") is not None:
+                    numeric.append(
+                        f"cell {i} {side} is {st} but carries a throughput of "
+                        f"{obs['throughput']}"
+                    )
+        add("LC-6.1", not sentinels,
+            "; ".join(sentinels[:3]) if sentinels
+            else f"all {len(cells)} cells carry an explicit feasibility state")
+        add("LC-6.2", not numeric,
+            "; ".join(numeric[:3]) + " -- a configuration that did not run has no "
+            "throughput, and encoding one is how 'did not run' becomes 'ran slowly'"
+            if numeric else "no unrun cell carries a measurement")
+
+        fallback_counted = [
+            f"cell {i}" for i, cell in enumerate(cells)
+            if (cell.get("measured") or {}).get("status") == "host_fallback"
+            and cell.get("outcome") in ("correct_feasible", "false_loss")
+        ]
+        add("LC-6.3", not fallback_counted,
+            f"{len(fallback_counted)} host-fallback cell(s) were counted as device "
+            "feasible; completing is not the same as fitting"
+            if fallback_counted else
+            "host-fallback cells are excluded from the feasible set")
+
+    def _check_model_validation(self, c: dict[str, Any], add: Callable) -> None:
+        """LC-7: a model graded on the data that chose it is not validated."""
+        sup = c.get("supporting", {}) or {}
+        split = sup.get("grid_split") or (c.get("prereg") or {}).get("grid_split")
+        params = sup.get("model_parameters") or {}
+
+        if not split and not params:
+            for rid in ("LC-7.1", "LC-7.2", "LC-7.3", "LC-7.4"):
+                add(rid, True, "the claim reports no fitted model", na=True)
+            return
+
+        if split:
+            cal = {tuple(x) for x in split.get("calibration", [])}
+            val = {tuple(x) for x in split.get("validation", [])}
+            overlap = cal & val
+            add("LC-7.1", not overlap and bool(cal) and bool(val),
+                f"{len(overlap)} cell(s) appear in both grids"
+                if overlap else
+                ("the split records no calibration or no validation cells"
+                 if not (cal and val) else
+                 f"{len(cal)} calibration and {len(val)} validation cells, disjoint"))
+            add("LC-7.2", bool(split.get("frozen")),
+                "the model was never frozen, so nothing distinguishes its validation "
+                "data from its training data"
+                if not split.get("frozen") else
+                f"frozen at {split.get('frozen_at')}, after "
+                f"{len(split.get('fitted_parameters', []))} parameter(s) were fitted")
+        else:
+            add("LC-7.1", False,
+                "the claim reports fitted parameters but no calibration/validation "
+                "split, so nothing establishes that it was graded out of sample")
+            add("LC-7.2", False, "no freeze is recorded")
+
+        plist = params.get("parameters", []) if isinstance(params, dict) else []
+        used_rejected = [
+            q["name"] for q in plist
+            if q.get("provenance") in ("rejected", "diagnostic") and q.get("usable")
+        ]
+        add("LC-7.3", not used_rejected,
+            f"{len(used_rejected)} rejected or diagnostic parameter(s) are marked "
+            f"usable: {used_rejected[:3]}"
+            if used_rejected else
+            f"{sum(1 for q in plist if not q.get('usable'))} parameter(s) failed "
+            "their gate and none is used")
+
+        log_domain = bool(sup.get("log_scaled_domain"))
+        per_regime = sup.get("per_regime_error") or sup.get("per_tier_error")
+        add("LC-7.4", (not log_domain) or bool(per_regime),
+            "the fit spans a log-scaled domain but reports only a pooled error; a "
+            "pooled figure lets one useless regime hide behind several good ones, "
+            "and R-squared over such a domain is dominated by the largest points"
+            if log_domain and not per_regime else
+            "per-regime error is reported" if per_regime else
+            "the domain is not log-scaled")
 
     def _check_quality(self, c: dict[str, Any], add: Callable) -> None:
         env = c.get("envelope") or {}

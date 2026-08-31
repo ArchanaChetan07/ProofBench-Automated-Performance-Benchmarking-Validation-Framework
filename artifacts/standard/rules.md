@@ -1,6 +1,8 @@
-# LC-1.0 rule registry (frozen)
+# LC-1.1 rule registry (frozen)
 
-47 rules, 28 fatal. Digest `sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3`.
+54 rules, 34 fatal. Digest `sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684`.
+
+Supersedes LC-1.0 (`sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3`), which is unchanged: LC-1.1 adds 7 rules (LC-6.1, LC-6.2, LC-6.3, LC-7.1, LC-7.2, LC-7.3, LC-7.4) and edits none. A claim graded under 1.0 still means what it meant.
 
 ## Standard version
 
@@ -88,3 +90,20 @@
 | `LC-Q4` | warning | Measurement noise is small relative to the claimed effect. | an effect indistinguishable from the noise floor |
 | `LC-Q5` | warning | Limitations are stated. | a claim presented without its bounds |
 | `LC-Q6` | fatal | Equivalence is established somewhere when the design has the power to. | an inverted or broken equivalence test, which makes every tie look inconclusive |
+
+## Semantic state
+
+| Rule | Severity | Requirement | Forecloses |
+|------|----------|-------------|------------|
+| `LC-6.1` | fatal | Feasibility is a state, never a sentinel value. | an out-of-memory configuration encoded as a throughput of zero, which comparison paths then skip |
+| `LC-6.2` | fatal | A cell that did not run carries no measurement. | 'did not run' and 'ran and measured zero' collapsing into one number |
+| `LC-6.3` | fatal | A completed run served from host memory is not device-feasible. | a run that thrashes for hours being recorded as fitting |
+
+## Model validation
+
+| Rule | Severity | Requirement | Forecloses |
+|------|----------|-------------|------------|
+| `LC-7.1` | fatal | Calibration and validation data are disjoint and the split is recorded. | a model graded on the data that chose its parameters |
+| `LC-7.2` | fatal | No parameter is fitted after the model is frozen. | a validation set quietly becoming a training set |
+| `LC-7.3` | fatal | A parameter that failed its quality gate is not used. | a rejected fit promoted into an active model because nobody re-read its provenance |
+| `LC-7.4` | warning | A fit over a log-scaled domain reports per-regime error, not only a pooled figure. | one useless regime hiding behind three good ones, and R^2 dominated by the largest points |

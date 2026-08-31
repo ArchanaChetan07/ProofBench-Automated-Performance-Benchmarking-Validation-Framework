@@ -51,7 +51,7 @@ class Rule:
 # The table. Order is not significant; identifiers and severities are.
 # --------------------------------------------------------------------------
 
-_RULES: tuple[Rule, ...] = (
+LC_1_0_RULES: tuple[Rule, ...] = (
     # --- LC-0: the claim declares what it is ------------------------------
     Rule("LC-0.1", "Standard version", FATAL,
          "The claim declares the standard revision it is graded against.",
@@ -196,6 +196,49 @@ _RULES: tuple[Rule, ...] = (
          "an inverted or broken equivalence test, which makes every tie look inconclusive"),
 )
 
+# --------------------------------------------------------------------------
+# LC-1.1 additions
+# --------------------------------------------------------------------------
+#
+# LC-1.0 above is not edited. Every rule it defines keeps its identifier, its
+# severity and its meaning, and `LC_1_0_DIGEST` still verifies against it, so a
+# claim graded under 1.0 still means exactly what it meant.
+#
+# These seven rules exist because measurement found seven new ways to be wrong
+# that 1.0 could not express. Each was discovered as a concrete defect in this
+# project's own work before it was written as a rule, and each ships with an
+# artifact that violates it.
+
+LC_1_1_ADDITIONS: tuple[Rule, ...] = (
+    Rule("LC-6.1", "Semantic state", FATAL,
+         "Feasibility is a state, never a sentinel value.",
+         "an out-of-memory configuration encoded as a throughput of zero, which "
+         "comparison paths then skip"),
+    Rule("LC-6.2", "Semantic state", FATAL,
+         "A cell that did not run carries no measurement.",
+         "'did not run' and 'ran and measured zero' collapsing into one number"),
+    Rule("LC-6.3", "Semantic state", FATAL,
+         "A completed run served from host memory is not device-feasible.",
+         "a run that thrashes for hours being recorded as fitting"),
+    Rule("LC-7.1", "Model validation", FATAL,
+         "Calibration and validation data are disjoint and the split is recorded.",
+         "a model graded on the data that chose its parameters"),
+    Rule("LC-7.2", "Model validation", FATAL,
+         "No parameter is fitted after the model is frozen.",
+         "a validation set quietly becoming a training set"),
+    Rule("LC-7.3", "Model validation", FATAL,
+         "A parameter that failed its quality gate is not used.",
+         "a rejected fit promoted into an active model because nobody re-read "
+         "its provenance"),
+    Rule("LC-7.4", "Model validation", WARNING,
+         "A fit over a log-scaled domain reports per-regime error, not only a "
+         "pooled figure.",
+         "one useless regime hiding behind three good ones, and R^2 dominated "
+         "by the largest points"),
+)
+
+_RULES: tuple[Rule, ...] = LC_1_0_RULES + LC_1_1_ADDITIONS
+
 RULES: dict[str, Rule] = {r.id: r for r in _RULES}
 
 REQUIREMENT_ORDER = (
@@ -207,22 +250,41 @@ REQUIREMENT_ORDER = (
     "Pre-registration",
     "One-command reproduction",
     "Measurement quality",
+    "Semantic state",
+    "Model validation",
 )
 
 
-def frozen_table() -> list[list[str]]:
-    """The frozen part of the registry, in a stable order."""
-    return sorted([list(r.key()) for r in _RULES])
+def frozen_table(rules: tuple[Rule, ...] | None = None) -> list[list[str]]:
+    """The frozen part of a rule set, in a stable order."""
+    return sorted([list(r.key()) for r in (rules if rules is not None else _RULES)])
 
 
 def compute_digest() -> str:
-    return content_hash({"standard": "LC-1.0", "rules": frozen_table()})
+    """Digest of the CURRENT standard revision."""
+    return content_hash({"standard": "LC-1.1", "rules": frozen_table()})
+
+
+def compute_lc_1_0_digest() -> str:
+    """Digest of LC-1.0, unchanged.
+
+    Asserted by test alongside the 1.1 digest. A claim graded under 1.0 must go
+    on meaning what it meant, so 1.0's table is verified independently of
+    whatever 1.1 adds.
+    """
+    return content_hash({"standard": "LC-1.0", "rules": frozen_table(LC_1_0_RULES)})
 
 
 # Asserted by tests/test_standard_frozen.py. Changing a rule id or a severity
 # changes this hash, which fails that test, which forces a version bump rather
 # than a silent edit.
-FROZEN_DIGEST = "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3"
+# LC-1.0, unchanged since it was frozen. Not to be edited.
+LC_1_0_DIGEST = "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3"
+
+# The current revision. Adding a rule is a minor bump and a new digest;
+# changing an existing rule's id or severity would be a major bump, and the
+# LC-1.0 digest above exists so that such a change cannot pass unnoticed.
+FROZEN_DIGEST = "sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684"
 
 N_RULES = len(_RULES)
 N_FATAL = sum(1 for r in _RULES if r.severity == FATAL)
@@ -248,9 +310,14 @@ def by_requirement() -> dict[str, list[Rule]]:
 
 def to_markdown() -> str:
     lines = [
-        "# LC-1.0 rule registry (frozen)",
+        "# LC-1.1 rule registry (frozen)",
         "",
         f"{N_RULES} rules, {N_FATAL} fatal. Digest `{compute_digest()}`.",
+        "",
+        f"Supersedes LC-1.0 (`{compute_lc_1_0_digest()}`), which is unchanged: "
+        f"LC-1.1 adds {len(LC_1_1_ADDITIONS)} rules "
+        f"({', '.join(r.id for r in LC_1_1_ADDITIONS)}) and edits none. A claim "
+        "graded under 1.0 still means what it meant.",
         "",
     ]
     for req, rules in by_requirement().items():
@@ -266,8 +333,11 @@ def to_markdown() -> str:
 
 def to_dict() -> dict[str, Any]:
     return {
-        "standard": "LC-1.0",
+        "standard": "LC-1.1",
         "digest": compute_digest(),
+        "supersedes": "LC-1.0",
+        "lc_1_0_digest": compute_lc_1_0_digest(),
+        "added_in_1_1": [r.id for r in LC_1_1_ADDITIONS],
         "n_rules": N_RULES,
         "n_fatal": N_FATAL,
         "rules": [

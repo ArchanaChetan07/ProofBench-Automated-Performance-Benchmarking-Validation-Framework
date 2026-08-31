@@ -20,7 +20,10 @@
       "const": "claim"
     },
     "standard_version": {
-      "const": "LC-1.0"
+      "enum": [
+        "LC-1.0",
+        "LC-1.1"
+      ]
     },
     "id": {
       "type": "string",

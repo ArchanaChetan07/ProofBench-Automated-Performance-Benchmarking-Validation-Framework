@@ -177,6 +177,51 @@ def conforming_simulated_claim() -> dict[str, Any]:
     return c
 
 
+
+def conforming_model_claim() -> dict[str, Any]:
+    """A conforming claim that reports feasibility and a fitted model.
+
+    Needed so the LC-6 and LC-7 rules have a passing case: they are skipped
+    entirely on a claim that reports neither, and a rule that is never emitted
+    has no passing case to show.
+    """
+    c = conforming_claim()
+    c["id"] = "adversarial-baseline-model"
+    c["supporting"] = {
+        **c.get("supporting", {}),
+        "log_scaled_domain": True,
+        "per_regime_error": {"tiny": 0.06, "small": 0.10, "medium": 0.11,
+                             "large": 0.05},
+        "feasibility": {
+            "cells": [
+                {"predicted": {"status": "feasible", "throughput": None},
+                 "measured": {"status": "feasible", "throughput": 1234.0},
+                 "outcome": "correct_feasible"},
+                {"predicted": {"status": "infeasible", "throughput": None},
+                 "measured": {"status": "infeasible", "throughput": None},
+                 "outcome": "correct_infeasible"},
+                {"predicted": {"status": "feasible", "throughput": None},
+                 "measured": {"status": "host_fallback", "throughput": None},
+                 "outcome": "not_comparable"},
+            ],
+        },
+        "grid_split": {
+            "calibration": [[1, 1, False]], "validation": [[2, 2, False]],
+            "frozen": True, "frozen_at": "2026-01-04T00:00:00Z",
+            "fitted_parameters": ["alpha"],
+        },
+        "model_parameters": {
+            "parameters": [
+                {"name": "alpha", "value": 1.0, "provenance": "accepted",
+                 "usable": True},
+                {"name": "beta", "value": 2.0, "provenance": "rejected",
+                 "usable": False, "note": "held-out error above the gate"},
+            ],
+        },
+    }
+    return c
+
+
 # --------------------------------------------------------------------------
 # the catalogue
 # --------------------------------------------------------------------------
@@ -195,7 +240,10 @@ class Defect:
     notes: str = ""
 
     def build(self) -> dict[str, Any]:
-        doc = conforming_tuned_claim() if self.base == "tuned" else conforming_claim()
+        doc = {
+            "tuned": conforming_tuned_claim,
+            "model": conforming_model_claim,
+        }.get(self.base, conforming_claim)()
         self.mutate(doc)
         doc["id"] = f"adversarial-{self.name}"
         return doc
@@ -322,6 +370,69 @@ CORPUS: tuple[Defect, ...] = (
             "median_regression_pct": 19.0, "worst_regression_pct": 8.0,
             "max_q": 0.4, "attribution": "asserted", "missing_reasons": [],
         }]),
+    ),
+
+    # ---- LC-1.1: defect classes discovered after 1.0 froze ---------------
+    Defect(
+        "feasibility-sentinel",
+        "An out-of-memory configuration encoded as a throughput of zero rather "
+        "than as a state. Comparison paths skip zero-valued cells, so the "
+        "prediction disappears from the map.",
+        ("LC-6.1",),
+        lambda d: _set(d, "supporting.feasibility.cells.0.measured",
+                       {"status": "oom", "throughput": 0.0}),
+        base="model",
+        notes="Real: it cost two calibration runs in this repository.",
+    ),
+    Defect(
+        "unrun-cell-carries-a-number",
+        "A cell recorded as infeasible that nonetheless carries a throughput, "
+        "collapsing 'did not run' into 'ran and measured zero'.",
+        ("LC-6.2",),
+        lambda d: _set(d, "supporting.feasibility.cells.1.measured",
+                       {"status": "infeasible", "throughput": 0.0}),
+        base="model",
+    ),
+    Defect(
+        "host-fallback-counted-as-fit",
+        "A run served from host memory counted as device-feasible. It completed; "
+        "it did not fit.",
+        ("LC-6.3",),
+        lambda d: _set(d, "supporting.feasibility.cells.2.outcome",
+                       "correct_feasible"),
+        base="model",
+    ),
+    Defect(
+        "calibration-validation-leakage",
+        "A cell used to choose a parameter also offered as evidence that the "
+        "parameter was right.",
+        ("LC-7.1",),
+        lambda d: _set(d, "supporting.grid_split.validation", [[1, 1, False]]),
+        base="model",
+    ),
+    Defect(
+        "never-frozen-model",
+        "Parameters fitted with no freeze recorded, so nothing distinguishes the "
+        "validation data from the training data.",
+        ("LC-7.2",),
+        lambda d: _set(d, "supporting.grid_split.frozen", False),
+        base="model",
+    ),
+    Defect(
+        "rejected-parameter-used",
+        "A parameter that failed its quality gate marked usable, so a rejected "
+        "fit feeds an active model.",
+        ("LC-7.3",),
+        lambda d: _set(d, "supporting.model_parameters.parameters.1.usable", True),
+        base="model",
+    ),
+    Defect(
+        "pooled-error-over-log-domain",
+        "A fit spanning four orders of magnitude in message size, reporting only "
+        "a pooled error. One useless regime hides behind three good ones.",
+        ("LC-7.4",),
+        lambda d: d["supporting"].pop("per_regime_error"),
+        base="model", severity=registry.WARNING,
     ),
 
     # ---- remaining coverage ---------------------------------------------
@@ -489,7 +600,7 @@ def coverage() -> dict[str, dict[str, Any]]:
     seen_na: set[str] = set()
 
     for doc in (conforming_claim(), conforming_tuned_claim(),
-                conforming_simulated_claim()):
+                conforming_simulated_claim(), conforming_model_claim()):
         for f in validate_claim(doc).findings:
             if f.detail.get("not_applicable"):
                 seen_na.add(f.rule)

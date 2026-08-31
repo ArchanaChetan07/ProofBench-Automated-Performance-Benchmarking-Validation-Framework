@@ -4,7 +4,7 @@
   "protocol": {
     "kind": "communication-model-protocol",
     "study": "thrust1-comm-v1",
-    "sealed_at": "2026-08-31T02:52:48Z",
+    "sealed_at": "2026-08-31T04:06:50Z",
     "transports": [
       "gloo_shm"
     ],
@@ -50,6 +50,8 @@
     ],
     "family_selection_rule": "held-out error on calibration points the fit never saw. A more flexible family always fits its own data better, so fit quality cannot decide. AIC is reported beside it; the simpler family wins ties within 10%.",
     "quality_gate": {
+      "criterion": "worst-regime held-out relative error",
+      "why": "a pooled median lets a family hide one useless regime behind three good ones, which is how a model 35% wrong in the medium tier was accepted",
       "max_heldout_median_relative_error": 0.15,
       "on_failure": "the parameters remain DIAGNOSTIC and are not promoted into Fabric; the fit stays visible in the report"
     },
@@ -59,7 +61,7 @@
       "One host, so no inter-node hop and no NIC is exercised.",
       "World sizes 2 to 4, against the 8 and 32 the protocol registers."
     ],
-    "seal_hash": "sha256:7863b8219ff9b483126996fb1faa3112ced326328c908e2208f25e02d558b0b1"
+    "seal_hash": "sha256:80cbfea2450c14a0a55f43bf5d1fc54741e035306eb2b11754fb80d4eb87ef82"
   },
   "n_samples": 288,
   "diagnoses": [
@@ -208,13 +210,28 @@
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.6016471668284749,
-          "heldout_r2": 0.6922411081511695,
-          "heldout_median_rel_err": 0.2520820162458224,
+          "fit_r2": 0.7243555858349267,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.29080653036510196,
           "heldout_max_rel_err": 0.8727906718639667,
-          "aic": -138.24831817425436,
+          "heldout_per_tier_err": {
+            "tiny": 0.23940253888001695,
+            "small": 0.128796756365878,
+            "medium": 0.7524891617875122,
+            "large": 0.3120572789239427
+          },
+          "heldout_worst_tier_err": 0.7524891617875122,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -249.11786143497633,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -223,13 +240,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.7900646775804501,
-          "heldout_r2": 0.8440185499361195,
-          "heldout_median_rel_err": 0.18050821289245433,
-          "heldout_max_rel_err": 0.8339919343006873,
-          "aic": -139.934781773459,
+          "fit_r2": 0.8595428352137382,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.14401271714935482,
+          "heldout_max_rel_err": 1.3729296720238977,
+          "heldout_per_tier_err": {
+            "tiny": 0.12766185240614175,
+            "small": 0.11455489005180408,
+            "medium": 0.7767380655993266,
+            "large": 0.2406449597495619
+          },
+          "heldout_worst_tier_err": 0.7767380655993266,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -259.29888020163327,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -250,13 +282,28 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 5,
-          "fit_r2": 0.7900646775804501,
-          "heldout_r2": 0.8440185499361195,
-          "heldout_median_rel_err": 0.18050821289245433,
-          "heldout_max_rel_err": 0.8339919343006873,
-          "aic": -139.934781773459,
+          "fit_r2": 0.8537827845123303,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.12934751463579433,
+          "heldout_max_rel_err": 1.3729296720238977,
+          "heldout_per_tier_err": {
+            "tiny": 0.127005609554323,
+            "small": 0.10999572127492407,
+            "medium": 0.6992379255272942,
+            "large": 0.19014050434472068
+          },
+          "heldout_worst_tier_err": 0.6992379255272942,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -258.33430272834414,
           "model": {
             "family": "regime",
             "n_params": 5,
@@ -270,27 +317,257 @@
               {
                 "family": "linear",
                 "n_params": 2,
-                "alpha_us": 142.0747714263787,
-                "beta_gbs": 0.7588933015674496
+                "alpha_us": 141.76991485282082,
+                "beta_gbs": 0.7219206558835524
               },
               {
                 "family": "linear",
                 "n_params": 2,
-                "alpha_us": 0.0,
-                "beta_gbs": 0.29371042543842674
+                "alpha_us": 1046.7318045039583,
+                "beta_gbs": 0.34742853780164334
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.8653285877269314,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.33717479447164755,
+          "heldout_max_rel_err": 1.914518887765271,
+          "heldout_per_tier_err": {
+            "tiny": 0.14279058713080212,
+            "small": 0.3577772858484667,
+            "medium": 0.7995085431388731,
+            "large": 0.25048305954503675
+          },
+          "heldout_worst_tier_err": 0.7995085431388731,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -266.30843388962427,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 135.02600403704784,
+            "beta_gbs": 0.27992303299972815
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.8334014127989988,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2936191871964748,
+          "heldout_max_rel_err": 1.4662556155066802,
+          "heldout_per_tier_err": {
+            "tiny": 0.15359916216009095,
+            "small": 0.0974107559842449,
+            "medium": 0.7281734760714629,
+            "large": 0.27556170423280435
+          },
+          "heldout_worst_tier_err": 0.7281734760714629,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -255.2024477811343,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 131072.0,
+            "breakpoint_kib": 128.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 145.61738605585703,
+              "beta_gbs": 0.7896786631644965
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 147.16992518052564,
+              "beta_gbs": 0.24241962939881787
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 2,
+          "fit_r2": 0.8653285877269329,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.33682459118105873,
+          "heldout_max_rel_err": 1.4662556155066802,
+          "heldout_per_tier_err": {
+            "tiny": 0.12370272609817887,
+            "small": 0.35555214415417036,
+            "medium": 0.7637008821997412,
+            "large": 0.24440077259078052
+          },
+          "heldout_worst_tier_err": 0.7637008821997412,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -266.3084338896245,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 135.02600403743074,
+                "beta_gbs": 0.27992303299957944
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": 0.7131623806672277,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.30326415310874777,
+          "heldout_max_rel_err": 0.8750221867802987,
+          "heldout_per_tier_err": {
+            "tiny": 0.24138163227403803,
+            "small": 0.12270254125554962,
+            "medium": 0.7396079000898873,
+            "large": 0.30560245477906756
+          },
+          "heldout_worst_tier_err": 0.7396079000898873,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -248.1625513051069,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 131.91782825379295,
+            "beta_gbs": 0.4326012116186569
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.8527918075673077,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1322226065358107,
+          "heldout_max_rel_err": 1.372189894611135,
+          "heldout_per_tier_err": {
+            "tiny": 0.1330496300394654,
+            "small": 0.1045313381080212,
+            "medium": 0.6996823168159269,
+            "large": 0.18818148816082106
+          },
+          "heldout_worst_tier_err": 0.6996823168159269,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -258.1721931327639,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 131072.0,
+            "breakpoint_kib": 128.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 141.78666748060195,
+              "beta_gbs": 0.7217664777238557
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 1047.9905717486804,
+              "beta_gbs": 0.3485916402791887
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 5,
+          "fit_r2": 0.8527918075673077,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1322226065358107,
+          "heldout_max_rel_err": 1.372189894611135,
+          "heldout_per_tier_err": {
+            "tiny": 0.1330496300394654,
+            "small": 0.1045313381080212,
+            "medium": 0.6996823168159269,
+            "large": 0.18818148816082106
+          },
+          "heldout_worst_tier_err": 0.6996823168159269,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -258.1721931327639,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              131072.0
+            ],
+            "edges_kib": [
+              128.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 141.78666748060195,
+                "beta_gbs": 0.7217664777238557
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 1047.9905717486804,
+                "beta_gbs": 0.3485916402791887
               }
             ]
           }
         }
       ],
-      "reason": "The best family, `piecewise`, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model."
+      "reason": "The best family, `regime/weighted`, still misses its worst-fitting regime by 70% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
     },
     "gloo_shm/all_gather/world3": {
       "transport": "gloo_shm",
       "kind": "all_gather",
       "world": 3,
       "noise_floor": 0.05788237545729294,
-      "chosen_family": "piecewise",
+      "chosen_family": "piecewise/weighted",
       "chosen": {
         "family": "piecewise",
         "n_params": 5,
@@ -313,13 +590,28 @@
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.8886372696068165,
-          "heldout_r2": 0.8663345339792159,
-          "heldout_median_rel_err": 0.28029893412992657,
+          "fit_r2": 0.8798646736134573,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.24076301479010986,
           "heldout_max_rel_err": 0.3737543775663172,
-          "aic": -150.73382712927597,
+          "heldout_per_tier_err": {
+            "tiny": 0.14688713929996275,
+            "small": 0.2422400677213582,
+            "medium": 0.23887494946880222,
+            "large": 0.31017542183064345
+          },
+          "heldout_worst_tier_err": 0.31017542183064345,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -247.90275597796784,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -328,13 +620,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.9917946136358924,
-          "heldout_r2": 0.9962483204378247,
-          "heldout_median_rel_err": 0.057141108426366424,
+          "fit_r2": 0.9963791560830384,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.07966419232558884,
           "heldout_max_rel_err": 0.7422452782952281,
-          "aic": -176.02984996056836,
+          "heldout_per_tier_err": {
+            "tiny": 0.11478640718637037,
+            "small": 0.04390997132792735,
+            "medium": 0.10604945552937273,
+            "large": 0.02735160059393383
+          },
+          "heldout_worst_tier_err": 0.11478640718637037,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -325.9486368348721,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -355,76 +662,329 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 5,
-          "fit_r2": 0.9917946136358924,
-          "heldout_r2": 0.9962483204378247,
-          "heldout_median_rel_err": 0.057141108426366424,
-          "heldout_max_rel_err": 0.7422452782952281,
-          "aic": -176.02984996056836,
+          "fit_r2": 0.9960110481248688,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.09309613996760141,
+          "heldout_max_rel_err": 0.7347505681745664,
+          "heldout_per_tier_err": {
+            "tiny": 0.10656455266025032,
+            "small": 0.1623137153131623,
+            "medium": 0.1064283108367472,
+            "large": 0.029413030678195225
+          },
+          "heldout_worst_tier_err": 0.1623137153131623,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -323.624923629535,
           "model": {
             "family": "regime",
             "n_params": 5,
             "edges_bytes": [
-              92842.66666666666
+              174762.66666666666
             ],
             "edges_kib": [
-              90.66666666666666
+              170.66666666666666
             ],
             "segments": [
               {
                 "family": "linear",
                 "n_params": 2,
-                "alpha_us": 238.764447136002,
-                "beta_gbs": 1.6224898977120081
+                "alpha_us": 231.65985230893534,
+                "beta_gbs": 0.5233987505054535
               },
               {
                 "family": "linear",
                 "n_params": 2,
                 "alpha_us": 0.0,
-                "beta_gbs": 0.248367682544602
+                "beta_gbs": 0.24944071507052362
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.9341073548671344,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2224468267945801,
+          "heldout_max_rel_err": 0.5208687007172189,
+          "heldout_per_tier_err": {
+            "tiny": 0.1428035194078155,
+            "small": 0.2628012160972846,
+            "medium": 0.27742097839005575,
+            "large": 0.22042443987576216
+          },
+          "heldout_worst_tier_err": 0.27742097839005575,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -262.31696394132086,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 216.54998048515645,
+            "beta_gbs": 0.3120207245005382
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.9933612769828499,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.11102793404224885,
+          "heldout_max_rel_err": 0.6952771435442724,
+          "heldout_per_tier_err": {
+            "tiny": 0.10865253936095519,
+            "small": 0.17129751335600585,
+            "medium": 0.11782541566541681,
+            "large": 0.08113575666537207
+          },
+          "heldout_worst_tier_err": 0.17129751335600585,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -311.39953675331105,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 174762.66666666666,
+            "breakpoint_kib": 170.66666666666666,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 234.01038037562114,
+              "beta_gbs": 0.5228649347284833
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.0009999994313274524,
+              "beta_gbs": 0.25524887293094706
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 5,
+          "fit_r2": 0.9933612769828499,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.11102793404224885,
+          "heldout_max_rel_err": 0.6952771435442724,
+          "heldout_per_tier_err": {
+            "tiny": 0.10865253936095519,
+            "small": 0.17129751335600585,
+            "medium": 0.11782541566541681,
+            "large": 0.08113575666537207
+          },
+          "heldout_worst_tier_err": 0.17129751335600585,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -311.39953675331105,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              174762.66666666666
+            ],
+            "edges_kib": [
+              170.66666666666666
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 234.01038037562114,
+                "beta_gbs": 0.5228649347284833
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.0009999994313274524,
+                "beta_gbs": 0.25524887293094706
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": 0.8794472401067936,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.24074085668755796,
+          "heldout_max_rel_err": 0.37295388434344345,
+          "heldout_per_tier_err": {
+            "tiny": 0.14585055572184713,
+            "small": 0.24237362582396033,
+            "medium": 0.23778714733768946,
+            "large": 0.3111088222830601
+          },
+          "heldout_worst_tier_err": 0.3111088222830601,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -247.8195078674391,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 216.05915954550264,
+            "beta_gbs": 0.34918765043243244
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.9918818296019905,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.12080467665579117,
+          "heldout_max_rel_err": 0.6786233428903035,
+          "heldout_per_tier_err": {
+            "tiny": 0.10660781445801001,
+            "small": 0.16231704851952922,
+            "medium": 0.12109355851628142,
+            "large": 0.09016204124584583
+          },
+          "heldout_worst_tier_err": 0.16231704851952922,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -306.57109243225267,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 174762.66666666666,
+            "breakpoint_kib": 170.66666666666666,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 231.6696202950719,
+              "beta_gbs": 0.523454336511385
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 1.1657572869789987e-10,
+              "beta_gbs": 0.257781130011819
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 5,
+          "fit_r2": 0.9918818296019905,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.12080467665579117,
+          "heldout_max_rel_err": 0.6786233428903035,
+          "heldout_per_tier_err": {
+            "tiny": 0.10660781445801001,
+            "small": 0.16231704851952922,
+            "medium": 0.12109355851628142,
+            "large": 0.09016204124584583
+          },
+          "heldout_worst_tier_err": 0.16231704851952922,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -306.57109243225267,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              174762.66666666666
+            ],
+            "edges_kib": [
+              170.66666666666666
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 231.6696202950719,
+                "beta_gbs": 0.523454336511385
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 1.1657572869789987e-10,
+                "beta_gbs": 0.257781130011819
               }
             ]
           }
         }
       ],
-      "reason": "`piecewise` wins on held-out error (5.7% median) against `linear` 28.0%, `regime` 5.7%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
+      "reason": "`piecewise/weighted` wins on worst-tier held-out error (11.5%) against `regime/weighted` 16.2%, `piecewise/huber` 16.2%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
     },
     "gloo_shm/all_gather/world4": {
       "transport": "gloo_shm",
       "kind": "all_gather",
       "world": 4,
       "noise_floor": 0.05486445430810253,
-      "chosen_family": "piecewise",
-      "chosen": {
-        "family": "piecewise",
-        "n_params": 5,
-        "breakpoint_bytes": 196608.0,
-        "breakpoint_kib": 192.0,
-        "low": {
-          "family": "linear",
-          "n_params": 2,
-          "alpha_us": 433.1507297584953,
-          "beta_gbs": 0.4529180135660152
-        },
-        "high": {
-          "family": "linear",
-          "n_params": 2,
-          "alpha_us": 0.0,
-          "beta_gbs": 0.15195352706685455
-        }
-      },
+      "chosen_family": "",
+      "chosen": null,
       "n_fit": 12,
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.7212851809307044,
-          "heldout_r2": 0.7545911580254195,
-          "heldout_median_rel_err": 0.1733195753854898,
-          "heldout_max_rel_err": 0.4453999285080031,
-          "aic": -123.36404144595583,
+          "fit_r2": 0.7747406421700223,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.24805690286476012,
+          "heldout_max_rel_err": 0.5909828409476541,
+          "heldout_per_tier_err": {
+            "tiny": 0.14553199001409706,
+            "small": 0.23280954258781458,
+            "medium": 0.20844952534758832,
+            "large": 0.4060897745462151
+          },
+          "heldout_worst_tier_err": 0.4060897745462151,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -203.15012443411956,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -433,13 +993,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.9437879092380069,
-          "heldout_r2": 0.9951056386239682,
-          "heldout_median_rel_err": 0.10625772773469164,
-          "heldout_max_rel_err": 0.45771662782851746,
-          "aic": -136.5767282457698,
+          "fit_r2": 0.9926881358384199,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.17856787939429256,
+          "heldout_max_rel_err": 0.5511038706987358,
+          "heldout_per_tier_err": {
+            "tiny": 0.13060373710544815,
+            "small": 0.15827141162295844,
+            "medium": 0.24216988214919302,
+            "large": 0.10723196406115502
+          },
+          "heldout_worst_tier_err": 0.24216988214919302,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -279.41622483346083,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -460,13 +1035,28 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 5,
-          "fit_r2": 0.9437879092380069,
-          "heldout_r2": 0.9951056386239682,
-          "heldout_median_rel_err": 0.10625772773469164,
-          "heldout_max_rel_err": 0.45771662782851746,
-          "aic": -136.5767282457698,
+          "fit_r2": 0.9926881358384199,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.17856787939429256,
+          "heldout_max_rel_err": 0.5511038706987358,
+          "heldout_per_tier_err": {
+            "tiny": 0.13060373710544815,
+            "small": 0.15827141162295844,
+            "medium": 0.24216988214919302,
+            "large": 0.10723196406115502
+          },
+          "heldout_worst_tier_err": 0.24216988214919302,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -279.41622483346083,
           "model": {
             "family": "regime",
             "n_params": 5,
@@ -491,9 +1081,249 @@
               }
             ]
           }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.8975440927634951,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.22325519977783392,
+          "heldout_max_rel_err": 0.5617921525268698,
+          "heldout_per_tier_err": {
+            "tiny": 0.13151572308333662,
+            "small": 0.28265116891921493,
+            "medium": 0.2863155771131054,
+            "large": 0.26228489961162627
+          },
+          "heldout_worst_tier_err": 0.2863155771131054,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -222.05780220441773,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 417.61981100007995,
+            "beta_gbs": 0.203577826325792
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.986320524231372,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1753741341465298,
+          "heldout_max_rel_err": 0.5324619147426368,
+          "heldout_per_tier_err": {
+            "tiny": 0.1550535131419799,
+            "small": 0.18163979968268418,
+            "medium": 0.22895168653408676,
+            "large": 0.09858291294125654
+          },
+          "heldout_worst_tier_err": 0.22895168653408676,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -264.3826648189357,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 196608.0,
+            "breakpoint_kib": 192.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 467.27924769145613,
+              "beta_gbs": 0.48719449660888486
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 5.648121391088101e-06,
+              "beta_gbs": 0.1587946430367127
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 5,
+          "fit_r2": 0.986320524231372,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1753741341465298,
+          "heldout_max_rel_err": 0.5324619147426368,
+          "heldout_per_tier_err": {
+            "tiny": 0.1550535131419799,
+            "small": 0.18163979968268418,
+            "medium": 0.22895168653408676,
+            "large": 0.09858291294125654
+          },
+          "heldout_worst_tier_err": 0.22895168653408676,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -264.3826648189357,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              196608.0
+            ],
+            "edges_kib": [
+              192.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 467.27924769145613,
+                "beta_gbs": 0.48719449660888486
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 5.648121391088101e-06,
+                "beta_gbs": 0.1587946430367127
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": 0.7695204800915981,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.24683683004467763,
+          "heldout_max_rel_err": 0.5901693364101074,
+          "heldout_per_tier_err": {
+            "tiny": 0.14534319241499288,
+            "small": 0.2302273684015298,
+            "medium": 0.2107281832166695,
+            "large": 0.41114712186028013
+          },
+          "heldout_worst_tier_err": 0.41114712186028013,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -202.60029480342217,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 391.31835448277343,
+            "beta_gbs": 0.25534239641280937
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.9721228892941175,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1664560439163234,
+          "heldout_max_rel_err": 0.5508800327883918,
+          "heldout_per_tier_err": {
+            "tiny": 0.12805630937972712,
+            "small": 0.16593271534476936,
+            "medium": 0.19195088352691753,
+            "large": 0.1141026036088329
+          },
+          "heldout_worst_tier_err": 0.19195088352691753,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -247.2968402545206,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 196608.0,
+            "breakpoint_kib": 192.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 430.89294004592887,
+              "beta_gbs": 0.42978708495914075
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 7.908552797093151e-09,
+              "beta_gbs": 0.16838803177262168
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 5,
+          "fit_r2": 0.9721228892941175,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1664560439163234,
+          "heldout_max_rel_err": 0.5508800327883918,
+          "heldout_per_tier_err": {
+            "tiny": 0.12805630937972712,
+            "small": 0.16593271534476936,
+            "medium": 0.19195088352691753,
+            "large": 0.1141026036088329
+          },
+          "heldout_worst_tier_err": 0.19195088352691753,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -247.2968402545206,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              196608.0
+            ],
+            "edges_kib": [
+              192.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 430.89294004592887,
+                "beta_gbs": 0.42978708495914075
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 7.908552797093151e-09,
+                "beta_gbs": 0.16838803177262168
+              }
+            ]
+          }
         }
       ],
-      "reason": "`piecewise` wins on held-out error (10.6% median) against `linear` 17.3%, `regime` 10.6%. The decision is held-out error, not fit quality: a more flexible family always fits its own data better."
+      "reason": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 19% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
     },
     "gloo_shm/all_reduce/world2": {
       "transport": "gloo_shm",
@@ -506,13 +1336,28 @@
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.030075770318427675,
-          "heldout_r2": -0.170701614306763,
-          "heldout_median_rel_err": 0.5388759587909399,
-          "heldout_max_rel_err": 0.934321196085977,
-          "aic": -117.22673527780574,
+          "fit_r2": -0.00910926013101987,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.4628083428026387,
+          "heldout_max_rel_err": 2.645660228873642,
+          "heldout_per_tier_err": {
+            "tiny": 0.3366286767200889,
+            "small": 0.21420081902736193,
+            "medium": 1.556163143472339,
+            "large": 0.5504846106206703
+          },
+          "heldout_worst_tier_err": 1.556163143472339,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -165.21415545400168,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -521,13 +1366,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.976423899771295,
-          "heldout_r2": 0.8403684624721868,
-          "heldout_median_rel_err": 0.28407281428748254,
-          "heldout_max_rel_err": 0.6709733881879576,
-          "aic": -155.8305487736535,
+          "fit_r2": 0.8650754894419145,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.21759808443890227,
+          "heldout_max_rel_err": 1.0629952984515965,
+          "heldout_per_tier_err": {
+            "tiny": 0.15996460161754933,
+            "small": 0.11859909157010026,
+            "medium": 0.39314849459582085,
+            "large": 0.4297914736552031
+          },
+          "heldout_worst_tier_err": 0.4297914736552031,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -207.5047440715603,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -548,13 +1408,28 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 5,
-          "fit_r2": 0.976423899771295,
-          "heldout_r2": 0.8403684624721868,
-          "heldout_median_rel_err": 0.28407281428748254,
-          "heldout_max_rel_err": 0.6709733881879576,
-          "aic": -155.8305487736535,
+          "fit_r2": 0.8650754894419145,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.21759808443890227,
+          "heldout_max_rel_err": 1.0629952984515965,
+          "heldout_per_tier_err": {
+            "tiny": 0.15996460161754933,
+            "small": 0.11859909157010026,
+            "medium": 0.39314849459582085,
+            "large": 0.4297914736552031
+          },
+          "heldout_worst_tier_err": 0.4297914736552031,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -207.5047440715603,
           "model": {
             "family": "regime",
             "n_params": 5,
@@ -579,9 +1454,249 @@
               }
             ]
           }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.43728949713936527,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.4911151414382826,
+          "heldout_max_rel_err": 4.9379523252726845,
+          "heldout_per_tier_err": {
+            "tiny": 0.22704277218225016,
+            "small": 0.27145084585417967,
+            "medium": 2.5004697922108554,
+            "large": 0.6689890164947092
+          },
+          "heldout_worst_tier_err": 2.5004697922108554,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -179.23154766211348,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 192.00355036378852,
+            "beta_gbs": 0.5675362814912875
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.6702227063438913,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2294225491129243,
+          "heldout_max_rel_err": 1.07860899990577,
+          "heldout_per_tier_err": {
+            "tiny": 0.1595694278439614,
+            "small": 0.12474290108941977,
+            "medium": 0.46052889992064205,
+            "large": 0.5278213570503001
+          },
+          "heldout_worst_tier_err": 0.5278213570503001,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -186.05589324102755,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 262144.0,
+            "breakpoint_kib": 256.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 238.0405018842464,
+              "beta_gbs": 7.579731831623616
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 0.00017018322450002485,
+              "beta_gbs": 0.3802588026879695
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 5,
+          "fit_r2": 0.6702227063438913,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2294225491129243,
+          "heldout_max_rel_err": 1.07860899990577,
+          "heldout_per_tier_err": {
+            "tiny": 0.1595694278439614,
+            "small": 0.12474290108941977,
+            "medium": 0.46052889992064205,
+            "large": 0.5278213570503001
+          },
+          "heldout_worst_tier_err": 0.5278213570503001,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -186.05589324102755,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              262144.0
+            ],
+            "edges_kib": [
+              256.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 238.0405018842464,
+                "beta_gbs": 7.579731831623616
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 0.00017018322450002485,
+                "beta_gbs": 0.3802588026879695
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": -0.04056070681848167,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.45667923390039766,
+          "heldout_max_rel_err": 2.614572392787946,
+          "heldout_per_tier_err": {
+            "tiny": 0.3470039805625733,
+            "small": 0.2129016131459811,
+            "medium": 1.5457626998464669,
+            "large": 0.5620257115029681
+          },
+          "heldout_worst_tier_err": 1.5457626998464669,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -164.477554942709,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 210.17600981116948,
+            "beta_gbs": 2.1815064263108805
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.3607013239786292,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.21767504375674615,
+          "heldout_max_rel_err": 1.0632907131464227,
+          "heldout_per_tier_err": {
+            "tiny": 0.1598827286314658,
+            "small": 0.11844746531887466,
+            "medium": 0.5230033671887546,
+            "large": 0.7131425138136847
+          },
+          "heldout_worst_tier_err": 0.7131425138136847,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -170.1689924923216,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 262144.0,
+            "breakpoint_kib": 256.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 232.33428265015533,
+              "beta_gbs": 6.243595008109815
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 5.3095156465084404e-11,
+              "beta_gbs": 0.6506661296993725
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 5,
+          "fit_r2": 0.3607013239786292,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.21767504375674615,
+          "heldout_max_rel_err": 1.0632907131464227,
+          "heldout_per_tier_err": {
+            "tiny": 0.1598827286314658,
+            "small": 0.11844746531887466,
+            "medium": 0.5230033671887546,
+            "large": 0.7131425138136847
+          },
+          "heldout_worst_tier_err": 0.7131425138136847,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -170.1689924923216,
+          "model": {
+            "family": "regime",
+            "n_params": 5,
+            "edges_bytes": [
+              262144.0
+            ],
+            "edges_kib": [
+              256.0
+            ],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 232.33428265015533,
+                "beta_gbs": 6.243595008109815
+              },
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 5.3095156465084404e-11,
+                "beta_gbs": 0.6506661296993725
+              }
+            ]
+          }
         }
       ],
-      "reason": "The best family, `piecewise`, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+      "reason": "The best family, `piecewise/weighted`, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
     },
     "gloo_shm/all_reduce/world3": {
       "transport": "gloo_shm",
@@ -594,13 +1709,28 @@
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.3911347921587208,
-          "heldout_r2": 0.38897108848157913,
-          "heldout_median_rel_err": 0.5048939314204313,
-          "heldout_max_rel_err": 0.8241197185848461,
-          "aic": -136.6069090200363,
+          "fit_r2": 0.4396390517553955,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2287793152176149,
+          "heldout_max_rel_err": 0.8387257351139583,
+          "heldout_per_tier_err": {
+            "tiny": 0.2229941659198709,
+            "small": 0.0177214598593849,
+            "medium": 0.41694071245644837,
+            "large": 0.5944605366018629
+          },
+          "heldout_worst_tier_err": 0.5944605366018629,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -221.06166220338488,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -609,13 +1739,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.47383253594231456,
-          "heldout_r2": 0.5070789612069488,
-          "heldout_median_rel_err": 0.39109706472749556,
-          "heldout_max_rel_err": 0.8955703614837002,
-          "aic": -132.35863751783953,
+          "fit_r2": 0.5464015497985888,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2271317953175955,
+          "heldout_max_rel_err": 1.3440872240391488,
+          "heldout_per_tier_err": {
+            "tiny": 0.22540502980277094,
+            "small": 0.09550928879289192,
+            "medium": 0.4300193617556705,
+            "large": 0.4537243946451594
+          },
+          "heldout_worst_tier_err": 0.4537243946451594,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -220.13451318230696,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -636,13 +1781,28 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 2,
-          "fit_r2": 0.39113479215872105,
-          "heldout_r2": 0.38897108848157935,
-          "heldout_median_rel_err": 0.5048939314204312,
-          "heldout_max_rel_err": 0.8241197185848458,
-          "aic": -136.6069090200363,
+          "fit_r2": 0.43963905175539564,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.23133042718946528,
+          "heldout_max_rel_err": 1.3437629262700117,
+          "heldout_per_tier_err": {
+            "tiny": 0.22454599669680553,
+            "small": 0.10214436075857874,
+            "medium": 0.40769222774543457,
+            "large": 0.5048939314204312
+          },
+          "heldout_worst_tier_err": 0.5048939314204312,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -221.06166220338488,
           "model": {
             "family": "regime",
             "n_params": 2,
@@ -657,9 +1817,229 @@
               }
             ]
           }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.6522286659283489,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.3619418213690227,
+          "heldout_max_rel_err": 1.4598527424999752,
+          "heldout_per_tier_err": {
+            "tiny": 0.20943232647074272,
+            "small": 0.06934273702167348,
+            "medium": 0.9126633827112973,
+            "large": 0.41388850971866886
+          },
+          "heldout_worst_tier_err": 0.9126633827112973,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -232.51052497301816,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 378.02228763803,
+            "beta_gbs": 1.1634528653079352
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.8350822486212011,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.23597751915865967,
+          "heldout_max_rel_err": 2.2196087745804944,
+          "heldout_per_tier_err": {
+            "tiny": 0.23597751915865967,
+            "small": 0.15598360150347745,
+            "medium": 1.1157149051280153,
+            "large": 0.35793106009997283
+          },
+          "heldout_worst_tier_err": 1.1157149051280153,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -244.4168842851007,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 349525.3333333333,
+            "breakpoint_kib": 341.3333333333333,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 462.9550242532474,
+              "beta_gbs": 76.43197952240288
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 210.45978803945457,
+              "beta_gbs": 0.7528181218783253
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 2,
+          "fit_r2": 0.6522286658613244,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.23597751915865967,
+          "heldout_max_rel_err": 1.4598527422563616,
+          "heldout_per_tier_err": {
+            "tiny": 0.23597751915865967,
+            "small": 0.14426588050825753,
+            "medium": 0.750839405225002,
+            "large": 0.44353405661440726
+          },
+          "heldout_worst_tier_err": 0.750839405225002,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -232.51052496839276,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 378.0222876380306,
+                "beta_gbs": 1.163452865459406
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": 0.42904532916714433,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2497092795599853,
+          "heldout_max_rel_err": 0.8482614280789051,
+          "heldout_per_tier_err": {
+            "tiny": 0.21945873278469477,
+            "small": 0.020934382728046652,
+            "medium": 0.40037521499228274,
+            "large": 0.610314456989073
+          },
+          "heldout_worst_tier_err": 0.610314456989073,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -220.6121735380117,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 377.8650408245308,
+            "beta_gbs": 1.8010786223067499
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.5392787265254443,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.16959497557183661,
+          "heldout_max_rel_err": 0.8796684347948945,
+          "heldout_per_tier_err": {
+            "tiny": 0.2230858860577666,
+            "small": 0.09211600944367898,
+            "medium": 0.43220098015678476,
+            "large": 0.3992186625776416
+          },
+          "heldout_worst_tier_err": 0.43220098015678476,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -219.76057130517938,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 349525.3333333333,
+            "breakpoint_kib": 341.3333333333333,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 426.0249953256524,
+              "beta_gbs": 10.186637572917578
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 230.05655736210838,
+              "beta_gbs": 1.4309310364208572
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 2,
+          "fit_r2": 0.4290453291672429,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.16959497557183661,
+          "heldout_max_rel_err": 0.7971532832266613,
+          "heldout_per_tier_err": {
+            "tiny": 0.2230858860577666,
+            "small": 0.09515349971968065,
+            "medium": 0.39257278913613464,
+            "large": 0.5152992551211397
+          },
+          "heldout_worst_tier_err": 0.5152992551211397,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -220.61217353801587,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 377.8650408244125,
+                "beta_gbs": 1.801078622306362
+              }
+            ]
+          }
         }
       ],
-      "reason": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+      "reason": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
     },
     "gloo_shm/all_reduce/world4": {
       "transport": "gloo_shm",
@@ -672,13 +2052,28 @@
       "n_heldout": 12,
       "candidates": [
         {
-          "family": "linear",
+          "family": "linear/weighted",
           "n_params": 2,
-          "fit_r2": 0.634533061066649,
-          "heldout_r2": 0.6496910935312687,
-          "heldout_median_rel_err": 0.4575921541587792,
+          "fit_r2": 0.6830392396515356,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2272666144775294,
           "heldout_max_rel_err": 0.8946005713641044,
-          "aic": -143.07638169742177,
+          "heldout_per_tier_err": {
+            "tiny": 0.12940944500658774,
+            "small": 0.07911187703942034,
+            "medium": 0.5481804333280303,
+            "large": 0.49456540558130613
+          },
+          "heldout_worst_tier_err": 0.5481804333280303,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -231.99157977325962,
           "model": {
             "family": "linear",
             "n_params": 2,
@@ -687,13 +2082,28 @@
           }
         },
         {
-          "family": "piecewise",
+          "family": "piecewise/weighted",
           "n_params": 5,
-          "fit_r2": 0.6857752995513821,
-          "heldout_r2": 0.7472883294873576,
-          "heldout_median_rel_err": 0.39344970261781936,
-          "heldout_max_rel_err": 0.8670539658039585,
-          "aic": -138.88919150824924,
+          "fit_r2": 0.7694018757975495,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2793601877902432,
+          "heldout_max_rel_err": 1.0547357993409923,
+          "heldout_per_tier_err": {
+            "tiny": 0.049109936298211934,
+            "small": 0.2422041628428444,
+            "medium": 0.5427404917646659,
+            "large": 0.43233931205077447
+          },
+          "heldout_worst_tier_err": 0.5427404917646659,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -233.6260159759414,
           "model": {
             "family": "piecewise",
             "n_params": 5,
@@ -714,13 +2124,28 @@
           }
         },
         {
-          "family": "regime",
+          "family": "regime/weighted",
           "n_params": 2,
-          "fit_r2": 0.6345330610666488,
-          "heldout_r2": 0.6496910935312685,
-          "heldout_median_rel_err": 0.45759215415877913,
-          "heldout_max_rel_err": 0.894600571364104,
-          "aic": -143.07638169742177,
+          "fit_r2": 0.6830392396515355,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.1677789123853023,
+          "heldout_max_rel_err": 1.0550600473048002,
+          "heldout_per_tier_err": {
+            "tiny": 0.04900761069113626,
+            "small": 0.06237754987132362,
+            "medium": 0.551399173847145,
+            "large": 0.5068490812560479
+          },
+          "heldout_worst_tier_err": 0.551399173847145,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -231.99157977325962,
           "model": {
             "family": "regime",
             "n_params": 2,
@@ -735,20 +2160,240 @@
               }
             ]
           }
+        },
+        {
+          "family": "linear/log",
+          "n_params": 2,
+          "fit_r2": 0.8178183960946345,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2927999378937717,
+          "heldout_max_rel_err": 1.1983117404873984,
+          "heldout_per_tier_err": {
+            "tiny": 0.1274548256425401,
+            "small": 0.08283022856829232,
+            "medium": 0.8355458030915567,
+            "large": 0.3840441679378136
+          },
+          "heldout_worst_tier_err": 0.8355458030915567,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -245.28215501937447,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 755.2749541753706,
+            "beta_gbs": 1.0263038161584046
+          }
+        },
+        {
+          "family": "piecewise/log",
+          "n_params": 5,
+          "fit_r2": 0.8841660227971889,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.3038697901919559,
+          "heldout_max_rel_err": 1.1827026014902204,
+          "heldout_per_tier_err": {
+            "tiny": 0.0806893595041323,
+            "small": 0.34887246920177456,
+            "medium": 0.6736522780110556,
+            "large": 0.3074318758075959
+          },
+          "heldout_worst_tier_err": 0.6736522780110556,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -250.15046089931445,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 208896.0,
+            "breakpoint_kib": 204.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 812.5024033962321,
+              "beta_gbs": 0.2570193219505268
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 519.6665575346926,
+              "beta_gbs": 0.8977966302879345
+            }
+          }
+        },
+        {
+          "family": "regime/log",
+          "n_params": 2,
+          "fit_r2": 0.8178183960976265,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.2927999379305509,
+          "heldout_max_rel_err": 1.1983117404952144,
+          "heldout_per_tier_err": {
+            "tiny": 0.1274548256428471,
+            "small": 0.08283022856884231,
+            "medium": 0.8355458030542858,
+            "large": 0.3840441679346122
+          },
+          "heldout_worst_tier_err": 0.8355458030542858,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -245.2821550197686,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 755.2749541752894,
+                "beta_gbs": 1.0263038161529028
+              }
+            ]
+          }
+        },
+        {
+          "family": "linear/huber",
+          "n_params": 2,
+          "fit_r2": 0.6768168776593917,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.24042652990810864,
+          "heldout_max_rel_err": 0.885043348453984,
+          "heldout_per_tier_err": {
+            "tiny": 0.11404165124441933,
+            "small": 0.07280155933548527,
+            "medium": 0.5443278281699799,
+            "large": 0.49960412514794017
+          },
+          "heldout_worst_tier_err": 0.5443278281699799,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -231.5249928218127,
+          "model": {
+            "family": "linear",
+            "n_params": 2,
+            "alpha_us": 756.9228344604355,
+            "beta_gbs": 1.3054118983820402
+          }
+        },
+        {
+          "family": "piecewise/huber",
+          "n_params": 5,
+          "fit_r2": 0.763653656561454,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.27751043498526606,
+          "heldout_max_rel_err": 0.8530259328271884,
+          "heldout_per_tier_err": {
+            "tiny": 0.049212700652010576,
+            "small": 0.23577454001743198,
+            "medium": 0.5330651840016103,
+            "large": 0.4236879030072557
+          },
+          "heldout_worst_tier_err": 0.5330651840016103,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -233.03509246925165,
+          "model": {
+            "family": "piecewise",
+            "n_params": 5,
+            "breakpoint_bytes": 208896.0,
+            "breakpoint_kib": 204.0,
+            "low": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 812.5367896584453,
+              "beta_gbs": 0.4628270694546189
+            },
+            "high": {
+              "family": "linear",
+              "n_params": 2,
+              "alpha_us": 518.7432185487655,
+              "beta_gbs": 1.1157137600650435
+            }
+          }
+        },
+        {
+          "family": "regime/huber",
+          "n_params": 2,
+          "fit_r2": 0.6768168723797089,
+          "cv_ok": true,
+          "cv_note": "",
+          "heldout_median_rel_err": 0.11890464282657745,
+          "heldout_max_rel_err": 0.885043339216177,
+          "heldout_per_tier_err": {
+            "tiny": 0.049212700652010576,
+            "small": 0.06219932900485242,
+            "medium": 0.5476444285129918,
+            "large": 0.4900298879873065
+          },
+          "heldout_worst_tier_err": 0.5476444285129918,
+          "cv_n_predictions": 24,
+          "cv_n_per_tier": {
+            "tiny": 6,
+            "small": 6,
+            "medium": 6,
+            "large": 6
+          },
+          "aic": -231.52499242973659,
+          "model": {
+            "family": "regime",
+            "n_params": 2,
+            "edges_bytes": [],
+            "edges_kib": [],
+            "segments": [
+              {
+                "family": "linear",
+                "n_params": 2,
+                "alpha_us": 756.9228355532473,
+                "beta_gbs": 1.3054119099821724
+              }
+            ]
+          }
         }
       ],
-      "reason": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
+      "reason": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 53% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer."
     }
   },
   "parameters": {
     "name": "thrust1-comm",
     "summary": {
-      "diagnostic": 4,
-      "accepted": 12
+      "diagnostic": 5,
+      "accepted": 6
     },
-    "n_usable": 12,
-    "n_unusable": 4,
-    "n_evidence_backed": 12,
+    "n_usable": 6,
+    "n_unusable": 5,
+    "n_evidence_backed": 6,
     "parameters": [
       {
         "name": "gloo_shm/all_gather/world2/alpha_us",
@@ -758,7 +2403,7 @@
         "is_evidence": false,
         "unit": "us",
         "source": "thrust1-comm-v1 family selection",
-        "note": "The best family, `piecewise`, still misses held-out points by a median of 18% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer. Note that run-to-run variation on this group is 13.5%, so the residual is close to the measurement noise: a better model family would not fix it, and a cleaner measurement might. That is a statement about the instrument, not about the model.",
+        "note": "The best family, `regime/weighted`, still misses its worst-fitting regime by 70% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
         "quality": {},
         "superseded_value": null
       },
@@ -772,8 +2417,8 @@
         "source": "thrust1-comm-v1 calibration",
         "note": "the size at which the collective changes algorithm",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
@@ -786,10 +2431,10 @@
         "is_evidence": true,
         "unit": "params",
         "source": "thrust1-comm-v1 calibration",
-        "note": "piecewise",
+        "note": "piecewise/weighted",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
@@ -804,8 +2449,8 @@
         "source": "thrust1-comm-v1 calibration",
         "note": "",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
@@ -820,8 +2465,8 @@
         "source": "thrust1-comm-v1 calibration",
         "note": "",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
@@ -836,8 +2481,8 @@
         "source": "thrust1-comm-v1 calibration",
         "note": "",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
@@ -852,106 +2497,22 @@
         "source": "thrust1-comm-v1 calibration",
         "note": "",
         "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.057141108426366424,
+          "family": "piecewise/weighted",
+          "heldout_median_rel_err": 0.07966419232558884,
           "fit_r2": 0.9978030291610936
         },
         "superseded_value": null
       },
       {
-        "name": "gloo_shm/all_gather/world4/breakpoint_kib",
-        "value": 3072.0,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
-        "unit": "KiB",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "the size at which the collective changes algorithm",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
-        "superseded_value": null
-      },
-      {
-        "name": "gloo_shm/all_gather/world4/family",
-        "value": 5.0,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
-        "unit": "params",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "piecewise",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
-        "superseded_value": null
-      },
-      {
-        "name": "gloo_shm/all_gather/world4/high_alpha_us",
-        "value": 772.0340545126044,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
+        "name": "gloo_shm/all_gather/world4/alpha_us",
+        "value": NaN,
+        "provenance": "diagnostic",
+        "usable": false,
+        "is_evidence": false,
         "unit": "us",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
-        "superseded_value": null
-      },
-      {
-        "name": "gloo_shm/all_gather/world4/high_beta_gbs",
-        "value": 0.147439693614734,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
-        "unit": "GB/s",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
-        "superseded_value": null
-      },
-      {
-        "name": "gloo_shm/all_gather/world4/low_alpha_us",
-        "value": 376.82148958367736,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
-        "unit": "us",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
-        "superseded_value": null
-      },
-      {
-        "name": "gloo_shm/all_gather/world4/low_beta_gbs",
-        "value": 0.28185932173087724,
-        "provenance": "accepted",
-        "usable": true,
-        "is_evidence": true,
-        "unit": "GB/s",
-        "source": "thrust1-comm-v1 calibration",
-        "note": "",
-        "quality": {
-          "family": "piecewise",
-          "heldout_median_rel_err": 0.10625772773469164,
-          "fit_r2": 0.9950909228407128
-        },
+        "source": "thrust1-comm-v1 family selection",
+        "note": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 19% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "quality": {},
         "superseded_value": null
       },
       {
@@ -962,7 +2523,7 @@
         "is_evidence": false,
         "unit": "us",
         "source": "thrust1-comm-v1 family selection",
-        "note": "The best family, `piecewise`, still misses held-out points by a median of 28% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "note": "The best family, `piecewise/weighted`, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
         "quality": {},
         "superseded_value": null
       },
@@ -974,7 +2535,7 @@
         "is_evidence": false,
         "unit": "us",
         "source": "thrust1-comm-v1 family selection",
-        "note": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "note": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 43% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
         "quality": {},
         "superseded_value": null
       },
@@ -986,22 +2547,21 @@
         "is_evidence": false,
         "unit": "us",
         "source": "thrust1-comm-v1 family selection",
-        "note": "The best family, `piecewise`, still misses held-out points by a median of 39% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
+        "note": "The best family, `piecewise/huber`, still misses its worst-fitting regime by 53% (gate: 15%). No family here describes this transport, so none is promoted; all remain diagnostic. Widening the gate to admit one would be choosing the answer.",
         "quality": {},
         "superseded_value": null
       }
     ]
   },
   "split": {
-    "created_at": "2026-08-31T02:52:48Z",
+    "created_at": "2026-08-31T04:06:50Z",
     "frozen": true,
-    "frozen_at": "2026-08-31T02:52:48Z",
+    "frozen_at": "2026-08-31T04:06:54Z",
     "digest": "sha256:d1576eeb43cb2914ae75af29e31eb9a2a7006ad96c9820b1dbad9708dd4d3ca7",
     "n_calibration": 8,
     "n_validation": 8,
     "fitted_parameters": [
-      "gloo_shm/all_gather/world3",
-      "gloo_shm/all_gather/world4"
+      "gloo_shm/all_gather/world3"
     ],
     "calibration": [
       [
@@ -1089,21 +2649,6 @@
         "large": 0.08259623083997955
       },
       "coverage": 0.75
-    },
-    "gloo_shm/all_gather/world4": {
-      "n_points": 24,
-      "median_rel_err": 0.13417103155849047,
-      "max_rel_err": 0.6295026973704285,
-      "r2": 0.9947288584847599,
-      "latency_rel_err": 0.10070122927899024,
-      "bandwidth_rel_err": 0.1609704751410877,
-      "per_tier_err": {
-        "tiny": 0.046098474786040275,
-        "small": 0.21858300329370917,
-        "medium": 0.4354543044411443,
-        "large": 0.04940452915626099
-      },
-      "coverage": 0.7083333333333334
     }
   },
   "errors": {},
@@ -3415,13 +4960,13 @@
     }
   ],
   "provenance": {
-    "captured_at": "2026-08-31T02:52:48Z",
+    "captured_at": "2026-08-31T04:06:54Z",
     "host": "Archana-PC",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "cpu_count": 24,
     "git": {
-      "commit": "f80269441b7e739f0ef0345d844480b59248f336",
+      "commit": "660cd5f849a897918f2e1f786b0b36e2e4676a99",
       "dirty": true,
       "dirty_scope": [
         "src",
@@ -3430,15 +4975,13 @@
         "configs"
       ],
       "dirty_files": [
-        "M src/losscolumn/history.py",
-        " M tests/test_memory_model_v2.py",
-        "?? src/losscolumn/thrusts/overlap/comcal.py",
-        "?? src/losscolumn/thrusts/overlap/commodel.py",
-        "?? tests/test_commodel.py"
+        "M src/losscolumn/thrusts/overlap/comcal.py",
+        " M src/losscolumn/thrusts/overlap/commodel.py",
+        "?? src/losscolumn/thrusts/overlap/memval2.py"
       ],
       "branch": "master",
       "remote": null,
-      "describe": "v0.3.0-memory-v2-dirty"
+      "describe": "v0.4.0-comm-v1-dirty"
     },
     "gpu": {
       "available": true,
