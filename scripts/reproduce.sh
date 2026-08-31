@@ -81,7 +81,18 @@ say "4/6  Verifying the frozen standard from the clone"
   || fail "the standard does not verify from a clean clone"
 
 say "5/6  Running the pipeline"
-"$VPY" -m pip install --quiet -e "$CLONE[dev]" >/dev/null 2>&1 || true
+# Install the test dependencies WITHOUT swallowing the error. This line used to
+# end in `|| true`, so a failed install surfaced much later as "No module named
+# pytest" -- a silent failure inside the script whose whole job is to catch
+# silent failures. Found by running it.
+#
+# Extras are installed by name rather than through the `[dev]` extra: the
+# bracket form is unreliable through a POSIX shell on Windows, where the clone
+# path is translated on its way to pip.
+"$VPY" -m pip install --quiet pytest \
+  || fail "could not install the test dependencies into the clean environment"
+"$VPY" -c "import pytest" \
+  || fail "pytest did not import after installation"
 ( cd "$CLONE" && "$VPY" -W ignore -m pytest tests/ -q -p no:faulthandler ) \
   || fail "the test suite does not pass from a clean clone"
 ( cd "$CLONE" && "$VPY" -W ignore -m losscolumn.cli.main run all $QUICK ) \
