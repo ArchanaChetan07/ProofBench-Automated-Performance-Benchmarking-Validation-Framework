@@ -89,7 +89,11 @@ say "5/6  Running the pipeline"
 # Extras are installed by name rather than through the `[dev]` extra: the
 # bracket form is unreliable through a POSIX shell on Windows, where the clone
 # path is translated on its way to pip.
-"$VPY" -m pip install --quiet pytest \
+# SciPy is optional for the package but required to exercise the log-relative
+# and robust estimator families, so the clean-clone run installs it: a
+# reproduction that silently tests fewer model families than the author did is
+# not a reproduction of the author's result.
+"$VPY" -m pip install --quiet pytest scipy \
   || fail "could not install the test dependencies into the clean environment"
 "$VPY" -c "import pytest" \
   || fail "pytest did not import after installation"

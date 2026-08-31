@@ -20,13 +20,16 @@ classifiers = [
 
 # Core is intentionally near-dependency-free: the analysis layer must be
 # installable on a login node with no CUDA, no torch, and no network.
+# Core stays numpy-only so the analysis layer installs on a login node.
+# SciPy is optional: without it the log-relative and robust estimator
+# families are unavailable, and the model selection says so.
 dependencies = ["numpy>=1.24"]
 
 [project.optional-dependencies]
 torch = ["torch>=2.1"]
 triton = ["triton>=3.0; platform_system!='Windows'", "triton-windows>=3.0; platform_system=='Windows'"]
 plots = ["matplotlib>=3.7"]
-dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "scipy>=1.10"]
 all = ["losscolumn[torch,plots,dev]"]
 
 [project.scripts]

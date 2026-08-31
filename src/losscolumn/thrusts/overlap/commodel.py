@@ -257,6 +257,9 @@ def _fit_nonlinear(x: np.ndarray, y: np.ndarray, *, loss: str
     try:
         from scipy.optimize import least_squares
     except Exception:
+        # SciPy is optional. Without it the log and robust estimators are simply
+        # unavailable, which the selection reports rather than silently
+        # substituting the weighted fit under their name.
         return None
 
     slope0, inter0 = np.polyfit(x, y, 1, w=1.0 / y)
@@ -565,10 +568,21 @@ def select_model(
         except Exception:
             model = None
         if model is None:
+            # Every candidate carries the same keys whether or not it fitted.
+            # A ragged shape here meant consumers had to special-case the
+            # failure path, and one did not -- which only showed up in a fresh
+            # environment without SciPy, where the log and robust estimators
+            # take exactly this branch.
             sel.candidates.append({
                 "family": name, "n_params": 0, "fit_r2": float("nan"),
+                "cv_ok": False,
+                "cv_note": "could not be fitted on these points",
                 "heldout_median_rel_err": float("nan"),
-                "heldout_max_rel_err": float("nan"), "aic": float("inf"),
+                "heldout_max_rel_err": float("nan"),
+                "heldout_per_tier_err": {},
+                "heldout_worst_tier_err": float("nan"),
+                "cv_n_predictions": 0, "cv_n_per_tier": {},
+                "aic": float("inf"), "model": None,
                 "note": "could not be fitted on these points",
             })
             continue
