@@ -17,7 +17,12 @@ def main() -> int:
     from losscolumn.version import STANDARD_VERSION
 
     art = Path("artifacts")
-    camp_path = art / "campaign-thrust1-communication.json"
+    # The 21-repeat re-measurement where it exists. Its noise estimates are
+    # measured rather than inferred from two repeats, and its coverage is
+    # correspondingly lower and more honest.
+    camp_path = art / "recampaign-thrust1-communication.json"
+    if not camp_path.exists():
+        camp_path = art / "campaign-thrust1-communication.json"
     if not camp_path.exists():
         print("no campaign artifact; run scripts/comcampaign.py first", file=sys.stderr)
         return 2

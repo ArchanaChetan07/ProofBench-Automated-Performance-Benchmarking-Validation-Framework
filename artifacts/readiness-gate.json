@@ -21,12 +21,12 @@
     {
       "gate": "communication quality gates pass",
       "passed": false,
-      "detail": "2 of 6 groups have an accepted model"
+      "detail": "3 of 6 groups have an accepted model"
     },
     {
       "gate": "required coverage achieved",
       "passed": false,
-      "detail": "8 of 24 (group x regime) cells covered (33%)"
+      "detail": "6 of 24 (group x regime) cells covered (25%)"
     },
     {
       "gate": "no rejected parameter is active",
@@ -46,12 +46,12 @@
     {
       "gate": "8-GPU protocol is fully prepared",
       "passed": true,
-      "detail": "12 stages sealed (6.8 h), seal 6ae547e868b0a128"
+      "detail": "13 stages sealed (7.2 h), seal 70529d6d37ac021c"
     }
   ],
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-01T01:27:07Z",
+  "generated_at": "2026-09-01T03:02:31Z",
   "local_readiness": "not_ready",
-  "a100_protocol_seal": "sha256:6ae547e868b0a128e0bf01fc80dc4360bfab7b5ebf81939c64564f6d9e2acbe9",
+  "a100_protocol_seal": "sha256:70529d6d37ac021c6eda83270a264e2ab8f3702e34b7be30e16b84a1cb74b66a",
   "command": "python scripts/readiness_gate.py"
 }

@@ -1,12 +1,12 @@
 {
   "kind": "a100-campaign-protocol",
   "protocol": "thrust1-a100-v1",
-  "sealed_at": "2026-09-01T01:27:07Z",
+  "sealed_at": "2026-09-01T03:02:31Z",
   "status": "PREPARED, NOT EXECUTED",
   "standard_version": "LC-1.2",
   "preconditions": {
     "local_communication_readiness": "not_ready",
-    "local_campaign_seal": "sha256:4ec68376d8808ad48b4dd028a876351e1be3b2f10b941c9d09a533d797167aeb",
+    "local_campaign_seal": "sha256:9fe44a0d85047b1fb760f8e75d3e49feb069787555cf1ca33ef51155ddd29e89",
     "memory_model": "block-memory-v2",
     "memory_model_milestone": "v0.3.0-memory-v2",
     "note": "The local readiness verdict gates whether this protocol should be executed. NOT_READY does not make the protocol wrong; it makes running it premature."
@@ -32,6 +32,15 @@
     },
     {
       "order": 3,
+      "name": "machine stability sentinel",
+      "purpose": "Measure the rented machine's own repeatability before anything is built on it: six probes at three nested levels -- repeats inside one process, several process launches, launches separated in time -- and derive the comparability criterion from the result rather than carrying one over from elsewhere. Registers the criterion before any session is compared against it, and produces the noise budget that says how many replicates the calibration stage must carry to reach its gate.",
+      "produces": "a stability envelope, a registered comparability criterion, and the replicate count the calibration stage needs",
+      "abort_if": "the launch-level noise floor exceeds the coverage gate, in which case the campaign cannot grade a model to the precision it requires and the allocation is released rather than spent proving it",
+      "estimated_minutes": 25,
+      "cost_if_skipped": "the failure this whole protocol was rewritten to prevent: a campaign measured at a replicate count nobody costed, whose residuals are then attributed to the model rather than to the instrument. Locally that cost a coverage matrix that read 9 cells as needing better models when 6 of them needed more repeats"
+    },
+    {
+      "order": 4,
       "name": "device and allocator verification",
       "purpose": "Confirm memory capacity per device, that the allocator cap installs, and that an over-large allocation raises rather than falling back. This is the check that made local feasibility measurable at all.",
       "produces": "ProbeConfig with cap_installed true, per device",
@@ -40,7 +49,7 @@
       "cost_if_skipped": "feasibility measurements that mean 'eventually returned' rather than 'fits'"
     },
     {
-      "order": 4,
+      "order": 5,
       "name": "fabric identification",
       "purpose": "Determine, by measurement rather than by assumption, which transport each world size actually traverses: intra-node NVLink, intra-node PCIe fallback, or inter-node. A four-rank group with one rank per node runs at IB speed, not NVLink speed.",
       "produces": "a transport label per (world size, rank placement)",
@@ -49,7 +58,7 @@
       "cost_if_skipped": "pricing an inter-node collective at NVLink bandwidth, which flatters every sharding recommendation that depends on it"
     },
     {
-      "order": 5,
+      "order": 6,
       "name": "communication calibration",
       "purpose": "Run the dense campaign grid, unchanged, against NCCL on the real fabric. Same sizes, same oversampled regions, same two passes, same repeats.",
       "produces": "raw PointRecords, per collective per world per pass",
@@ -58,7 +67,7 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 6,
+      "order": 7,
       "name": "parameter quality gates",
       "purpose": "Family selection under every registered estimator, stratified k-fold cross-validation, worst-regime acceptance. Identical code to the local campaign; only the data differs.",
       "produces": "a ParameterVerdict per group and a coverage matrix",
@@ -67,7 +76,7 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 7,
+      "order": 8,
       "name": "model freeze",
       "purpose": "Freeze the accepted communication parameters into a Fabric. Rejected and diagnostic parameters are recorded and remain unusable.",
       "produces": "a sealed Fabric with parameter provenance",
@@ -76,7 +85,7 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 8,
+      "order": 9,
       "name": "Thrust I prediction generation",
       "purpose": "Run the simulator with the frozen memory model and the frozen communication model, over the registered sharding grid, and extract the predicted loss regions.",
       "produces": "a predicted loss map and its regions",
@@ -85,7 +94,7 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 9,
+      "order": 10,
       "name": "prediction lock",
       "purpose": "Seal the prediction: hash it, record the hash, and stop. This is the step that makes the next one a test rather than a fit.",
       "produces": "a sealed prediction hash",
@@ -94,7 +103,7 @@
       "cost_if_skipped": "a comparison that cannot distinguish a good model from a well-chosen narrative, which is the whole failure this project is about"
     },
     {
-      "order": 10,
+      "order": 11,
       "name": "independent 8-GPU measurement",
       "purpose": "Measure the registered sharding grid under torchrun on all eight devices, with GPU exclusivity enforced and the registered replicate count.",
       "produces": "the measured envelope",
@@ -103,7 +112,7 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 11,
+      "order": 12,
       "name": "measured loss-region extraction",
       "purpose": "Extract loss regions from the measurement using the same extractor, at the registered MDE and FDR level.",
       "produces": "the measured loss map",
@@ -112,17 +121,17 @@
       "cost_if_skipped": ""
     },
     {
-      "order": 12,
+      "order": 13,
       "name": "prediction against measurement",
       "purpose": "Score the sealed prediction: region overlap, boundary displacement, false wins, false losses, dangerous-error score, per-regime error.",
       "produces": "the calibration report and the final Thrust I claim",
-      "abort_if": "the prediction hash does not match what was sealed at stage 9",
+      "abort_if": "the prediction hash does not match what was sealed at stage 10",
       "estimated_minutes": 10,
       "cost_if_skipped": ""
     }
   ],
-  "estimated_total_minutes": 405,
-  "estimated_total_hours": 6.8,
+  "estimated_total_minutes": 430,
+  "estimated_total_hours": 7.2,
   "transferability": {
     "local_parameters_are_not_fabric_parameters": true,
     "statement": "No value measured locally is used here. The local campaign ran gloo over shared memory on one host; it cannot produce NVLink or InfiniBand parameters and none of its fits is copied into an A100 Fabric. What transfers is the method: grid construction, estimator families, selection rule, coverage criteria and the readiness gate, all unchanged.",
@@ -139,8 +148,22 @@
       "that Thrust I communication is calibrated"
     ]
   },
-  "ordering_is_binding": "Stages 8 and 9 run before stage 10. A prediction produced after seeing the measurement is not a prediction, and no result from an out-of-order run is admissible.",
+  "ordering_is_binding": "Stages 9 and 10 run before stage 11. A prediction produced after seeing the measurement is not a prediction, and no result from an out-of-order run is admissible.",
+  "session_rule": "Stages 6 through 13 are one session. Nothing measured in them is pooled with anything measured outside them unless stage 3's criterion says the two are comparable, and stage 3 registers that criterion before any comparison is made against it. The local machine's variation was found to enter at the process launch rather than with elapsed time, so 'measure it all in one sitting' is not by itself sufficient: the rented machine gets its own sentinel because there is no reason to assume it behaves the same way.",
+  "restart_rule": "A restart is not a resume. If any stage from 6 onward has to be re-run, everything downstream of it re-runs too, because a measurement taken after a restart belongs to a different launch and the launch is where this machine's variation was found to enter. Splicing a re-run stage into an otherwise finished campaign is the pooling LC-8.1 forbids, wearing a different name.",
+  "budget": {
+    "estimated_hours": 7.2,
+    "hard_ceiling_hours": 10.0,
+    "ceiling_rule": "At the ceiling the campaign stops and reports what it has, whatever stage it reached. A partial campaign with a stated stopping point is a result; an over-running one whose scope was quietly trimmed to fit is not.",
+    "what_overrun_must_not_buy": [
+      "fewer replicates than stage 3's noise budget requires",
+      "a narrower message-size grid than the one registered",
+      "dropping a world size to save time",
+      "a widened coverage gate"
+    ],
+    "overrun_rationale": "Each of those trades a stated result for a nominally complete one. The honest response to running out of allocation is a campaign that covers less and says so, because the alternative is a campaign whose gate was set by the clock."
+  },
   "abort_policy": "Each stage names its own abort condition. Aborting is a successful outcome of the stage: the allocation is expensive and a campaign that stops at stage 2 with a recorded topology surprise is worth more than one that proceeds on a wrong assumption.",
   "notes": [],
-  "seal_hash": "sha256:6ae547e868b0a128e0bf01fc80dc4360bfab7b5ebf81939c64564f6d9e2acbe9"
+  "seal_hash": "sha256:70529d6d37ac021c6eda83270a264e2ab8f3702e34b7be30e16b84a1cb74b66a"
 }

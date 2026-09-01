@@ -32,6 +32,18 @@ __all__ = ["DebtKind", "DebtItem", "CoverageDebt", "assess_debt"]
 
 
 class DebtKind(str, Enum):
+    GROUP_MODEL_REJECTED = "group_model_rejected"
+    """No model was accepted for this cell's group, so the cell cannot be covered
+    whatever its own measurement quality.
+
+    Kept separate from `model_limited` because the constraint is not local. The
+    selection rule scores a family on its worst regime, by design -- it exists so
+    that one useless regime cannot hide behind three good ones. The consequence
+    is that a single ungradable regime rejects the family for the whole group,
+    and cells that are cleanly measured and well fitted are then uncovered for a
+    reason that has nothing to do with them. Reporting those as noise-limited
+    would send someone to buy repeats that cannot help."""
+
     NOISE_LIMITED = "noise_limited"
     MODEL_LIMITED = "model_limited"
     EVIDENCE_LIMITED = "evidence_limited"
@@ -41,6 +53,12 @@ class DebtKind(str, Enum):
     @property
     def remedy(self) -> str:
         return {
+            DebtKind.GROUP_MODEL_REJECTED:
+                "nothing local to this cell. Either a family that fits the "
+                "group's worst regime, or a decision about what the worst-regime "
+                "rule should do when a regime is too noisy to grade at all -- "
+                "which is a question about the gate, to be settled deliberately "
+                "rather than by widening it",
             DebtKind.NOISE_LIMITED:
                 "more repeats, or a quieter machine. No modelling work will help: "
                 "the residual is already below the measurement's own variation",
@@ -192,26 +210,61 @@ class CoverageDebt:
         return "\n".join(lines)
 
 
-# A coefficient of variation computed from two samples understates the real
-# dispersion by this much. Measured, not assumed: taken by computing the CV from
-# every pair drawn out of the sentinel's seven repeats and comparing it with the
-# CV of all seven, on the same readings. The correction matters more than it
-# looks -- it is the difference between calling a cell model-limited and calling
-# it noise-limited, and those have opposite remedies.
-CV_N2_BIAS = 0.545
-"""median(CV from 2 samples) / (CV from 7), measured on real readings."""
+# WITHDRAWN. A two-sample CV was corrected by a single factor of 1/0.545,
+# measured against the sentinel's seven repeats. A pre-registered re-measurement
+# of the same grid at twenty-one repeats falsified it: the recorded CV went to
+# 19.0% where 10.7% was predicted.
+#
+# The factor was not merely mis-estimated. It cannot exist. Within that one
+# session the excess splits into 2.25x from the estimator and a further 1.35x
+# from timescale -- twenty-one repeats span more wall-clock than two adjacent
+# ones and see slower variation. So the quantity a correction is meant to
+# recover grows with the window it is measured over, and the factor depends on
+# an arbitrary choice of reference: 1.84x against seven repeats, 2.25x against
+# twenty-one.
+#
+# Preserved at artifacts/history/2026-08-31-two-sample-cv-correction. The
+# remedy is not a better factor; it is to measure with enough repeats that no
+# correction is needed, and to record how many were used.
+CV_N2_BIAS_WITHDRAWN = 0.545
+"""Kept only so the withdrawal can be read against the number it withdraws."""
+
+MIN_TRUSTWORTHY_REPEATS = 5
+"""Below this a recorded CV is not usable as a noise estimate.
+
+Not a correction, a refusal. Two adjacent repeats measure how much one call
+differs from its neighbour, which is a different quantity from how much the
+call varies over a run -- and it is the second that a coverage gate is asking
+about. There is no factor that turns the first into the second.
+"""
 
 
-def debias_cv(cv: float, n: int) -> float:
-    """Correct a dispersion estimate for the sample size it was computed from."""
-    if cv != cv or n >= 5:
-        return cv
-    return cv / CV_N2_BIAS if n <= 2 else cv / ((CV_N2_BIAS + 1.0) / 2.0)
+class UntrustworthyNoiseEstimate(ValueError):
+    """Raised when a debt would be classified from too few repeats.
+
+    An exception rather than a warning, because the failure mode is silent and
+    expensive: an understated CV makes a cell look cleanly measured, a cleanly
+    measured cell with a large residual is classified model-limited, and
+    somebody is then sent to build a model family for a surface whose instrument
+    cannot resolve the error they are chasing. That is exactly what happened
+    here, to six of sixteen cells.
+    """
+
+
+def _worst_regime(group: Any) -> tuple[str, float] | None:
+    """The noisiest regime in a group: the one most likely to have sunk it."""
+    best = None
+    for reg, rc in getattr(group, "regimes", {}).items():
+        cv = getattr(rc, "noise_cv", float("nan"))
+        if cv == cv and (best is None or cv > best[1]):
+            best = (reg, cv)
+    return best
 
 
 def assess_debt(coverage: Any, selections: dict[str, Any], *,
                 max_err: float = 0.15, max_noise: float = 0.20,
-                min_points: int = 3, cv_from_n: int = 0) -> CoverageDebt:
+                min_points: int = 3, cv_from_n: int = 0,
+                allow_untrustworthy: bool = False) -> CoverageDebt:
     """Classify every uncovered cell by what is actually blocking it.
 
     The classification turns on comparing the best available model's error in
@@ -219,24 +272,36 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
     below the noise is the instrument's; a residual well above it, on a clean
     measurement, is the model's.
 
-    `cv_from_n` is the number of repeats each recorded CV was computed from. Pass
-    it whenever that number is small: an uncorrected two-sample CV reads as a
-    clean measurement, and a clean measurement with a large residual is exactly
-    the signature this function calls model-limited. Getting it wrong sends
-    someone to build a better model for a surface whose instrument cannot
-    resolve the error they are chasing.
+    `cv_from_n` is the number of repeats each recorded CV was computed from.
+    Fewer than `MIN_TRUSTWORTHY_REPEATS` and this refuses to classify, because a
+    CV from two adjacent repeats measures a different quantity from the one the
+    gate asks about and no correction converts between them.
     """
+    if cv_from_n and cv_from_n < MIN_TRUSTWORTHY_REPEATS and not allow_untrustworthy:
+        raise UntrustworthyNoiseEstimate(
+            f"the recorded CVs come from {cv_from_n} repeat(s), below the "
+            f"{MIN_TRUSTWORTHY_REPEATS} needed for a usable noise estimate. Two "
+            "adjacent repeats measure how much a call differs from its neighbour, "
+            "not how much it varies over a run, and classifying a debt from the "
+            "first while reading it as the second is what produced the ledger "
+            "preserved at artifacts/history/2026-08-31-two-sample-cv-correction. "
+            "Re-measure with more repeats, or pass allow_untrustworthy=True and "
+            "say so in the report."
+        )
     debt = CoverageDebt(
         n_required_cells=coverage.n_required_cells,
         n_covered_cells=coverage.n_covered_cells,
         max_err=max_err, max_noise=max_noise,
     )
-    if cv_from_n and cv_from_n <= 4:
+    if cv_from_n:
         debt.notes.append(
-            f"Recorded CVs come from {cv_from_n} repeats and are corrected by "
-            f"{1 / CV_N2_BIAS:.2f}x before classification. Uncorrected they read as "
-            "a clean measurement, which is the signature of a model-limited cell; "
-            "several cells change kind under the correction."
+            f"Recorded CVs come from {cv_from_n} repeats per point, and are used "
+            "as measured. No correction is applied: an earlier ledger corrected a "
+            "two-repeat CV by a single factor and a pre-registered re-measurement "
+            "falsified it."
+            + ("" if cv_from_n >= MIN_TRUSTWORTHY_REPEATS else
+               " These are below the trustworthy threshold and were admitted "
+               "explicitly.")
         )
 
     for g in coverage.groups.values():
@@ -253,7 +318,7 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             err = rc.heldout_err
             if err != err:
                 err = best_per_regime.get(reg, float("nan"))
-            cv = debias_cv(rc.noise_cv, cv_from_n) if cv_from_n else rc.noise_cv
+            cv = rc.noise_cv
             item = DebtItem(
                 group=g.key, regime=reg, kind=DebtKind.UNKNOWN,
                 status=rc.status.value, heldout_err=err, noise_cv=cv,
@@ -262,6 +327,21 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             if err == err:
                 item.gap = err - max_err
 
+            # Status first. A cell in a group with no accepted model is
+            # uncovered for that reason, and grading it on some rejected
+            # candidate's error describes a model nobody is allowed to use.
+            if rc.status.value == "model_rejected":
+                item.kind = DebtKind.GROUP_MODEL_REJECTED
+                blocker = _worst_regime(g)
+                item.rationale = (
+                    "the group has no accepted model"
+                    + (f", blocked by its {blocker[0]} regime ({blocker[1]:.1%} "
+                       f"run-to-run variation)" if blocker else "")
+                    + f"; this cell's own measurement is {cv:.1%}"
+                    if cv == cv else "; this cell's own measurement quality is unknown"
+                )
+                debt.items.append(item)
+                continue
             if rc.n_points == 0:
                 item.kind = DebtKind.NOT_MEASURED
                 item.rationale = "no valid measurement in this regime"

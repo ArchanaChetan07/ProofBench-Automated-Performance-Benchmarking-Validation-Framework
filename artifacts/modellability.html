@@ -60,8 +60,9 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Is the surface modellable</h1>
 <p class="lede">What the instrument can resolve, and what it cannot</p>
-<h2>MODELLABLE<i>WITH</i>WORK</h2>
-<p>Every uncovered cell is measurable to the 15% gate. 3 of them need a model family that fits; the rest need replicates.</p>
+<h2>NOISE<i>FLOOR</i>NOT<i>WELL</i>DEFINED</h2>
+<p>The launch-level noise floor computes to 0.0% from one observation window and 6.3% from another, on the same machine. That is not a discrepancy to be averaged: splitting variance into a part that averages down and a part that does not presumes the noise is stationary, and this machine's is not. A within-run estimate over seven repeats attributes to the launch what one over twenty-one absorbs into itself.</p>
+<p>So no single floor can be quoted, and any statement of the form 'repeats converge on X%' is false precision. What can be said is measured directly and without a decomposition: the standard error of a median of n falls as n^-0.31, so more repeats do buy precision, and buy it more slowly than the usual assumption predicts.</p>
 <h3>The noise budget</h3>
 <p>Measurement variance arrives at two levels and they behave differently under more work. One averages down; the other does not.</p>
 <div class="scroll"><table><thead><tr>
@@ -69,13 +70,13 @@ color:var(--muted)}
 <th>Value</th>
 <th>Behaviour under more repeats</th>
 </tr></thead><tbody>
-<tr><td>within a run</td><td>21.3%</td><td>falls as 1/sqrt(n)</td></tr>
-<tr><td>across restarts, observed</td><td>15.9%</td><td>n/a</td></tr>
-<tr><td>across restarts, predicted from repeats alone</td><td>10.1%</td><td>n/a</td></tr>
-<tr><td><b>launch-level component</b></td><td><b>12.3%</b></td><td><b>does not fall at all inside one process</b></td></tr>
+<tr><td>within a run</td><td>19.0%</td><td>falls as n^-0.31, measured</td></tr>
+<tr><td>across restarts, observed</td><td>4.4%</td><td>n/a</td></tr>
+<tr><td>across restarts, predicted from repeats alone</td><td>9.3%</td><td>n/a</td></tr>
+<tr><td><b>launch-level component</b></td><td><b>0.0%</b></td><td><b>does not fall at all inside one process</b></td></tr>
 </tbody></table></div>
-<p>Measured from 7 repeats per launch and 3 launches per probe. The launch component is what is left of the restart-level dispersion once averaging is accounted for; variances subtract, not the coefficients.</p>
-<p><b>The floor is 12.3%.</b> A campaign that adds repeats forever converges there and stops.</p>
+<p>Measured from 21 repeats per launch and 2 launches per probe. The launch component is what is left of the restart-level dispersion once averaging is accounted for; variances subtract, not the coefficients.</p>
+<p><b>There is no single floor.</b> This window puts it at 0.0%; the sentinel's seven-repeat window puts it at 6.3%. The decomposition is not stable, so neither number should be quoted as the machine's.</p>
 <h3>What a target precision costs</h3>
 <div class="scroll"><table><thead><tr>
 <th>Target</th>
@@ -83,15 +84,15 @@ color:var(--muted)}
 <th>Launches</th>
 <th>Reachable</th>
 </tr></thead><tbody>
-<tr><td>20%</td><td>3</td><td>1</td><td>yes</td></tr>
-<tr><td>15%</td><td>10</td><td>1</td><td>yes</td></tr>
-<tr><td>10%</td><td>15</td><td>3</td><td>yes</td></tr>
+<tr><td>20%</td><td>2</td><td>1</td><td>yes</td></tr>
+<tr><td>15%</td><td>5</td><td>1</td><td>yes</td></tr>
+<tr><td>10%</td><td>17</td><td>1</td><td>yes</td></tr>
 </tbody></table></div>
 <p>Repeats first because they are much the cheaper of the two: a launch pays process startup and transport setup once for every probe it carries.</p>
 <ul>
-<li><b>20%</b>: 3 repeats in one launch reaches 20%; the launch-level floor is 12.3%, below the target, so no extra launches are required</li>
-<li><b>15%</b>: 10 repeats in one launch reaches 15%; the launch-level floor is 12.3%, below the target, so no extra launches are required</li>
-<li><b>10%</b>: repeats alone converge on 12.3%, above the 10% target: the launch-level component does not average down inside one process, so this needs about 3 launches per point as well</li>
+<li><b>20%</b>: 2 repeats in one launch reaches 20%; the launch-level floor is 0.0%, below the target, so no extra launches are required</li>
+<li><b>15%</b>: 5 repeats in one launch reaches 15%; the launch-level floor is 0.0%, below the target, so no extra launches are required</li>
+<li><b>10%</b>: 17 repeats in one launch reaches 10%; the launch-level floor is 0.0%, below the target, so no extra launches are required</li>
 </ul>
 <h3>Cell by cell</h3>
 <div class="scroll"><table><thead><tr>
@@ -102,24 +103,26 @@ color:var(--muted)}
 <th>Verdict</th>
 <th>Why</th>
 </tr></thead><tbody>
-<tr><td>all_gather/world2</td><td>small</td><td>20.2%</td><td>7.4%</td><td><code>MODEL_WORK</code></td><td>the measurement is clean (7.4%) and the best family still misses by 20.2%: a real modelling gap</td></tr>
-<tr><td>all_reduce/world4</td><td>tiny</td><td>14.4%</td><td>8.3%</td><td><code>MODEL_WORK</code></td><td>the measurement is clean (8.3%) and the best family still misses by 14.4%: a real modelling gap</td></tr>
-<tr><td>all_reduce/world4</td><td>medium</td><td>22.3%</td><td>11.2%</td><td><code>MODEL_WORK</code></td><td>the measurement is clean (11.2%) and the best family still misses by 22.3%: a real modelling gap</td></tr>
-<tr><td>all_gather/world2</td><td>tiny</td><td>9.6%</td><td>10.4%</td><td><code>BUYABLE</code></td><td>the residual (9.6%) is the instrument's; 3 repeats per point reaches the gate</td></tr>
-<tr><td>all_gather/world2</td><td>medium</td><td>19.7%</td><td>19.3%</td><td><code>BUYABLE</code></td><td>the residual (19.7%) is the instrument's; 9 repeats per point reaches the gate</td></tr>
-<tr><td>all_gather/world2</td><td>large</td><td>5.3%</td><td>10.7%</td><td><code>BUYABLE</code></td><td>the residual (5.3%) is the instrument's; 3 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world2</td><td>tiny</td><td>7.1%</td><td>11.2%</td><td><code>BUYABLE</code></td><td>the residual (7.1%) is the instrument's; 3 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world2</td><td>small</td><td>8.6%</td><td>8.1%</td><td><code>BUYABLE</code></td><td>the residual (8.6%) is the instrument's; 2 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world2</td><td>medium</td><td>35.3%</td><td>29.5%</td><td><code>BUYABLE</code></td><td>the residual (35.3%) is the instrument's; 19 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world2</td><td>large</td><td>14.9%</td><td>22.1%</td><td><code>BUYABLE</code></td><td>the residual (14.9%) is the instrument's; 11 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world3</td><td>tiny</td><td>2.8%</td><td>11.5%</td><td><code>BUYABLE</code></td><td>the residual (2.8%) is the instrument's; 3 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world3</td><td>small</td><td>4.3%</td><td>14.3%</td><td><code>BUYABLE</code></td><td>the residual (4.3%) is the instrument's; 5 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world3</td><td>medium</td><td>35.2%</td><td>26.0%</td><td><code>BUYABLE</code></td><td>the residual (35.2%) is the instrument's; 15 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world3</td><td>large</td><td>5.7%</td><td>16.4%</td><td><code>BUYABLE</code></td><td>the residual (5.7%) is the instrument's; 6 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world4</td><td>small</td><td>7.6%</td><td>7.4%</td><td><code>BUYABLE</code></td><td>the residual (7.6%) is the instrument's; 2 repeats per point reaches the gate</td></tr>
-<tr><td>all_reduce/world4</td><td>large</td><td>5.2%</td><td>13.3%</td><td><code>BUYABLE</code></td><td>the residual (5.2%) is the instrument's; 4 repeats per point reaches the gate</td></tr>
+<tr><td>all_gather/world3</td><td>tiny</td><td>17.5%</td><td>17.7%</td><td><code>BUYABLE</code></td><td>the residual (17.5%) is the instrument's; 4 repeats per point reaches the gate</td></tr>
+<tr><td>all_gather/world3</td><td>small</td><td>17.4%</td><td>17.9%</td><td><code>BUYABLE</code></td><td>the residual (17.4%) is the instrument's; 4 repeats per point reaches the gate</td></tr>
+<tr><td>all_gather/world3</td><td>medium</td><td>13.7%</td><td>21.4%</td><td><code>BUYABLE</code></td><td>the residual (13.7%) is the instrument's; 7 repeats per point reaches the gate</td></tr>
+<tr><td>all_reduce/world4</td><td>tiny</td><td>11.3%</td><td>20.5%</td><td><code>BUYABLE</code></td><td>the residual (11.3%) is the instrument's; 6 repeats per point reaches the gate</td></tr>
+<tr><td>all_reduce/world4</td><td>medium</td><td>9.8%</td><td>22.6%</td><td><code>BUYABLE</code></td><td>the residual (9.8%) is the instrument's; 8 repeats per point reaches the gate</td></tr>
+<tr><td>all_reduce/world4</td><td>large</td><td>5.0%</td><td>23.6%</td><td><code>BUYABLE</code></td><td>the residual (5.0%) is the instrument's; 10 repeats per point reaches the gate</td></tr>
+<tr><td>all_gather/world2</td><td>tiny</td><td>1.9%</td><td>8.8%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 8.8% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 8.8%</td></tr>
+<tr><td>all_gather/world2</td><td>small</td><td>2.7%</td><td>4.9%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 4.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 4.9%</td></tr>
+<tr><td>all_gather/world2</td><td>medium</td><td>30.6%</td><td>30.6%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 30.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 30.6%</td></tr>
+<tr><td>all_gather/world2</td><td>large</td><td>5.8%</td><td>19.7%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 19.7% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 19.7%</td></tr>
+<tr><td>all_reduce/world2</td><td>tiny</td><td>3.9%</td><td>3.9%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 3.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9%</td></tr>
+<tr><td>all_reduce/world2</td><td>small</td><td>4.7%</td><td>3.9%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 3.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9%</td></tr>
+<tr><td>all_reduce/world2</td><td>medium</td><td>37.4%</td><td>30.3%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 30.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 30.3%</td></tr>
+<tr><td>all_reduce/world2</td><td>large</td><td>5.6%</td><td>18.7%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 18.7% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 18.7%</td></tr>
+<tr><td>all_reduce/world3</td><td>tiny</td><td>23.7%</td><td>42.3%</td><td><code>EXPENSIVE</code></td><td>reachable, at 60 repeats across 1 launch(es) per point, for a cell whose run-to-run variation is 42.3%</td></tr>
+<tr><td>all_reduce/world3</td><td>small</td><td>8.8%</td><td>32.3%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 32.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 32.3%</td></tr>
+<tr><td>all_reduce/world3</td><td>medium</td><td>21.2%</td><td>42.3%</td><td><code>EXPENSIVE</code></td><td>reachable, at 60 repeats across 1 launch(es) per point, for a cell whose run-to-run variation is 42.3%</td></tr>
+<tr><td>all_reduce/world3</td><td>large</td><td>11.8%</td><td>27.9%</td><td><code>GROUP_BLOCKED</code></td><td>this cell measures at 27.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 27.9%</td></tr>
 </tbody></table></div>
 <h3>The determination</h3>
-<p><b>13</b> buyable, <b>3</b> model work.</p>
+<p><b>6</b> buyable, <b>2</b> expensive, <b>10</b> group blocked.</p>
 <p>The question was never whether six of six groups could be made to pass. It is whether the operating surface this subsystem needs is one that can be modelled from this machine, and the honest answer separates three things that a single coverage percentage hides: cells where more measurement would help, cells where a better model would help, and cells where neither would because the instrument cannot resolve the error being chased.</p>
 </div>

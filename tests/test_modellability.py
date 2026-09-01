@@ -30,12 +30,23 @@ def _budget(within=0.213, restart=0.159, n_rep=7, n_launch=3) -> NoiseBudget:
 # ------------------------------------------------------------------ the split
 
 
-def test_expected_restart_cv_is_what_averaging_alone_predicts():
+def test_expected_restart_cv_uses_the_measured_exponent_not_one_over_root_n():
+    """The prediction must use n^-0.31, which is what this machine does.
+
+    Under 1/sqrt(n) the predicted restart dispersion is smaller, which leaves
+    more of the observed dispersion unexplained and inflates the apparent
+    launch-level floor. That is how a 12.3% floor was reported for a machine
+    whose own re-measurement puts it at zero.
+    """
+    from losscolumn.core.modellability import MEASURED_AVERAGING_EXPONENT
+
     b = _budget()
     assert b.expected_restart_cv == pytest.approx(
-        MEDIAN_SE_FACTOR * 0.213 / math.sqrt(7), rel=1e-9)
-    assert b.expected_restart_cv < b.within_run_cv, (
-        "a median of seven must disperse less than the seven")
+        MEDIAN_SE_FACTOR * 0.213 * 7 ** MEASURED_AVERAGING_EXPONENT, rel=1e-9)
+    assert b.expected_restart_cv > MEDIAN_SE_FACTOR * 0.213 / math.sqrt(7), (
+        "correlated noise averages down more slowly, so more of the observed "
+        "restart dispersion is explained by the repeats alone")
+    assert b.expected_restart_cv < b.within_run_cv
 
 
 def test_launch_component_subtracts_variances_not_coefficients():
@@ -96,12 +107,26 @@ def test_the_plan_is_the_cheapest_one_that_works():
 
 
 def test_a_target_below_the_floor_needs_more_launches():
-    b = _budget()
+    """Constructed to sit under the floor, since the real budget no longer does."""
+    b = _budget(within=0.30, restart=0.28)
+    assert b.floor > 0.10, "the fixture must actually have a floor above the target"
     p = plan_replicates(b, 0.10)
-    assert p.target < b.floor
     assert not p.reachable_by_repeats_alone
     assert p.launches_needed > 1
     assert "does not average down inside one process" in p.note
+
+
+def test_the_measured_exponent_lowers_the_apparent_floor():
+    """Using the right exponent attributes more dispersion to the repeats.
+
+    Directly: the 12.3% launch floor first reported for this machine was an
+    artefact of assuming 1/sqrt(n), and shrinks once averaging is modelled as it
+    actually behaves.
+    """
+    b = _budget()
+    slow = _budget()
+    slow.averaging_exponent = -0.5
+    assert b.floor < slow.floor
 
 
 def test_an_impossible_target_is_reported_as_such():

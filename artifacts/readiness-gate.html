@@ -71,16 +71,16 @@ color:var(--muted)}
 </tr></thead><tbody>
 <tr><td>machine permits cross-session pooling</td><td><b>FAIL</b></td><td>drift is restart_level; 0 of 6 session pairs poolable at the registered 1.48x criterion. Within-run 21.3%, across restart 15.9% against 10.1% expected from averaging alone</td></tr>
 <tr><td>the campaign's own evidence is internally poolable</td><td>PASS</td><td>its two passes agree to 2.90x against a 4.91x floor measured from the campaign's own repeats at 276 probes, and the surface did not move (0.998x median shift)</td></tr>
-<tr><td>communication quality gates pass</td><td><b>FAIL</b></td><td>2 of 6 groups have an accepted model</td></tr>
-<tr><td>required coverage achieved</td><td><b>FAIL</b></td><td>8 of 24 (group x regime) cells covered (33%)</td></tr>
+<tr><td>communication quality gates pass</td><td><b>FAIL</b></td><td>3 of 6 groups have an accepted model</td></tr>
+<tr><td>required coverage achieved</td><td><b>FAIL</b></td><td>6 of 24 (group x regime) cells covered (25%)</td></tr>
 <tr><td>no rejected parameter is active</td><td>PASS</td><td>no group is counted as covered without an accepted model</td></tr>
 <tr><td>validation is independent</td><td>PASS</td><td>264 held-out validation points on sizes no fit saw; calibration and validation sizes alternate within each regime</td></tr>
 <tr><td>fresh-clone reproducibility passes</td><td>PASS</td><td>fresh clone, isolated environment, full test suite and frozen standard verified; measured thrusts NOT re-run (no torch in the clean environment), so this establishes the standard and the analysis layer, not the measurements</td></tr>
-<tr><td>8-GPU protocol is fully prepared</td><td>PASS</td><td>12 stages sealed (6.8 h), seal 6ae547e868b0a128</td></tr>
+<tr><td>8-GPU protocol is fully prepared</td><td>PASS</td><td>13 stages sealed (7.2 h), seal 70529d6d37ac021c</td></tr>
 </tbody></table></div>
 <p><b>Blocking: machine permits cross-session pooling; communication quality gates pass; required coverage achieved</b></p>
 <h4>8x A100 campaign protocol</h4>
-<p><b>PREPARED, NOT EXECUTED</b> &amp;mdash; seal <code>6ae547e868b0a128...</code>, about 6.8 hours of allocation.</p>
+<p><b>PREPARED, NOT EXECUTED</b> &amp;mdash; seal <code>70529d6d37ac021c...</code>, about 7.2 hours of allocation.</p>
 <p>Local communication readiness at sealing: <b>not_ready</b>. That verdict gates whether this should be executed; it does not make the protocol wrong, it makes running it premature.</p>
 <div class="scroll"><table><thead><tr>
 <th>#</th>
@@ -91,17 +91,18 @@ color:var(--muted)}
 </tr></thead><tbody>
 <tr><td>1</td><td>environment smoke test</td><td>a pass/fail record and the environment fingerprint</td><td>the suite does not pass on the target machine</td><td>20</td></tr>
 <tr><td>2</td><td>topology verification</td><td>a topology map recorded in the artifact</td><td>the topology differs from the one the protocol assumes, in which case the grid of world sizes is re-derived and the change is recorded as a declared deviation before measurement</td><td>15</td></tr>
-<tr><td>3</td><td>device and allocator verification</td><td>ProbeConfig with cap_installed true, per device</td><td>the cap cannot be installed on any device</td><td>15</td></tr>
-<tr><td>4</td><td>fabric identification</td><td>a transport label per (world size, rank placement)</td><td>a group's transport cannot be identified</td><td>30</td></tr>
-<tr><td>5</td><td>communication calibration</td><td>raw PointRecords, per collective per world per pass</td><td>peak reproducibility fails, which is reported rather than worked around</td><td>90</td></tr>
-<tr><td>6</td><td>parameter quality gates</td><td>a ParameterVerdict per group and a coverage matrix</td><td>no group is accepted, which ends the campaign honestly rather than loosening the gate</td><td>10</td></tr>
-<tr><td>7</td><td>model freeze</td><td>a sealed Fabric with parameter provenance</td><td>any rejected parameter is reachable as a model input</td><td>5</td></tr>
-<tr><td>8</td><td>Thrust I prediction generation</td><td>a predicted loss map and its regions</td><td>the memory or communication model is not frozen</td><td>15</td></tr>
-<tr><td>9</td><td>prediction lock</td><td>a sealed prediction hash</td><td>the prediction is not sealed before measurement begins</td><td>5</td></tr>
-<tr><td>10</td><td>independent 8-GPU measurement</td><td>the measured envelope</td><td>the measurement shares hardware with another job</td><td>180</td></tr>
-<tr><td>11</td><td>measured loss-region extraction</td><td>the measured loss map</td><td>the design check reports the sweep could not have declared a loss</td><td>10</td></tr>
-<tr><td>12</td><td>prediction against measurement</td><td>the calibration report and the final Thrust I claim</td><td>the prediction hash does not match what was sealed at stage 9</td><td>10</td></tr>
+<tr><td>3</td><td>machine stability sentinel</td><td>a stability envelope, a registered comparability criterion, and the replicate count the calibration stage needs</td><td>the launch-level noise floor exceeds the coverage gate, in which case the campaign cannot grade a model to the precision it requires and the allocation is released rather than spent proving it</td><td>25</td></tr>
+<tr><td>4</td><td>device and allocator verification</td><td>ProbeConfig with cap_installed true, per device</td><td>the cap cannot be installed on any device</td><td>15</td></tr>
+<tr><td>5</td><td>fabric identification</td><td>a transport label per (world size, rank placement)</td><td>a group's transport cannot be identified</td><td>30</td></tr>
+<tr><td>6</td><td>communication calibration</td><td>raw PointRecords, per collective per world per pass</td><td>peak reproducibility fails, which is reported rather than worked around</td><td>90</td></tr>
+<tr><td>7</td><td>parameter quality gates</td><td>a ParameterVerdict per group and a coverage matrix</td><td>no group is accepted, which ends the campaign honestly rather than loosening the gate</td><td>10</td></tr>
+<tr><td>8</td><td>model freeze</td><td>a sealed Fabric with parameter provenance</td><td>any rejected parameter is reachable as a model input</td><td>5</td></tr>
+<tr><td>9</td><td>Thrust I prediction generation</td><td>a predicted loss map and its regions</td><td>the memory or communication model is not frozen</td><td>15</td></tr>
+<tr><td>10</td><td>prediction lock</td><td>a sealed prediction hash</td><td>the prediction is not sealed before measurement begins</td><td>5</td></tr>
+<tr><td>11</td><td>independent 8-GPU measurement</td><td>the measured envelope</td><td>the measurement shares hardware with another job</td><td>180</td></tr>
+<tr><td>12</td><td>measured loss-region extraction</td><td>the measured loss map</td><td>the design check reports the sweep could not have declared a loss</td><td>10</td></tr>
+<tr><td>13</td><td>prediction against measurement</td><td>the calibration report and the final Thrust I claim</td><td>the prediction hash does not match what was sealed at stage 10</td><td>10</td></tr>
 </tbody></table></div>
-<p><b>Ordering is binding.</b> Stages 8 and 9 run before stage 10: a prediction produced after seeing the measurement is not a prediction.</p>
+<p><b>Ordering is binding.</b> Stages 9 and 10 run before stage 11: a prediction produced after seeing the measurement is not a prediction.</p>
 <p><b>No local parameter is used here.</b> The local campaign ran gloo over shared memory on one host. It cannot produce NVLink or InfiniBand numbers and none of its fits is copied into an A100 fabric. What transfers is the method.</p>
 </div>

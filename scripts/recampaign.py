@@ -22,7 +22,10 @@ REPEATS = 21
 
 
 def predictions(baseline: dict) -> dict:
-    from losscolumn.core.debt import CV_N2_BIAS
+    # The withdrawn constant, referenced by its withdrawn name. The prediction
+    # this builds was sealed against the value 0.545 and must go on reproducing
+    # that seal: a prediction rewritten after its own falsification is not one.
+    from losscolumn.core.debt import CV_N2_BIAS_WITHDRAWN as CV_N2_BIAS
 
     return {
         "name": "recampaign-higher-replicates-v1",

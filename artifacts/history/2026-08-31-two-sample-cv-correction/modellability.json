@@ -1,0 +1,242 @@
+{
+  "kind": "modellability",
+  "standard_version": "LC-1.2",
+  "generated_at": "2026-09-01T01:33:47Z",
+  "budget": {
+    "within_run_cv": 0.213009626274447,
+    "across_restart_cv": 0.15941001699863958,
+    "expected_restart_cv": 0.1009032721606566,
+    "launch_cv": 0.12341022318584073,
+    "floor": 0.12341022318584073,
+    "n_repeats": 7,
+    "n_launches": 3
+  },
+  "plans": {
+    "20%": {
+      "target": 0.2,
+      "repeats_needed": 3,
+      "launches_needed": 1,
+      "reachable_by_repeats_alone": true,
+      "reachable_at_all": true,
+      "note": "3 repeats in one launch reaches 20%; the launch-level floor is 12.3%, below the target, so no extra launches are required"
+    },
+    "15%": {
+      "target": 0.15,
+      "repeats_needed": 10,
+      "launches_needed": 1,
+      "reachable_by_repeats_alone": true,
+      "reachable_at_all": true,
+      "note": "10 repeats in one launch reaches 15%; the launch-level floor is 12.3%, below the target, so no extra launches are required"
+    },
+    "10%": {
+      "target": 0.1,
+      "repeats_needed": 15,
+      "launches_needed": 3,
+      "reachable_by_repeats_alone": false,
+      "reachable_at_all": true,
+      "note": "repeats alone converge on 12.3%, above the 10% target: the launch-level component does not average down inside one process, so this needs about 3 launches per point as well"
+    }
+  },
+  "gate": 0.15,
+  "verdict": "MODELLABLE_WITH_WORK",
+  "summary": "Every uncovered cell is measurable to the 15% gate. 3 of them need a model family that fits; the rest need replicates.",
+  "counts": {
+    "BUYABLE": 13,
+    "MODEL_WORK": 3
+  },
+  "cells": [
+    {
+      "group": "all_reduce/world2",
+      "regime": "tiny",
+      "kind": "noise_limited",
+      "heldout_err": 0.07082069476182179,
+      "noise_cv": 0.1117793092419074,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (7.1%) is the instrument's; 3 repeats per point reaches the gate",
+      "repeats_needed": 3,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world2",
+      "regime": "small",
+      "kind": "noise_limited",
+      "heldout_err": 0.08596894350076478,
+      "noise_cv": 0.08084211654901274,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (8.6%) is the instrument's; 2 repeats per point reaches the gate",
+      "repeats_needed": 2,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world2",
+      "regime": "medium",
+      "kind": "noise_limited",
+      "heldout_err": 0.35279903650545286,
+      "noise_cv": 0.29525352636557634,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (35.3%) is the instrument's; 19 repeats per point reaches the gate",
+      "repeats_needed": 19,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world2",
+      "regime": "large",
+      "kind": "noise_limited",
+      "heldout_err": 0.14899628781669128,
+      "noise_cv": 0.2205623642407575,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (14.9%) is the instrument's; 11 repeats per point reaches the gate",
+      "repeats_needed": 11,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world3",
+      "regime": "tiny",
+      "kind": "noise_limited",
+      "heldout_err": 0.027626744550027407,
+      "noise_cv": 0.11541030103637911,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (2.8%) is the instrument's; 3 repeats per point reaches the gate",
+      "repeats_needed": 3,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world3",
+      "regime": "small",
+      "kind": "noise_limited",
+      "heldout_err": 0.043254767047695576,
+      "noise_cv": 0.14266296160833505,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (4.3%) is the instrument's; 5 repeats per point reaches the gate",
+      "repeats_needed": 5,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world3",
+      "regime": "medium",
+      "kind": "noise_limited",
+      "heldout_err": 0.3523565040784191,
+      "noise_cv": 0.25971782502454954,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (35.2%) is the instrument's; 15 repeats per point reaches the gate",
+      "repeats_needed": 15,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world3",
+      "regime": "large",
+      "kind": "noise_limited",
+      "heldout_err": 0.05721139529646646,
+      "noise_cv": 0.16437587598450573,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (5.7%) is the instrument's; 6 repeats per point reaches the gate",
+      "repeats_needed": 6,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world4",
+      "regime": "tiny",
+      "kind": "model_limited",
+      "heldout_err": 0.1439526328571451,
+      "noise_cv": 0.08309768537370323,
+      "gate": 0.15,
+      "verdict": "MODEL_WORK",
+      "reason": "the measurement is clean (8.3%) and the best family still misses by 14.4%: a real modelling gap",
+      "repeats_needed": 2,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world4",
+      "regime": "small",
+      "kind": "noise_limited",
+      "heldout_err": 0.0759254974004273,
+      "noise_cv": 0.07371771699774464,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (7.6%) is the instrument's; 2 repeats per point reaches the gate",
+      "repeats_needed": 2,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world4",
+      "regime": "medium",
+      "kind": "model_limited",
+      "heldout_err": 0.22269914805204152,
+      "noise_cv": 0.11198550345302147,
+      "gate": 0.15,
+      "verdict": "MODEL_WORK",
+      "reason": "the measurement is clean (11.2%) and the best family still misses by 22.3%: a real modelling gap",
+      "repeats_needed": 3,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_reduce/world4",
+      "regime": "large",
+      "kind": "noise_limited",
+      "heldout_err": 0.05215698157181546,
+      "noise_cv": 0.13314317825666855,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (5.2%) is the instrument's; 4 repeats per point reaches the gate",
+      "repeats_needed": 4,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_gather/world2",
+      "regime": "tiny",
+      "kind": "noise_limited",
+      "heldout_err": 0.09573829444492607,
+      "noise_cv": 0.10375626579882492,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (9.6%) is the instrument's; 3 repeats per point reaches the gate",
+      "repeats_needed": 3,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_gather/world2",
+      "regime": "small",
+      "kind": "model_limited",
+      "heldout_err": 0.20225521595434337,
+      "noise_cv": 0.07369581584028154,
+      "gate": 0.15,
+      "verdict": "MODEL_WORK",
+      "reason": "the measurement is clean (7.4%) and the best family still misses by 20.2%: a real modelling gap",
+      "repeats_needed": 2,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_gather/world2",
+      "regime": "medium",
+      "kind": "noise_limited",
+      "heldout_err": 0.19696229616592728,
+      "noise_cv": 0.1927875355331848,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (19.7%) is the instrument's; 9 repeats per point reaches the gate",
+      "repeats_needed": 9,
+      "launches_needed": 1
+    },
+    {
+      "group": "all_gather/world2",
+      "regime": "large",
+      "kind": "noise_limited",
+      "heldout_err": 0.05324978442712926,
+      "noise_cv": 0.10666710695800206,
+      "gate": 0.15,
+      "verdict": "BUYABLE",
+      "reason": "the residual (5.3%) is the instrument's; 3 repeats per point reaches the gate",
+      "repeats_needed": 3,
+      "launches_needed": 1
+    }
+  ],
+  "notes": []
+}

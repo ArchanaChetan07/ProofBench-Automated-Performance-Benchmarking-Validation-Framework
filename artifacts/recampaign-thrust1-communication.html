@@ -61,19 +61,19 @@ color:var(--muted)}
 <h1>Campaign at higher replicates</h1>
 <p class="lede">Measuring at the replicate count the noise budget asks for</p>
 <h2>Campaign at higher replicates</h2>
-<p>Predictions sealed <code>sha256:be927a46986e1a90</code> before the measurement ran. One session, 2 minutes, 21 repeats per point per pass against the original 2.</p>
+<p>Predictions sealed <code>sha256:be927a46986e1a90</code> before the measurement ran. One session, 75 minutes, 21 repeats per point per pass against the original 2.</p>
 <div class="scroll"><table><thead><tr>
 <th>Prediction</th>
 <th>Predicted</th>
 <th>Measured</th>
 <th>Result</th>
 </tr></thead><tbody>
-<tr><td>P1 recorded CV rises by the de-bias factor</td><td>10.7%</td><td>12.0%</td><td><b>HELD</b></td></tr>
-<tr><td>P2 coverage improves</td><td>&gt; 8</td><td>0</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P1 recorded CV rises by the de-bias factor</td><td>10.7%</td><td>19.0%</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P2 coverage improves</td><td>&gt; 8</td><td>6</td><td><b>FALSIFIED</b></td></tr>
 <tr><td>P3 the three model-limited cells stay uncovered</td><td>3</td><td>3</td><td><b>HELD</b></td></tr>
 </tbody></table></div>
-<p>Coverage 0 of 24 cells, from 8.</p>
-<p>P1 is the load-bearing one. The recorded CV moved from 5.8% to 12.0% on the same grid and the same machine, and the only thing that changed is how many samples each CV was computed from. That is the two-sample bias, measured directly rather than inferred, and it is what licensed reclassifying six cells from model-limited to noise-limited.</p>
+<p>Coverage 6 of 24 cells, from 8.</p>
+<p><b>P1 is falsified.</b> The recorded CV went to 19.0% where 10.7% was predicted. The two-sample bias correction does not describe this data, and every cell reclassified under it has to be reclassified back. That correction is withdrawn.</p>
 <p><b>P2 is falsified.</b> Coverage did not improve despite the residuals having been attributed to the instrument. They were not the instrument's, and the noise-limited classification is wrong.</p>
 <p>Still uncovered among the three predicted: all<i>gather/world2/small, all</i>reduce/world4/tiny, all_reduce/world4/medium</p>
 </div>

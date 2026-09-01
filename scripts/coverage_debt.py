@@ -2,6 +2,12 @@
 import json
 from pathlib import Path
 
+# The 21-repeat re-measurement, not the original 2-repeat campaign. Its CVs are
+# measured rather than corrected, which is the whole reason it was run: a
+# two-repeat CV cannot be turned into a usable noise estimate by any factor.
+_SOURCE = "recampaign-thrust1-communication.json"
+_FALLBACK = "campaign-thrust1-communication.json"
+
 
 def main() -> int:
     from losscolumn.core.coverage import (
@@ -15,7 +21,8 @@ def main() -> int:
     from losscolumn.report.render import render_page
 
     art = Path("artifacts")
-    d = json.loads((art / "campaign-thrust1-communication.json").read_text(encoding="utf-8"))
+    src = art / _SOURCE if (art / _SOURCE).exists() else art / _FALLBACK
+    d = json.loads(src.read_text(encoding="utf-8"))
     c = d["coverage"]
     cov = CommunicationCoverage.empty(c["required_collectives"], c["required_worlds"],
                                       c["required_regimes"])
@@ -32,31 +39,38 @@ def main() -> int:
             R.heldout_err = r["heldout_err"]
             R.noise_cv = r["noise_cv"]
 
-    # The campaign recorded two repeats per point, so every CV in it is a
-    # two-sample estimate and reads far cleaner than the measurement is.
-    n_rep = int(d["protocol"].get("repeats", 0) or 0) or 2
+    n_rep = int(d["protocol"].get("repeats_per_point_per_pass", 0) or 0)
     debt = assess_debt(cov, d["model_selection"], cv_from_n=n_rep)
     debt.notes.append(
-        "This supersedes an earlier ledger that read 9 model-limited and 7 "
-        "noise-limited. Nothing was re-measured: the earlier one took each cell's "
-        "recorded CV at face value, and every one of those was computed from two "
-        "repeats. Correcting that estimator moved six cells, all of them from "
-        "model-limited to noise-limited, and three of the four medium-regime cells "
-        "among them."
+        f"Computed from `{src.name}`, whose CVs come from {n_rep} repeats per "
+        "point in a single session and are used exactly as measured."
     )
     debt.notes.append(
-        "The correction inverts the plan the earlier ledger implied. Most of the "
-        "supposed modelling work was never modelling work: the residuals it "
-        "pointed at are smaller than the instrument's own variation, and no model "
-        "family can beat the instrument. The remaining model-limited cells are "
-        "worth attention precisely because there are only three of them."
+        "This supersedes a ledger that read 9 model-limited and 7 noise-limited. "
+        "That one corrected the original campaign's two-repeat CVs by a single "
+        "factor of 1.84x and moved six cells to noise-limited on the strength of "
+        "it. A pre-registered re-measurement falsified the correction: it "
+        "predicted the recorded CV would rise to 10.7% and it rose to 19.0%. The "
+        "ledger and the correction are preserved at "
+        "artifacts/history/2026-08-31-two-sample-cv-correction."
     )
     debt.notes.append(
-        "It also dissolves the medium-regime puzzle without appealing to session "
-        "drift. all_reduce/world2 and world3 show 26% to 30% run-to-run variation "
-        "there against a 20% ceiling, so nothing can be graded in those cells at "
-        "all -- which is why a probe that added 32 points to that regime produced "
-        "a worse fit rather than a better one."
+        "No correction replaces it, because none can. Within the re-measurement's "
+        "own session the excess splits into 2.25x from the estimator and a "
+        "further 1.35x from timescale: twenty-one repeats span more wall-clock "
+        "than two adjacent ones and see slower variation. The quantity a "
+        "correction is meant to recover therefore grows with the window it is "
+        "measured over, so the factor depends on an arbitrary reference -- 1.84x "
+        "against seven repeats, 2.25x against twenty-one."
+    )
+    debt.notes.append(
+        "The practical consequence is that every coverage figure this project "
+        "produced before this measurement rested on a noise estimate roughly "
+        "three times too small. Median cell CV moved from 5.7% to 18.4% and the "
+        "number of cells above the 20% ceiling from 0 to 10. Coverage fell from 8 "
+        "cells to 6, which is a correction rather than a regression: the earlier "
+        "figure was inflated by an instrument that under-reported its own "
+        "variation."
     )
     md = "### Coverage debt\n\n" + debt.to_markdown()
     print(md)

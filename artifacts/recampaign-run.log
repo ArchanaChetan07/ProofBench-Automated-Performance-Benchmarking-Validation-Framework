@@ -16,3 +16,30 @@ grid 46 sizes x 2 collectives x 3 worlds x 2 passes x 21 repeats
 === pass 1 ===
 [W831 19:45:06.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29723 (system error: 10049 - The requested address is not valid in its context.).
 [W831 19:45:06.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29723 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:48:12.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:48:12.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:48:12.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:50:02.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:50:02.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:50:02.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W831 19:50:02.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+  276 records, 0 failure(s), 4502s
+
+# Campaign at higher replicates
+
+Predictions sealed `sha256:be927a46986e1a90` before the measurement ran. One session, 75 minutes, 21 repeats per point per pass against the original 2.
+
+| Prediction | Predicted | Measured | Result |
+|---|---|---|---|
+| P1 recorded CV rises by the de-bias factor | 10.7% | 19.0% | **FALSIFIED** |
+| P2 coverage improves | > 8 | 6 | **FALSIFIED** |
+| P3 the three model-limited cells stay uncovered | 3 | 3 | **HELD** |
+
+Coverage 6 of 24 cells, from 8.
+
+**P1 is falsified.** The recorded CV went to 19.0% where 10.7% was predicted. The two-sample bias correction does not describe this data, and every cell reclassified under it has to be reclassified back. That correction is withdrawn.
+
+**P2 is falsified.** Coverage did not improve despite the residuals having been attributed to the instrument. They were not the instrument's, and the noise-limited classification is wrong.
+
+Still uncovered among the three predicted: all_gather/world2/small, all_reduce/world4/tiny, all_reduce/world4/medium
+

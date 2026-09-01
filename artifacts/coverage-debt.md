@@ -1,36 +1,39 @@
 ### Coverage debt
 
-**Coverage debt: 16 uncovered cell(s) of 24.**
+**Coverage debt: 18 uncovered cell(s) of 24.**
 
 | Kind | Cells | Remedy |
 |---|---|---|
-| `noise_limited` | 13 | more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation |
-| `model_limited` | 3 | a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean |
+| `group_model_rejected` | 12 | nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it |
+| `noise_limited` | 6 | more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation |
 
 | Group | Regime | Kind | held-out | noise | gap | why |
 |---|---|---|---|---|---|---|
-| all_gather/world2 | large | `noise_limited` | 5.3% | 10.7% | -9.7% | the best model misses by 5.3% against run-to-run variation of 10.7%; the residual is the instrument's, not the model's |
-| all_gather/world2 | medium | `noise_limited` | 19.7% | 19.3% | +4.7% | the best model misses by 19.7% against run-to-run variation of 19.3%; the residual is the instrument's, not the model's |
-| all_gather/world2 | small | `model_limited` | 20.2% | 7.4% | +5.2% | the measurement is clean (7.4%) and the best available family still misses by 20.2%: the gap is the model's |
-| all_gather/world2 | tiny | `noise_limited` | 9.6% | 10.4% | -5.4% | the best model misses by 9.6% against run-to-run variation of 10.4%; the residual is the instrument's, not the model's |
-| all_reduce/world2 | large | `noise_limited` | 14.9% | 22.1% | -0.1% | run-to-run variation 22.1% exceeds the 20% the protocol allows; nothing can be graded here |
-| all_reduce/world2 | medium | `noise_limited` | 35.3% | 29.5% | +20.3% | run-to-run variation 29.5% exceeds the 20% the protocol allows; nothing can be graded here |
-| all_reduce/world2 | small | `noise_limited` | 8.6% | 8.1% | -6.4% | the best model misses by 8.6% against run-to-run variation of 8.1%; the residual is the instrument's, not the model's |
-| all_reduce/world2 | tiny | `noise_limited` | 7.1% | 11.2% | -7.9% | the best model misses by 7.1% against run-to-run variation of 11.2%; the residual is the instrument's, not the model's |
-| all_reduce/world3 | large | `noise_limited` | 5.7% | 16.4% | -9.3% | the best model misses by 5.7% against run-to-run variation of 16.4%; the residual is the instrument's, not the model's |
-| all_reduce/world3 | medium | `noise_limited` | 35.2% | 26.0% | +20.2% | run-to-run variation 26.0% exceeds the 20% the protocol allows; nothing can be graded here |
-| all_reduce/world3 | small | `noise_limited` | 4.3% | 14.3% | -10.7% | the best model misses by 4.3% against run-to-run variation of 14.3%; the residual is the instrument's, not the model's |
-| all_reduce/world3 | tiny | `noise_limited` | 2.8% | 11.5% | -12.2% | the best model misses by 2.8% against run-to-run variation of 11.5%; the residual is the instrument's, not the model's |
-| all_reduce/world4 | large | `noise_limited` | 5.2% | 13.3% | -9.8% | the best model misses by 5.2% against run-to-run variation of 13.3%; the residual is the instrument's, not the model's |
-| all_reduce/world4 | medium | `model_limited` | 22.3% | 11.2% | +7.3% | the measurement is clean (11.2%) and the best available family still misses by 22.3%: the gap is the model's |
-| all_reduce/world4 | small | `noise_limited` | 7.6% | 7.4% | -7.4% | the best model misses by 7.6% against run-to-run variation of 7.4%; the residual is the instrument's, not the model's |
-| all_reduce/world4 | tiny | `model_limited` | 14.4% | 8.3% | -0.6% | the measurement is clean (8.3%) and the best available family still misses by 14.4%: the gap is the model's |
+| all_gather/world2 | large | `group_model_rejected` | 5.8% | 19.7% | -9.2% | the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 19.7% |
+| all_gather/world2 | medium | `group_model_rejected` | 30.6% | 30.6% | +15.6% | the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 30.6% |
+| all_gather/world2 | small | `group_model_rejected` | 2.7% | 4.9% | -12.3% | the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 4.9% |
+| all_gather/world2 | tiny | `group_model_rejected` | 1.9% | 8.8% | -13.1% | the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 8.8% |
+| all_gather/world3 | medium | `noise_limited` | 13.7% | 21.4% | -1.3% | run-to-run variation 21.4% exceeds the 20% the protocol allows; nothing can be graded here |
+| all_gather/world3 | small | `noise_limited` | 17.4% | 17.9% | +2.4% | the best model misses by 17.4% against run-to-run variation of 17.9%; the residual is the instrument's, not the model's |
+| all_gather/world3 | tiny | `noise_limited` | 17.5% | 17.7% | +2.5% | the best model misses by 17.5% against run-to-run variation of 17.7%; the residual is the instrument's, not the model's |
+| all_reduce/world2 | large | `group_model_rejected` | 5.6% | 18.7% | -9.4% | the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 18.7% |
+| all_reduce/world2 | medium | `group_model_rejected` | 37.4% | 30.3% | +22.4% | the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 30.3% |
+| all_reduce/world2 | small | `group_model_rejected` | 4.7% | 3.9% | -10.3% | the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9% |
+| all_reduce/world2 | tiny | `group_model_rejected` | 3.9% | 3.9% | -11.1% | the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9% |
+| all_reduce/world3 | large | `group_model_rejected` | 11.8% | 27.9% | -3.2% | the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 27.9% |
+| all_reduce/world3 | medium | `group_model_rejected` | 21.2% | 42.3% | +6.2% | the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 42.3% |
+| all_reduce/world3 | small | `group_model_rejected` | 8.8% | 32.3% | -6.2% | the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 32.3% |
+| all_reduce/world3 | tiny | `group_model_rejected` | 23.7% | 42.3% | +8.7% | the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 42.3% |
+| all_reduce/world4 | large | `noise_limited` | 5.0% | 23.6% | -10.0% | run-to-run variation 23.6% exceeds the 20% the protocol allows; nothing can be graded here |
+| all_reduce/world4 | medium | `noise_limited` | 9.8% | 22.6% | -5.2% | run-to-run variation 22.6% exceeds the 20% the protocol allows; nothing can be graded here |
+| all_reduce/world4 | tiny | `noise_limited` | 11.3% | 20.5% | -3.7% | run-to-run variation 20.5% exceeds the 20% the protocol allows; nothing can be graded here |
 
 **The single most discriminating next experiment**
 
-all_gather/world2, small regime: measurement noise is 7.4% while the best model misses by 20.2%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.
+all_reduce/world4, large regime: the residual (5.0%) is at or below the measurement's own variation (23.6%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.
 
-- Recorded CVs come from 2 repeats and are corrected by 1.83x before classification. Uncorrected they read as a clean measurement, which is the signature of a model-limited cell; several cells change kind under the correction.
-- This supersedes an earlier ledger that read 9 model-limited and 7 noise-limited. Nothing was re-measured: the earlier one took each cell's recorded CV at face value, and every one of those was computed from two repeats. Correcting that estimator moved six cells, all of them from model-limited to noise-limited, and three of the four medium-regime cells among them.
-- The correction inverts the plan the earlier ledger implied. Most of the supposed modelling work was never modelling work: the residuals it pointed at are smaller than the instrument's own variation, and no model family can beat the instrument. The remaining model-limited cells are worth attention precisely because there are only three of them.
-- It also dissolves the medium-regime puzzle without appealing to session drift. all_reduce/world2 and world3 show 26% to 30% run-to-run variation there against a 20% ceiling, so nothing can be graded in those cells at all -- which is why a probe that added 32 points to that regime produced a worse fit rather than a better one.
+- Recorded CVs come from 21 repeats per point, and are used as measured. No correction is applied: an earlier ledger corrected a two-repeat CV by a single factor and a pre-registered re-measurement falsified it.
+- Computed from `recampaign-thrust1-communication.json`, whose CVs come from 21 repeats per point in a single session and are used exactly as measured.
+- This supersedes a ledger that read 9 model-limited and 7 noise-limited. That one corrected the original campaign's two-repeat CVs by a single factor of 1.84x and moved six cells to noise-limited on the strength of it. A pre-registered re-measurement falsified the correction: it predicted the recorded CV would rise to 10.7% and it rose to 19.0%. The ledger and the correction are preserved at artifacts/history/2026-08-31-two-sample-cv-correction.
+- No correction replaces it, because none can. Within the re-measurement's own session the excess splits into 2.25x from the estimator and a further 1.35x from timescale: twenty-one repeats span more wall-clock than two adjacent ones and see slower variation. The quantity a correction is meant to recover therefore grows with the window it is measured over, so the factor depends on an arbitrary reference -- 1.84x against seven repeats, 2.25x against twenty-one.
+- The practical consequence is that every coverage figure this project produced before this measurement rested on a noise estimate roughly three times too small. Median cell CV moved from 5.7% to 18.4% and the number of cells above the 20% ceiling from 0 to 10. Coverage fell from 8 cells to 6, which is a correction rather than a regression: the earlier figure was inflated by an instrument that under-reported its own variation.

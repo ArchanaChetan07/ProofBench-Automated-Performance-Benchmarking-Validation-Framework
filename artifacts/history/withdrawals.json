@@ -1,7 +1,7 @@
 {
   "kind": "withdrawal-manifest",
-  "generated_at": "2026-09-01T01:25:07Z",
-  "n_withdrawn": 4,
+  "generated_at": "2026-09-01T02:55:55Z",
+  "n_withdrawn": 5,
   "withdrawals": [
     {
       "slug": "2026-08-29-unfair-baseline",
@@ -32,6 +32,16 @@
       "superseded_by": "probe-thrust1-medium-regime, re-reported with a session check",
       "original_commit": "a1668eb",
       "n_files": 2
+    },
+    {
+      "slug": "2026-08-31-two-sample-cv-correction",
+      "artifact_id": "coverage-debt+modellability@2026-08-31-bias-corrected",
+      "title": "The coverage debt reclassified by a two-sample CV correction",
+      "reason": "unsound-statistic",
+      "withdrawn_at": "2026-09-01T02:55:55Z",
+      "superseded_by": "coverage-debt and modellability recomputed from the 21-repeat recampaign, which measures the dispersion directly and needs no correction",
+      "original_commit": "",
+      "n_files": 4
     },
     {
       "slug": "2026-08-31-unsound-drift-classification",
