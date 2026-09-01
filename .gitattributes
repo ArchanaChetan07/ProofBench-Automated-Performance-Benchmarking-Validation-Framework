@@ -1,0 +1,13 @@
+# Preserved history is hash-locked: `losscolumn history verify` re-hashes every
+# file under artifacts/history and compares it with the digest recorded when the
+# artifact was withdrawn. Git's end-of-line normalisation rewrites those bytes on
+# checkout, so a clone would get content that no longer matches its own digest.
+#
+# Found by scripts/reproduce.sh, which is the only place it can be found: in the
+# working tree the file and its digest agree, and they stop agreeing exactly when
+# somebody else clones the repository to check the claim. A preservation
+# guarantee that only holds on the author's disk is not one.
+artifacts/history/** -text
+
+# The same reasoning applies to anything else carrying a recorded content hash.
+artifacts/prereg/** -text
