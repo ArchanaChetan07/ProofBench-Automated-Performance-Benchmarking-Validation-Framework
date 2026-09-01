@@ -175,6 +175,13 @@ class CommunicationCoverage:
     required_regimes: tuple[str, ...]
     groups: dict[str, GroupCoverage] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    stability: dict[str, Any] | None = None
+    """The stability envelope, when one has been measured.
+
+    A plain dictionary rather than an imported type, so that `coverage` does not
+    depend on the measurement layer: a reader grading someone else's artifact
+    has the envelope as JSON and nothing else.
+    """
 
     # ---- construction -----------------------------------------------------
 
@@ -229,6 +236,23 @@ class CommunicationCoverage:
         whole surface and would fail on the part that is missing.
         """
         blocking: list[str] = []
+
+        # LC-1.2. Added after the sentinel established that no two measurement
+        # sessions on this machine have been shown comparable. This does not
+        # invalidate evidence already gathered inside one session; it says that
+        # the debt cannot be paid down by measuring more in a second one.
+        if self.stability is not None and not self.stability.get("pooling_permitted"):
+            kind = self.stability.get("drift_kind", "undetermined")
+            n_ok = self.stability.get("n_poolable_pairs")
+            n_all = self.stability.get("n_session_pairs")
+            blocking.append(
+                f"the machine does not permit cross-session pooling (drift is "
+                f"{kind}"
+                + (f"; {n_ok} of {n_all} session pairs poolable" if n_all else "")
+                + "), so coverage cannot be extended by measuring again later: any "
+                "new evidence has to be gathered in the same session as everything "
+                "it will be compared against"
+            )
 
         missing_groups = [g for g in self.groups.values() if not g.covered]
         if missing_groups:

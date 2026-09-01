@@ -23,11 +23,11 @@ from typing import Any
 
 from losscolumn.core.provenance import content_hash
 
-SCHEMA_VERSION = "LC-1.1"
+SCHEMA_VERSION = "LC-1.2"
 
 # Every revision whose claims this implementation can read. A 1.0 claim must go
 # on validating: the revision that superseded it did not change what it said.
-KNOWN_STANDARD_VERSIONS = ("LC-1.0", "LC-1.1")
+KNOWN_STANDARD_VERSIONS = ("LC-1.0", "LC-1.1", "LC-1.2")
 
 # --------------------------------------------------------------------------
 # schemas
@@ -222,11 +222,59 @@ CLAIM_SCHEMA: dict[str, Any] = {
     },
 }
 
+# LC-1.2. Session metadata becomes part of the artifact rather than something a
+# reader has to reconstruct from timestamps, because LC-8.3 cannot be checked
+# without it: an artifact that does not say which measurements shared a machine
+# state cannot be shown to have pooled them legitimately.
+SESSION_COMPARISON_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "required": ["session_a", "session_b", "verdict"],
+    "properties": {
+        "session_a": {"type": "string"},
+        "session_b": {"type": "string"},
+        # Three states, not two. "incomparable" is a valid measurement that
+        # describes a different machine state; collapsing it into "invalid"
+        # discards the evidence that the machine moved.
+        "verdict": {"enum": ["comparable", "incomparable", "invalid"]},
+        "criterion": {"type": "number"},
+        "observed_ratio": {"type": "number"},
+        "shape_divergence": {"type": "number"},
+        "failed_gate": {"type": ["string", "null"]},
+        "n_shared_probes": {"type": "integer", "minimum": 0},
+        "valid_measurements": {"type": "boolean"},
+        "per_probe_ratio": {"type": "object"},
+        "reason": {"type": "string"},
+    },
+}
+
+SESSION_SCHEMA: dict[str, Any] = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://losscolumn.org/schema/LC-1.2/sessions.json",
+    "title": "Measurement sessions",
+    "type": "object",
+    "required": ["session_ids", "pooled_across_sessions"],
+    "properties": {
+        "session_ids": {"type": "array", "items": {"type": "string"}},
+        "pooled_across_sessions": {"type": "boolean"},
+        "criterion": {"type": ["number", "null"]},
+        # Required by LC-8.2 whenever pooling occurred: a threshold with no
+        # registration time could have been widened after seeing the sessions.
+        "criterion_registered_at": {"type": ["string", "null"]},
+        "criterion_form": {"type": ["string", "null"]},
+        "state_per_measurement": {"type": "boolean"},
+        "comparisons": {"type": "array", "items": SESSION_COMPARISON_SCHEMA},
+        "drift_kind": {"enum": ["random", "persistent", "workload_specific",
+                                "environment_dependent", "undetermined", None]},
+        "envelope": {"type": ["object", "null"]},
+    },
+}
+
 SCHEMAS: dict[str, dict[str, Any]] = {
     "envelope": ENVELOPE_SCHEMA,
     "loss_column": LOSS_COLUMN_SCHEMA,
     "claim": CLAIM_SCHEMA,
     "preregistration": SEAL_SCHEMA,
+    "sessions": SESSION_SCHEMA,
 }
 
 
@@ -235,9 +283,27 @@ def schema_digest() -> str:
     return content_hash(SCHEMAS)
 
 
-# LC-1.1: standard_version widened from a const to an enum so LC-1.0
-# claims keep validating. No other shape changed.
-FROZEN_SCHEMA_DIGEST = "sha256:49729bd2610b893b183ba5aa27a7df0f7a6319ea496c9265ae172b43a595f529"
+# LC-1.1: standard_version widened from a const to an enum so LC-1.0 claims keep
+# validating. No other shape changed.
+LC_1_1_SCHEMA_DIGEST = "sha256:49729bd2610b893b183ba5aa27a7df0f7a6319ea496c9265ae172b43a595f529"
+
+# LC-1.2: adds the sessions document and widens the version enum. The four
+# shapes frozen at 1.0 are untouched, which the digest below is pinned to prove.
+FROZEN_SCHEMA_DIGEST = "sha256:1cfaddb3151724bea39e5a8b47739e94bd154952d1e4cf66fbe3375e91e9dca2"
+
+
+def lc_1_1_schema_digest() -> str:
+    """Digest of the four shapes as LC-1.1 froze them.
+
+    Recomputed with 1.1's version enum, so it verifies that adding the sessions
+    document did not disturb the documents that came before it.
+    """
+    import copy
+
+    older = {k: copy.deepcopy(v) for k, v in SCHEMAS.items() if k != "sessions"}
+    older["claim"]["properties"]["standard_version"] = {
+        "enum": ["LC-1.0", "LC-1.1"]}
+    return content_hash(older)
 
 
 # --------------------------------------------------------------------------

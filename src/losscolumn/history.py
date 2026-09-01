@@ -46,6 +46,11 @@ REASONS = {
     "invalid-measurement": "the measurement itself was not valid",
     "superseded-protocol": "the registered protocol was replaced",
     "contended-measurement": "the measurement shared hardware with another job",
+    # Added when the first stability analysis had to be withdrawn. The
+    # measurement was fine and the protocol was fine; the statistic applied to
+    # them was not, and none of the reasons above says that.
+    "unsound-statistic": "the measurement was sound and the statistic applied to "
+                         "it was not",
 }
 
 

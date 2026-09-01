@@ -169,6 +169,7 @@ class Validator:
         self._check_reproduction(claim, add)
         self._check_semantic_state(claim, add)
         self._check_model_validation(claim, add)
+        self._check_session_comparability(claim, add)
         self._check_quality(claim, add)
         return rep
 
@@ -604,6 +605,76 @@ class Validator:
             if log_domain and not per_regime else
             "per-regime error is reported" if per_regime else
             "the domain is not log-scaled")
+
+    def _check_session_comparability(self, c: dict[str, Any], add: Callable) -> None:
+        """LC-8: two good sessions averaged together are not one good session.
+
+        Every other requirement grades a measurement or a model on its own. None
+        of them can see the failure where two individually flawless sessions are
+        pooled into a surface that neither describes -- which is why this
+        requirement exists and why it arrived in 1.2 rather than 1.0.
+        """
+        sup = c.get("supporting", {}) or {}
+        sess = sup.get("sessions")
+
+        if not sess:
+            for rid in ("LC-8.1", "LC-8.2", "LC-8.3", "LC-8.4", "LC-8.5", "LC-8.6"):
+                add(rid, True, "the claim reports a single measurement session",
+                    na=True)
+            return
+
+        ids = sess.get("session_ids") or []
+        pairs = sess.get("comparisons") or []
+        criterion = sess.get("criterion")
+        pooled = bool(sess.get("pooled_across_sessions"))
+
+        add("LC-8.3", all(bool(i) for i in ids) and bool(ids),
+            "one or more measurements carry no session identity, so comparability "
+            "cannot be checked at all"
+            if not (ids and all(ids)) else
+            f"{len(ids)} session(s), each identified")
+
+        expected = len(ids) * (len(ids) - 1) // 2
+        judged = {(p.get("session_a"), p.get("session_b")) for p in pairs}
+        incomparable = [p for p in pairs
+                        if p.get("verdict") not in (None, "comparable")]
+        add("LC-8.1",
+            (not pooled) or (len(judged) >= expected and not incomparable),
+            (f"{len(incomparable)} session pair(s) were pooled without being shown "
+             "comparable" if incomparable else
+             f"only {len(judged)} of {expected} session pair(s) were compared; "
+             "comparability is not transitive, so every pair must be judged")
+            if pooled and (incomparable or len(judged) < expected) else
+            ("all pooled sessions were shown mutually comparable" if pooled else
+             "no pooling across sessions occurred"))
+
+        add("LC-8.2", (criterion is not None) and bool(sess.get("criterion_registered_at")),
+            "the comparability criterion is not registered with a timestamp before "
+            "the sessions were compared, so it could have been widened to fit them"
+            if not (criterion is not None and sess.get("criterion_registered_at"))
+            else f"criterion {criterion} registered at "
+                 f"{sess.get('criterion_registered_at')}")
+
+        miscast = [p for p in pairs if p.get("verdict") == "invalid"
+                   and p.get("valid_measurements") is True]
+        add("LC-8.4", not miscast,
+            f"{len(miscast)} valid-but-incomparable session pair(s) are recorded as "
+            "invalid; discarding them as broken destroys the evidence that the "
+            "machine moved" if miscast else
+            "valid-but-incomparable is recorded distinctly from invalid")
+
+        per_probe = [p for p in pairs if p.get("per_probe_ratio")]
+        add("LC-8.5", (not pairs) or bool(per_probe),
+            "comparability was judged on a pooled summary; two sessions with the "
+            "same median and opposite shapes would pass"
+            if pairs and not per_probe else
+            f"{len(per_probe)} pair(s) judged probe by probe")
+
+        add("LC-8.6", bool(sess.get("state_per_measurement")),
+            "machine state was captured once per session rather than with each "
+            "measurement, so a drift during a session is attributed to the state "
+            "it started in" if not sess.get("state_per_measurement") else
+            "machine state is captured with each measurement")
 
     def _check_quality(self, c: dict[str, Any], add: Callable) -> None:
         env = c.get("envelope") or {}

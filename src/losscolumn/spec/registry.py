@@ -237,7 +237,48 @@ LC_1_1_ADDITIONS: tuple[Rule, ...] = (
          "by the largest points"),
 )
 
-_RULES: tuple[Rule, ...] = LC_1_0_RULES + LC_1_1_ADDITIONS
+# LC-1.2. A new defect class, not a refinement of an existing one: every rule
+# above grades a measurement or a model in isolation, and none of them can see
+# the failure where two individually flawless measurement sessions are averaged
+# together into a surface that neither of them describes.
+#
+# The defect was not hypothesised. It was found when a targeted probe returned
+# an impossible number -- adding 32 points made the best achievable error rise
+# -- and the cause turned out to be that the probe had pooled records from two
+# sessions that differed by up to 2.7x. The preserved artifact is
+# artifacts/history/2026-08-30-uncomparable-sessions.
+LC_1_2_ADDITIONS: tuple[Rule, ...] = (
+    Rule("LC-8.1", "Session comparability", FATAL,
+         "Measurements pooled into one fit come from a single session, or from "
+         "sessions shown comparable against a registered criterion.",
+         "two sessions of a drifting machine averaged into a surface that "
+         "describes the drift rather than the system"),
+    Rule("LC-8.2", "Session comparability", FATAL,
+         "The comparability criterion is registered before the sessions are "
+         "compared against it.",
+         "a threshold widened after the fact until the sessions one wanted to "
+         "pool happened to qualify"),
+    Rule("LC-8.3", "Session comparability", FATAL,
+         "Every measurement records the session it belongs to.",
+         "an artifact in which comparability cannot be checked at all, because "
+         "nothing says which measurements shared a machine state"),
+    Rule("LC-8.4", "Session comparability", FATAL,
+         "A measurement that is valid but incomparable is reported as such, and "
+         "not as invalid.",
+         "discarding good data as broken, and with it the evidence that the "
+         "machine moved"),
+    Rule("LC-8.5", "Session comparability", WARNING,
+         "Comparability is judged per probe, not on a pooled summary.",
+         "two sessions with the same median and opposite shapes passing as "
+         "interchangeable"),
+    Rule("LC-8.6", "Session comparability", WARNING,
+         "Machine state is captured with each measurement rather than once per "
+         "session.",
+         "a drift that happened during the session being attributed to the state "
+         "it started in"),
+)
+
+_RULES: tuple[Rule, ...] = LC_1_0_RULES + LC_1_1_ADDITIONS + LC_1_2_ADDITIONS
 
 RULES: dict[str, Rule] = {r.id: r for r in _RULES}
 
@@ -252,6 +293,7 @@ REQUIREMENT_ORDER = (
     "Measurement quality",
     "Semantic state",
     "Model validation",
+    "Session comparability",
 )
 
 
@@ -262,7 +304,7 @@ def frozen_table(rules: tuple[Rule, ...] | None = None) -> list[list[str]]:
 
 def compute_digest() -> str:
     """Digest of the CURRENT standard revision."""
-    return content_hash({"standard": "LC-1.1", "rules": frozen_table()})
+    return content_hash({"standard": "LC-1.2", "rules": frozen_table()})
 
 
 def compute_lc_1_0_digest() -> str:
@@ -275,16 +317,32 @@ def compute_lc_1_0_digest() -> str:
     return content_hash({"standard": "LC-1.0", "rules": frozen_table(LC_1_0_RULES)})
 
 
+def compute_lc_1_1_digest() -> str:
+    """Digest of LC-1.1, unchanged.
+
+    Same reasoning as LC-1.0's: a claim graded under 1.1 must go on meaning what
+    it meant, so 1.1's table is verified independently of what 1.2 adds.
+    """
+    return content_hash({
+        "standard": "LC-1.1",
+        "rules": frozen_table(LC_1_0_RULES + LC_1_1_ADDITIONS),
+    })
+
+
 # Asserted by tests/test_standard_frozen.py. Changing a rule id or a severity
 # changes this hash, which fails that test, which forces a version bump rather
 # than a silent edit.
 # LC-1.0, unchanged since it was frozen. Not to be edited.
 LC_1_0_DIGEST = "sha256:1483dc1b908fc25155cdf160dd85c04a6d2b995bac3d61ab074446dcc9468df3"
 
+# LC-1.1, unchanged since it was frozen. Not to be edited. Preserved for the
+# same reason as 1.0's: it is the proof that adding 1.2 did not disturb it.
+LC_1_1_DIGEST = "sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684"
+
 # The current revision. Adding a rule is a minor bump and a new digest;
 # changing an existing rule's id or severity would be a major bump, and the
 # LC-1.0 digest above exists so that such a change cannot pass unnoticed.
-FROZEN_DIGEST = "sha256:c167b1a695a81a4cb388142f277c42cdc5667ac31661c2ff92947c6a36ab5684"
+FROZEN_DIGEST = "sha256:d9aa202e1c8c0af5df623ff52058b45fd8950d3635b57ceac9620769e08af92a"
 
 N_RULES = len(_RULES)
 N_FATAL = sum(1 for r in _RULES if r.severity == FATAL)
@@ -310,14 +368,15 @@ def by_requirement() -> dict[str, list[Rule]]:
 
 def to_markdown() -> str:
     lines = [
-        "# LC-1.1 rule registry (frozen)",
+        "# LC-1.2 rule registry (frozen)",
         "",
         f"{N_RULES} rules, {N_FATAL} fatal. Digest `{compute_digest()}`.",
         "",
-        f"Supersedes LC-1.0 (`{compute_lc_1_0_digest()}`), which is unchanged: "
-        f"LC-1.1 adds {len(LC_1_1_ADDITIONS)} rules "
-        f"({', '.join(r.id for r in LC_1_1_ADDITIONS)}) and edits none. A claim "
-        "graded under 1.0 still means what it meant.",
+        f"Supersedes LC-1.1 (`{compute_lc_1_1_digest()}`) and LC-1.0 "
+        f"(`{compute_lc_1_0_digest()}`), both unchanged: LC-1.2 adds "
+        f"{len(LC_1_2_ADDITIONS)} rules "
+        f"({', '.join(r.id for r in LC_1_2_ADDITIONS)}) and edits none. A claim "
+        "graded under an earlier revision still means what it meant.",
         "",
     ]
     for req, rules in by_requirement().items():
@@ -333,11 +392,13 @@ def to_markdown() -> str:
 
 def to_dict() -> dict[str, Any]:
     return {
-        "standard": "LC-1.1",
+        "standard": "LC-1.2",
         "digest": compute_digest(),
-        "supersedes": "LC-1.0",
+        "supersedes": "LC-1.1",
         "lc_1_0_digest": compute_lc_1_0_digest(),
+        "lc_1_1_digest": compute_lc_1_1_digest(),
         "added_in_1_1": [r.id for r in LC_1_1_ADDITIONS],
+        "added_in_1_2": [r.id for r in LC_1_2_ADDITIONS],
         "n_rules": N_RULES,
         "n_fatal": N_FATAL,
         "rules": [

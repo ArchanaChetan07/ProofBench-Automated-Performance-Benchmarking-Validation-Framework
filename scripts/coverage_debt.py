@@ -32,13 +32,31 @@ def main() -> int:
             R.heldout_err = r["heldout_err"]
             R.noise_cv = r["noise_cv"]
 
-    debt = assess_debt(cov, d["model_selection"])
+    # The campaign recorded two repeats per point, so every CV in it is a
+    # two-sample estimate and reads far cleaner than the measurement is.
+    n_rep = int(d["protocol"].get("repeats", 0) or 0) or 2
+    debt = assess_debt(cov, d["model_selection"], cv_from_n=n_rep)
     debt.notes.append(
-        "The medium regime is model-limited in every all_reduce group. The targeted "
-        "probe that would have settled whether that is evidence or structure came "
-        "back INCONCLUSIVE: its two measurement sessions differed by 1.42x and could "
-        "not be pooled. Re-measuring both grids in one session is the outstanding "
-        "experiment."
+        "This supersedes an earlier ledger that read 9 model-limited and 7 "
+        "noise-limited. Nothing was re-measured: the earlier one took each cell's "
+        "recorded CV at face value, and every one of those was computed from two "
+        "repeats. Correcting that estimator moved six cells, all of them from "
+        "model-limited to noise-limited, and three of the four medium-regime cells "
+        "among them."
+    )
+    debt.notes.append(
+        "The correction inverts the plan the earlier ledger implied. Most of the "
+        "supposed modelling work was never modelling work: the residuals it "
+        "pointed at are smaller than the instrument's own variation, and no model "
+        "family can beat the instrument. The remaining model-limited cells are "
+        "worth attention precisely because there are only three of them."
+    )
+    debt.notes.append(
+        "It also dissolves the medium-regime puzzle without appealing to session "
+        "drift. all_reduce/world2 and world3 show 26% to 30% run-to-run variation "
+        "there against a 20% ceiling, so nothing can be graded in those cells at "
+        "all -- which is why a probe that added 32 points to that regime produced "
+        "a worse fit rather than a better one."
     )
     md = "### Coverage debt\n\n" + debt.to_markdown()
     print(md)

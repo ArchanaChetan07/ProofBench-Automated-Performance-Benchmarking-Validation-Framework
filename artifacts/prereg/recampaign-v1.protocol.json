@@ -1,0 +1,48 @@
+{
+  "name": "recampaign-higher-replicates-v1",
+  "question": "Does the communication surface become gradable when it is measured at the replicate count the noise budget requires, rather than at the two the original campaign carried?",
+  "design": {
+    "repeats_per_point_per_pass": 21,
+    "was": 2,
+    "sessions": 1,
+    "rationale": "The launch-level noise floor is 12.3% and the gate is 15%, so the gate is reachable inside one launch. Repeats are bought rather than launches because a launch pays transport setup for every probe it carries."
+  },
+  "predictions": [
+    {
+      "id": "P1-cv-rises",
+      "claim": "The median recorded per-record CV rises from 0.058 to about 0.107, because a CV from two samples understates dispersion by 1.83x.",
+      "falsified_if": "the median recorded CV stays within 20% of its old value, which would mean the two-sample bias correction is wrong and every cell it reclassified must be reclassified back",
+      "predicted_value": 0.10659491819505729,
+      "tolerance": 0.25
+    },
+    {
+      "id": "P2-coverage-improves",
+      "claim": "Coverage rises above 8 of 24 cells, because thirteen of the sixteen uncovered cells were classified as limited by measurement rather than by the model.",
+      "falsified_if": "coverage does not improve, which would mean the residuals were never the instrument's and the noise-limited classification is wrong",
+      "predicted_value": 8,
+      "direction": "greater"
+    },
+    {
+      "id": "P3-model-work-cells-persist",
+      "claim": "all_gather/world2 small, all_reduce/world4 tiny and all_reduce/world4 medium stay uncovered, because their residuals are already well above their measurement noise and more repeats cannot close a gap the instrument did not open.",
+      "cells": [
+        [
+          "all_gather/world2",
+          "small"
+        ],
+        [
+          "all_reduce/world4",
+          "tiny"
+        ],
+        [
+          "all_reduce/world4",
+          "medium"
+        ]
+      ],
+      "falsified_if": "any of the three becomes covered, which would mean the model-limited classification was itself a noise artefact"
+    }
+  ],
+  "committed_before_measurement": true,
+  "not_predicted": "Nothing here predicts that six of six groups will pass. The point is to find out which of the three diagnoses -- noise, model, instrument -- was right about each cell, and a result in which coverage improves only a little is as informative as one in which it improves a lot.",
+  "seal_hash": "sha256:be927a46986e1a905bcf161450ab45afd01f65c21a494e30c736b2dbfafe892b"
+}

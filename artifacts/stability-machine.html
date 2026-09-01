@@ -1,0 +1,120 @@
+<title>Machine stability</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Machine stability</h1>
+<p class="lede">Is this machine the same machine it was an hour ago?</p>
+<h2>Machine stability</h2>
+<p>Protocol <code>machine-stability-sentinel-v1</code> sealed <code>sha256:acd3614e4e580a2a</code>, registered before measurement. 72 readings over 4 sessions and 12 process launches.</p>
+<h3>Repeatability</h3>
+<div class="scroll"><table><thead><tr>
+<th>Level</th>
+<th>observed CV</th>
+<th>expected from below</th>
+<th>probes</th>
+<th>what it adds</th>
+</tr></thead><tbody>
+<tr><td>within run</td><td>21.3%</td><td>n/a</td><td>6</td><td>the instrument's own noise floor</td></tr>
+<tr><td>across restart</td><td>15.9%</td><td>10.1%</td><td>6</td><td>process placement, allocator and transport setup</td></tr>
+<tr><td>across session</td><td>10.5%</td><td>11.5%</td><td>6</td><td>whatever the machine does between sittings</td></tr>
+</tbody></table></div>
+<p>Excess over the level below: restart 1.58x &amp;nbsp;&amp;middot;&amp;nbsp; session 0.91x. A level that adds nothing of its own sits at 1.0x, because a median of <i>n</i> is less dispersed than the <i>n</i> it averages.</p>
+<p><b>Drift is RESTART_LEVEL.</b> pooling across process launches is as unsafe as pooling across sittings. Either keep a comparison inside one process, or carry enough launches per condition that the launch-level variation is averaged rather than confounded with the effect.</p>
+<ul>
+<li>restarting the process leaves 1.58x the dispersion that averaging alone predicts (15.9% observed against 10.1% expected from the 21.3% within-run noise)</li>
+<li>a new session leaves 0.91x what restarts alone predict (10.5% observed against 11.5% expected)</li>
+<li>the session-level variation differs by 6.9x between the probes, which chance alone reproduces 40% of the time (so it is not evidence of anything: each per-probe CV rests on a handful of session medians and spreads of this size are ordinary under a null where every probe behaves identically)</li>
+<li>the variation enters at the process launch and time between sittings adds nothing on top of it, so two launches minutes apart differ as much as two days apart</li>
+</ul>
+<p>Correlation of per-reading bandwidth with machine state:</p>
+<ul>
+<li><code>cpu_percent</code>: r = -0.07</li>
+<li><code>gpu<i>mem</i>clock_mhz</code>: r = -0.03</li>
+<li><code>free<i>ram</i>gb</code>: r = +0.03</li>
+<li><code>load<i>avg</i>1m</code>: r = -0.02</li>
+<li><code>gpu<i>clock</i>mhz</code>: r = -0.02</li>
+</ul>
+<p>Largest session-to-session drift observed: <b>1.85x</b>. Recommended comparability criterion: <b>1.48x</b>.</p>
+<h3>Session comparability</h3>
+<p>Three gates, failing on different things: the whole surface moving (<code>level</code>), one probe moving (<code>magnitude</code>), the probes moving against each other (<code>shape</code>).</p>
+<div class="scroll"><table><thead><tr>
+<th>A</th>
+<th>B</th>
+<th>level</th>
+<th>worst probe</th>
+<th>shape</th>
+<th>criterion</th>
+<th>failed</th>
+<th>verdict</th>
+</tr></thead><tbody>
+<tr><td>S0</td><td>S1</td><td>1.08x</td><td>1.64x</td><td>1.82x</td><td>1.48x</td><td>magnitude</td><td><code>INCOMPARABLE</code></td></tr>
+<tr><td>S0</td><td>S2</td><td>1.05x</td><td>1.50x</td><td>1.55x</td><td>1.48x</td><td>magnitude</td><td><code>INCOMPARABLE</code></td></tr>
+<tr><td>S0</td><td>S3</td><td>0.97x</td><td>1.39x</td><td>1.82x</td><td>1.48x</td><td>shape</td><td><code>INCOMPARABLE</code></td></tr>
+<tr><td>S1</td><td>S2</td><td>1.02x</td><td>1.29x</td><td>1.65x</td><td>1.48x</td><td>shape</td><td><code>INCOMPARABLE</code></td></tr>
+<tr><td>S1</td><td>S3</td><td>0.88x</td><td>1.50x</td><td>1.73x</td><td>1.48x</td><td>magnitude</td><td><code>INCOMPARABLE</code></td></tr>
+<tr><td>S2</td><td>S3</td><td>0.92x</td><td>1.85x</td><td>1.98x</td><td>1.48x</td><td>magnitude</td><td><code>INCOMPARABLE</code></td></tr>
+</tbody></table></div>
+<p><b>0 of 6 session pairs are poolable.</b></p>
+<h4>A widening that was available and was not taken</h4>
+<p>The internal null used to correct the campaign's comparison is also computable here, from the sentinel's own repeats: it runs 1.17x to 1.43x on magnitude and up to 1.90x on shape. Applying it would move S1-S2 to COMPARABLE and make this 1 of 6 rather than 0 of 6.</p>
+<p>It is not applied, and the reason is not a technical one. The sealed protocol registered a criterion of the form <code>max(1 + 3 * across<i>restart</i>CV, 1.05)</code> applied to the worst shared probe, and the sentinel is the design that criterion was registered for -- six probes, seven repeats, exactly as specified. Widening it now with a statistic the protocol does not name would be the post-hoc loosening LC-8.2 exists to forbid, and it would be done knowing which pair it admits.</p>
+<p>The campaign is a different case and not a special one: 276 probes at two repeats is not the design the criterion was registered for, so carrying the number across was a category error rather than a loosening. Correcting a threshold that never applied is not the same act as relaxing one that does.</p>
+<h3>What was corrected</h3>
+<p>The first analysis of these same readings called the drift <code>restart_level</code> on a 6.9x spread between the per-probe session variabilities. A permutation test on the readings shows chance alone reproduces a spread that large 40% of the time: each per-probe figure rests on four session medians, and the ratio between the largest and smallest of six such estimates is naturally enormous. The threshold was measuring the sample size, not the machine.</p>
+</div>

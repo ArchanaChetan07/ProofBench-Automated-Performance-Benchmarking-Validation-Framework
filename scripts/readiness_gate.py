@@ -27,6 +27,47 @@ def main() -> int:
 
     gates: list[dict] = []
 
+    # LC-1.2. Read from the sentinel artifact, not asserted: the gate has to be
+    # able to fail on this, and on this machine it does.
+    stab_path = art / "stability-machine.json"
+    if stab_path.exists():
+        st = json.loads(stab_path.read_text(encoding="utf-8"))
+        env, pairs = st["envelope"], st.get("pairs", [])
+        n_ok = sum(1 for x in pairs if x.get("poolable"))
+        gates.append({
+            "gate": "machine permits cross-session pooling",
+            "passed": bool(env.get("pooling_permitted")),
+            "detail": (
+                f"drift is {env['drift_kind']}; {n_ok} of {len(pairs)} session pairs "
+                f"poolable at the registered {env['recommended_criterion']:.2f}x "
+                f"criterion. Within-run {env['within_run']['cv']:.1%}, across "
+                f"restart {env['across_restart']['cv']:.1%} against "
+                f"{env['across_restart']['expected_cv']:.1%} expected from "
+                f"averaging alone"
+            ),
+        })
+    else:
+        gates.append({
+            "gate": "machine permits cross-session pooling",
+            "passed": False,
+            "detail": "no stability evidence; scripts/stability.py",
+        })
+
+    reclass = art / "evidence-reclassification.json"
+    if reclass.exists():
+        rc = json.loads(reclass.read_text(encoding="utf-8"))
+        ci = rc["campaign_internal"]
+        gates.append({
+            "gate": "the campaign's own evidence is internally poolable",
+            "passed": bool(ci.get("poolable")),
+            "detail": (
+                f"its two passes agree to {ci['observed_ratio']:.2f}x against a "
+                f"{ci['effective_criterion']:.2f}x floor measured from the "
+                f"campaign's own repeats at {ci['n_shared_probes']} probes, and the "
+                f"surface did not move ({ci['level_shift']:.3f}x median shift)"
+            ),
+        })
+
     gates.append({
         "gate": "communication quality gates pass",
         "passed": len(cov["parameter_validity"]["accepted"]) == cov["n_required_groups"],

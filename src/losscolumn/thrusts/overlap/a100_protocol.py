@@ -75,7 +75,28 @@ STAGES: tuple[Stage, ...] = (
         "local campaign's inter_node flag exists to prevent",
     ),
     Stage(
-        3, "device and allocator verification",
+        3, "machine stability sentinel",
+        "Measure the rented machine's own repeatability before anything is built "
+        "on it: six probes at three nested levels -- repeats inside one process, "
+        "several process launches, launches separated in time -- and derive the "
+        "comparability criterion from the result rather than carrying one over "
+        "from elsewhere. Registers the criterion before any session is compared "
+        "against it, and produces the noise budget that says how many replicates "
+        "the calibration stage must carry to reach its gate.",
+        "a stability envelope, a registered comparability criterion, and the "
+        "replicate count the calibration stage needs",
+        "the launch-level noise floor exceeds the coverage gate, in which case the "
+        "campaign cannot grade a model to the precision it requires and the "
+        "allocation is released rather than spent proving it",
+        25,
+        "the failure this whole protocol was rewritten to prevent: a campaign "
+        "measured at a replicate count nobody costed, whose residuals are then "
+        "attributed to the model rather than to the instrument. Locally that cost "
+        "a coverage matrix that read 9 cells as needing better models when 6 of "
+        "them needed more repeats",
+    ),
+    Stage(
+        4, "device and allocator verification",
         "Confirm memory capacity per device, that the allocator cap installs, and "
         "that an over-large allocation raises rather than falling back. This is "
         "the check that made local feasibility measurable at all.",
@@ -85,7 +106,7 @@ STAGES: tuple[Stage, ...] = (
         "feasibility measurements that mean 'eventually returned' rather than 'fits'",
     ),
     Stage(
-        4, "fabric identification",
+        5, "fabric identification",
         "Determine, by measurement rather than by assumption, which transport each "
         "world size actually traverses: intra-node NVLink, intra-node PCIe "
         "fallback, or inter-node. A four-rank group with one rank per node runs at "
@@ -97,7 +118,7 @@ STAGES: tuple[Stage, ...] = (
         "sharding recommendation that depends on it",
     ),
     Stage(
-        5, "communication calibration",
+        6, "communication calibration",
         "Run the dense campaign grid, unchanged, against NCCL on the real fabric. "
         "Same sizes, same oversampled regions, same two passes, same repeats.",
         "raw PointRecords, per collective per world per pass",
@@ -106,7 +127,7 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        6, "parameter quality gates",
+        7, "parameter quality gates",
         "Family selection under every registered estimator, stratified k-fold "
         "cross-validation, worst-regime acceptance. Identical code to the local "
         "campaign; only the data differs.",
@@ -117,7 +138,7 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        7, "model freeze",
+        8, "model freeze",
         "Freeze the accepted communication parameters into a Fabric. Rejected and "
         "diagnostic parameters are recorded and remain unusable.",
         "a sealed Fabric with parameter provenance",
@@ -126,7 +147,7 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        8, "Thrust I prediction generation",
+        9, "Thrust I prediction generation",
         "Run the simulator with the frozen memory model and the frozen "
         "communication model, over the registered sharding grid, and extract the "
         "predicted loss regions.",
@@ -136,7 +157,7 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        9, "prediction lock",
+        10, "prediction lock",
         "Seal the prediction: hash it, record the hash, and stop. This is the step "
         "that makes the next one a test rather than a fit.",
         "a sealed prediction hash",
@@ -146,7 +167,7 @@ STAGES: tuple[Stage, ...] = (
         "narrative, which is the whole failure this project is about",
     ),
     Stage(
-        10, "independent 8-GPU measurement",
+        11, "independent 8-GPU measurement",
         "Measure the registered sharding grid under torchrun on all eight devices, "
         "with GPU exclusivity enforced and the registered replicate count.",
         "the measured envelope",
@@ -155,7 +176,7 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        11, "measured loss-region extraction",
+        12, "measured loss-region extraction",
         "Extract loss regions from the measurement using the same extractor, at "
         "the registered MDE and FDR level.",
         "the measured loss map",
@@ -164,11 +185,11 @@ STAGES: tuple[Stage, ...] = (
         "",
     ),
     Stage(
-        12, "prediction against measurement",
+        13, "prediction against measurement",
         "Score the sealed prediction: region overlap, boundary displacement, false "
         "wins, false losses, dangerous-error score, per-regime error.",
         "the calibration report and the final Thrust I claim",
-        "the prediction hash does not match what was sealed at stage 9",
+        "the prediction hash does not match what was sealed at stage 10",
         10,
         "",
     ),
@@ -236,10 +257,52 @@ class A100Protocol:
                 ],
             },
             "ordering_is_binding": (
-                "Stages 8 and 9 run before stage 10. A prediction produced after "
+                "Stages 9 and 10 run before stage 11. A prediction produced after "
                 "seeing the measurement is not a prediction, and no result from an "
                 "out-of-order run is admissible."
             ),
+            "session_rule": (
+                "Stages 6 through 13 are one session. Nothing measured in them is "
+                "pooled with anything measured outside them unless stage 3's "
+                "criterion says the two are comparable, and stage 3 registers that "
+                "criterion before any comparison is made against it. The local "
+                "machine's variation was found to enter at the process launch "
+                "rather than with elapsed time, so 'measure it all in one sitting' "
+                "is not by itself sufficient: the rented machine gets its own "
+                "sentinel because there is no reason to assume it behaves the same "
+                "way."
+            ),
+            "restart_rule": (
+                "A restart is not a resume. If any stage from 6 onward has to be "
+                "re-run, everything downstream of it re-runs too, because a "
+                "measurement taken after a restart belongs to a different launch "
+                "and the launch is where this machine's variation was found to "
+                "enter. Splicing a re-run stage into an otherwise finished campaign "
+                "is the pooling LC-8.1 forbids, wearing a different name."
+            ),
+            "budget": {
+                "estimated_hours": round(
+                    sum(x.estimated_minutes for x in STAGES) / 60.0, 1),
+                "hard_ceiling_hours": 10.0,
+                "ceiling_rule": (
+                    "At the ceiling the campaign stops and reports what it has, "
+                    "whatever stage it reached. A partial campaign with a stated "
+                    "stopping point is a result; an over-running one whose scope "
+                    "was quietly trimmed to fit is not."
+                ),
+                "what_overrun_must_not_buy": [
+                    "fewer replicates than stage 3's noise budget requires",
+                    "a narrower message-size grid than the one registered",
+                    "dropping a world size to save time",
+                    "a widened coverage gate",
+                ],
+                "overrun_rationale": (
+                    "Each of those trades a stated result for a nominally complete "
+                    "one. The honest response to running out of allocation is a "
+                    "campaign that covers less and says so, because the alternative "
+                    "is a campaign whose gate was set by the clock."
+                ),
+            },
             "abort_policy": (
                 "Each stage names its own abort condition. Aborting is a successful "
                 "outcome of the stage: the allocation is expensive and a campaign that "
@@ -273,7 +336,7 @@ class A100Protocol:
             )
         lines += [
             "",
-            "**Ordering is binding.** Stages 8 and 9 run before stage 10: a "
+            "**Ordering is binding.** Stages 9 and 10 run before stage 11: a "
             "prediction produced after seeing the measurement is not a prediction.",
             "",
             "**No local parameter is used here.** The local campaign ran gloo over "

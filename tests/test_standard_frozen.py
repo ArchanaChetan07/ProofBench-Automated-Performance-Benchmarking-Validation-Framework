@@ -23,7 +23,7 @@ from losscolumn.version import STANDARD_VERSION
 
 class TestFrozenRegistry:
     def test_standard_version(self):
-        assert STANDARD_VERSION == "LC-1.1"
+        assert STANDARD_VERSION == "LC-1.2"
 
     def test_lc_1_0_is_not_edited(self):
         """LC-1.1 adds rules. It does not touch the ones 1.0 defined.
@@ -37,11 +37,24 @@ class TestFrozenRegistry:
             "LC_1_1_ADDITIONS instead of editing LC_1_0_RULES."
         )
 
-    def test_lc_1_1_only_adds(self):
+    def test_lc_1_1_is_not_edited(self):
+        """Same guarantee, one revision on. 1.2 adds; it does not disturb 1.1."""
+        assert registry.compute_lc_1_1_digest() == registry.LC_1_1_DIGEST, (
+            "the LC-1.1 rule table changed. 1.1 is frozen: add rules to "
+            "LC_1_2_ADDITIONS instead of editing LC_1_1_ADDITIONS."
+        )
+
+    def test_each_revision_only_adds(self):
         old = {r.id for r in registry.LC_1_0_RULES}
-        new = {r.id for r in registry.LC_1_1_ADDITIONS}
-        assert not (old & new), "LC-1.1 redefines an LC-1.0 rule id"
-        assert set(registry.RULES) == old | new
+        v11 = {r.id for r in registry.LC_1_1_ADDITIONS}
+        v12 = {r.id for r in registry.LC_1_2_ADDITIONS}
+        assert not (old & v11), "LC-1.1 redefines an LC-1.0 rule id"
+        assert not ((old | v11) & v12), "LC-1.2 redefines an earlier rule id"
+        assert set(registry.RULES) == old | v11 | v12
+
+    def test_every_lc_1_1_severity_is_unchanged(self):
+        for r in registry.LC_1_1_ADDITIONS:
+            assert registry.RULES[r.id].severity == r.severity, r.id
 
     def test_every_lc_1_0_severity_is_unchanged(self):
         for r in registry.LC_1_0_RULES:
@@ -60,10 +73,11 @@ class TestFrozenRegistry:
         )
 
     def test_rule_count(self):
-        assert registry.N_RULES == 54
-        assert registry.N_FATAL == 34
+        assert registry.N_RULES == 60
+        assert registry.N_FATAL == 38
         assert len(registry.LC_1_0_RULES) == 47
         assert len(registry.LC_1_1_ADDITIONS) == 7
+        assert len(registry.LC_1_2_ADDITIONS) == 6
 
     @pytest.mark.parametrize(
         "rule_id,severity",
@@ -122,9 +136,22 @@ class TestFrozenSchemas:
             "a frozen document schema changed; this is a standard version bump"
         )
 
-    def test_the_four_document_shapes_are_present(self):
+    def test_lc_1_1_schemas_are_not_edited(self):
+        """LC-1.2 adds the sessions document. It changes none of the other four."""
+        assert schema.lc_1_1_schema_digest() == schema.LC_1_1_SCHEMA_DIGEST, (
+            "an LC-1.1 document shape changed. Add a new document to SCHEMAS "
+            "instead of editing one that earlier artifacts were written against."
+        )
+
+    def test_sessions_schema_admits_three_verdicts(self):
+        """LC-8.4: valid-but-incomparable must be expressible, not collapsed."""
+        verdicts = schema.SESSION_COMPARISON_SCHEMA["properties"]["verdict"]["enum"]
+        assert set(verdicts) == {"comparable", "incomparable", "invalid"}
+
+    def test_the_document_shapes_are_present(self):
+        """Four frozen at 1.0, plus the sessions document added in 1.2."""
         assert set(schema.SCHEMAS) == {
-            "envelope", "loss_column", "claim", "preregistration"
+            "envelope", "loss_column", "claim", "preregistration", "sessions"
         }
 
     def test_conforming_claim_validates(self):

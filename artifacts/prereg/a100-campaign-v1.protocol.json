@@ -1,9 +1,9 @@
 {
   "kind": "a100-campaign-protocol",
   "protocol": "thrust1-a100-v1",
-  "sealed_at": "2026-08-31T05:35:38Z",
+  "sealed_at": "2026-09-01T01:27:07Z",
   "status": "PREPARED, NOT EXECUTED",
-  "standard_version": "LC-1.1",
+  "standard_version": "LC-1.2",
   "preconditions": {
     "local_communication_readiness": "not_ready",
     "local_campaign_seal": "sha256:4ec68376d8808ad48b4dd028a876351e1be3b2f10b941c9d09a533d797167aeb",
@@ -142,5 +142,5 @@
   "ordering_is_binding": "Stages 8 and 9 run before stage 10. A prediction produced after seeing the measurement is not a prediction, and no result from an out-of-order run is admissible.",
   "abort_policy": "Each stage names its own abort condition. Aborting is a successful outcome of the stage: the allocation is expensive and a campaign that stops at stage 2 with a recorded topology surprise is worth more than one that proceeds on a wrong assumption.",
   "notes": [],
-  "seal_hash": "sha256:16a8b46786fc93665076e0735de36e5738751efa4ff301239be2118bb6bca64f"
+  "seal_hash": "sha256:6ae547e868b0a128e0bf01fc80dc4360bfab7b5ebf81939c64564f6d9e2acbe9"
 }

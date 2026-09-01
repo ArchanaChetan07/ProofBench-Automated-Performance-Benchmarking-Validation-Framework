@@ -60,7 +60,7 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Coverage debt</h1>
 <p class="lede">What is missing, why, and what would fix it.</p>
-<div class="meta"><span><b>Uncovered cells</b> <code>16</code></span><span><b>Dominant</b> <code>model_limited</code></span></div>
+<div class="meta"><span><b>Uncovered cells</b> <code>16</code></span><span><b>Dominant</b> <code>noise_limited</code></span></div>
 <h4>Coverage debt</h4>
 <p><b>Coverage debt: 16 uncovered cell(s) of 24.</b></p>
 <div class="scroll"><table><thead><tr>
@@ -68,8 +68,8 @@ color:var(--muted)}
 <th>Cells</th>
 <th>Remedy</th>
 </tr></thead><tbody>
-<tr><td><code>model_limited</code></td><td>9</td><td>a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean</td></tr>
-<tr><td><code>noise_limited</code></td><td>7</td><td>more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation</td></tr>
+<tr><td><code>noise_limited</code></td><td>13</td><td>more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation</td></tr>
+<tr><td><code>model_limited</code></td><td>3</td><td>a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean</td></tr>
 </tbody></table></div>
 <div class="scroll"><table><thead><tr>
 <th>Group</th>
@@ -80,26 +80,29 @@ color:var(--muted)}
 <th>gap</th>
 <th>why</th>
 </tr></thead><tbody>
-<tr><td>all_gather/world2</td><td>large</td><td><code>noise_limited</code></td><td>5.3%</td><td>5.8%</td><td>-9.7%</td><td>the best model misses by 5.3% against run-to-run variation of 5.8%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_gather/world2</td><td>medium</td><td><code>model_limited</code></td><td>19.7%</td><td>10.5%</td><td>+4.7%</td><td>the measurement is clean (10.5%) and the best available family still misses by 19.7%: the gap is the model's</td></tr>
-<tr><td>all_gather/world2</td><td>small</td><td><code>model_limited</code></td><td>20.2%</td><td>4.0%</td><td>+5.2%</td><td>the measurement is clean (4.0%) and the best available family still misses by 20.2%: the gap is the model's</td></tr>
-<tr><td>all_gather/world2</td><td>tiny</td><td><code>model_limited</code></td><td>9.6%</td><td>5.7%</td><td>-5.4%</td><td>the measurement is clean (5.7%) and the best available family still misses by 9.6%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world2</td><td>large</td><td><code>noise_limited</code></td><td>14.9%</td><td>12.0%</td><td>-0.1%</td><td>the best model misses by 14.9% against run-to-run variation of 12.0%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world2</td><td>medium</td><td><code>model_limited</code></td><td>35.3%</td><td>16.1%</td><td>+20.3%</td><td>the measurement is clean (16.1%) and the best available family still misses by 35.3%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world2</td><td>small</td><td><code>model_limited</code></td><td>8.6%</td><td>4.4%</td><td>-6.4%</td><td>the measurement is clean (4.4%) and the best available family still misses by 8.6%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world2</td><td>tiny</td><td><code>noise_limited</code></td><td>7.1%</td><td>6.1%</td><td>-7.9%</td><td>the best model misses by 7.1% against run-to-run variation of 6.1%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world3</td><td>large</td><td><code>noise_limited</code></td><td>5.7%</td><td>9.0%</td><td>-9.3%</td><td>the best model misses by 5.7% against run-to-run variation of 9.0%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world3</td><td>medium</td><td><code>model_limited</code></td><td>35.2%</td><td>14.2%</td><td>+20.2%</td><td>the measurement is clean (14.2%) and the best available family still misses by 35.2%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world3</td><td>small</td><td><code>noise_limited</code></td><td>4.3%</td><td>7.8%</td><td>-10.7%</td><td>the best model misses by 4.3% against run-to-run variation of 7.8%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world3</td><td>tiny</td><td><code>noise_limited</code></td><td>2.8%</td><td>6.3%</td><td>-12.2%</td><td>the best model misses by 2.8% against run-to-run variation of 6.3%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world4</td><td>large</td><td><code>noise_limited</code></td><td>5.2%</td><td>7.3%</td><td>-9.8%</td><td>the best model misses by 5.2% against run-to-run variation of 7.3%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world4</td><td>medium</td><td><code>model_limited</code></td><td>22.3%</td><td>6.1%</td><td>+7.3%</td><td>the measurement is clean (6.1%) and the best available family still misses by 22.3%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world4</td><td>small</td><td><code>model_limited</code></td><td>7.6%</td><td>4.0%</td><td>-7.4%</td><td>the measurement is clean (4.0%) and the best available family still misses by 7.6%: the gap is the model's</td></tr>
-<tr><td>all_reduce/world4</td><td>tiny</td><td><code>model_limited</code></td><td>14.4%</td><td>4.5%</td><td>-0.6%</td><td>the measurement is clean (4.5%) and the best available family still misses by 14.4%: the gap is the model's</td></tr>
+<tr><td>all_gather/world2</td><td>large</td><td><code>noise_limited</code></td><td>5.3%</td><td>10.7%</td><td>-9.7%</td><td>the best model misses by 5.3% against run-to-run variation of 10.7%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_gather/world2</td><td>medium</td><td><code>noise_limited</code></td><td>19.7%</td><td>19.3%</td><td>+4.7%</td><td>the best model misses by 19.7% against run-to-run variation of 19.3%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_gather/world2</td><td>small</td><td><code>model_limited</code></td><td>20.2%</td><td>7.4%</td><td>+5.2%</td><td>the measurement is clean (7.4%) and the best available family still misses by 20.2%: the gap is the model's</td></tr>
+<tr><td>all_gather/world2</td><td>tiny</td><td><code>noise_limited</code></td><td>9.6%</td><td>10.4%</td><td>-5.4%</td><td>the best model misses by 9.6% against run-to-run variation of 10.4%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world2</td><td>large</td><td><code>noise_limited</code></td><td>14.9%</td><td>22.1%</td><td>-0.1%</td><td>run-to-run variation 22.1% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
+<tr><td>all_reduce/world2</td><td>medium</td><td><code>noise_limited</code></td><td>35.3%</td><td>29.5%</td><td>+20.3%</td><td>run-to-run variation 29.5% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
+<tr><td>all_reduce/world2</td><td>small</td><td><code>noise_limited</code></td><td>8.6%</td><td>8.1%</td><td>-6.4%</td><td>the best model misses by 8.6% against run-to-run variation of 8.1%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world2</td><td>tiny</td><td><code>noise_limited</code></td><td>7.1%</td><td>11.2%</td><td>-7.9%</td><td>the best model misses by 7.1% against run-to-run variation of 11.2%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world3</td><td>large</td><td><code>noise_limited</code></td><td>5.7%</td><td>16.4%</td><td>-9.3%</td><td>the best model misses by 5.7% against run-to-run variation of 16.4%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world3</td><td>medium</td><td><code>noise_limited</code></td><td>35.2%</td><td>26.0%</td><td>+20.2%</td><td>run-to-run variation 26.0% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
+<tr><td>all_reduce/world3</td><td>small</td><td><code>noise_limited</code></td><td>4.3%</td><td>14.3%</td><td>-10.7%</td><td>the best model misses by 4.3% against run-to-run variation of 14.3%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world3</td><td>tiny</td><td><code>noise_limited</code></td><td>2.8%</td><td>11.5%</td><td>-12.2%</td><td>the best model misses by 2.8% against run-to-run variation of 11.5%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world4</td><td>large</td><td><code>noise_limited</code></td><td>5.2%</td><td>13.3%</td><td>-9.8%</td><td>the best model misses by 5.2% against run-to-run variation of 13.3%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world4</td><td>medium</td><td><code>model_limited</code></td><td>22.3%</td><td>11.2%</td><td>+7.3%</td><td>the measurement is clean (11.2%) and the best available family still misses by 22.3%: the gap is the model's</td></tr>
+<tr><td>all_reduce/world4</td><td>small</td><td><code>noise_limited</code></td><td>7.6%</td><td>7.4%</td><td>-7.4%</td><td>the best model misses by 7.6% against run-to-run variation of 7.4%; the residual is the instrument's, not the model's</td></tr>
+<tr><td>all_reduce/world4</td><td>tiny</td><td><code>model_limited</code></td><td>14.4%</td><td>8.3%</td><td>-0.6%</td><td>the measurement is clean (8.3%) and the best available family still misses by 14.4%: the gap is the model's</td></tr>
 </tbody></table></div>
 <p><b>The single most discriminating next experiment</b></p>
-<p>all_gather/world2, small regime: measurement noise is 4.0% while the best model misses by 20.2%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.</p>
+<p>all_gather/world2, small regime: measurement noise is 7.4% while the best model misses by 20.2%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.</p>
 <ul>
-<li>The medium regime is model-limited in every all_reduce group. The targeted probe that would have settled whether that is evidence or structure came back INCONCLUSIVE: its two measurement sessions differed by 1.42x and could not be pooled. Re-measuring both grids in one session is the outstanding experiment.</li>
+<li>Recorded CVs come from 2 repeats and are corrected by 1.83x before classification. Uncorrected they read as a clean measurement, which is the signature of a model-limited cell; several cells change kind under the correction.</li>
+<li>This supersedes an earlier ledger that read 9 model-limited and 7 noise-limited. Nothing was re-measured: the earlier one took each cell's recorded CV at face value, and every one of those was computed from two repeats. Correcting that estimator moved six cells, all of them from model-limited to noise-limited, and three of the four medium-regime cells among them.</li>
+<li>The correction inverts the plan the earlier ledger implied. Most of the supposed modelling work was never modelling work: the residuals it pointed at are smaller than the instrument's own variation, and no model family can beat the instrument. The remaining model-limited cells are worth attention precisely because there are only three of them.</li>
+<li>It also dissolves the medium-regime puzzle without appealing to session drift. all_reduce/world2 and world3 show 26% to 30% run-to-run variation there against a 20% ceiling, so nothing can be graded in those cells at all -- which is why a probe that added 32 points to that regime produced a worse fit rather than a better one.</li>
 </ul>
 </div>

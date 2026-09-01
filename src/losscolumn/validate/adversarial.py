@@ -218,6 +218,20 @@ def conforming_model_claim() -> dict[str, Any]:
                  "usable": False, "note": "held-out error above the gate"},
             ],
         },
+        "sessions": {
+            "session_ids": ["S0", "S1"],
+            "criterion": 1.2,
+            "criterion_registered_at": "2026-01-03T00:00:00Z",
+            "pooled_across_sessions": True,
+            "state_per_measurement": True,
+            "comparisons": [
+                {"session_a": "S0", "session_b": "S1", "verdict": "comparable",
+                 "observed_ratio": 1.04, "shape_divergence": 1.03,
+                 "valid_measurements": True,
+                 "per_probe_ratio": {"all_gather/world3/65536": 1.04,
+                                     "all_reduce/world3/1048576": 1.02}},
+            ],
+        },
     }
     return c
 
@@ -432,6 +446,72 @@ CORPUS: tuple[Defect, ...] = (
         "a pooled error. One useless regime hides behind three good ones.",
         ("LC-7.4",),
         lambda d: d["supporting"].pop("per_regime_error"),
+        base="model", severity=registry.WARNING,
+    ),
+
+    # ---- LC-1.2: sessions pooled without being shown comparable ----------
+    Defect(
+        "pooled-uncomparable-sessions",
+        "Two sessions pooled into one fit after being judged incomparable. This "
+        "is the defect that motivated LC-1.2: a probe pooled its 32 new points "
+        "with a campaign measured hours earlier on a machine that had since "
+        "drifted 1.42x, and the fit got measurably worse for having more data.",
+        ("LC-8.1",),
+        lambda d: _set(d, "supporting.sessions.comparisons.0.verdict",
+                       "incomparable"),
+        base="model",
+        notes="Real: artifacts/history/2026-08-30-uncomparable-sessions.",
+    ),
+    Defect(
+        "untested-session-pair",
+        "Three sessions pooled with only two pairs compared. Comparability is "
+        "not transitive: A within tolerance of B and B of C leaves A and C two "
+        "tolerances apart.",
+        ("LC-8.1",),
+        lambda d: _set(d, "supporting.sessions.session_ids", ["S0", "S1", "S2"]),
+        base="model",
+    ),
+    Defect(
+        "unregistered-comparability-criterion",
+        "A comparability threshold with no registration timestamp, so nothing "
+        "prevents it having been widened until the sessions one wanted to pool "
+        "happened to qualify.",
+        ("LC-8.2",),
+        lambda d: d["supporting"]["sessions"].pop("criterion_registered_at"),
+        base="model",
+    ),
+    Defect(
+        "measurement-without-session-identity",
+        "A measurement carrying no session identity. Comparability cannot be "
+        "checked at all, because nothing says which measurements shared a "
+        "machine state.",
+        ("LC-8.3",),
+        lambda d: _set(d, "supporting.sessions.session_ids", ["S0", ""]),
+        base="model",
+    ),
+    Defect(
+        "incomparable-recorded-as-invalid",
+        "Good measurements from a drifted session marked invalid rather than "
+        "incomparable. Discarding them as broken destroys the evidence that the "
+        "machine moved, which was the more important finding.",
+        ("LC-8.4",),
+        lambda d: _set(d, "supporting.sessions.comparisons.0.verdict", "invalid"),
+        base="model",
+    ),
+    Defect(
+        "comparability-judged-on-a-pooled-summary",
+        "Sessions compared on one pooled statistic. Two sessions with the same "
+        "median and opposite shapes pass as interchangeable.",
+        ("LC-8.5",),
+        lambda d: d["supporting"]["sessions"]["comparisons"][0].pop("per_probe_ratio"),
+        base="model", severity=registry.WARNING,
+    ),
+    Defect(
+        "state-captured-once-per-session",
+        "Machine state read at the start of a session and not again, so a drift "
+        "during the session is attributed to the state it began in.",
+        ("LC-8.6",),
+        lambda d: _set(d, "supporting.sessions.state_per_measurement", False),
         base="model", severity=registry.WARNING,
     ),
 

@@ -1,6 +1,8 @@
 # The Loss Column Reporting Standard
 
-**Version LC-1.0**
+**Version LC-1.2.** LC-1.0 and LC-1.1 are frozen and unedited; each revision
+adds rules and changes none, so a claim graded under an earlier revision still
+means what it meant. See [Revisions](#revisions).
 
 A conforming performance claim about a machine-learning system ships five
 things. Each requirement targets a specific, documented failure mode in how
@@ -267,6 +269,62 @@ The document schema is whatever `Claim.to_dict()` emits; the fields the
 validator reads are exactly those listed in the rule tables above. Nothing in
 the validator is specific to attention kernels, serving engines or sharding —
 those are the three worked reference implementations, not the scope.
+
+## Revisions
+
+Every revision here was forced by a defect that got through the revision before
+it, found in this repository's own work. That is the intended way for the
+standard to grow: a rule with no artifact behind it is a guess about what might
+go wrong, and the guesses are cheap to write and hard to justify.
+
+### LC-1.1 — semantic state and model validation
+
+`LC-6.1`–`LC-6.3`, `LC-7.1`–`LC-7.4`.
+
+Two defects, neither expressible in 1.0. The first: an out-of-memory
+configuration recorded as a **throughput of zero**. Every comparison path in the
+codebase skipped zero-valued cells as missing, so a prediction the model got
+wrong vanished from the map instead of counting against it. Feasibility is a
+state; encoding it as a number in the metric's own units makes "did not run"
+indistinguishable from "ran and measured zero". The second: a model graded on
+the data that chose its parameters, and a fit that had failed its quality gate
+being read back out and used because nothing in the parameter carried the fact
+that it had been rejected.
+
+### LC-1.2 — session comparability
+
+`LC-8.1`–`LC-8.6`.
+
+Every rule before this one grades a measurement, or a model, on its own. None
+of them can see the failure where two individually flawless measurement
+sessions are averaged into a surface that neither of them describes.
+
+It was not hypothesised. A probe added 32 points to a regime the coverage debt
+had classified model-limited, and the best achievable error **rose**, from 13.5%
+to 32.5%. Adding data cannot make a fit worse on a consistent surface, so there
+was not one: the two sessions had been measured hours apart on a machine that
+had drifted by 1.2x to 2.7x in between. The pooled fit was describing the
+difference between the sittings.
+
+Three points about the shape of these rules:
+
+**The middle state is the one that gets lost.** A pipeline with only
+valid/invalid must either discard a drifted session as broken — destroying the
+evidence that the machine moved, which turned out to be the more important
+finding — or keep it and pool it. `LC-8.4` requires the third state:
+*valid but incomparable*, good data describing a machine state some other
+measurement does not share.
+
+**Comparability is judged per probe** (`LC-8.5`). Two sessions can share a
+median exactly while being slower on small messages and faster on large, and
+pooling those produces a shape neither measured.
+
+**The criterion is registered before the comparison** (`LC-8.2`), because a
+threshold chosen afterwards will be chosen to admit whichever sessions one
+happens to want to pool.
+
+The preserved artifact is `artifacts/history/2026-08-30-uncomparable-sessions`,
+kept unedited alongside the withdrawn verdict it produced.
 
 ## What this standard does not do
 

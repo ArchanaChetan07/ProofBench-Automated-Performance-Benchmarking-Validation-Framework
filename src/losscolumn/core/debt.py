@@ -192,21 +192,52 @@ class CoverageDebt:
         return "\n".join(lines)
 
 
+# A coefficient of variation computed from two samples understates the real
+# dispersion by this much. Measured, not assumed: taken by computing the CV from
+# every pair drawn out of the sentinel's seven repeats and comparing it with the
+# CV of all seven, on the same readings. The correction matters more than it
+# looks -- it is the difference between calling a cell model-limited and calling
+# it noise-limited, and those have opposite remedies.
+CV_N2_BIAS = 0.545
+"""median(CV from 2 samples) / (CV from 7), measured on real readings."""
+
+
+def debias_cv(cv: float, n: int) -> float:
+    """Correct a dispersion estimate for the sample size it was computed from."""
+    if cv != cv or n >= 5:
+        return cv
+    return cv / CV_N2_BIAS if n <= 2 else cv / ((CV_N2_BIAS + 1.0) / 2.0)
+
+
 def assess_debt(coverage: Any, selections: dict[str, Any], *,
                 max_err: float = 0.15, max_noise: float = 0.20,
-                min_points: int = 3) -> CoverageDebt:
+                min_points: int = 3, cv_from_n: int = 0) -> CoverageDebt:
     """Classify every uncovered cell by what is actually blocking it.
 
     The classification turns on comparing the best available model's error in
     that regime against the measurement's own variation there. A residual at or
     below the noise is the instrument's; a residual well above it, on a clean
     measurement, is the model's.
+
+    `cv_from_n` is the number of repeats each recorded CV was computed from. Pass
+    it whenever that number is small: an uncorrected two-sample CV reads as a
+    clean measurement, and a clean measurement with a large residual is exactly
+    the signature this function calls model-limited. Getting it wrong sends
+    someone to build a better model for a surface whose instrument cannot
+    resolve the error they are chasing.
     """
     debt = CoverageDebt(
         n_required_cells=coverage.n_required_cells,
         n_covered_cells=coverage.n_covered_cells,
         max_err=max_err, max_noise=max_noise,
     )
+    if cv_from_n and cv_from_n <= 4:
+        debt.notes.append(
+            f"Recorded CVs come from {cv_from_n} repeats and are corrected by "
+            f"{1 / CV_N2_BIAS:.2f}x before classification. Uncorrected they read as "
+            "a clean measurement, which is the signature of a model-limited cell; "
+            "several cells change kind under the correction."
+        )
 
     for g in coverage.groups.values():
         sel = selections.get(g.key, {})
@@ -222,7 +253,7 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             err = rc.heldout_err
             if err != err:
                 err = best_per_regime.get(reg, float("nan"))
-            cv = rc.noise_cv
+            cv = debias_cv(rc.noise_cv, cv_from_n) if cv_from_n else rc.noise_cv
             item = DebtItem(
                 group=g.key, regime=reg, kind=DebtKind.UNKNOWN,
                 status=rc.status.value, heldout_err=err, noise_cv=cv,

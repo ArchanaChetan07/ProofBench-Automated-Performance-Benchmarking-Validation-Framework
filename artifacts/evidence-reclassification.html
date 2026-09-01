@@ -1,0 +1,94 @@
+<title>Evidence reclassification</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Evidence reclassification</h1>
+<p class="lede">The existing communication evidence, re-read under LC-1.2</p>
+<h2>Evidence reclassification under LC-1.2</h2>
+<p>Criterion <b>1.48x</b>, derived from this machine's own restart-level repeatability. Drift classified <code>restart_level</code>.</p>
+<h3>The campaign's two passes</h3>
+<p>They ran back to back inside one process invocation and one measurement lock, which makes them <i>likely</i> to share a machine state. Tested rather than assumed:</p>
+<ul>
+<li>worst shared probe: <b>2.90x</b>, against a noise floor of 4.91x measured from the campaign's own repeats at this probe count</li>
+<li>shape divergence: <b>7.21x</b>, against 15.35x</li>
+<li>shared probes: 276</li>
+<li>verdict: <b>COMPARABLE</b></li>
+</ul>
+<p>the surface did not move (0.998x median shift), every shared probe agrees within 2.90x, and the probes moved together (shape divergence 7.21x), after widening to 4.91x because measurement noise alone reaches that across 276 probes</p>
+<p><b>The campaign stands.</b> Its two passes differ by less than two repeats within a single launch do, so whatever separates them is the instrument and not the machine. Its pooled analysis was legitimate and nothing in it needs withdrawing.</p>
+<p>This is a result rather than a reprieve, and it was nearly the opposite one. Judged against the registered 1.48x criterion the passes read as clearly incomparable at 2.90x -- but that criterion bounds <i>one</i> comparison of medians-of-seven, and it was being applied to the worst of 276 comparisons of medians-of-two. Splitting the campaign's own repeats within a single pass, which is the same machine state by construction, reaches 4.91x. The passes are more alike than the instrument is with itself.</p>
+<h3>The campaign against the medium probe</h3>
+<ul>
+<li>worst shared probe: <b>nanx</b></li>
+<li>shape divergence: <b>nanx</b></li>
+<li>shared probes: 0</li>
+<li>verdict: <b>INVALID</b></li>
+</ul>
+<p>only 0 shared probe(s), below the 3 the protocol requires. Two sessions that measured different things cannot be shown comparable by measuring neither.</p>
+<p>This is the pooling that produced the impossible result. Under LC-8.1 it is now refused at the point where it would happen, rather than discovered afterwards from a number that could not be true.</p>
+<h3>What this does and does not license</h3>
+<div class="scroll"><table><thead><tr>
+<th></th>
+<th></th>
+</tr></thead><tbody>
+<tr><td>Campaign-internal comparisons</td><td>permitted</td></tr>
+<tr><td>Campaign pooled with any later session</td><td><b>refused</b> until that session is shown comparable</td></tr>
+<tr><td>Local gloo parameters as A100 fabric parameters</td><td><b>refused</b> unconditionally, and not for a stability reason: a CPU-side gloo transport on one host is not an NVLink or InfiniBand fabric, and no amount of stability makes it one</td></tr>
+</tbody></table></div>
+</div>

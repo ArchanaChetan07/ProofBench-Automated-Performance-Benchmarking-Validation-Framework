@@ -1,7 +1,7 @@
 {
   "kind": "withdrawal-manifest",
-  "generated_at": "2026-08-31T05:35:12Z",
-  "n_withdrawn": 3,
+  "generated_at": "2026-09-01T01:25:07Z",
+  "n_withdrawn": 4,
   "withdrawals": [
     {
       "slug": "2026-08-29-unfair-baseline",
@@ -31,6 +31,16 @@
       "withdrawn_at": "2026-08-31T05:35:12Z",
       "superseded_by": "probe-thrust1-medium-regime, re-reported with a session check",
       "original_commit": "a1668eb",
+      "n_files": 2
+    },
+    {
+      "slug": "2026-08-31-unsound-drift-classification",
+      "artifact_id": "stability-machine@2026-08-31-first-analysis",
+      "title": "Machine stability, first analysis: drift called WORKLOAD_SPECIFIC",
+      "reason": "unsound-statistic",
+      "withdrawn_at": "2026-09-01T01:25:07Z",
+      "superseded_by": "stability-machine@2026-08-31-corrected (artifacts/stability-machine.json, drift RESTART_LEVEL)",
+      "original_commit": "",
       "n_files": 2
     }
   ]

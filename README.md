@@ -52,16 +52,26 @@ Three things distinguish this from a limitations paragraph:
 
 ### The standard — [`docs/STANDARD.md`](docs/STANDARD.md)
 
-**LC-1.0, frozen.** Five requirements, each targeting a documented failure
-mode, each implemented as an executable conformance rule rather than as prose.
+**LC-1.2.** Eight requirements, each targeting a documented failure mode, each
+implemented as an executable conformance rule rather than as prose. LC-1.0 and
+LC-1.1 are frozen and unedited: every revision adds rules and changes none, so a
+claim graded under an earlier one still means what it meant.
 
-| | Requirement | What it forecloses |
-|---|-------------|--------------------|
-| **LC-1** | Loss column | Selective reporting |
-| **LC-2** | Tuning-budget parity | The untuned baseline |
-| **LC-3** | Envelope, not point | Overgeneralisation |
-| **LC-4** | Pre-registration | Post-hoc selection |
-| **LC-5** | One-command reproduction | Unfalsifiability by inaccessibility |
+| | Requirement | What it forecloses | Since |
+|---|-------------|--------------------|-------|
+| **LC-1** | Loss column | Selective reporting | 1.0 |
+| **LC-2** | Tuning-budget parity | The untuned baseline | 1.0 |
+| **LC-3** | Envelope, not point | Overgeneralisation | 1.0 |
+| **LC-4** | Pre-registration | Post-hoc selection | 1.0 |
+| **LC-5** | One-command reproduction | Unfalsifiability by inaccessibility | 1.0 |
+| **LC-6** | Semantic state | Infeasibility encoded as a number | 1.1 |
+| **LC-7** | Model validation | A model graded on the data that chose it | 1.1 |
+| **LC-8** | Session comparability | Two good sessions averaged into a bad surface | 1.2 |
+
+The last three were not designed. Each was forced by a defect that got through
+the revision before it, found in this repository's own work — which is the
+intended way for the standard to grow, since a rule with no artifact behind it
+is a guess about what might go wrong.
 
 ```bash
 losscolumn validate anyones-claim.json
@@ -88,7 +98,7 @@ changing an id or a severity fails CI and forces a version bump.
 | Rule coverage | **47/47** have both a passing case and a failing case |
 
 The corpus ships **in the package**, not in `tests/`. Anyone implementing
-LC-1.0 in another language can run their validator against those documents and
+the standard in another language can run their validator against those documents and
 check that it reaches the same verdicts; a standard whose only implementation
 is its author's is not a standard. See
 [`artifacts/standard/validator-coverage.md`](artifacts/standard/validator-coverage.md).
