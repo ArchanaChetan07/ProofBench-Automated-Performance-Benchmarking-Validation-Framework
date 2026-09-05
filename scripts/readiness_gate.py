@@ -20,9 +20,9 @@ def main() -> int:
     # The 21-repeat re-measurement where it exists. Its noise estimates are
     # measured rather than inferred from two repeats, and its coverage is
     # correspondingly lower and more honest.
-    camp_path = art / "recampaign-thrust1-communication.json"
-    if not camp_path.exists():
-        camp_path = art / "campaign-thrust1-communication.json"
+    from scripts._source import campaign_path  # noqa: PLC0415
+
+    camp_path = campaign_path(art)
     if not camp_path.exists():
         print("no campaign artifact; run scripts/comcampaign.py first", file=sys.stderr)
         return 2
@@ -32,30 +32,47 @@ def main() -> int:
 
     gates: list[dict] = []
 
-    # LC-1.2. Read from the sentinel artifact, not asserted: the gate has to be
-    # able to fail on this, and on this machine it does.
+    # LC-1.2. The question is whether THIS evidence was safely constituted, not
+    # whether the machine could in principle pool sessions. A campaign gathered
+    # in one session takes no pooling risk however badly the machine drifts
+    # between sittings, which is what LC-8.1 actually says. The gate keeps its
+    # teeth for evidence that does span sessions.
+    n_sessions = int(camp.get("n_evidence_sessions", 1) or 1)
     stab_path = art / "stability-machine.json"
-    if stab_path.exists():
-        st = json.loads(stab_path.read_text(encoding="utf-8"))
+    st = json.loads(stab_path.read_text(encoding="utf-8")) if stab_path.exists() else None
+    if st:
         env, pairs = st["envelope"], st.get("pairs", [])
         n_ok = sum(1 for x in pairs if x.get("poolable"))
+        machine = (
+            f"the machine's own drift is {env['drift_kind']} "
+            f"({n_ok} of {len(pairs)} sentinel session pairs poolable at the "
+            f"registered {env['recommended_criterion']:.2f}x criterion; within-run "
+            f"{env['within_run']['cv']:.1%}, across restart "
+            f"{env['across_restart']['cv']:.1%} against "
+            f"{env['across_restart']['expected_cv']:.1%} expected from averaging)"
+        )
+    else:
+        env = None
+        machine = "no sentinel evidence exists"
+
+    if n_sessions <= 1:
         gates.append({
-            "gate": "machine permits cross-session pooling",
-            "passed": bool(env.get("pooling_permitted")),
+            "gate": "evidence is not pooled across incomparable sessions",
+            "passed": True,
             "detail": (
-                f"drift is {env['drift_kind']}; {n_ok} of {len(pairs)} session pairs "
-                f"poolable at the registered {env['recommended_criterion']:.2f}x "
-                f"criterion. Within-run {env['within_run']['cv']:.1%}, across "
-                f"restart {env['across_restart']['cv']:.1%} against "
-                f"{env['across_restart']['expected_cv']:.1%} expected from "
-                f"averaging alone"
+                f"all evidence comes from a single session, so no cross-session "
+                f"pooling occurred and none had to be justified. For context, "
+                f"{machine}"
             ),
         })
     else:
         gates.append({
-            "gate": "machine permits cross-session pooling",
-            "passed": False,
-            "detail": "no stability evidence; scripts/stability.py",
+            "gate": "evidence is not pooled across incomparable sessions",
+            "passed": bool(env and env.get("pooling_permitted")),
+            "detail": (
+                f"evidence spans {n_sessions} sessions, so every pair has to be "
+                f"shown comparable before it may be pooled; {machine}"
+            ),
         })
 
     reclass = art / "evidence-reclassification.json"

@@ -2,11 +2,8 @@
 import json
 from pathlib import Path
 
-# The 21-repeat re-measurement, not the original 2-repeat campaign. Its CVs are
-# measured rather than corrected, which is the whole reason it was run: a
-# two-repeat CV cannot be turned into a usable noise estimate by any factor.
-_SOURCE = "recampaign-thrust1-communication.json"
-_FALLBACK = "campaign-thrust1-communication.json"
+# The source is chosen in scripts/_source.py, so this and the readiness gate and
+# the noise budget cannot end up describing different campaigns.
 
 
 def main() -> int:
@@ -21,7 +18,9 @@ def main() -> int:
     from losscolumn.report.render import render_page
 
     art = Path("artifacts")
-    src = art / _SOURCE if (art / _SOURCE).exists() else art / _FALLBACK
+    from scripts._source import campaign_path  # noqa: PLC0415
+
+    src = campaign_path(art)
     d = json.loads(src.read_text(encoding="utf-8"))
     c = d["coverage"]
     cov = CommunicationCoverage.empty(c["required_collectives"], c["required_worlds"],

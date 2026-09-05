@@ -1,0 +1,7 @@
+predictions sealed sha256:92163026f289523d BEFORE measurement
+baseline: medium CV 27.4%, cliff 1.57x, coverage 6
+grid 46 sizes x 3 worlds x 2 passes x 21 repeats
+
+=== pass 0 ===
+[W905 09:46:01.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29713 (system error: 10049 - The requested address is not valid in its context.).
+[W905 09:46:01.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29713 (system error: 10049 - The requested address is not valid in its context.).

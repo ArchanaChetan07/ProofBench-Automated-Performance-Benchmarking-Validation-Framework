@@ -46,8 +46,9 @@ def _envelope_from_recampaign(art) -> dict:
 
     import numpy as np
 
-    d = _json.loads(
-        (art / "recampaign-thrust1-communication.json").read_text(encoding="utf-8"))
+    from scripts._source import campaign_path
+
+    d = _json.loads(campaign_path(art).read_text(encoding="utf-8"))
     R = [r for r in d["records"] if r["valid"]]
     n_rep = int(d["protocol"].get("repeats_per_point_per_pass", 0) or 0)
     within = float(np.median([r["cv"] for r in R if r["cv"] == r["cv"]]))
