@@ -1,0 +1,40 @@
+{
+  "name": "campaign-v2-corrected-gates-v1",
+  "question": "With the gradeability gate judging the precision of the point rather than the variability of a call, the block budget following the noise instead of the message size, and structure selected on the same scale the fits use -- does the surface become gradable?",
+  "design": {
+    "repeats_per_point_per_pass": 21,
+    "held_fixed": "the replicate count, so the comparison isolates the harness and gate corrections",
+    "sessions": 1
+  },
+  "corrections_under_test": [
+    "the timed block is sized by the point's own variability rather than by a 1 MiB threshold, which had put a 4x averaging cliff inside the medium regime",
+    "the gradeability gate judges the standard error of the point the model is fitted to, not the population CV of its repeats, which could never respond to measurement effort",
+    "a regime that cannot be graded no longer votes to reject a family",
+    "breakpoints and segment splits are chosen on relative residuals, the scale all three estimators already use"
+  ],
+  "predictions": [
+    {
+      "id": "P1-medium-noise-falls",
+      "claim": "The median recorded CV in the medium regime falls by at least a quarter, because points above 1 MiB there averaged 5 calls per timing and will now average considerably more.",
+      "baseline": 0.27396096504813083,
+      "predicted_below": 0.20547072378609813,
+      "falsified_if": "medium-regime CV is unchanged, which would mean the cliff was a coincidence of size rather than of averaging and the harness correction addresses nothing"
+    },
+    {
+      "id": "P2-noise-cliff-closes",
+      "claim": "The gap between medium points below and above 1 MiB (currently 1.57x) falls below 1.25x, because nothing in the new rule keys on that boundary.",
+      "baseline": 1.5662964856356438,
+      "predicted_below": 1.25,
+      "falsified_if": "the gap persists, which would mean something other than the iteration count makes messages above 1 MiB noisier"
+    },
+    {
+      "id": "P3-coverage-improves",
+      "claim": "Coverage exceeds 6 of 24 cells.",
+      "baseline": 6,
+      "falsified_if": "coverage does not improve, in which case the gates were not what was blocking it and the remaining obstacle is the surface itself"
+    }
+  ],
+  "committed_before_measurement": true,
+  "not_predicted": "Nothing here predicts 24 of 24. The corrections are to gates that were measuring the wrong quantity; whether what remains is reachable at all is a separate question, and a result showing the surface is simply too variable in places would be an answer to it.",
+  "seal_hash": "sha256:92163026f289523d25b86f3b71b252eda837ed4b21099842c5649f126080fd07"
+}

@@ -101,6 +101,19 @@ class RegimeCoverage:
     n_validation_points: int = 0
     heldout_err: float = float("nan")
     noise_cv: float = float("nan")
+    """Dispersion of the individual timings behind one point.
+
+    A property of the machine and the call, not of how hard it was measured: it
+    does not fall when more repeats are taken.
+    """
+    point_se: float = float("nan")
+    """Standard error of the point the model is actually fitted to.
+
+    This is what decides whether a cell can be graded, and unlike `noise_cv` it
+    responds to measurement effort. Kept alongside rather than replacing it, so
+    a reader can see both the machine's variability and the precision bought.
+    """
+    n_repeats: int = 0
     detail: str = ""
 
     @property
@@ -113,6 +126,7 @@ class RegimeCoverage:
             "covered": self.covered, "n_points": self.n_points,
             "n_validation_points": self.n_validation_points,
             "heldout_err": self.heldout_err, "noise_cv": self.noise_cv,
+            "point_se": self.point_se, "n_repeats": self.n_repeats,
             "detail": self.detail,
         }
 
@@ -175,6 +189,12 @@ class CommunicationCoverage:
     required_regimes: tuple[str, ...]
     groups: dict[str, GroupCoverage] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
+    n_evidence_sessions: int = 1
+    """How many measurement sessions the evidence behind this matrix spans.
+
+    One means no cross-session pooling occurred and the comparability question
+    does not arise, whatever the machine is like between sittings.
+    """
     stability: dict[str, Any] | None = None
     """The stability envelope, when one has been measured.
 
@@ -237,22 +257,34 @@ class CommunicationCoverage:
         """
         blocking: list[str] = []
 
-        # LC-1.2. Added after the sentinel established that no two measurement
-        # sessions on this machine have been shown comparable. This does not
-        # invalidate evidence already gathered inside one session; it says that
-        # the debt cannot be paid down by measuring more in a second one.
-        if self.stability is not None and not self.stability.get("pooling_permitted"):
-            kind = self.stability.get("drift_kind", "undetermined")
-            n_ok = self.stability.get("n_poolable_pairs")
-            n_all = self.stability.get("n_session_pairs")
-            blocking.append(
-                f"the machine does not permit cross-session pooling (drift is "
-                f"{kind}"
-                + (f"; {n_ok} of {n_all} session pairs poolable" if n_all else "")
-                + "), so coverage cannot be extended by measuring again later: any "
-                "new evidence has to be gathered in the same session as everything "
-                "it will be compared against"
-            )
+        # LC-1.2. The hazard is pooling evidence from sessions never shown
+        # comparable -- not the machine's general capacity to do so. Evidence
+        # gathered inside one session runs no such risk however much the machine
+        # drifts between sittings, so this blocks on what the evidence actually
+        # did rather than on what the machine is like.
+        #
+        # The earlier form of this gate blocked unconditionally whenever the
+        # sentinel refused pooling, which failed a single-session campaign for a
+        # risk it had not taken.
+        if self.n_evidence_sessions > 1:
+            if self.stability is None:
+                blocking.append(
+                    f"evidence spans {self.n_evidence_sessions} sessions and no "
+                    "stability evidence exists, so nothing establishes that those "
+                    "sessions may be compared with each other"
+                )
+            elif not self.stability.get("pooling_permitted"):
+                kind = self.stability.get("drift_kind", "undetermined")
+                n_ok = self.stability.get("n_poolable_pairs")
+                n_all = self.stability.get("n_session_pairs")
+                blocking.append(
+                    f"evidence spans {self.n_evidence_sessions} sessions on a "
+                    f"machine that does not permit cross-session pooling (drift is "
+                    f"{kind}"
+                    + (f"; {n_ok} of {n_all} session pairs poolable" if n_all else "")
+                    + "). Every comparison has to live inside one session"
+                )
+
 
         missing_groups = [g for g in self.groups.values() if not g.covered]
         if missing_groups:

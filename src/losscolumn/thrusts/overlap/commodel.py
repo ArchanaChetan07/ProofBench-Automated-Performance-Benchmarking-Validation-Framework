@@ -90,6 +90,19 @@ class CostModel:
         p = self.predict_many([s.effective_bytes for s in samples])
         return y - p
 
+    def relative_residuals(self, samples: Sequence[Sample]) -> np.ndarray:
+        """Residuals as a fraction of the measured time.
+
+        The scale on which structure has to be chosen. Over a domain spanning
+        four orders of magnitude an absolute residual is a statement about the
+        largest points and nothing else.
+        """
+        y = np.array([s.seconds for s in samples], dtype=float)
+        p = self.predict_many([s.effective_bytes for s in samples])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            r = np.where(y > 0, (y - p) / y, 0.0)
+        return np.nan_to_num(r, nan=0.0, posinf=0.0, neginf=0.0)
+
     def r_squared(self, samples: Sequence[Sample]) -> float:
         y = np.array([s.seconds for s in samples], dtype=float)
         if y.size < 2 or float(np.var(y)) == 0.0:
@@ -114,8 +127,29 @@ class CostModel:
             return float("nan")
         return float(np.max(np.abs(y[ok] - p[ok]) / y[ok]))
 
+    def relative_aic(self, samples: Sequence[Sample]) -> float:
+        """AIC on the relative-residual scale.
+
+        The one that governs structural decisions. An absolute-residual AIC over
+        a domain spanning four orders of magnitude is a statement about the
+        largest points, so it will buy a segment that helps them and refuse one
+        that helps the small end -- while the segment fits themselves are
+        weighted to do the opposite.
+        """
+        n = len(samples)
+        if n <= self.n_params + 1:
+            return float("inf")
+        rss = float(np.sum(self.relative_residuals(samples) ** 2))
+        if rss <= 0:
+            return -float("inf")
+        return n * math.log(rss / n) + 2 * self.n_params
+
     def aic(self, samples: Sequence[Sample]) -> float:
-        """Akaike information criterion, so extra parameters are paid for."""
+        """Akaike information criterion on absolute residuals.
+
+        Reported for continuity with earlier artifacts. Structural decisions use
+        `relative_aic`; see its docstring for why they must.
+        """
         n = len(samples)
         if n <= self.n_params + 1:
             return float("inf")
@@ -311,7 +345,11 @@ def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3,
             continue
         bp = (ordered[i - 1].effective_bytes + ordered[i].effective_bytes) / 2
         model = PiecewiseModel(breakpoint_bytes=bp, low=ml, high=mh)
-        rss = float(np.sum(model.residuals(ordered) ** 2))
+        # Relative, not absolute: see relative_residuals. Choosing the
+        # breakpoint by absolute RSS places it wherever the largest messages
+        # want it, which is the leverage problem the 1/t weighting exists to
+        # remove from the segment fits.
+        rss = float(np.sum(model.relative_residuals(ordered) ** 2))
         if best is None or rss < best[0]:
             best = (rss, model)
     return best[1] if best else None
@@ -342,7 +380,10 @@ def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
     segs: list[tuple[list[Sample], LinearModel]] = [(list(ordered), base)]
 
     def rss_of(pieces: list[tuple[list[Sample], LinearModel]]) -> float:
-        return float(sum(np.sum(m.residuals(g) ** 2) for g, m in pieces))
+        # Relative residuals, for the same reason fit_piecewise uses them: the
+        # decision of where to split must not be made by the largest points
+        # alone.
+        return float(sum(np.sum(m.relative_residuals(g) ** 2) for g, m in pieces))
 
     def build(pieces: list[tuple[list[Sample], LinearModel]]) -> RegimeModel:
         edges = tuple(
@@ -369,7 +410,7 @@ def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
         if best is None:
             break
         candidate = build(best[2])
-        if candidate.aic(ordered) >= current.aic(ordered):
+        if candidate.relative_aic(ordered) >= current.relative_aic(ordered):
             break
         segs, current = best[2], candidate
     return current
@@ -510,6 +551,7 @@ def cross_validate(
         "max_rel_err": float(np.max(errs)),
         "per_tier_err": tier_medians,
         "worst_tier_err": max(tier_medians.values()) if tier_medians else float("nan"),
+        "all_tier_err": dict(tier_medians),
         "n_per_tier": {t: len(v) for t, v in per_tier.items()},
     }
 
@@ -525,6 +567,20 @@ def _per_tier_error(model: CostModel, samples: Sequence[Sample],
     return {t: model.median_rel_error(g) for t, g in groups.items() if g}
 
 
+def _worst_gradable(per_tier: dict, ungradable: Sequence[str]) -> float:
+    """Worst error over the tiers that can actually be graded.
+
+    Falls back to the plain worst when every tier is ungradable: a family is not
+    promoted on the strength of having no evidence against it.
+    """
+    usable = {t: v for t, v in (per_tier or {}).items()
+              if t not in set(ungradable) and v == v}
+    if usable:
+        return float(max(usable.values()))
+    vals = [v for v in (per_tier or {}).values() if v == v]
+    return float(max(vals)) if vals else float("nan")
+
+
 def select_model(
     fit_samples: Sequence[Sample],
     heldout_samples: Sequence[Sample],
@@ -535,6 +591,7 @@ def select_model(
     noise_floor: float = float("nan"),
     max_heldout_median_err: float = 0.15,
     tier_fn: Any = None,
+    ungradable_tiers: Sequence[str] = (),
     losses: Sequence[str] = ("weighted", "log", "huber"),
 ) -> ModelSelection:
     """Choose the family by held-out error, not by fit quality.
@@ -596,9 +653,13 @@ def select_model(
             "heldout_max_rel_err": cv.get("max_rel_err", float("nan")),
             "heldout_per_tier_err": cv.get("per_tier_err", {}),
             "heldout_worst_tier_err": cv.get("worst_tier_err", float("nan")),
+            "heldout_worst_gradable_tier_err": _worst_gradable(
+                cv.get("per_tier_err", {}), ungradable_tiers),
+            "ungradable_tiers": list(ungradable_tiers),
             "cv_n_predictions": cv.get("n_predictions", 0),
             "cv_n_per_tier": cv.get("n_per_tier", {}),
             "aic": model.aic(pool),
+            "relative_aic": model.relative_aic(pool),
             "model": model.to_dict(),
         }
         sel.candidates.append(entry)
@@ -606,7 +667,13 @@ def select_model(
         # family win by being excellent on the tiers with the most points while
         # being useless on one regime -- which is exactly how a model that was
         # 35% wrong in the medium tier came to be accepted.
-        score = (entry["heldout_worst_tier_err"]
+        # Scored on the worst GRADABLE tier. Still the worst, not the pooled
+        # median: pooling lets a family win by being excellent where the points
+        # are and useless in one regime. But a tier whose measurement cannot
+        # resolve the gate has no evidence to offer about any model, so it does
+        # not get to reject one. It remains uncovered in the coverage matrix
+        # either way, and a group is covered only when every tier is.
+        score = (entry["heldout_worst_gradable_tier_err"]
                  if entry["heldout_per_tier_err"]
                  else entry["heldout_median_rel_err"])
         if math.isfinite(score) and (best is None or score < best[0]):
@@ -628,6 +695,10 @@ def select_model(
             f"{score:.0%} (gate: {max_heldout_median_err:.0%}). No family here "
             f"describes this transport, so none is promoted; all remain diagnostic. "
             "Widening the gate to admit one would be choosing the answer."
+            + (f" Scored over the gradable regimes only; "
+               f"{', '.join(ungradable_tiers)} could not be measured precisely "
+               "enough to offer evidence about any model."
+               if ungradable_tiers else "")
         )
         if noise_limited:
             sel.reason += (

@@ -389,6 +389,19 @@ class StabilityEnvelope:
 MEDIAN_SE_FACTOR = 1.2533
 """sqrt(pi/2): the standard error of a median relative to that of a mean."""
 
+AVERAGING_EXPONENT = -0.309
+"""How the standard error of a median of n actually falls on this machine.
+
+Measured from 5520 disjoint block pairs inside one session, not assumed. White
+noise gives -0.5; correlated noise gives this.
+
+It is load-bearing here and not a refinement. Predicting a level's dispersion
+with 1/sqrt(n) understates it, which leaves more of the observed dispersion
+unexplained and inflates the excess attributed to the level above. That is how
+this machine's drift came to be classified RESTART_LEVEL: the restart level was
+credited with variation that the repeats inside it already accounted for.
+"""
+
 WORKLOAD_ALPHA = 0.05
 """Significance the permutation test must clear before workload-specificity is
 claimed. Registered here rather than at the call site so it cannot differ
@@ -519,16 +532,18 @@ def build_envelope(readings: Sequence[SentinelReading], *,
     env.across_restart.cv = (float(np.median(list(env.across_restart.per_probe.values())))
                              if env.across_restart.per_probe else float("nan"))
     env.across_restart.n_groups = len(env.across_restart.per_probe)
-    # A restart-level reading is a median of `n_repeats` timings. The standard
-    # error of a median is about 1.253 sigma / sqrt(n), so this is the dispersion
-    # the restart level would show if it added nothing of its own.
+    # A restart-level reading is a median of `n_repeats` timings, so this is the
+    # dispersion the restart level would show if it added nothing of its own.
+    # Discounted by the measured exponent rather than 1/sqrt(n): see
+    # AVERAGING_EXPONENT.
     n_rst = max(int(np.median([
         len({r.restart_index for r in valid if r.session_id == s_ and probe_key(r) == pk})
         for s_ in {r.session_id for r in valid}
         for pk in {probe_key(r) for r in valid}] or [1])), 1)
     env.across_restart.n_aggregated = n_rst
     if math.isfinite(env.within_run.cv) and n_repeats > 0:
-        env.across_restart.expected_cv = MEDIAN_SE_FACTOR * env.within_run.cv / math.sqrt(n_repeats)
+        env.across_restart.expected_cv = (
+            MEDIAN_SE_FACTOR * env.within_run.cv * n_repeats ** AVERAGING_EXPONENT)
 
     # across session: dispersion of per-session medians
     per_probe_session: dict[str, list[float]] = {}
@@ -550,7 +565,8 @@ def build_envelope(readings: Sequence[SentinelReading], *,
     env.across_session.n_groups = len(per_probe_session)
     env.across_session.n_aggregated = env.n_sessions
     if math.isfinite(env.across_restart.cv) and n_rst > 0:
-        env.across_session.expected_cv = MEDIAN_SE_FACTOR * env.across_restart.cv / math.sqrt(n_rst)
+        env.across_session.expected_cv = (
+            MEDIAN_SE_FACTOR * env.across_restart.cv * n_rst ** AVERAGING_EXPONENT)
 
     # largest session-to-session ratio on any probe
     ratios = []

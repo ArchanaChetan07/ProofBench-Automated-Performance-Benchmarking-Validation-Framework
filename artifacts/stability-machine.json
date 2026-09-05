@@ -1,7 +1,7 @@
 {
   "kind": "stability-report",
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-01T01:23:55Z",
+  "generated_at": "2026-09-03T17:54:49Z",
   "protocol": {
     "name": "machine-stability-sentinel-v1",
     "question": "Is this machine's communication timing stable enough that two measurement sessions can be compared at all?",
@@ -81,43 +81,43 @@
       "name": "across_restart",
       "cv": 0.15941001699863958,
       "n_groups": 6,
-      "expected_cv": 0.1009032721606566,
-      "excess": 1.5798300053622587,
+      "expected_cv": 0.1463251492318115,
+      "excess": 1.0894232319975203,
       "n_aggregated": 3,
       "per_probe": {
-        "all_gather/world3/small": 0.03994140419392149,
-        "all_gather/world3/large": 0.12651096719686114,
         "all_reduce/world3/small": 0.23744428881040994,
         "all_reduce/world3/large": 0.15043072956171977,
+        "all_reduce/world3/medium": 0.2345257097922106,
         "all_gather/world3/medium": 0.16838930443555938,
-        "all_reduce/world3/medium": 0.2345257097922106
+        "all_gather/world3/small": 0.03994140419392149,
+        "all_gather/world3/large": 0.12651096719686114
       }
     },
     "across_session": {
       "name": "across_session",
-      "cv": 0.10464268803552089,
+      "cv": 0.1046426880355209,
       "n_groups": 6,
-      "expected_cv": 0.11534798715565402,
-      "excess": 0.9071912793269026,
+      "expected_cv": 0.14227879555323641,
+      "excess": 0.7354763415632569,
       "n_aggregated": 4,
       "per_probe": {
-        "all_gather/world3/small": 0.03173548274096898,
-        "all_gather/world3/large": 0.055232886256129106,
-        "all_reduce/world3/small": 0.1715210586113207,
+        "all_reduce/world3/small": 0.17152105861132072,
         "all_reduce/world3/large": 0.05230545493614201,
+        "all_reduce/world3/medium": 0.2174112449219966,
         "all_gather/world3/medium": 0.15405248981491268,
-        "all_reduce/world3/medium": 0.2174112449219966
+        "all_gather/world3/small": 0.03173548274096898,
+        "all_gather/world3/large": 0.05523288625612911
       }
     },
-    "restart_over_within": 1.5798300053622587,
-    "session_over_restart": 0.9071912793269026,
-    "drift_kind": "restart_level",
-    "drift_remedy": "pooling across process launches is as unsafe as pooling across sittings. Either keep a comparison inside one process, or carry enough launches per condition that the launch-level variation is averaged rather than confounded with the effect",
+    "restart_over_within": 1.0894232319975203,
+    "session_over_restart": 0.7354763415632569,
+    "drift_kind": "random",
+    "drift_remedy": "average over more repeats; no session rule is needed",
     "drift_evidence": [
-      "restarting the process leaves 1.58x the dispersion that averaging alone predicts (15.9% observed against 10.1% expected from the 21.3% within-run noise)",
-      "a new session leaves 0.91x what restarts alone predict (10.5% observed against 11.5% expected)",
+      "restarting the process leaves 1.09x the dispersion that averaging alone predicts (15.9% observed against 14.6% expected from the 21.3% within-run noise)",
+      "a new session leaves 0.74x what restarts alone predict (10.5% observed against 14.2% expected)",
       "the session-level variation differs by 6.9x between the probes, which chance alone reproduces 40% of the time (so it is not evidence of anything: each per-probe CV rests on a handful of session medians and spreads of this size are ordinary under a null where every probe behaves identically)",
-      "the variation enters at the process launch and time between sittings adds nothing on top of it, so two launches minutes apart differ as much as two days apart"
+      "no level adds materially to the one below it, so the variation is the instrument's own and averages down with repeats"
     ],
     "workload_spread": 6.850730669407121,
     "workload_spread_p": 0.40039990002499376,
@@ -134,7 +134,7 @@
     "max_session_drift_observed": 1.8474183690321229,
     "recommended_criterion": 1.4782300509959188,
     "pooling_permitted": false,
-    "median_random_but_worst_drifts": false,
+    "median_random_but_worst_drifts": true,
     "n_sessions": 4,
     "n_restarts": 12,
     "n_readings": 72,

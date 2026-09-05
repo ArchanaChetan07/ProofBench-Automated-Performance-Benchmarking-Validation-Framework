@@ -7,17 +7,17 @@ Protocol `machine-stability-sentinel-v1` sealed `sha256:acd3614e4e580a2a`, regis
 | Level | observed CV | expected from below | probes | what it adds |
 |---|---|---|---|---|
 | within run | 21.3% | n/a | 6 | the instrument's own noise floor |
-| across restart | 15.9% | 10.1% | 6 | process placement, allocator and transport setup |
-| across session | 10.5% | 11.5% | 6 | whatever the machine does between sittings |
+| across restart | 15.9% | 14.6% | 6 | process placement, allocator and transport setup |
+| across session | 10.5% | 14.2% | 6 | whatever the machine does between sittings |
 
-Excess over the level below: restart 1.58x &nbsp;&middot;&nbsp; session 0.91x. A level that adds nothing of its own sits at 1.0x, because a median of *n* is less dispersed than the *n* it averages.
+Excess over the level below: restart 1.09x &nbsp;&middot;&nbsp; session 0.74x. A level that adds nothing of its own sits at 1.0x, because a median of *n* is less dispersed than the *n* it averages.
 
-**Drift is RESTART_LEVEL.** pooling across process launches is as unsafe as pooling across sittings. Either keep a comparison inside one process, or carry enough launches per condition that the launch-level variation is averaged rather than confounded with the effect.
+**Drift is RANDOM.** average over more repeats; no session rule is needed.
 
-- restarting the process leaves 1.58x the dispersion that averaging alone predicts (15.9% observed against 10.1% expected from the 21.3% within-run noise)
-- a new session leaves 0.91x what restarts alone predict (10.5% observed against 11.5% expected)
+- restarting the process leaves 1.09x the dispersion that averaging alone predicts (15.9% observed against 14.6% expected from the 21.3% within-run noise)
+- a new session leaves 0.74x what restarts alone predict (10.5% observed against 14.2% expected)
 - the session-level variation differs by 6.9x between the probes, which chance alone reproduces 40% of the time (so it is not evidence of anything: each per-probe CV rests on a handful of session medians and spreads of this size are ordinary under a null where every probe behaves identically)
-- the variation enters at the process launch and time between sittings adds nothing on top of it, so two launches minutes apart differ as much as two days apart
+- no level adds materially to the one below it, so the variation is the instrument's own and averages down with repeats
 
 Correlation of per-reading bandwidth with machine state:
 
