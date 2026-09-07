@@ -174,20 +174,25 @@ class PointRecord:
 # --------------------------------------------------------------------------
 
 
-# Budget for one timed block, allocated by how noisy the point turns out to be
-# rather than by its size. Equalising DURATION was the first attempt and was
-# wrong in the other direction: it spent twenty times the old effort on tiny
-# messages whose 4.9% variation was never the problem, while the medium band at
-# 30% got no more than before.
+# Budget for one timed block: a fixed duration, so averaging follows the cost of
+# a call rather than an arbitrary byte threshold.
 #
-# What the measurement needs is equal PRECISION, so the budget scales with the
-# per-call variability actually observed at that point, between a floor and a
-# ceiling. Quiet points stay cheap; the noisy band gets three to four times the
-# averaging the old fixed rule gave it.
-MIN_BLOCK_S = 0.002
-MAX_BLOCK_S = 0.030
-NOISY_CV = 0.30
-"""Per-call variability at which a point earns the full time budget."""
+# This is the third rule tried here and the first two are worth recording. The
+# original `20 if n <= 1MiB else 5` put a fourfold averaging cliff inside the
+# medium regime, which is the band that decides most of the coverage matrix.
+#
+# The second scaled the budget by each point's own measured variability, which
+# sounds better and measured worse: the estimate came from six back-to-back
+# calls, and the variability that matters here acts on a longer timescale than
+# six calls can see. So it judged the noisy band quiet, gave 41% of all points
+# the minimum five iterations, and produced data on which coverage fell from 17
+# cells to 11. The idea was not merely mis-tuned -- a short probe cannot
+# estimate a slow instability, and no tuning fixes that.
+#
+# A fixed duration makes no claim it cannot support. Every point gets the same
+# averaging effort in time; where one call already exceeds the budget, it gets
+# the floor and the artifact records how many it got.
+TARGET_BLOCK_S = 0.060
 
 MIN_ITERS = 5
 MAX_ITERS = 200
@@ -232,22 +237,17 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     for _ in range(2):
                         once()
                     dist.barrier()
-                    # Size the timed block by the precision it needs, not by a
-                    # byte threshold. Probe the point first to learn both its
-                    # cost and its variability, then buy averaging in proportion
-                    # to the variability.
+                    # Size the timed block by duration. The probe establishes
+                    # only the cost of a call, which six calls can measure; it
+                    # is not asked to estimate variability, which they cannot.
                     probe = []
                     for _ in range(6):
                         tp = time.perf_counter()
                         once()
                         probe.append(time.perf_counter() - tp)
-                    pa = np.array(probe, dtype=float)
-                    per_call = max(float(np.median(pa)), 1e-9)
-                    probe_cv = (float(pa.std() / pa.mean())
-                                if pa.mean() > 0 else 0.0)
-                    frac = min(probe_cv / NOISY_CV, 1.0) if probe_cv == probe_cv else 0.0
-                    budget = MIN_BLOCK_S + (MAX_BLOCK_S - MIN_BLOCK_S) * frac
-                    iters = int(min(max(round(budget / per_call),
+                    per_call = max(float(np.median(np.array(probe, dtype=float))),
+                                   1e-9)
+                    iters = int(min(max(round(TARGET_BLOCK_S / per_call),
                                         MIN_ITERS), MAX_ITERS))
                     # Every rank must issue the SAME number of collectives or
                     # the group deadlocks on the difference. Each rank times
@@ -744,9 +744,7 @@ def analyse(campaign: Campaign) -> Campaign:
         # to pass through it.
         threshold = find_threshold_band(recs, group=key)
         campaign.thresholds[key] = threshold.to_dict()
-        bimodal_regimes = tuple({
-            regime_of(n) for n in range(0)
-        } | {regime_of(x) for x in (threshold.band_lo, threshold.band_hi) if x})
+        bimodal_regimes = threshold.flagged_regimes(regime_of)
 
         # A regime whose points carry a standard error above the gradeability
         # ceiling cannot distinguish a bad model from an unmeasurable one, so it

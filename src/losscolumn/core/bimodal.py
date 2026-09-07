@@ -158,6 +158,7 @@ class BimodalReport:
     band_lo: int = 0
     band_hi: int = 0
     step_at: int = 0
+    step_prev: int = 0
     step_factor: float = float("nan")
     inversions: list[tuple[int, int, float]] = field(default_factory=list)
     """Adjacent size pairs where the larger message was measurably faster.
@@ -181,15 +182,38 @@ class BimodalReport:
         return (bool(self.bimodal_sizes) or math.isfinite(self.step_factor)
                 or bool(self.inversions))
 
+    @property
+    def flagged_sizes(self) -> list[int]:
+        """Every size implicated, individually. Not a hull.
+
+        The band endpoints are kept for reporting, but a hull spanning three
+        decades because of two unrelated events at either end is not a band --
+        it is an accident of taking min and max.
+        """
+        out = set(self.bimodal_sizes)
+        for a, b, _ in self.inversions:
+            out |= {a, b}
+        if self.step_at:
+            out.add(self.step_at)
+            if self.step_prev:
+                out.add(self.step_prev)
+        return sorted(out)
+
     def covers(self, nbytes: int) -> bool:
-        return bool(self.band_lo) and self.band_lo <= nbytes <= self.band_hi
+        return nbytes in set(self.flagged_sizes)
+
+    def flagged_regimes(self, regime_of) -> tuple[str, ...]:
+        """The regimes containing a flagged size, and only those."""
+        return tuple(sorted({regime_of(n) for n in self.flagged_sizes}))
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "group": self.group,
             "bimodal_sizes": self.bimodal_sizes,
             "band_lo": self.band_lo, "band_hi": self.band_hi,
-            "step_at": self.step_at, "step_factor": self.step_factor,
+            "step_at": self.step_at, "step_prev": self.step_prev,
+            "step_factor": self.step_factor,
+            "flagged_sizes": self.flagged_sizes,
             "inversions": [list(x) for x in self.inversions],
             "has_threshold": self.has_threshold,
             "splits": [s.to_dict() for s in self.splits],
@@ -242,16 +266,14 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
             continue
         ratio = med[b] / med[a]
         if ratio >= step_ratio and ratio > best_step:
-            best_step, rep.step_at, rep.step_factor = ratio, b, ratio
+            best_step = ratio
+            rep.step_at, rep.step_prev, rep.step_factor = b, a, ratio
         if ratio <= 1.0 / inversion_ratio:
             rep.inversions.append((a, b, ratio))
 
-    marks = list(rep.bimodal_sizes)
-    for a, b, _ in rep.inversions:
-        marks += [a, b]
-    if rep.step_at:
-        idx = sizes.index(rep.step_at)
-        marks += [sizes[max(idx - 1, 0)], rep.step_at]
+    # Reported for orientation only. What implicates a regime is
+    # `flagged_sizes`, which does not join unrelated events into one span.
+    marks = rep.flagged_sizes
     if marks:
         rep.band_lo, rep.band_hi = min(marks), max(marks)
 

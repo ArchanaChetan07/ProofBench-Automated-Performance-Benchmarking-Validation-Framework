@@ -175,24 +175,52 @@ def test_excluding_an_ungradable_tier_does_not_cover_it():
 # ------------------------------------------------------------------- bug 5
 
 
-def test_the_block_budget_scales_with_variability_not_size():
-    """A fixed iters count put a noise cliff inside the medium regime.
+def test_the_block_budget_is_a_duration_not_a_byte_threshold():
+    """A fixed iters count put a fourfold averaging cliff inside the medium
+    regime -- points above 1 MiB averaged five calls against twenty below, and
+    carried 29.4% run-to-run variation against 18.8%, in the band that decides
+    most of the coverage matrix.
 
-    Points above 1 MiB averaged four times fewer calls than points below it, so
-    they carried 29.4% run-to-run variation against 18.8% -- a discontinuity the
-    harness created, in the band that decided three of the six groups.
+    Sizing the block by duration removes the cliff without claiming anything the
+    measurement cannot support.
     """
     from losscolumn.thrusts.overlap.campaign import (
-        MAX_BLOCK_S,
-        MIN_BLOCK_S,
-        NOISY_CV,
+        MAX_ITERS,
+        MIN_ITERS,
+        TARGET_BLOCK_S,
     )
 
-    assert MIN_BLOCK_S < MAX_BLOCK_S
-    quiet = MIN_BLOCK_S + (MAX_BLOCK_S - MIN_BLOCK_S) * min(0.02 / NOISY_CV, 1.0)
-    noisy = MIN_BLOCK_S + (MAX_BLOCK_S - MIN_BLOCK_S) * min(0.35 / NOISY_CV, 1.0)
-    assert noisy > 3 * quiet, "effort must follow the noise"
-    assert noisy == pytest.approx(MAX_BLOCK_S)
+    assert TARGET_BLOCK_S > 0 and MIN_ITERS >= 1 and MAX_ITERS > MIN_ITERS
+
+    def iters_for(per_call):
+        return int(min(max(round(TARGET_BLOCK_S / per_call), MIN_ITERS), MAX_ITERS))
+
+    # Measured costs on this machine: 0.22 ms at 4 KiB, 1.67 ms at 1 MiB,
+    # 24 ms at 8 MiB. The cheap end must get far more averaging than the old
+    # fixed twenty, and the expensive end falls back to the floor.
+    assert iters_for(0.00022) > 20
+    assert iters_for(0.00167) > 20
+    assert iters_for(0.024) == MIN_ITERS
+    # No discontinuity anywhere: iters varies smoothly with cost.
+    assert iters_for(0.0009) >= iters_for(0.0011)
+
+
+def test_a_short_probe_is_not_asked_to_estimate_variability():
+    """The second rule tried here scaled the budget by a six-call probe's CV.
+
+    It measured worse than what it replaced: the instability in this band acts
+    on a longer timescale than six calls can see, so it judged the noisy band
+    quiet, gave 41% of points the minimum five iterations, and coverage fell
+    from 17 cells to 11. The probe now establishes only the cost of a call.
+    """
+    import inspect
+
+    from losscolumn.thrusts.overlap import campaign as C
+
+    src = inspect.getsource(C._worker)
+    assert "TARGET_BLOCK_S / per_call" in src
+    assert not hasattr(C, "NOISY_CV"), (
+        "the variability-scaled budget is withdrawn, not merely unused")
 
 
 def test_iters_is_recorded_so_the_noise_can_be_audited():

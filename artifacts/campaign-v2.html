@@ -1,0 +1,81 @@
+<title>Campaign v2</title>
+<style>
+:root{--bg:#ffffff;--fg:#1c1917;--muted:#57534e;--line:#e7e5e4;--panel:#fafaf9;
+--loss:#b91c1c;--loss-bg:#fef2f2;--win:#1d4ed8;--warn:#b45309;--warn-bg:#fffbeb;
+--ok:#047857;--code:#f5f5f4;}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;--panel:#1c1917;
+--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;--warn-bg:#1c1710;
+--ok:#6ee7b7;--code:#1c1917;}}
+:root[data-theme="dark"]{--bg:#0c0a09;--fg:#f5f5f4;--muted:#a8a29e;--line:#292524;
+--panel:#1c1917;--loss:#f87171;--loss-bg:#1f1315;--win:#93c5fd;--warn:#fbbf24;
+--warn-bg:#1c1710;--ok:#6ee7b7;--code:#1c1917;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);margin:0;padding:0 20px 80px;
+font:15px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,sans-serif;}
+.wrap{max-width:900px;margin:0 auto}
+header{border-bottom:2px solid var(--fg);padding:44px 0 18px;margin-bottom:26px}
+.kicker{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;
+text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+h1{font-size:30px;line-height:1.18;margin:0 0 12px;letter-spacing:-.015em}
+h2{font-size:19px;margin:38px 0 12px;padding-top:14px;border-top:1px solid var(--line);
+letter-spacing:-.01em}
+h3{font-size:15px;margin:24px 0 8px}
+.headline{font-size:17px;line-height:1.5;color:var(--fg);border-left:3px solid var(--fg);
+padding:2px 0 2px 16px;margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.meta code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:12px}
+.banner{background:var(--warn-bg);border:1px solid var(--warn);border-radius:6px;
+padding:12px 16px;margin:16px 0;font-size:13.5px;line-height:1.5}
+.banner b{letter-spacing:.06em;font-size:11.5px}
+.loss{background:var(--loss-bg);border:1px solid var(--loss);border-radius:6px;
+padding:18px 20px;margin:8px 0 4px}
+.loss h2{border:0;margin-top:0;padding-top:0;color:var(--loss)}
+.tag{display:inline-block;font:600 10.5px/1 ui-monospace,monospace;letter-spacing:.08em;
+text-transform:uppercase;padding:4px 8px;border-radius:4px;border:1px solid currentColor}
+.pass{color:var(--ok)}.fail{color:var(--loss)}.warn{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:12px 0}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:650;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;
+color:var(--muted)}
+tr:hover td{background:var(--panel)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:12.5px}
+code{font-size:12.5px}
+figure{margin:20px 0;padding:0}
+figure svg{max-width:100%;height:auto;display:block;background:#fff;border:1px solid var(--line);
+border-radius:6px}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ul{padding-left:20px}li{margin:4px 0}
+.stat{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0}
+.stat div{flex:1 1 130px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;
+background:var(--panel)}
+.stat b{display:block;font-size:21px;letter-spacing:-.02em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;
+color:var(--muted)}
+</style>
+<div class="wrap">
+<h1>Campaign v2</h1>
+<p class="lede">Corrected gates, corrected harness, same replicate count</p>
+<h2>Campaign v2</h2>
+<p>Predictions sealed <code>sha256:92163026f289523d</code> before the run. One session, 17 minutes, 21 repeats per point per pass -- the same replicate count as the run it is compared against, so any movement is the corrections and not the effort.</p>
+<div class="scroll"><table><thead><tr>
+<th>Prediction</th>
+<th>Baseline</th>
+<th>Predicted</th>
+<th>Measured</th>
+<th>Result</th>
+</tr></thead><tbody>
+<tr><td>P1 medium-regime CV falls a quarter</td><td>27.4%</td><td>&lt; 20.5%</td><td>24.9%</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P2 the 1 MiB noise cliff closes</td><td>1.57x</td><td>&lt; 1.25x</td><td>1.35x</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P3 coverage improves</td><td>6</td><td>&gt; 6</td><td>4</td><td><b>FALSIFIED</b></td></tr>
+</tbody></table></div>
+<p>Coverage <b>4 of 24</b> cells; <b>1 of 6</b> groups have an accepted model.</p>
+<p>Timed blocks averaged 5-200 calls (median 8), chosen per point from its own measured variability rather than from its size.</p>
+<p><b>P1 is falsified.</b> The medium regime is no less variable for being averaged harder, so its variability is not the averaging. Something about that size band on this machine is intrinsically unstable and the harness correction does not reach it.</p>
+<p><b>P2 is falsified.</b> The gap across 1 MiB survives a rule that does not know where 1 MiB is, so it is a property of the transport rather than of the measurement.</p>
+<p><b>P3 is falsified.</b> The gates were not what was blocking coverage. What remains is the surface.</p>
+</div>
