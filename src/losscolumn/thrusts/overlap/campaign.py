@@ -248,6 +248,13 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     budget = MIN_BLOCK_S + (MAX_BLOCK_S - MIN_BLOCK_S) * frac
                     iters = int(min(max(round(budget / per_call),
                                         MIN_ITERS), MAX_ITERS))
+                    # Every rank must issue the SAME number of collectives or
+                    # the group deadlocks on the difference. Each rank times
+                    # itself, so each would otherwise pick its own count: rank 0
+                    # decides and the rest follow.
+                    shared = torch.tensor([iters], dtype=torch.int64)
+                    dist.broadcast(shared, src=0)
+                    iters = int(shared.item())
                     dist.barrier()
                     for _ in range(repeats):
                         try:
