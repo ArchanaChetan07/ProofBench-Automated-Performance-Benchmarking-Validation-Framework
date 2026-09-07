@@ -32,6 +32,15 @@ __all__ = ["DebtKind", "DebtItem", "CoverageDebt", "assess_debt"]
 
 
 class DebtKind(str, Enum):
+    BIMODAL = "bimodal"
+    """The configuration has two behaviours, so no single-valued model applies.
+
+    The only kind here that no amount of work clears. More repeats estimate the
+    mixture proportion, which is not a property of the message size; more model
+    flexibility cannot help because any function of one variable is
+    single-valued. Separated from the others precisely so it is not mistaken for
+    a cell that would yield to effort."""
+
     GROUP_MODEL_REJECTED = "group_model_rejected"
     """No model was accepted for this cell's group, so the cell cannot be covered
     whatever its own measurement quality.
@@ -53,6 +62,12 @@ class DebtKind(str, Enum):
     @property
     def remedy(self) -> str:
         return {
+            DebtKind.BIMODAL:
+                "nothing, at this granularity. The remedy is a change to what is "
+                "being claimed: model which branch the transport takes and fit "
+                "each separately, or state the operating surface as excluding "
+                "the unstable band. Both change the claim rather than improving "
+                "the measurement, so both are decisions rather than work",
             DebtKind.GROUP_MODEL_REJECTED:
                 "nothing local to this cell. Either a family that fits the "
                 "group's worst regime, or a decision about what the worst-regime "
@@ -139,6 +154,18 @@ class CoverageDebt:
         verdict.
         """
         kinds = self.by_kind()
+        if kinds.get("bimodal") and not (kinds.get("model_limited")
+                                         or kinds.get("noise_limited")):
+            n = len(kinds["bimodal"])
+            return (
+                f"None. The {n} remaining cell(s) sit on an algorithm-selection "
+                "threshold, where the transport has two behaviours and no "
+                "single-valued cost model applies. There is no measurement that "
+                "would change this and no model family that would fit it. What "
+                "is left is a decision about the claim: model the branch "
+                "explicitly and fit each side, or state the operating surface as "
+                "excluding the unstable band."
+            )
         if kinds.get("model_limited"):
             worst = min(kinds["model_limited"], key=lambda i: i.noise_cv)
             return (
@@ -330,6 +357,13 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             # Status first. A cell in a group with no accepted model is
             # uncovered for that reason, and grading it on some rejected
             # candidate's error describes a model nobody is allowed to use.
+            if rc.status.value == "bimodal":
+                item.kind = DebtKind.BIMODAL
+                item.rationale = (
+                    rc.detail or "an algorithm-selection threshold sits here"
+                )
+                debt.items.append(item)
+                continue
             if rc.status.value == "model_rejected":
                 item.kind = DebtKind.GROUP_MODEL_REJECTED
                 blocker = _worst_regime(g)

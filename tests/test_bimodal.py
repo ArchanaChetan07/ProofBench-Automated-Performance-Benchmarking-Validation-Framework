@@ -175,3 +175,72 @@ def test_a_bimodal_regime_is_not_covered():
 
     rc = RegimeCoverage(regime="medium", status=RegimeStatus.BIMODAL)
     assert not rc.covered
+
+
+# ------------------------------------------------------ the debt it produces
+
+
+def _cell(status, regime="medium", err=0.30, cv=0.28, detail=""):
+    class _R:
+        def __init__(self):
+            self.regime, self.heldout_err, self.noise_cv = regime, err, cv
+            self.n_points, self.n_validation_points = 20, 8
+            self.covered = False
+            self.detail = detail
+            self.status = type("S", (), {"value": status})()
+    return _R()
+
+
+class _Group:
+    def __init__(self, key, regimes):
+        self.key, self.regimes = key, {r.regime: r for r in regimes}
+
+    def uncovered(self):
+        return list(self.regimes.values())
+
+
+class _Cov:
+    def __init__(self, groups):
+        self.groups = {g.key: g for g in groups}
+        self.n_required_cells = sum(len(g.regimes) for g in groups)
+        self.n_covered_cells = 0
+
+
+def test_a_bimodal_cell_is_not_filed_as_noise_limited():
+    """Filing it as noise sends someone to buy repeats that cannot help."""
+    from losscolumn.core.debt import DebtKind, assess_debt
+
+    cov = _Cov([_Group("g/w2", [_cell("bimodal", detail="threshold at 1 MiB")])])
+    d = assess_debt(cov, {}, cv_from_n=21)
+    assert d.items[0].kind is DebtKind.BIMODAL
+    assert "1 MiB" in d.items[0].rationale
+
+
+def test_the_bimodal_remedy_says_it_is_a_decision_not_work():
+    from losscolumn.core.debt import DebtKind
+
+    r = DebtKind.BIMODAL.remedy
+    assert "decision" in r
+    assert "branch" in r or "excluding" in r
+
+
+def test_no_experiment_is_proposed_when_only_bimodal_cells_remain():
+    """The honest answer to 'what next' is sometimes 'no measurement helps'."""
+    from losscolumn.core.debt import assess_debt
+
+    cov = _Cov([_Group("g/w2", [_cell("bimodal")])])
+    nxt = assess_debt(cov, {}, cv_from_n=21).next_experiment()
+    assert nxt.startswith("None")
+    assert "single-valued" in nxt
+
+
+def test_a_mixed_debt_still_proposes_the_discriminating_experiment():
+    """Bimodal cells must not silence advice about the ones that can move."""
+    from losscolumn.core.debt import assess_debt
+
+    cov = _Cov([_Group("g/w2", [
+        _cell("bimodal"),
+        _cell("error_too_high", regime="small", err=0.22, cv=0.06),
+    ])])
+    nxt = assess_debt(cov, {}, cv_from_n=21).next_experiment()
+    assert not nxt.startswith("None")
