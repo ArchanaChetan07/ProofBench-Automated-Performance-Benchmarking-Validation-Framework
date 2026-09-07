@@ -69,6 +69,13 @@ class RegimeStatus(str, Enum):
     MODEL_REJECTED = "model_rejected"
     ERROR_TOO_HIGH = "error_too_high"
     TOO_NOISY = "too_noisy"
+    BIMODAL = "bimodal"
+    """The configuration has two behaviours, so no single-valued model applies.
+
+    Distinct from TOO_NOISY on purpose. A noisy cell has one answer measured
+    imprecisely and more measurement narrows it. A bimodal cell has two answers,
+    and more measurement estimates the mixture proportion -- which is not a
+    property of the message size, so it converges on nothing durable."""
     INSUFFICIENT_POINTS = "insufficient_points"
 
     @property

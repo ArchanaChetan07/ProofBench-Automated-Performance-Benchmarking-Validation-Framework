@@ -170,10 +170,16 @@ class TestFamilySelection:
         s = [Sample(nbytes=1 << k, seconds=float(abs(rng.normal(1e-3, 9e-4))))
              for k in range(10, 25)]
         sel = select_model(s[::2], s[1::2], max_heldout_median_err=0.15)
-        # Three families under three estimators, every combination reported
-        # even though none is promoted.
-        assert len(sel.candidates) == 9
+        # Three estimators, and under each: linear once, plus the two segmented
+        # families on each of the two structure scales. `linear` has no
+        # structure to choose so it is not doubled. Fifteen in all, every one
+        # reported even though none is promoted.
+        assert len(sel.candidates) == 15
         assert all("family" in c for c in sel.candidates)
+        scales = {c["family"].endswith("/abs") for c in sel.candidates}
+        assert scales == {True, False}, (
+            "both structure scales must be offered; hard-coding either one was "
+            "the bug this replaced")
 
 
 class TestRejectedParametersStayOut:

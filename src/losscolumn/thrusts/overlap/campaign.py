@@ -40,6 +40,7 @@ from typing import Any
 
 import numpy as np
 
+from losscolumn.core.bimodal import find_threshold_band
 from losscolumn.core.coverage import (
     CommunicationCoverage,
     ParameterVerdict,
@@ -560,6 +561,7 @@ class Campaign:
     records: list[PointRecord] = field(default_factory=list)
     peaks: dict[str, PeakReport] = field(default_factory=dict)
     selections: dict[str, Any] = field(default_factory=dict)
+    thresholds: dict[str, Any] = field(default_factory=dict)
     coverage: CommunicationCoverage | None = None
     errors: dict[str, str] = field(default_factory=dict)
     device: str = ""
@@ -656,6 +658,7 @@ class Campaign:
             "records": [r.to_dict() for r in self.records],
             "peaks": {k: v.to_dict() for k, v in self.peaks.items()},
             "model_selection": self.selections,
+            "thresholds": self.thresholds,
             "coverage": self.coverage.to_dict() if self.coverage else None,
             "errors": self.errors,
             "notes": self.notes,
@@ -735,6 +738,16 @@ def analyse(campaign: Campaign) -> Campaign:
                 g.regimes[reg].detail = g.detail
             continue
 
+        # Where an algorithm-selection threshold sits inside a regime, that
+        # regime has two behaviours rather than one and no single-valued model
+        # can be right about it. Detected before fitting so the fit is not asked
+        # to pass through it.
+        threshold = find_threshold_band(recs, group=key)
+        campaign.thresholds[key] = threshold.to_dict()
+        bimodal_regimes = tuple({
+            regime_of(n) for n in range(0)
+        } | {regime_of(x) for x in (threshold.band_lo, threshold.band_hi) if x})
+
         # A regime whose points carry a standard error above the gradeability
         # ceiling cannot distinguish a bad model from an unmeasurable one, so it
         # is excluded from the selection score. It stays uncovered regardless.
@@ -744,7 +757,7 @@ def analyse(campaign: Campaign) -> Campaign:
                                        campaign.repeats))
             and _point_se(noise_by_regime.get(reg, float("nan")),
                           campaign.repeats) > campaign.max_noise_cv
-        )
+        ) + bimodal_regimes
         sel = select_model(cal, [], transport="gloo_shm", kind=kind, world=world,
                            noise_floor=noise_floor, tier_fn=regime_of,
                            ungradable_tiers=ungradable,
@@ -767,10 +780,17 @@ def analyse(campaign: Campaign) -> Campaign:
                 g.regimes[reg].detail = "the group's model was not accepted"
             continue
 
-        fam, _, est = sel.chosen_family.partition("/")
+        # "piecewise/huber/abs" -> family, loss, and the scale its structure was
+        # selected on. The refit has to use the same scale, or the model graded
+        # in validation is not the model the selection chose.
+        parts = sel.chosen_family.split("/")
+        fam = parts[0]
+        est = parts[1] if len(parts) > 1 else "weighted"
+        scale = "absolute" if len(parts) > 2 and parts[2] == "abs" else "relative"
         builder = {"linear": fit_linear, "piecewise": fit_piecewise,
                    "regime": fit_regime}[fam]
-        final = builder(cal, loss=est or "weighted")
+        final = (builder(cal, loss=est or "weighted") if fam == "linear"
+                 else builder(cal, loss=est or "weighted", scale=scale))
         if final is None:
             g.parameter_verdict = ParameterVerdict.DIAGNOSTIC
             g.detail = "the chosen family could not be refitted on all calibration data"
@@ -806,6 +826,17 @@ def analyse(campaign: Campaign) -> Campaign:
                              "independent grades the model here")
                 continue
             rc.heldout_err = final.median_rel_error(in_reg)
+            if reg in bimodal_regimes:
+                rc.status = RegimeStatus.BIMODAL
+                rc.detail = (
+                    "an algorithm-selection threshold sits in this regime "
+                    f"(band {threshold.band_lo}-{threshold.band_hi} bytes"
+                    + (f", median step {threshold.step_factor:.1f}x at "
+                       f"{threshold.step_at}B" if threshold.step_at else "")
+                    + "). The transport has two behaviours here and no "
+                      "single-valued cost model can be right about both"
+                )
+                continue
             if math.isfinite(rc.point_se) and rc.point_se > campaign.max_noise_cv:
                 rc.status = RegimeStatus.TOO_NOISY
                 rc.detail = (f"the points here carry a standard error of "

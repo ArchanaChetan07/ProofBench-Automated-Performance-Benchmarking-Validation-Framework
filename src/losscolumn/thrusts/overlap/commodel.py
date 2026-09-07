@@ -90,6 +90,12 @@ class CostModel:
         p = self.predict_many([s.effective_bytes for s in samples])
         return y - p
 
+    def scaled_residuals(self, samples: Sequence[Sample], scale: str
+                         ) -> np.ndarray:
+        """Residuals on the requested scale, for structure selection."""
+        return (self.relative_residuals(samples) if scale == "relative"
+                else self.residuals(samples))
+
     def relative_residuals(self, samples: Sequence[Sample]) -> np.ndarray:
         """Residuals as a fraction of the measured time.
 
@@ -327,7 +333,8 @@ def fit_linear(samples: Sequence[Sample], *, loss: str = "weighted"
 
 
 def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3,
-                  loss: str = "weighted") -> PiecewiseModel | None:
+                  loss: str = "weighted",
+                  scale: str = "relative") -> PiecewiseModel | None:
     """Fit two regimes, choosing the breakpoint by exhaustive search.
 
     The breakpoint is a real physical quantity -- the size at which the
@@ -349,14 +356,15 @@ def fit_piecewise(samples: Sequence[Sample], *, min_per_side: int = 3,
         # breakpoint by absolute RSS places it wherever the largest messages
         # want it, which is the leverage problem the 1/t weighting exists to
         # remove from the segment fits.
-        rss = float(np.sum(model.relative_residuals(ordered) ** 2))
+        rss = float(np.sum(model.scaled_residuals(ordered, scale) ** 2))
         if best is None or rss < best[0]:
             best = (rss, model)
     return best[1] if best else None
 
 
 def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
-               min_per_side: int = 3, loss: str = "weighted") -> RegimeModel | None:
+               min_per_side: int = 3, loss: str = "weighted",
+               scale: str = "relative") -> RegimeModel | None:
     """Segment the size range into up to ``max_segments`` linear regimes.
 
     Greedy top-down: repeatedly split the segment whose residual is worst,
@@ -383,7 +391,8 @@ def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
         # Relative residuals, for the same reason fit_piecewise uses them: the
         # decision of where to split must not be made by the largest points
         # alone.
-        return float(sum(np.sum(m.relative_residuals(g) ** 2) for g, m in pieces))
+        return float(sum(np.sum(m.scaled_residuals(g, scale) ** 2)
+                         for g, m in pieces))
 
     def build(pieces: list[tuple[list[Sample], LinearModel]]) -> RegimeModel:
         edges = tuple(
@@ -410,7 +419,11 @@ def fit_regime(samples: Sequence[Sample], *, max_segments: int = 4,
         if best is None:
             break
         candidate = build(best[2])
-        if candidate.relative_aic(ordered) >= current.relative_aic(ordered):
+        cand_aic = (candidate.relative_aic(ordered) if scale == "relative"
+                    else candidate.aic(ordered))
+        cur_aic = (current.relative_aic(ordered) if scale == "relative"
+                   else current.aic(ordered))
+        if cand_aic >= cur_aic:
             break
         segs, current = best[2], candidate
     return current
@@ -592,6 +605,7 @@ def select_model(
     max_heldout_median_err: float = 0.15,
     tier_fn: Any = None,
     ungradable_tiers: Sequence[str] = (),
+    structure_scales: Sequence[str] = ("relative", "absolute"),
     losses: Sequence[str] = ("weighted", "log", "huber"),
 ) -> ModelSelection:
     """Choose the family by held-out error, not by fit quality.
@@ -609,11 +623,18 @@ def select_model(
     # estimator is telling you about the estimator, and the report shows both.
     builders: list[tuple[str, Any]] = []
     for lname in losses:
-        builders += [
-            (f"linear/{lname}", lambda s, ln=lname: fit_linear(s, loss=ln)),
-            (f"piecewise/{lname}", lambda s, ln=lname: fit_piecewise(s, loss=ln)),
-            (f"regime/{lname}", lambda s, ln=lname: fit_regime(s, loss=ln)),
-        ]
+        builders.append(
+            (f"linear/{lname}", lambda s, ln=lname: fit_linear(s, loss=ln)))
+        # Segmented families also carry the scale their structure was chosen on.
+        # `linear` has no structure to choose, so it appears once.
+        for sc in structure_scales:
+            tag = "" if sc == "relative" else "/abs"
+            builders += [
+                (f"piecewise/{lname}{tag}",
+                 lambda s, ln=lname, k=sc: fit_piecewise(s, loss=ln, scale=k)),
+                (f"regime/{lname}{tag}",
+                 lambda s, ln=lname, k=sc: fit_regime(s, loss=ln, scale=k)),
+            ]
     best: tuple[float, CostModel, str] | None = None
     # Every point the selector is allowed to see, used through cross-validation
     # rather than a single nested split.

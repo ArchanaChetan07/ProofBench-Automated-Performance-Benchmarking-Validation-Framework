@@ -1,7 +1,28 @@
 predictions sealed sha256:92163026f289523d BEFORE measurement
 baseline: medium CV 27.4%, cliff 1.57x, coverage 6
 grid 46 sizes x 3 worlds x 2 passes x 21 repeats
+Traceback (most recent call last):
+  File "C:\Users\archa\OneDrive\Desktop\Sparse Attention\losscolumn\scripts\campaign_v2.py", line 242, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "C:\Users\archa\OneDrive\Desktop\Sparse Attention\losscolumn\scripts\campaign_v2.py", line 151, in main
+    with MeasurementLock("campaign v2, corrected harness"):
+  File "C:\Users\archa\OneDrive\Deskto[W907 15:35:48.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29714 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:35:48.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29714 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:35:48.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29714 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:37:49.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29715 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:37:49.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29715 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:37:49.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29715 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:37:49.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29715 (system error: 10049 - The requested address is not valid in its context.).
+  276 records, 0 failure(s), 512s
 
-=== pass 0 ===
-[W907 15:32:11.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29713 (system error: 10049 - The requested address is not valid in its context.).
-[W907 15:32:11.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29713 (system error: 10049 - The requested address is not valid in its context.).
+=== pass 1 ===
+[W907 15:40:44.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29723 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:40:44.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29723 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:44:15.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:44:15.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:44:15.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29724 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:46:19.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:46:19.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:46:19.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
+[W907 15:46:19.000000000 socket.cpp:759] [c10d] The client socket has failed to connect to [kubernetes.docker.internal]:29725 (system error: 10049 - The requested address is not valid in its context.).
