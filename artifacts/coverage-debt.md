@@ -1,21 +1,20 @@
 ### Coverage debt
 
-**Coverage debt: 7 uncovered cell(s) of 24.**
+**Coverage debt: 6 uncovered cell(s) of 24.**
 
 | Kind | Cells | Remedy |
 |---|---|---|
 | `group_model_rejected` | 4 | nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it |
-| `bimodal` | 2 | nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work |
 | `model_limited` | 1 | a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean |
+| `bimodal` | 1 | nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work |
 
 | Group | Regime | Kind | held-out | noise | gap | why |
 |---|---|---|---|---|---|---|
-| all_gather/world2 | medium | `bimodal` | 19.6% | 21.1% | +4.6% | an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
-| all_gather/world2 | small | `bimodal` | 16.6% | 13.8% | +1.6% | an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
-| all_reduce/world2 | large | `group_model_rejected` | 4.3% | 19.1% | -10.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3% |
-| all_reduce/world2 | medium | `group_model_rejected` | 34.2% | 26.3% | +19.2% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
-| all_reduce/world2 | small | `group_model_rejected` | 18.8% | 11.6% | +3.8% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7% |
-| all_reduce/world2 | tiny | `group_model_rejected` | 18.7% | 12.9% | +3.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3% |
+| all_gather/world2 | medium | `bimodal` | 19.2% | 21.1% | +4.2% | an algorithm-selection threshold sits in this regime (band 124268-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
+| all_reduce/world2 | large | `group_model_rejected` | 5.1% | 19.1% | -9.9% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3% |
+| all_reduce/world2 | medium | `group_model_rejected` | 37.9% | 26.3% | +22.9% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
+| all_reduce/world2 | small | `group_model_rejected` | 20.2% | 11.6% | +5.2% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7% |
+| all_reduce/world2 | tiny | `group_model_rejected` | 18.4% | 12.9% | +3.4% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3% |
 | all_reduce/world3 | medium | `model_limited` | 19.3% | 20.4% | +4.3% | the points are known to 10.0%, against which a perfect model would show about 6.7%, and the best available family misses by 19.3%: the gap is the model's |
 
 **The single most discriminating next experiment**

@@ -25,7 +25,7 @@
     {
       "gate": "required coverage achieved",
       "passed": false,
-      "detail": "17 of 24 (group x regime) cells covered (71%)"
+      "detail": "18 of 24 (group x regime) cells covered (75%)"
     },
     {
       "gate": "no rejected parameter is active",
@@ -45,12 +45,12 @@
     {
       "gate": "8-GPU protocol is fully prepared",
       "passed": true,
-      "detail": "13 stages sealed (7.2 h), seal c4f2344cf638807e"
+      "detail": "13 stages sealed (7.2 h), seal 133dfca7a770dbca"
     }
   ],
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-08T18:24:23Z",
+  "generated_at": "2026-09-08T18:46:14Z",
   "local_readiness": "not_ready",
-  "a100_protocol_seal": "sha256:c4f2344cf638807e9b3eecc0ca53d8168ed0e7ecf18b585a1fd84fecf32420f0",
+  "a100_protocol_seal": "sha256:133dfca7a770dbcac51d1d16818e9815e088a0d2a12811fd5f23cc0cfe33290d",
   "command": "python scripts/readiness_gate.py"
 }

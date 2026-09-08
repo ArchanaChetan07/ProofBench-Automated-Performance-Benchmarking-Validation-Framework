@@ -1,7 +1,7 @@
 {
   "kind": "modellability",
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-08T18:21:57Z",
+  "generated_at": "2026-09-08T18:46:14Z",
   "budget": {
     "within_run_cv": 0.1573309938210134,
     "across_restart_cv": 0.05332128049752698,
@@ -57,14 +57,14 @@
   "counts": {
     "GROUP_BLOCKED": 4,
     "MODEL_WORK": 1,
-    "UNMODELLABLE": 2
+    "UNMODELLABLE": 1
   },
   "cells": [
     {
       "group": "all_reduce/world2",
       "regime": "tiny",
       "kind": "group_model_rejected",
-      "heldout_err": 0.18669325354613325,
+      "heldout_err": 0.18424113729915947,
       "noise_cv": 0.12948339781476959,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
@@ -76,7 +76,7 @@
       "group": "all_reduce/world2",
       "regime": "small",
       "kind": "group_model_rejected",
-      "heldout_err": 0.18788301528403495,
+      "heldout_err": 0.2017235326737441,
       "noise_cv": 0.115796791889233,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
@@ -88,7 +88,7 @@
       "group": "all_reduce/world2",
       "regime": "medium",
       "kind": "group_model_rejected",
-      "heldout_err": 0.34159271397178814,
+      "heldout_err": 0.37897803483116443,
       "noise_cv": 0.2628302324422044,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
@@ -100,7 +100,7 @@
       "group": "all_reduce/world2",
       "regime": "large",
       "kind": "group_model_rejected",
-      "heldout_err": 0.04315704328495038,
+      "heldout_err": 0.051385826018009534,
       "noise_cv": 0.1907717987853066,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
@@ -122,25 +122,13 @@
     },
     {
       "group": "all_gather/world2",
-      "regime": "small",
-      "kind": "bimodal",
-      "heldout_err": 0.16628485067250437,
-      "noise_cv": 0.13800109217701986,
-      "gate": 0.15,
-      "verdict": "UNMODELLABLE",
-      "reason": "an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
-      "repeats_needed": 2,
-      "launches_needed": 1
-    },
-    {
-      "group": "all_gather/world2",
       "regime": "medium",
       "kind": "bimodal",
-      "heldout_err": 0.19639006405215345,
+      "heldout_err": 0.19163035812312648,
       "noise_cv": 0.2113595743225627,
       "gate": 0.15,
       "verdict": "UNMODELLABLE",
-      "reason": "an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
+      "reason": "an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 124268-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
       "repeats_needed": 7,
       "launches_needed": 1
     }

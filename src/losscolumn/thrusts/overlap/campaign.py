@@ -769,11 +769,13 @@ def analyse(campaign: Campaign) -> Campaign:
         # This cannot manufacture coverage: a flagged regime stays uncovered
         # whatever the fit does. It only stops the unmodellable part of the
         # surface from spoiling the part that is modellable.
-        flagged = set(threshold.flagged_sizes)
+        # Only bistable sizes are excluded. A point beside a step has a
+        # perfectly good median; it is the segmented family's job to fit it.
+        flagged = set(threshold.ungradable_sizes)
         cal_fit = [s for s in cal if s.nbytes not in flagged] or cal
         campaign.selections_note[key] = (
             f"{len(cal) - len(cal_fit)} of {len(cal)} calibration point(s) "
-            "excluded from the fit as sitting at a detected threshold"
+            "excluded from the fit as having two behaviours at one size"
         ) if len(cal_fit) < len(cal) else ""
         sel = select_model(cal_fit, [], transport="gloo_shm", kind=kind, world=world,
                            noise_floor=noise_floor, tier_fn=regime_of,

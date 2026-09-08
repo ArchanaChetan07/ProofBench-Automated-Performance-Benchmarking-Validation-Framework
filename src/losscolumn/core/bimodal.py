@@ -216,9 +216,33 @@ class BimodalReport:
     def covers(self, nbytes: int) -> bool:
         return nbytes in set(self.flagged_sizes)
 
+    @property
+    def ungradable_sizes(self) -> list[int]:
+        """Sizes whose median is not a property of the message.
+
+        Bistable points only. A step is a discontinuity a segmented family can
+        fit; a bistable point has two answers at one size and no single-valued
+        model has anything to be right about.
+        """
+        return sorted(self.bimodal_sizes)
+
     def flagged_regimes(self, regime_of) -> tuple[str, ...]:
-        """The regimes containing a flagged size, and only those."""
-        return tuple(sorted({regime_of(n) for n in self.flagged_sizes}))
+        """Regimes that cannot grade a model.
+
+        Derived from bistable sizes alone. Steps and inversions are structure
+        the model is expected to capture, and are reported so a reader can check
+        that it did -- not treated as defeat.
+        """
+        return tuple(sorted({regime_of(n) for n in self.ungradable_sizes}))
+
+    def structural_sizes(self, regime_of) -> tuple[str, ...]:
+        """Regimes containing a step or inversion the model has to handle."""
+        out = set()
+        for a, b, _ in self.steps:
+            out |= {regime_of(a), regime_of(b)}
+        for a, b, _ in self.inversions:
+            out |= {regime_of(a), regime_of(b)}
+        return tuple(sorted(out))
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -235,6 +259,18 @@ class BimodalReport:
             "notes": self.notes,
         }
 
+
+STEP_EXCESS = 1.4
+"""How far the time ratio must outrun the size ratio to count as a step.
+
+One is the ceiling for a single linear segment, so anything above one indicates
+the cost changed shape. The margin is for noise, and the sigma test below is
+what actually keeps noise out; this only sets how large an effect is worth
+calling a threshold.
+"""
+
+STEP_SIGMAS = 3.0
+"""Same reasoning as INVERSION_SIGMAS: about forty pairs are tested per group."""
 
 INVERSION_SIGMAS = 3.0
 """How far outside the noise a drop must sit to count as a threshold.
@@ -257,7 +293,8 @@ def _median_se(record: Any, n_repeats: int) -> float:
 
 
 def find_threshold_band(records: Sequence[Any], *, group: str = "",
-                        step_ratio: float = 3.0,
+                        step_excess: float = STEP_EXCESS,
+                        step_sigmas: float = STEP_SIGMAS,
                         inversion_ratio: float = 1.30,
                         inversion_sigmas: float = INVERSION_SIGMAS
                         ) -> BimodalReport:
@@ -265,8 +302,11 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
 
     Three signatures, any of which is sufficient.
 
-    A *step*: the median jumps by more than `step_ratio` between adjacent sizes,
-    which no bandwidth term can produce over a small size increment.
+    A *step*: the median grows faster than the message does. For a single
+    linear cost the time ratio is at most the size ratio, so a time ratio
+    exceeding it by `step_excess` cannot come from one algorithm -- and unlike a
+    fixed ratio this does not depend on how far apart the two sizes happen to
+    be.
 
     An *inversion*: a larger message measured faster than a smaller one by more
     than `inversion_ratio`. This is the signature to trust, because it survives
@@ -305,20 +345,39 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
         # Without a dispersion estimate, assume nothing and let the ratio test
         # stand alone rather than inventing a precision the data has not shown.
         return float(np.median(v)) if v else 0.0
-    # EVERY step, not just the largest. Two thresholds three octaves apart are
-    # two thresholds.
+    # Two independent questions about each adjacent pair, asked separately.
+    # They were once nested, and the step test's early exits meant a pair that
+    # was not a step was never examined for being an inversion -- which silently
+    # disabled the one signature that survives averaging.
     for a, b in zip(sizes, sizes[1:], strict=False):
-        if med[a] <= 0:
+        if med[a] <= 0 or a <= 0 or b <= a:
             continue
         ratio = med[b] / med[a]
-        if ratio >= step_ratio:
-            rep.steps.append((a, b, ratio))
+        size_ratio = b / a
+        combined = math.hypot(rel_se(a), rel_se(b))
+
+        # A STEP: time outran the message. For a single linear cost the time
+        # ratio is at most the size ratio, so an excess above one cannot come
+        # from one algorithm -- and unlike a fixed ratio this does not depend on
+        # how far apart the two sizes happen to be. The EXCESS is what must
+        # clear the noise, not the jump: the null is one algorithm, and asking
+        # whether the surface rises here would answer yes everywhere.
+        excess = ratio / size_ratio
+        if excess >= step_excess:
+            log_excess = math.log(excess)
+            if combined > 0 and log_excess < step_sigmas * combined:
+                rep.notes.append(
+                    f"{a}B to {b}B grows {excess:.2f}x faster than the message "
+                    f"but only {log_excess / combined:.1f} sigma against these "
+                    "points' own precision, so it is not counted"
+                )
+            else:
+                rep.steps.append((a, b, ratio))
+
+        # An INVERSION: the larger message measured faster. Independent of the
+        # step test above -- a pair can be one, the other, or neither.
         if ratio <= 1.0 / inversion_ratio:
-            # Only if the drop is larger than the two points' own uncertainty
-            # can produce. Otherwise it is the noise, and calling it a threshold
-            # marks a regime unmodellable on the strength of nothing.
             drop = abs(math.log(ratio)) if ratio > 0 else float("inf")
-            combined = math.hypot(rel_se(a), rel_se(b))
             if combined <= 0 or drop >= inversion_sigmas * combined:
                 rep.inversions.append((a, b, ratio))
             else:
@@ -339,7 +398,9 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
         if rep.steps:
             bits.append(
                 "the median steps by "
-                + ", ".join(f"{f:.1f}x at {b} bytes" for _, b, f in rep.steps))
+                + ", ".join(
+                    f"{f:.1f}x at {b} bytes (message only {b / a:.2f}x larger)"
+                    for a, b, f in rep.steps))
         if rep.inversions:
             worst = min(rep.inversions, key=lambda x: x[2])
             bits.append(

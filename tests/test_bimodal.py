@@ -244,3 +244,104 @@ def test_a_mixed_debt_still_proposes_the_discriminating_experiment():
     ])])
     nxt = assess_debt(cov, {}, cv_from_n=21).next_experiment()
     assert not nxt.startswith("None")
+
+
+# ------------------------- a step is superlinear growth, not a fixed ratio
+
+
+def test_a_step_is_time_outrunning_the_message():
+    """Bug 15: the test compared a raw time ratio against a fixed 3.0x.
+
+    For any single linear cost t = alpha + n/beta the time ratio between two
+    sizes is at most their size ratio -- equal when alpha is zero, smaller
+    otherwise. So what identifies a change of algorithm is the time outrunning
+    the message, whatever the absolute number. Judging it absolutely misses
+    steps between closely spaced sizes, which on a dense grid is most pairs: a
+    2.05x jump across sizes 1.11x apart went undetected because 2.05 < 3.0.
+    """
+    from losscolumn.core.bimodal import STEP_EXCESS
+
+    assert STEP_EXCESS > 1.0, "at most 1.0 is achievable by one linear segment"
+
+    # Sizes 1.11x apart, time 2.05x -- the real case that was missed.
+    recs = [_Rec(1482912, [1.338e-3] * 21), _Rec(1641112, [2.737e-3] * 21)]
+    for r in recs:
+        r.cv = 0.02
+    rep = find_threshold_band(recs + _monotone([1 << k for k in range(12, 20)]),
+                              group="g")
+    assert any(b == 1641112 for _, b, _ in rep.steps), (
+        "a 2.05x jump across a 1.11x size increase is superlinear and must flag")
+
+
+def test_a_proportional_rise_is_not_a_step():
+    """Time doubling when the message doubles is the bandwidth term working."""
+    recs = [_Rec(1 << k, [1e-5 + (1 << k) / 1e9] * 21) for k in range(12, 24)]
+    for r in recs:
+        r.cv = 0.02
+    rep = find_threshold_band(recs, group="g")
+    assert not rep.steps, "a linear surface has no steps at any size ratio"
+
+
+def test_a_superlinear_jump_within_the_noise_is_not_counted():
+    """The excess, not the jump, is what has to clear the noise.
+
+    The null is one algorithm, under which the excess is at most 1. Testing the
+    jump instead asks whether the surface rises here, which it does everywhere.
+    """
+    # excess = 2.0 / 1.1 = 1.82, well past the effect-size floor, but the
+    # points are far too imprecise to support it.
+    recs = [_Rec(1000000, [1.0e-3] * 21), _Rec(1100000, [2.0e-3] * 21)]
+    for r in recs:
+        r.cv = 0.60          # very imprecise points
+    rep = find_threshold_band(recs + _monotone([1 << k for k in range(12, 20)]),
+                              group="g")
+    assert not any(b == 1100000 for _, b, _ in rep.steps)
+    assert any("not counted" in n for n in rep.notes)
+
+
+# ------------------------------ a step is structure, not a reason to give up
+
+
+def test_a_step_does_not_make_a_regime_ungradable():
+    """Bug 16: steps and bistability were both treated as unmodellable.
+
+    A step is a discontinuity between two sizes, deterministic on each side --
+    the shape piecewise and regime families exist to fit. Marking such a regime
+    unmodellable declares defeat over the thing the model is for, and it cost a
+    regime the model was already fitting to 13.7%.
+    """
+    recs = _monotone([1 << k for k in range(12, 24)])
+    for r in recs:
+        r.cv = 0.02
+        if r.nbytes >= (1 << 20):
+            r.timings_s = [t * 8.0 for t in r.timings_s]
+    rep = find_threshold_band(recs, group="g")
+    assert rep.steps, "the step must still be detected and reported"
+    assert rep.ungradable_sizes == [], "but it does not make anything ungradable"
+
+
+def test_a_bistable_size_does_make_its_regime_ungradable():
+    """Two behaviours at ONE size: the median is a mixture proportion, not a
+    property of the message, so no single-valued model has a target."""
+    recs = _monotone([1 << k for k in range(12, 20)])
+    for r in recs:
+        r.cv = 0.02
+    recs[3].timings_s = _two_modes(1e-3, 4e-3, 8, 13)
+    rep = find_threshold_band(recs, group="g")
+    assert recs[3].nbytes in rep.ungradable_sizes
+
+
+def test_structural_and_ungradable_are_reported_separately():
+    """A reader must be able to tell 'the model must handle this' from 'nothing
+    can'."""
+    recs = _monotone([1 << k for k in range(12, 24)])
+    for r in recs:
+        r.cv = 0.02
+        if r.nbytes >= (1 << 20):
+            r.timings_s = [t * 8.0 for t in r.timings_s]
+    rep = find_threshold_band(recs, group="g")
+    def reg(n):
+        return "big" if n >= (1 << 20) else "small"
+
+    assert rep.structural_sizes(reg), "the step is reported as structure"
+    assert rep.flagged_regimes(reg) == (), "and nothing is ungradable"
