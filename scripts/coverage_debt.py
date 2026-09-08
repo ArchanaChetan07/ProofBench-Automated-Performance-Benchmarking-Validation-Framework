@@ -18,7 +18,7 @@ def main() -> int:
     from losscolumn.report.render import render_page
 
     art = Path("artifacts")
-    from scripts._source import campaign_path  # noqa: PLC0415
+    from losscolumn.core.artifacts import campaign_path  # noqa: PLC0415
 
     src = campaign_path(art)
     d = json.loads(src.read_text(encoding="utf-8"))

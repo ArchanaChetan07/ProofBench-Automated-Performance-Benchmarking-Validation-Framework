@@ -1,8 +1,12 @@
-"""Which campaign artifact the analysis scripts should read.
+"""Which campaign artifact the analysis reads.
 
-One place, because three scripts have to agree on it. A coverage report built
-from one campaign and a noise budget built from another would describe a
-machine state that never existed.
+One place, because three reports have to agree on it: a coverage matrix built
+from one campaign and a noise budget built from another would describe a machine
+state that never existed.
+
+In the library rather than beside the scripts because a script run directly puts
+its own directory on the path and not the repository root, so a module shared
+between scripts is importable from some invocations and not others.
 """
 from pathlib import Path
 

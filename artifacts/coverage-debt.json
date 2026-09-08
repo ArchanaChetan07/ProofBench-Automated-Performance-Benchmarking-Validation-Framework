@@ -252,6 +252,6 @@
     "The practical consequence is that every coverage figure this project produced before this measurement rested on a noise estimate roughly three times too small. Median cell CV moved from 5.7% to 18.4% and the number of cells above the 20% ceiling from 0 to 10. Coverage fell from 8 cells to 6, which is a correction rather than a regression: the earlier figure was inflated by an instrument that under-reported its own variation."
   ],
   "kind": "coverage-debt",
-  "generated_at": "2026-09-01T03:00:28Z",
+  "generated_at": "2026-09-07T23:00:23Z",
   "command": "python scripts/coverage_debt.py"
 }

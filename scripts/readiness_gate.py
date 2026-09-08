@@ -20,7 +20,7 @@ def main() -> int:
     # The 21-repeat re-measurement where it exists. Its noise estimates are
     # measured rather than inferred from two repeats, and its coverage is
     # correspondingly lower and more honest.
-    from scripts._source import campaign_path  # noqa: PLC0415
+    from losscolumn.core.artifacts import campaign_path  # noqa: PLC0415
 
     camp_path = campaign_path(art)
     if not camp_path.exists():

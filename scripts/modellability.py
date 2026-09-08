@@ -46,7 +46,7 @@ def _envelope_from_recampaign(art) -> dict:
 
     import numpy as np
 
-    from scripts._source import campaign_path
+    from losscolumn.core.artifacts import campaign_path
 
     d = _json.loads(campaign_path(art).read_text(encoding="utf-8"))
     R = [r for r in d["records"] if r["valid"]]
