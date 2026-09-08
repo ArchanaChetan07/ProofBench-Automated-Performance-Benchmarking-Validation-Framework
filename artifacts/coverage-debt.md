@@ -6,21 +6,21 @@
 |---|---|---|
 | `group_model_rejected` | 4 | nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it |
 | `bimodal` | 2 | nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work |
-| `noise_limited` | 1 | more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation |
+| `model_limited` | 1 | a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean |
 
 | Group | Regime | Kind | held-out | noise | gap | why |
 |---|---|---|---|---|---|---|
-| all_gather/world2 | medium | `bimodal` | 19.6% | 21.1% | +4.6% | an algorithm-selection threshold sits here |
-| all_gather/world2 | small | `bimodal` | 16.6% | 13.8% | +1.6% | an algorithm-selection threshold sits here |
-| all_reduce/world2 | large | `group_model_rejected` | 4.3% | 19.1% | -10.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
-| all_reduce/world2 | medium | `group_model_rejected` | 34.2% | 26.3% | +19.2% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
-| all_reduce/world2 | small | `group_model_rejected` | 18.8% | 11.6% | +3.8% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
-| all_reduce/world2 | tiny | `group_model_rejected` | 18.7% | 12.9% | +3.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
-| all_reduce/world3 | medium | `noise_limited` | 19.3% | 20.4% | +4.3% | run-to-run variation 20.4% exceeds the 20% the protocol allows; nothing can be graded here |
+| all_gather/world2 | medium | `bimodal` | 19.6% | 21.1% | +4.6% | an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
+| all_gather/world2 | small | `bimodal` | 16.6% | 13.8% | +1.6% | an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
+| all_reduce/world2 | large | `group_model_rejected` | 4.3% | 19.1% | -10.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3% |
+| all_reduce/world2 | medium | `group_model_rejected` | 34.2% | 26.3% | +19.2% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
+| all_reduce/world2 | small | `group_model_rejected` | 18.8% | 11.6% | +3.8% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7% |
+| all_reduce/world2 | tiny | `group_model_rejected` | 18.7% | 12.9% | +3.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3% |
+| all_reduce/world3 | medium | `model_limited` | 19.3% | 20.4% | +4.3% | the points are known to 10.0%, against which a perfect model would show about 6.7%, and the best available family misses by 19.3%: the gap is the model's |
 
 **The single most discriminating next experiment**
 
-all_reduce/world3, medium regime: the residual (19.3%) is at or below the measurement's own variation (20.4%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.
+all_reduce/world3, medium regime: measurement noise is 20.4% while the best model misses by 19.3%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.
 
 - Recorded CVs come from 21 repeats per point, and are used as measured. No correction is applied: an earlier ledger corrected a two-repeat CV by a single factor and a pre-registered re-measurement falsified it.
 - Computed from `campaign-v2.json`, whose CVs come from 21 repeats per point in a single session and are used exactly as measured.

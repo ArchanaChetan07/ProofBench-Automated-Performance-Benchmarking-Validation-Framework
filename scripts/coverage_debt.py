@@ -10,7 +10,7 @@ def main() -> int:
     from losscolumn.core.coverage import (
         CommunicationCoverage,
         ParameterVerdict,
-        RegimeStatus,
+        RegimeCoverage,
     )
     from losscolumn.core.debt import assess_debt
     from losscolumn.core.provenance import utcnow
@@ -30,13 +30,12 @@ def main() -> int:
         G.parameter_verdict = ParameterVerdict(g["parameter_verdict"])
         G.model_family = g["model_family"]
         G.worst_regime_err = g["worst_regime_err"]
+        # Round-trip rather than a hand-written field list: naming each field
+        # here is how `point_se` came to be written by the campaign and dropped
+        # on the way back in, which made the classifier that needs it fall back
+        # to the statistic it had just been corrected not to use.
         for rk, r in g["regimes"].items():
-            R = G.regimes[rk]
-            R.status = RegimeStatus(r["status"])
-            R.n_points = r["n_points"]
-            R.n_validation_points = r["n_validation_points"]
-            R.heldout_err = r["heldout_err"]
-            R.noise_cv = r["noise_cv"]
+            G.regimes[rk] = RegimeCoverage.from_dict(r)
 
     n_rep = int(d["protocol"].get("repeats_per_point_per_pass", 0) or 0)
     debt = assess_debt(cov, d["model_selection"], cv_from_n=n_rep)

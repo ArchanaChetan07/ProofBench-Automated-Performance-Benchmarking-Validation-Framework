@@ -1,7 +1,7 @@
 {
   "kind": "modellability",
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-08T17:59:00Z",
+  "generated_at": "2026-09-08T18:21:57Z",
   "budget": {
     "within_run_cv": 0.1573309938210134,
     "across_restart_cv": 0.05332128049752698,
@@ -56,8 +56,8 @@
   "summary": "The launch-level noise floor computes to 0.0% from one observation window and 6.3% from another, on the same machine. That is not a discrepancy to be averaged: splitting variance into a part that averages down and a part that does not presumes the noise is stationary, and this machine's is not. A within-run estimate over seven repeats attributes to the launch what one over twenty-one absorbs into itself.\n\nSo no single floor can be quoted, and any statement of the form 'repeats converge on X%' is false precision. What can be said is measured directly and without a decomposition: the standard error of a median of n falls as n^-0.31, so more repeats do buy precision, and buy it more slowly than the usual assumption predicts.",
   "counts": {
     "GROUP_BLOCKED": 4,
-    "BUYABLE": 1,
-    "UNDETERMINED": 2
+    "MODEL_WORK": 1,
+    "UNMODELLABLE": 2
   },
   "cells": [
     {
@@ -68,7 +68,7 @@
       "noise_cv": 0.12948339781476959,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
-      "reason": "this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%",
+      "reason": "this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3%",
       "repeats_needed": 2,
       "launches_needed": 1
     },
@@ -80,7 +80,7 @@
       "noise_cv": 0.115796791889233,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
-      "reason": "this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6%",
+      "reason": "this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7%",
       "repeats_needed": 1,
       "launches_needed": 1
     },
@@ -92,7 +92,7 @@
       "noise_cv": 0.2628302324422044,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
-      "reason": "this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3%",
+      "reason": "this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%",
       "repeats_needed": 13,
       "launches_needed": 1
     },
@@ -104,19 +104,19 @@
       "noise_cv": 0.1907717987853066,
       "gate": 0.15,
       "verdict": "GROUP_BLOCKED",
-      "reason": "this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1%",
+      "reason": "this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3%",
       "repeats_needed": 5,
       "launches_needed": 1
     },
     {
       "group": "all_reduce/world3",
       "regime": "medium",
-      "kind": "noise_limited",
+      "kind": "model_limited",
       "heldout_err": 0.19279822592883342,
       "noise_cv": 0.20445198139099596,
       "gate": 0.15,
-      "verdict": "BUYABLE",
-      "reason": "the residual (19.3%) is the instrument's; 6 repeats per point reaches the gate",
+      "verdict": "MODEL_WORK",
+      "reason": "the measurement is clean (20.4%) and the best family still misses by 19.3%: a real modelling gap",
       "repeats_needed": 6,
       "launches_needed": 1
     },
@@ -127,8 +127,8 @@
       "heldout_err": 0.16628485067250437,
       "noise_cv": 0.13800109217701986,
       "gate": 0.15,
-      "verdict": "UNDETERMINED",
-      "reason": "an algorithm-selection threshold sits here",
+      "verdict": "UNMODELLABLE",
+      "reason": "an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
       "repeats_needed": 2,
       "launches_needed": 1
     },
@@ -139,8 +139,8 @@
       "heldout_err": 0.19639006405215345,
       "noise_cv": 0.2113595743225627,
       "gate": 0.15,
-      "verdict": "UNDETERMINED",
-      "reason": "an algorithm-selection threshold sits here",
+      "verdict": "UNMODELLABLE",
+      "reason": "an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
       "repeats_needed": 7,
       "launches_needed": 1
     }

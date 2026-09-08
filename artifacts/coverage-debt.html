@@ -70,7 +70,7 @@ color:var(--muted)}
 </tr></thead><tbody>
 <tr><td><code>group<i>model</i>rejected</code></td><td>4</td><td>nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it</td></tr>
 <tr><td><code>bimodal</code></td><td>2</td><td>nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work</td></tr>
-<tr><td><code>noise_limited</code></td><td>1</td><td>more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation</td></tr>
+<tr><td><code>model_limited</code></td><td>1</td><td>a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean</td></tr>
 </tbody></table></div>
 <div class="scroll"><table><thead><tr>
 <th>Group</th>
@@ -81,16 +81,16 @@ color:var(--muted)}
 <th>gap</th>
 <th>why</th>
 </tr></thead><tbody>
-<tr><td>all_gather/world2</td><td>medium</td><td><code>bimodal</code></td><td>19.6%</td><td>21.1%</td><td>+4.6%</td><td>an algorithm-selection threshold sits here</td></tr>
-<tr><td>all_gather/world2</td><td>small</td><td><code>bimodal</code></td><td>16.6%</td><td>13.8%</td><td>+1.6%</td><td>an algorithm-selection threshold sits here</td></tr>
-<tr><td>all_reduce/world2</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>4.3%</td><td>19.1%</td><td>-10.7%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1%</td></tr>
-<tr><td>all_reduce/world2</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>34.2%</td><td>26.3%</td><td>+19.2%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3%</td></tr>
-<tr><td>all_reduce/world2</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>18.8%</td><td>11.6%</td><td>+3.8%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6%</td></tr>
-<tr><td>all_reduce/world2</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>18.7%</td><td>12.9%</td><td>+3.7%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%</td></tr>
-<tr><td>all_reduce/world3</td><td>medium</td><td><code>noise_limited</code></td><td>19.3%</td><td>20.4%</td><td>+4.3%</td><td>run-to-run variation 20.4% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
+<tr><td>all_gather/world2</td><td>medium</td><td><code>bimodal</code></td><td>19.6%</td><td>21.1%</td><td>+4.6%</td><td>an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both</td></tr>
+<tr><td>all_gather/world2</td><td>small</td><td><code>bimodal</code></td><td>16.6%</td><td>13.8%</td><td>+1.6%</td><td>an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both</td></tr>
+<tr><td>all_reduce/world2</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>4.3%</td><td>19.1%</td><td>-10.7%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3%</td></tr>
+<tr><td>all_reduce/world2</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>34.2%</td><td>26.3%</td><td>+19.2%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%</td></tr>
+<tr><td>all_reduce/world2</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>18.8%</td><td>11.6%</td><td>+3.8%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7%</td></tr>
+<tr><td>all_reduce/world2</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>18.7%</td><td>12.9%</td><td>+3.7%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3%</td></tr>
+<tr><td>all_reduce/world3</td><td>medium</td><td><code>model_limited</code></td><td>19.3%</td><td>20.4%</td><td>+4.3%</td><td>the points are known to 10.0%, against which a perfect model would show about 6.7%, and the best available family misses by 19.3%: the gap is the model's</td></tr>
 </tbody></table></div>
 <p><b>The single most discriminating next experiment</b></p>
-<p>all_reduce/world3, medium regime: the residual (19.3%) is at or below the measurement's own variation (20.4%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.</p>
+<p>all_reduce/world3, medium regime: measurement noise is 20.4% while the best model misses by 19.3%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.</p>
 <ul>
 <li>Recorded CVs come from 21 repeats per point, and are used as measured. No correction is applied: an earlier ledger corrected a two-repeat CV by a single factor and a pre-registered re-measurement falsified it.</li>
 <li>Computed from <code>campaign-v2.json</code>, whose CVs come from 21 repeats per point in a single session and are used exactly as measured.</li>

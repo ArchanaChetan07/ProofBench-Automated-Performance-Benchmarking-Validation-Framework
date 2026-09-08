@@ -37,16 +37,16 @@ Repeats first because they are much the cheaper of the two: a launch pays proces
 
 | Group | Regime | held-out | noise | Verdict | Why |
 |---|---|---|---|---|---|
-| all_reduce/world3 | medium | 19.3% | 20.4% | `BUYABLE` | the residual (19.3%) is the instrument's; 6 repeats per point reaches the gate |
-| all_gather/world2 | small | 16.6% | 13.8% | `UNDETERMINED` | an algorithm-selection threshold sits here |
-| all_gather/world2 | medium | 19.6% | 21.1% | `UNDETERMINED` | an algorithm-selection threshold sits here |
-| all_reduce/world2 | tiny | 18.7% | 12.9% | `GROUP_BLOCKED` | this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
-| all_reduce/world2 | small | 18.8% | 11.6% | `GROUP_BLOCKED` | this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
-| all_reduce/world2 | medium | 34.2% | 26.3% | `GROUP_BLOCKED` | this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
-| all_reduce/world2 | large | 4.3% | 19.1% | `GROUP_BLOCKED` | this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
+| all_reduce/world3 | medium | 19.3% | 20.4% | `MODEL_WORK` | the measurement is clean (20.4%) and the best family still misses by 19.3%: a real modelling gap |
+| all_gather/world2 | small | 16.6% | 13.8% | `UNMODELLABLE` | an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
+| all_gather/world2 | medium | 19.6% | 21.1% | `UNMODELLABLE` | an algorithm-selection threshold sits here, so the transport has two behaviours and no single-valued cost model applies. Neither more repeats nor a better family reaches this: an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both |
+| all_reduce/world2 | tiny | 18.7% | 12.9% | `GROUP_BLOCKED` | this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3% |
+| all_reduce/world2 | small | 18.8% | 11.6% | `GROUP_BLOCKED` | this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7% |
+| all_reduce/world2 | medium | 34.2% | 26.3% | `GROUP_BLOCKED` | this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
+| all_reduce/world2 | large | 4.3% | 19.1% | `GROUP_BLOCKED` | this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3% |
 
 ## The determination
 
-**1** buyable, **4** group blocked, **2** undetermined.
+**4** group blocked, **1** model work, **2** unmodellable.
 
 The question was never whether six of six groups could be made to pass. It is whether the operating surface this subsystem needs is one that can be modelled from this machine, and the honest answer separates three things that a single coverage percentage hides: cells where more measurement would help, cells where a better model would help, and cells where neither would because the instrument cannot resolve the error being chased.

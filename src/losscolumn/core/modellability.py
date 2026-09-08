@@ -378,6 +378,14 @@ def assess_modellability(envelope: dict[str, Any], debt: dict[str, Any], *,
                 f"the residual ({err:.1%}) is the instrument's; "
                 f"{c.repeats_needed} repeats per point reaches the gate"
             )
+        elif item["kind"] == "bimodal":
+            c.verdict = "UNMODELLABLE"
+            c.reason = (
+                "an algorithm-selection threshold sits here, so the transport has "
+                "two behaviours and no single-valued cost model applies. Neither "
+                "more repeats nor a better family reaches this: "
+                + item.get("rationale", "")
+            )
         elif item["kind"] == "group_model_rejected":
             c.verdict = "GROUP_BLOCKED"
             c.reason = (
@@ -401,9 +409,19 @@ def assess_modellability(envelope: dict[str, Any], debt: dict[str, Any], *,
     expensive = n.get("EXPENSIVE", 0)
     model_work = n.get("MODEL_WORK", 0)
     blocked = n.get("GROUP_BLOCKED", 0)
+    unmodellable = n.get("UNMODELLABLE", 0)
     floor = m.budget.floor
 
-    if not m.floor_is_well_defined:
+    if unmodellable and not (n.get("BUYABLE") or n.get("MODEL_WORK")
+                             or n.get("EXPENSIVE") or blocked):
+        m.verdict = "NOT_MODELLABLE_HERE"
+        m.summary = (
+            f"All {unmodellable} uncovered cells sit on an algorithm-selection "
+            "threshold. The transport has two behaviours there and no "
+            "single-valued cost model applies, so no measurement and no family "
+            "closes them. What remains is a decision about the claim."
+        )
+    elif not m.floor_is_well_defined:
         m.verdict = "NOISE_FLOOR_NOT_WELL_DEFINED"
         a, b = m.budget.floor, (m.alt_budget.floor if m.alt_budget else float("nan"))
         m.summary = (

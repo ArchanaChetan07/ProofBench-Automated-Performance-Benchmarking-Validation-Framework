@@ -135,3 +135,80 @@ def test_noise_and_model_limited_still_have_opposite_remedies():
     """Why misclassifying between them was worth withdrawing a correction over."""
     assert "No modelling work will help" in DebtKind.NOISE_LIMITED.remedy
     assert "More repeats will not help" in DebtKind.MODEL_LIMITED.remedy
+
+
+# ------------------------------- the debt classifier judges point precision
+
+
+def test_the_debt_classifier_uses_point_precision_not_call_variability():
+    """Bug 3's defect, in the place bug 3 did not reach.
+
+    The coverage gate was corrected to judge how well the graded point is known.
+    The debt classifier was not, and it is the thing that decides whether
+    somebody is sent to measure harder or to build a model. A cell with 19.3%
+    error, 20.4% population CV and 10.0% point precision reads as noise-limited
+    against the CV and as model-limited against the precision -- and against the
+    precision a perfect model would show about 6.7%, so the residual is real.
+    """
+    cov = _Cov([_Group("all_reduce/world3", [
+        _Regime("medium", 0.193, 0.204)])])
+    cov.groups["all_reduce/world3"].regimes["medium"].point_se = 0.100
+
+    d = assess_debt(cov, {}, cv_from_n=21)
+    assert d.items[0].kind is DebtKind.MODEL_LIMITED
+    assert d.items[0].point_se == pytest.approx(0.100)
+    assert d.items[0].noise_cv == pytest.approx(0.204)
+
+
+def test_without_a_point_precision_it_falls_back_and_says_so():
+    """Overstating the noise biases toward noise-limited -- the safer error, but
+    it has to be declared rather than silent."""
+    cov = _Cov([_Group("g", [_Regime("medium", 0.193, 0.30)])])
+    cov.groups["g"].regimes["medium"].point_se = float("nan")
+    d = assess_debt(cov, {}, cv_from_n=21)
+    assert d.items[0].kind is DebtKind.NOISE_LIMITED
+    assert "no standard error recorded" in d.items[0].rationale
+
+
+def test_coverage_round_trips_without_losing_a_field():
+    """Bug 14: the rebuild named each field by hand and dropped `point_se`.
+
+    Written by the campaign, lost on the way back in, which made the classifier
+    fix above inert -- it asked for a precision that never arrived. Any field
+    added to the dataclass must now survive on its own.
+    """
+    import dataclasses
+
+    from losscolumn.core.coverage import RegimeCoverage, RegimeStatus
+
+    r = RegimeCoverage(regime="medium", status=RegimeStatus.TOO_NOISY,
+                       heldout_err=0.19, noise_cv=0.204, point_se=0.10,
+                       n_repeats=21, n_points=20, n_validation_points=14)
+    back = RegimeCoverage.from_dict(r.to_dict())
+    for f in dataclasses.fields(r):
+        assert getattr(back, f.name) == getattr(r, f.name), f.name
+
+
+def test_round_trip_ignores_a_field_it_does_not_know():
+    """An artifact from a later version must still load."""
+    from losscolumn.core.coverage import RegimeCoverage
+
+    d = RegimeCoverage(regime="tiny").to_dict()
+    d["a_field_from_the_future"] = 1
+    assert RegimeCoverage.from_dict(d).regime == "tiny"
+
+
+def test_a_bimodal_cell_gets_a_verdict_not_undetermined():
+    """Bug 13: modellability had no branch for it, so it fell to the one
+    verdict that says nothing."""
+    from losscolumn.core.modellability import assess_modellability
+
+    env = {"within_run": {"cv": 0.19, "n_aggregated": 21},
+           "across_restart": {"cv": 0.05, "n_aggregated": 2}}
+    debt = {"items": [{"group": "g/w2", "regime": "medium", "kind": "bimodal",
+                       "heldout_err": 0.20, "noise_cv": 0.21,
+                       "rationale": "a threshold sits here"}]}
+    m = assess_modellability(env, debt)
+    assert m.cells[0].verdict == "UNMODELLABLE"
+    assert m.verdict == "NOT_MODELLABLE_HERE"
+    assert "decision about the claim" in m.summary

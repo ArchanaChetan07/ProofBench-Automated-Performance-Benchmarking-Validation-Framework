@@ -4,11 +4,11 @@
   "n_debt_items": 7,
   "by_kind": {
     "group_model_rejected": 4,
-    "noise_limited": 1,
+    "model_limited": 1,
     "bimodal": 2
   },
   "dominant_kind": "group_model_rejected",
-  "next_experiment": "all_reduce/world3, medium regime: the residual (19.3%) is at or below the measurement's own variation (20.4%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.",
+  "next_experiment": "all_reduce/world3, medium regime: measurement noise is 20.4% while the best model misses by 19.3%. The gap is the model's, not the instrument's, so the discriminating experiment is to add message sizes in that regime and re-fit: if a richer segmentation then clears the gate, the surface has more structure than the current families express; if it does not, the surface is not modellable at this granularity and that is the finding.",
   "items": [
     {
       "group": "all_reduce/world2",
@@ -17,10 +17,11 @@
       "status": "model_rejected",
       "heldout_err": 0.18669325354613325,
       "noise_cv": 0.12948339781476959,
+      "point_se": 0.06334369086515083,
       "n_points": 18,
       "n_validation_points": 8,
       "gap": 0.03669325354613326,
-      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%",
+      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 6.3%",
       "remedy": "nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it"
     },
     {
@@ -30,10 +31,11 @@
       "status": "model_rejected",
       "heldout_err": 0.18788301528403495,
       "noise_cv": 0.115796791889233,
+      "point_se": 0.056648159628161304,
       "n_points": 20,
       "n_validation_points": 10,
       "gap": 0.037883015284034954,
-      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6%",
+      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 5.7%",
       "remedy": "nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it"
     },
     {
@@ -43,10 +45,11 @@
       "status": "model_rejected",
       "heldout_err": 0.34159271397178814,
       "noise_cv": 0.2628302324422044,
+      "point_se": 0.12857738733154944,
       "n_points": 30,
       "n_validation_points": 14,
       "gap": 0.19159271397178815,
-      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3%",
+      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%",
       "remedy": "nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it"
     },
     {
@@ -56,24 +59,26 @@
       "status": "model_rejected",
       "heldout_err": 0.04315704328495038,
       "noise_cv": 0.1907717987853066,
+      "point_se": 0.0933261719416111,
       "n_points": 24,
       "n_validation_points": 12,
       "gap": -0.10684295671504962,
-      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1%",
+      "rationale": "the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 9.3%",
       "remedy": "nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it"
     },
     {
       "group": "all_reduce/world3",
       "regime": "medium",
-      "kind": "noise_limited",
+      "kind": "model_limited",
       "status": "error_too_high",
       "heldout_err": 0.19279822592883342,
       "noise_cv": 0.20445198139099596,
+      "point_se": 0.10001856087006071,
       "n_points": 30,
       "n_validation_points": 14,
       "gap": 0.04279822592883342,
-      "rationale": "run-to-run variation 20.4% exceeds the 20% the protocol allows; nothing can be graded here",
-      "remedy": "more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation"
+      "rationale": "the points are known to 10.0%, against which a perfect model would show about 6.7%, and the best available family misses by 19.3%: the gap is the model's",
+      "remedy": "a model family that can express this shape, or an admission that the surface is not modellable at this granularity. More repeats will not help: the measurement is already clean"
     },
     {
       "group": "all_gather/world2",
@@ -82,10 +87,11 @@
       "status": "bimodal",
       "heldout_err": 0.16628485067250437,
       "noise_cv": 0.13800109217701986,
+      "point_se": 0.06751057409243572,
       "n_points": 20,
       "n_validation_points": 10,
       "gap": 0.016284850672504375,
-      "rationale": "an algorithm-selection threshold sits here",
+      "rationale": "an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
       "remedy": "nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work"
     },
     {
@@ -95,10 +101,11 @@
       "status": "bimodal",
       "heldout_err": 0.19639006405215345,
       "noise_cv": 0.2113595743225627,
+      "point_se": 0.10339777734617912,
       "n_points": 30,
       "n_validation_points": 14,
       "gap": 0.04639006405215346,
-      "rationale": "an algorithm-selection threshold sits here",
+      "rationale": "an algorithm-selection threshold sits in this regime (band 185364-1641112 bytes, median step 4.2x at 276500B). The transport has two behaviours here and no single-valued cost model can be right about both",
       "remedy": "nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work"
     }
   ],
@@ -110,6 +117,6 @@
     "The practical consequence is that every coverage figure this project produced before this measurement rested on a noise estimate roughly three times too small. Median cell CV moved from 5.7% to 18.4% and the number of cells above the 20% ceiling from 0 to 10. Coverage fell from 8 cells to 6, which is a correction rather than a regression: the earlier figure was inflated by an instrument that under-reported its own variation."
   ],
   "kind": "coverage-debt",
-  "generated_at": "2026-09-08T17:59:00Z",
+  "generated_at": "2026-09-08T18:21:56Z",
   "command": "python scripts/coverage_debt.py"
 }

@@ -98,6 +98,18 @@ class ReadinessVerdict(str, Enum):
         return self is ReadinessVerdict.READY
 
 
+def _from_mapping(cls, d):
+    """Build a dataclass from a mapping, ignoring keys it does not define.
+
+    Unknown keys are dropped so an artifact written by a later version still
+    loads; known keys are all carried, so adding a field to the dataclass is
+    enough to make it survive a round trip. The alternative -- naming each
+    field at every call site -- is what silently lost `point_se`.
+    """
+    allowed = set(cls.__dataclass_fields__)
+    return cls(**{k: v for k, v in (d or {}).items() if k in allowed})
+
+
 @dataclass
 class RegimeCoverage:
     """One (group, regime) cell of the coverage matrix."""
@@ -136,6 +148,16 @@ class RegimeCoverage:
             "point_se": self.point_se, "n_repeats": self.n_repeats,
             "detail": self.detail,
         }
+
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> RegimeCoverage:
+        """Round-trip of to_dict, carrying every field the class defines."""
+        rc = _from_mapping(cls, {k: v for k, v in (d or {}).items()
+                                 if k != "status" and k != "covered"})
+        if d and d.get("status"):
+            rc.status = RegimeStatus(d["status"])
+        return rc
 
 
 @dataclass

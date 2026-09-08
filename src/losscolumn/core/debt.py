@@ -99,6 +99,14 @@ class DebtItem:
     status: str = ""
     heldout_err: float = float("nan")
     noise_cv: float = float("nan")
+    """Dispersion of individual calls. Reported, but not what grades a cell."""
+    point_se: float = float("nan")
+    """Precision of the point the model is graded against.
+
+    The statistic every comparison here uses. The population CV describes the
+    machine; this describes how well the target is known, and it is the target
+    the residual has to be judged against.
+    """
     n_points: int = 0
     n_validation_points: int = 0
     gap: float = float("nan")
@@ -108,7 +116,8 @@ class DebtItem:
         return {
             "group": self.group, "regime": self.regime, "kind": self.kind.value,
             "status": self.status, "heldout_err": self.heldout_err,
-            "noise_cv": self.noise_cv, "n_points": self.n_points,
+            "noise_cv": self.noise_cv, "point_se": self.point_se,
+            "n_points": self.n_points,
             "n_validation_points": self.n_validation_points,
             "gap": self.gap, "rationale": self.rationale,
             "remedy": self.kind.remedy,
@@ -345,10 +354,17 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             err = rc.heldout_err
             if err != err:
                 err = best_per_regime.get(reg, float("nan"))
-            cv = rc.noise_cv
+            # Precision of the graded point, not variability of a call. Falls
+            # back to the population CV only where no standard error was
+            # recorded, which overstates the noise and biases toward calling a
+            # cell noise-limited -- the safer direction, and it is declared.
+            se = getattr(rc, "point_se", float("nan"))
+            cv = se if se == se else rc.noise_cv
+            se_known = se == se
             item = DebtItem(
                 group=g.key, regime=reg, kind=DebtKind.UNKNOWN,
-                status=rc.status.value, heldout_err=err, noise_cv=cv,
+                status=rc.status.value, heldout_err=err,
+                noise_cv=getattr(rc, "noise_cv", float("nan")), point_se=cv,
                 n_points=rc.n_points, n_validation_points=rc.n_validation_points,
             )
             if err == err:
@@ -388,20 +404,24 @@ def assess_debt(coverage: Any, selections: dict[str, Any], *,
             elif cv == cv and cv > max_noise:
                 item.kind = DebtKind.NOISE_LIMITED
                 item.rationale = (
-                    f"run-to-run variation {cv:.1%} exceeds the {max_noise:.0%} the "
-                    "protocol allows; nothing can be graded here"
+                    f"the points here are known to {cv:.1%}, past the "
+                    f"{max_noise:.0%} the protocol allows; nothing can be graded "
+                    "here" + ("" if se_known else
+                              " (from the population CV; no standard error "
+                              "recorded)")
                 )
             elif err == err and cv == cv and err <= cv * 1.5:
                 item.kind = DebtKind.NOISE_LIMITED
                 item.rationale = (
-                    f"the best model misses by {err:.1%} against run-to-run variation "
-                    f"of {cv:.1%}; the residual is the instrument's, not the model's"
+                    f"the best model misses by {err:.1%} against points known to "
+                    f"{cv:.1%}; the residual is the instrument's, not the model's"
                 )
             elif err == err:
                 item.kind = DebtKind.MODEL_LIMITED
                 item.rationale = (
-                    f"the measurement is clean ({cv:.1%}) and the best available "
-                    f"family still misses by {err:.1%}: the gap is the model's"
+                    f"the points are known to {cv:.1%}, against which a perfect "
+                    f"model would show about {0.674 * cv:.1%}, and the best "
+                    f"available family misses by {err:.1%}: the gap is the model's"
                 )
             else:
                 item.rationale = "no model could be fitted; cause not established"

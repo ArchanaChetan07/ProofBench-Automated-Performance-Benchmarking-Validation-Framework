@@ -45,12 +45,12 @@
     {
       "gate": "8-GPU protocol is fully prepared",
       "passed": true,
-      "detail": "13 stages sealed (7.2 h), seal dd9f9e1704e93997"
+      "detail": "13 stages sealed (7.2 h), seal c4f2344cf638807e"
     }
   ],
   "standard_version": "LC-1.2",
-  "generated_at": "2026-09-08T17:59:00Z",
+  "generated_at": "2026-09-08T18:24:23Z",
   "local_readiness": "not_ready",
-  "a100_protocol_seal": "sha256:dd9f9e1704e93997017132a58457e6fc9215d352fbbb82f94f16b3f4b6caa8d6",
+  "a100_protocol_seal": "sha256:c4f2344cf638807e9b3eecc0ca53d8168ed0e7ecf18b585a1fd84fecf32420f0",
   "command": "python scripts/readiness_gate.py"
 }
