@@ -10,11 +10,11 @@
 
 | Group | Regime | Kind | held-out | noise | gap | why |
 |---|---|---|---|---|---|---|
-| all_gather/world2 | medium | `bimodal` | 19.5% | 21.1% | +4.5% | an algorithm-selection threshold sits here |
-| all_gather/world2 | small | `bimodal` | 6.2% | 13.8% | -8.8% | an algorithm-selection threshold sits here |
-| all_reduce/world2 | large | `group_model_rejected` | 5.7% | 19.1% | -9.3% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
-| all_reduce/world2 | medium | `group_model_rejected` | 37.6% | 26.3% | +22.6% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
-| all_reduce/world2 | small | `group_model_rejected` | 18.4% | 11.6% | +3.4% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
+| all_gather/world2 | medium | `bimodal` | 19.6% | 21.1% | +4.6% | an algorithm-selection threshold sits here |
+| all_gather/world2 | small | `bimodal` | 16.6% | 13.8% | +1.6% | an algorithm-selection threshold sits here |
+| all_reduce/world2 | large | `group_model_rejected` | 4.3% | 19.1% | -10.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
+| all_reduce/world2 | medium | `group_model_rejected` | 34.2% | 26.3% | +19.2% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
+| all_reduce/world2 | small | `group_model_rejected` | 18.8% | 11.6% | +3.8% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
 | all_reduce/world2 | tiny | `group_model_rejected` | 18.7% | 12.9% | +3.7% | the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
 | all_reduce/world3 | medium | `noise_limited` | 19.3% | 20.4% | +4.3% | run-to-run variation 20.4% exceeds the 20% the protocol allows; nothing can be graded here |
 

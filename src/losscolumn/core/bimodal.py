@@ -157,9 +157,13 @@ class BimodalReport:
     splits: list[ModeSplit] = field(default_factory=list)
     band_lo: int = 0
     band_hi: int = 0
-    step_at: int = 0
-    step_prev: int = 0
-    step_factor: float = float("nan")
+    steps: list[tuple[int, int, float]] = field(default_factory=list)
+    """Every adjacent pair whose median jumps by more than the ratio.
+
+    A list, because transports switch algorithm more than once and reporting
+    only the largest jump hides the others -- here it hid a 3.85x step at 1 MiB
+    behind a 4.58x step at 512 KiB.
+    """
     inversions: list[tuple[int, int, float]] = field(default_factory=list)
     """Adjacent size pairs where the larger message was measurably faster.
 
@@ -179,8 +183,20 @@ class BimodalReport:
 
     @property
     def has_threshold(self) -> bool:
-        return (bool(self.bimodal_sizes) or math.isfinite(self.step_factor)
-                or bool(self.inversions))
+        return bool(self.bimodal_sizes or self.steps or self.inversions)
+
+    @property
+    def step_at(self) -> int:
+        """The largest step, for reporting. `steps` is what implicates regimes."""
+        return max(self.steps, key=lambda x: x[2])[1] if self.steps else 0
+
+    @property
+    def step_prev(self) -> int:
+        return max(self.steps, key=lambda x: x[2])[0] if self.steps else 0
+
+    @property
+    def step_factor(self) -> float:
+        return max(self.steps, key=lambda x: x[2])[2] if self.steps else float("nan")
 
     @property
     def flagged_sizes(self) -> list[int]:
@@ -193,10 +209,8 @@ class BimodalReport:
         out = set(self.bimodal_sizes)
         for a, b, _ in self.inversions:
             out |= {a, b}
-        if self.step_at:
-            out.add(self.step_at)
-            if self.step_prev:
-                out.add(self.step_prev)
+        for a, b, _ in self.steps:
+            out |= {a, b}
         return sorted(out)
 
     def covers(self, nbytes: int) -> bool:
@@ -211,6 +225,7 @@ class BimodalReport:
             "group": self.group,
             "bimodal_sizes": self.bimodal_sizes,
             "band_lo": self.band_lo, "band_hi": self.band_hi,
+            "steps": [list(x) for x in self.steps],
             "step_at": self.step_at, "step_prev": self.step_prev,
             "step_factor": self.step_factor,
             "flagged_sizes": self.flagged_sizes,
@@ -221,9 +236,31 @@ class BimodalReport:
         }
 
 
+INVERSION_SIGMAS = 3.0
+"""How far outside the noise a drop must sit to count as a threshold.
+
+Three rather than two because about forty adjacent pairs are tested per group:
+at two sigma one spurious flag per group would be expected, and a spurious flag
+marks a regime unmodellable and can reject an entire group.
+"""
+
+MEDIAN_SE_FACTOR = 1.2533
+AVERAGING_EXPONENT = -0.309
+
+
+def _median_se(record: Any, n_repeats: int) -> float:
+    """Relative standard error of one point's median, from its own dispersion."""
+    cv = getattr(record, "cv", float("nan"))
+    if cv != cv or n_repeats < 1:
+        return float("nan")
+    return MEDIAN_SE_FACTOR * cv * n_repeats ** AVERAGING_EXPONENT
+
+
 def find_threshold_band(records: Sequence[Any], *, group: str = "",
                         step_ratio: float = 3.0,
-                        inversion_ratio: float = 1.30) -> BimodalReport:
+                        inversion_ratio: float = 1.30,
+                        inversion_sigmas: float = INVERSION_SIGMAS
+                        ) -> BimodalReport:
     """Locate an algorithm-selection threshold and the unstable band around it.
 
     Three signatures, any of which is sufficient.
@@ -252,24 +289,44 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
         rep.splits.append(detect_bimodal(r.timings_s, nbytes=r.nbytes))
 
     by_size: dict[int, list[float]] = {}
+    se_by_size: dict[int, list[float]] = {}
     for r in usable:
         m = float(np.median(r.timings_s))
         if m > 0:
             by_size.setdefault(r.nbytes, []).append(m)
+            e = _median_se(r, len(r.timings_s))
+            if e == e:
+                se_by_size.setdefault(r.nbytes, []).append(e)
     sizes = sorted(by_size)
     med = {n: float(np.median(v)) for n, v in by_size.items()}
-    # The LARGEST step, not the first: a small early jump would otherwise mask
-    # the threshold that matters.
-    best_step = 0.0
+
+    def rel_se(n: int) -> float:
+        v = se_by_size.get(n)
+        # Without a dispersion estimate, assume nothing and let the ratio test
+        # stand alone rather than inventing a precision the data has not shown.
+        return float(np.median(v)) if v else 0.0
+    # EVERY step, not just the largest. Two thresholds three octaves apart are
+    # two thresholds.
     for a, b in zip(sizes, sizes[1:], strict=False):
         if med[a] <= 0:
             continue
         ratio = med[b] / med[a]
-        if ratio >= step_ratio and ratio > best_step:
-            best_step = ratio
-            rep.step_at, rep.step_prev, rep.step_factor = b, a, ratio
+        if ratio >= step_ratio:
+            rep.steps.append((a, b, ratio))
         if ratio <= 1.0 / inversion_ratio:
-            rep.inversions.append((a, b, ratio))
+            # Only if the drop is larger than the two points' own uncertainty
+            # can produce. Otherwise it is the noise, and calling it a threshold
+            # marks a regime unmodellable on the strength of nothing.
+            drop = abs(math.log(ratio)) if ratio > 0 else float("inf")
+            combined = math.hypot(rel_se(a), rel_se(b))
+            if combined <= 0 or drop >= inversion_sigmas * combined:
+                rep.inversions.append((a, b, ratio))
+            else:
+                rep.notes.append(
+                    f"{a}B to {b}B drops {1 / ratio:.2f}x but only "
+                    f"{drop / combined:.1f} sigma against these points' own "
+                    "precision, so it is not counted"
+                )
 
     # Reported for orientation only. What implicates a regime is
     # `flagged_sizes`, which does not join unrelated events into one span.
@@ -279,9 +336,10 @@ def find_threshold_band(records: Sequence[Any], *, group: str = "",
 
     if rep.has_threshold:
         bits = []
-        if math.isfinite(rep.step_factor):
-            bits.append(f"the median steps by {rep.step_factor:.1f}x at "
-                        f"{rep.step_at} bytes")
+        if rep.steps:
+            bits.append(
+                "the median steps by "
+                + ", ".join(f"{f:.1f}x at {b} bytes" for _, b, f in rep.steps))
         if rep.inversions:
             worst = min(rep.inversions, key=lambda x: x[2])
             bits.append(

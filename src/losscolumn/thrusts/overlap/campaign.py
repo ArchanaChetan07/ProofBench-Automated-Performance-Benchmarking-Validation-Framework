@@ -561,6 +561,7 @@ class Campaign:
     records: list[PointRecord] = field(default_factory=list)
     peaks: dict[str, PeakReport] = field(default_factory=dict)
     selections: dict[str, Any] = field(default_factory=dict)
+    selections_note: dict[str, str] = field(default_factory=dict)
     thresholds: dict[str, Any] = field(default_factory=dict)
     coverage: CommunicationCoverage | None = None
     errors: dict[str, str] = field(default_factory=dict)
@@ -658,6 +659,7 @@ class Campaign:
             "records": [r.to_dict() for r in self.records],
             "peaks": {k: v.to_dict() for k, v in self.peaks.items()},
             "model_selection": self.selections,
+            "selection_notes": self.selections_note,
             "thresholds": self.thresholds,
             "coverage": self.coverage.to_dict() if self.coverage else None,
             "errors": self.errors,
@@ -756,7 +758,24 @@ def analyse(campaign: Campaign) -> Campaign:
             and _point_se(noise_by_regime.get(reg, float("nan")),
                           campaign.repeats) > campaign.max_noise_cv
         ) + bimodal_regimes
-        sel = select_model(cal, [], transport="gloo_shm", kind=kind, world=world,
+        # Points at a flagged size are excluded from the FIT, not only from the
+        # score. Their medians are not stable targets -- a bistable point's
+        # median is a mixture proportion, and a point beside a step is whichever
+        # side it landed on -- so fitting through them drags the curve toward a
+        # value the transport does not produce, and it drags it everywhere, not
+        # just locally. That was costing all_reduce/world2 20% error in tiny and
+        # small, regimes that sit below every threshold it has.
+        #
+        # This cannot manufacture coverage: a flagged regime stays uncovered
+        # whatever the fit does. It only stops the unmodellable part of the
+        # surface from spoiling the part that is modellable.
+        flagged = set(threshold.flagged_sizes)
+        cal_fit = [s for s in cal if s.nbytes not in flagged] or cal
+        campaign.selections_note[key] = (
+            f"{len(cal) - len(cal_fit)} of {len(cal)} calibration point(s) "
+            "excluded from the fit as sitting at a detected threshold"
+        ) if len(cal_fit) < len(cal) else ""
+        sel = select_model(cal_fit, [], transport="gloo_shm", kind=kind, world=world,
                            noise_floor=noise_floor, tier_fn=regime_of,
                            ungradable_tiers=ungradable,
                            max_heldout_median_err=campaign.max_worst_regime_err)
@@ -787,8 +806,9 @@ def analyse(campaign: Campaign) -> Campaign:
         scale = "absolute" if len(parts) > 2 and parts[2] == "abs" else "relative"
         builder = {"linear": fit_linear, "piecewise": fit_piecewise,
                    "regime": fit_regime}[fam]
-        final = (builder(cal, loss=est or "weighted") if fam == "linear"
-                 else builder(cal, loss=est or "weighted", scale=scale))
+        # Refit on the same points the selection saw, for the same reason.
+        final = (builder(cal_fit, loss=est or "weighted") if fam == "linear"
+                 else builder(cal_fit, loss=est or "weighted", scale=scale))
         if final is None:
             g.parameter_verdict = ParameterVerdict.DIAGNOSTIC
             g.detail = "the chosen family could not be refitted on all calibration data"

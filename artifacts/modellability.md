@@ -38,12 +38,12 @@ Repeats first because they are much the cheaper of the two: a launch pays proces
 | Group | Regime | held-out | noise | Verdict | Why |
 |---|---|---|---|---|---|
 | all_reduce/world3 | medium | 19.3% | 20.4% | `BUYABLE` | the residual (19.3%) is the instrument's; 6 repeats per point reaches the gate |
-| all_gather/world2 | small | 6.2% | 13.8% | `UNDETERMINED` | an algorithm-selection threshold sits here |
-| all_gather/world2 | medium | 19.5% | 21.1% | `UNDETERMINED` | an algorithm-selection threshold sits here |
+| all_gather/world2 | small | 16.6% | 13.8% | `UNDETERMINED` | an algorithm-selection threshold sits here |
+| all_gather/world2 | medium | 19.6% | 21.1% | `UNDETERMINED` | an algorithm-selection threshold sits here |
 | all_reduce/world2 | tiny | 18.7% | 12.9% | `GROUP_BLOCKED` | this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
-| all_reduce/world2 | small | 18.4% | 11.6% | `GROUP_BLOCKED` | this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
-| all_reduce/world2 | medium | 37.6% | 26.3% | `GROUP_BLOCKED` | this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
-| all_reduce/world2 | large | 5.7% | 19.1% | `GROUP_BLOCKED` | this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
+| all_reduce/world2 | small | 18.8% | 11.6% | `GROUP_BLOCKED` | this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
+| all_reduce/world2 | medium | 34.2% | 26.3% | `GROUP_BLOCKED` | this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
+| all_reduce/world2 | large | 4.3% | 19.1% | `GROUP_BLOCKED` | this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
 
 ## The determination
 
