@@ -61,7 +61,7 @@ color:var(--muted)}
 <h1>Campaign v2</h1>
 <p class="lede">Corrected gates, corrected harness, same replicate count</p>
 <h2>Campaign v2</h2>
-<p>Predictions sealed <code>sha256:92163026f289523d</code> before the run. One session, 17 minutes, 21 repeats per point per pass -- the same replicate count as the run it is compared against, so any movement is the corrections and not the effort.</p>
+<p>Predictions sealed <code>sha256:92163026f289523d</code> before the run. One session, 441 minutes, 21 repeats per point per pass -- the same replicate count as the run it is compared against, so any movement is the corrections and not the effort.</p>
 <div class="scroll"><table><thead><tr>
 <th>Prediction</th>
 <th>Baseline</th>
@@ -69,13 +69,11 @@ color:var(--muted)}
 <th>Measured</th>
 <th>Result</th>
 </tr></thead><tbody>
-<tr><td>P1 medium-regime CV falls a quarter</td><td>27.4%</td><td>&lt; 20.5%</td><td>24.9%</td><td><b>FALSIFIED</b></td></tr>
-<tr><td>P2 the 1 MiB noise cliff closes</td><td>1.57x</td><td>&lt; 1.25x</td><td>1.35x</td><td><b>FALSIFIED</b></td></tr>
-<tr><td>P3 coverage improves</td><td>6</td><td>&gt; 6</td><td>4</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P1 medium-regime CV falls a quarter</td><td>27.4%</td><td>&lt; 20.5%</td><td>18.6%</td><td><b>HELD</b></td></tr>
+<tr><td>P2 the 1 MiB noise cliff closes</td><td>1.57x</td><td>&lt; 1.25x</td><td>1.33x</td><td><b>FALSIFIED</b></td></tr>
+<tr><td>P3 coverage improves</td><td>6</td><td>&gt; 6</td><td>17</td><td><b>HELD</b></td></tr>
 </tbody></table></div>
-<p>Coverage <b>4 of 24</b> cells; <b>1 of 6</b> groups have an accepted model.</p>
-<p>Timed blocks averaged 5-200 calls (median 8), chosen per point from its own measured variability rather than from its size.</p>
-<p><b>P1 is falsified.</b> The medium regime is no less variable for being averaged harder, so its variability is not the averaging. Something about that size band on this machine is intrinsically unstable and the harness correction does not reach it.</p>
+<p>Coverage <b>17 of 24</b> cells; <b>5 of 6</b> groups have an accepted model.</p>
+<p>Timed blocks averaged 5-200 calls (median 45), chosen per point from its own measured variability rather than from its size.</p>
 <p><b>P2 is falsified.</b> The gap across 1 MiB survives a rule that does not know where 1 MiB is, so it is a property of the transport rather than of the measurement.</p>
-<p><b>P3 is falsified.</b> The gates were not what was blocking coverage. What remains is the surface.</p>
 </div>

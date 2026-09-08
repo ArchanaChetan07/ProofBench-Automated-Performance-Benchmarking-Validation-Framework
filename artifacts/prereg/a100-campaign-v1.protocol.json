@@ -1,12 +1,12 @@
 {
   "kind": "a100-campaign-protocol",
   "protocol": "thrust1-a100-v1",
-  "sealed_at": "2026-09-01T03:02:31Z",
+  "sealed_at": "2026-09-08T06:18:57Z",
   "status": "PREPARED, NOT EXECUTED",
   "standard_version": "LC-1.2",
   "preconditions": {
     "local_communication_readiness": "not_ready",
-    "local_campaign_seal": "sha256:9fe44a0d85047b1fb760f8e75d3e49feb069787555cf1ca33ef51155ddd29e89",
+    "local_campaign_seal": "sha256:a0b7e9bcbcfd9a9a5a360b34590e6f76f96ba7b99d47ddb98dc334ddf851eab5",
     "memory_model": "block-memory-v2",
     "memory_model_milestone": "v0.3.0-memory-v2",
     "note": "The local readiness verdict gates whether this protocol should be executed. NOT_READY does not make the protocol wrong; it makes running it premature."
@@ -165,5 +165,5 @@
   },
   "abort_policy": "Each stage names its own abort condition. Aborting is a successful outcome of the stage: the allocation is expensive and a campaign that stops at stage 2 with a recorded topology surprise is worth more than one that proceeds on a wrong assumption.",
   "notes": [],
-  "seal_hash": "sha256:70529d6d37ac021c6eda83270a264e2ab8f3702e34b7be30e16b84a1cb74b66a"
+  "seal_hash": "sha256:e1ddbed4ee1ddc5c640dbe6335a1410bf4e53c7d79ec6980955854f7bf6249ea"
 }

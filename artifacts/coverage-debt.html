@@ -60,16 +60,17 @@ color:var(--muted)}
 <div class="wrap">
 <h1>Coverage debt</h1>
 <p class="lede">What is missing, why, and what would fix it.</p>
-<div class="meta"><span><b>Uncovered cells</b> <code>18</code></span><span><b>Dominant</b> <code>group_model_rejected</code></span></div>
+<div class="meta"><span><b>Uncovered cells</b> <code>7</code></span><span><b>Dominant</b> <code>group_model_rejected</code></span></div>
 <h4>Coverage debt</h4>
-<p><b>Coverage debt: 18 uncovered cell(s) of 24.</b></p>
+<p><b>Coverage debt: 7 uncovered cell(s) of 24.</b></p>
 <div class="scroll"><table><thead><tr>
 <th>Kind</th>
 <th>Cells</th>
 <th>Remedy</th>
 </tr></thead><tbody>
-<tr><td><code>group<i>model</i>rejected</code></td><td>12</td><td>nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it</td></tr>
-<tr><td><code>noise_limited</code></td><td>6</td><td>more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation</td></tr>
+<tr><td><code>group<i>model</i>rejected</code></td><td>4</td><td>nothing local to this cell. Either a family that fits the group's worst regime, or a decision about what the worst-regime rule should do when a regime is too noisy to grade at all -- which is a question about the gate, to be settled deliberately rather than by widening it</td></tr>
+<tr><td><code>bimodal</code></td><td>2</td><td>nothing, at this granularity. The remedy is a change to what is being claimed: model which branch the transport takes and fit each separately, or state the operating surface as excluding the unstable band. Both change the claim rather than improving the measurement, so both are decisions rather than work</td></tr>
+<tr><td><code>noise_limited</code></td><td>1</td><td>more repeats, or a quieter machine. No modelling work will help: the residual is already below the measurement's own variation</td></tr>
 </tbody></table></div>
 <div class="scroll"><table><thead><tr>
 <th>Group</th>
@@ -80,30 +81,19 @@ color:var(--muted)}
 <th>gap</th>
 <th>why</th>
 </tr></thead><tbody>
-<tr><td>all_gather/world2</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>5.8%</td><td>19.7%</td><td>-9.2%</td><td>the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 19.7%</td></tr>
-<tr><td>all_gather/world2</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>30.6%</td><td>30.6%</td><td>+15.6%</td><td>the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 30.6%</td></tr>
-<tr><td>all_gather/world2</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>2.7%</td><td>4.9%</td><td>-12.3%</td><td>the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 4.9%</td></tr>
-<tr><td>all_gather/world2</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>1.9%</td><td>8.8%</td><td>-13.1%</td><td>the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 8.8%</td></tr>
-<tr><td>all_gather/world3</td><td>medium</td><td><code>noise_limited</code></td><td>13.7%</td><td>21.4%</td><td>-1.3%</td><td>run-to-run variation 21.4% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
-<tr><td>all_gather/world3</td><td>small</td><td><code>noise_limited</code></td><td>17.4%</td><td>17.9%</td><td>+2.4%</td><td>the best model misses by 17.4% against run-to-run variation of 17.9%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_gather/world3</td><td>tiny</td><td><code>noise_limited</code></td><td>17.5%</td><td>17.7%</td><td>+2.5%</td><td>the best model misses by 17.5% against run-to-run variation of 17.7%; the residual is the instrument's, not the model's</td></tr>
-<tr><td>all_reduce/world2</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>5.6%</td><td>18.7%</td><td>-9.4%</td><td>the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 18.7%</td></tr>
-<tr><td>all_reduce/world2</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>37.4%</td><td>30.3%</td><td>+22.4%</td><td>the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 30.3%</td></tr>
-<tr><td>all_reduce/world2</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>4.7%</td><td>3.9%</td><td>-10.3%</td><td>the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9%</td></tr>
-<tr><td>all_reduce/world2</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>3.9%</td><td>3.9%</td><td>-11.1%</td><td>the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9%</td></tr>
-<tr><td>all_reduce/world3</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>11.8%</td><td>27.9%</td><td>-3.2%</td><td>the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 27.9%</td></tr>
-<tr><td>all_reduce/world3</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>21.2%</td><td>42.3%</td><td>+6.2%</td><td>the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 42.3%</td></tr>
-<tr><td>all_reduce/world3</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>8.8%</td><td>32.3%</td><td>-6.2%</td><td>the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 32.3%</td></tr>
-<tr><td>all_reduce/world3</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>23.7%</td><td>42.3%</td><td>+8.7%</td><td>the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 42.3%</td></tr>
-<tr><td>all_reduce/world4</td><td>large</td><td><code>noise_limited</code></td><td>5.0%</td><td>23.6%</td><td>-10.0%</td><td>run-to-run variation 23.6% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
-<tr><td>all_reduce/world4</td><td>medium</td><td><code>noise_limited</code></td><td>9.8%</td><td>22.6%</td><td>-5.2%</td><td>run-to-run variation 22.6% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
-<tr><td>all_reduce/world4</td><td>tiny</td><td><code>noise_limited</code></td><td>11.3%</td><td>20.5%</td><td>-3.7%</td><td>run-to-run variation 20.5% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
+<tr><td>all_gather/world2</td><td>medium</td><td><code>bimodal</code></td><td>19.5%</td><td>21.1%</td><td>+4.5%</td><td>an algorithm-selection threshold sits here</td></tr>
+<tr><td>all_gather/world2</td><td>small</td><td><code>bimodal</code></td><td>6.2%</td><td>13.8%</td><td>-8.8%</td><td>an algorithm-selection threshold sits here</td></tr>
+<tr><td>all_reduce/world2</td><td>large</td><td><code>group<i>model</i>rejected</code></td><td>5.7%</td><td>19.1%</td><td>-9.3%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1%</td></tr>
+<tr><td>all_reduce/world2</td><td>medium</td><td><code>group<i>model</i>rejected</code></td><td>37.6%</td><td>26.3%</td><td>+22.6%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3%</td></tr>
+<tr><td>all_reduce/world2</td><td>small</td><td><code>group<i>model</i>rejected</code></td><td>18.4%</td><td>11.6%</td><td>+3.4%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6%</td></tr>
+<tr><td>all_reduce/world2</td><td>tiny</td><td><code>group<i>model</i>rejected</code></td><td>18.7%</td><td>12.9%</td><td>+3.7%</td><td>the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9%</td></tr>
+<tr><td>all_reduce/world3</td><td>medium</td><td><code>noise_limited</code></td><td>19.3%</td><td>20.4%</td><td>+4.3%</td><td>run-to-run variation 20.4% exceeds the 20% the protocol allows; nothing can be graded here</td></tr>
 </tbody></table></div>
 <p><b>The single most discriminating next experiment</b></p>
-<p>all_reduce/world4, large regime: the residual (5.0%) is at or below the measurement's own variation (23.6%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.</p>
+<p>all_reduce/world3, medium regime: the residual (19.3%) is at or below the measurement's own variation (20.4%). No model can do better than the instrument, so the discriminating experiment is more repeats there -- if the noise falls and the error follows, it was noise; if the error stays, it was never noise-limited.</p>
 <ul>
 <li>Recorded CVs come from 21 repeats per point, and are used as measured. No correction is applied: an earlier ledger corrected a two-repeat CV by a single factor and a pre-registered re-measurement falsified it.</li>
-<li>Computed from <code>recampaign-thrust1-communication.json</code>, whose CVs come from 21 repeats per point in a single session and are used exactly as measured.</li>
+<li>Computed from <code>campaign-v2.json</code>, whose CVs come from 21 repeats per point in a single session and are used exactly as measured.</li>
 <li>This supersedes a ledger that read 9 model-limited and 7 noise-limited. That one corrected the original campaign's two-repeat CVs by a single factor of 1.84x and moved six cells to noise-limited on the strength of it. A pre-registered re-measurement falsified the correction: it predicted the recorded CV would rise to 10.7% and it rose to 19.0%. The ledger and the correction are preserved at artifacts/history/2026-08-31-two-sample-cv-correction.</li>
 <li>No correction replaces it, because none can. Within the re-measurement's own session the excess splits into 2.25x from the estimator and a further 1.35x from timescale: twenty-one repeats span more wall-clock than two adjacent ones and see slower variation. The quantity a correction is meant to recover therefore grows with the window it is measured over, so the factor depends on an arbitrary reference -- 1.84x against seven repeats, 2.25x against twenty-one.</li>
 <li>The practical consequence is that every coverage figure this project produced before this measurement rested on a noise estimate roughly three times too small. Median cell CV moved from 5.7% to 18.4% and the number of cells above the 20% ceiling from 0 to 10. Coverage fell from 8 cells to 6, which is a correction rather than a regression: the earlier figure was inflated by an instrument that under-reported its own variation.</li>

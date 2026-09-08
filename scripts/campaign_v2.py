@@ -221,8 +221,10 @@ def _verdict(payload, pred, baseline, *, comparable=True) -> str:
          f"{cov['n_required_groups']}** groups have an accepted model.", ""]
     if iters:
         L += [f"Timed blocks averaged {min(iters)}-{max(iters)} calls "
-              f"(median {int(np.median(iters))}), chosen per point from its own "
-              "measured variability rather than from its size.", ""]
+              f"(median {int(np.median(iters))}), sized by a fixed duration so "
+              "that averaging follows the cost of a call rather than a byte "
+              "threshold. Points where one call already exceeds the budget take "
+              "the floor of five.", ""]
     if not p1:
         L += ["**P1 is falsified.** The medium regime is no less variable for "
               "being averaged harder, so its variability is not the averaging. "

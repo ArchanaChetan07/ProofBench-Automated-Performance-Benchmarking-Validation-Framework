@@ -10,9 +10,9 @@ Measurement variance arrives at two levels and they behave differently under mor
 
 | Component | Value | Behaviour under more repeats |
 |---|---|---|
-| within a run | 19.0% | falls as n^-0.31, measured |
-| across restarts, observed | 4.4% | n/a |
-| across restarts, predicted from repeats alone | 9.3% | n/a |
+| within a run | 15.7% | falls as n^-0.31, measured |
+| across restarts, observed | 5.3% | n/a |
+| across restarts, predicted from repeats alone | 7.7% | n/a |
 | **launch-level component** | **0.0%** | **does not fall at all inside one process** |
 
 Measured from 21 repeats per launch and 2 launches per probe. The launch component is what is left of the restart-level dispersion once averaging is accounted for; variances subtract, not the coefficients.
@@ -23,41 +23,30 @@ Measured from 21 repeats per launch and 2 launches per probe. The launch compone
 
 | Target | Repeats | Launches | Reachable |
 |---|---|---|---|
-| 20% | 2 | 1 | yes |
-| 15% | 5 | 1 | yes |
-| 10% | 17 | 1 | yes |
+| 20% | 1 | 1 | yes |
+| 15% | 3 | 1 | yes |
+| 10% | 10 | 1 | yes |
 
 Repeats first because they are much the cheaper of the two: a launch pays process startup and transport setup once for every probe it carries.
 
-- **20%**: 2 repeats in one launch reaches 20%; the launch-level floor is 0.0%, below the target, so no extra launches are required
-- **15%**: 5 repeats in one launch reaches 15%; the launch-level floor is 0.0%, below the target, so no extra launches are required
-- **10%**: 17 repeats in one launch reaches 10%; the launch-level floor is 0.0%, below the target, so no extra launches are required
+- **20%**: 1 repeats in one launch reaches 20%; the launch-level floor is 0.0%, below the target, so no extra launches are required
+- **15%**: 3 repeats in one launch reaches 15%; the launch-level floor is 0.0%, below the target, so no extra launches are required
+- **10%**: 10 repeats in one launch reaches 10%; the launch-level floor is 0.0%, below the target, so no extra launches are required
 
 ## Cell by cell
 
 | Group | Regime | held-out | noise | Verdict | Why |
 |---|---|---|---|---|---|
-| all_gather/world3 | tiny | 17.5% | 17.7% | `BUYABLE` | the residual (17.5%) is the instrument's; 4 repeats per point reaches the gate |
-| all_gather/world3 | small | 17.4% | 17.9% | `BUYABLE` | the residual (17.4%) is the instrument's; 4 repeats per point reaches the gate |
-| all_gather/world3 | medium | 13.7% | 21.4% | `BUYABLE` | the residual (13.7%) is the instrument's; 7 repeats per point reaches the gate |
-| all_reduce/world4 | tiny | 11.3% | 20.5% | `BUYABLE` | the residual (11.3%) is the instrument's; 6 repeats per point reaches the gate |
-| all_reduce/world4 | medium | 9.8% | 22.6% | `BUYABLE` | the residual (9.8%) is the instrument's; 8 repeats per point reaches the gate |
-| all_reduce/world4 | large | 5.0% | 23.6% | `BUYABLE` | the residual (5.0%) is the instrument's; 10 repeats per point reaches the gate |
-| all_gather/world2 | tiny | 1.9% | 8.8% | `GROUP_BLOCKED` | this cell measures at 8.8% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 8.8% |
-| all_gather/world2 | small | 2.7% | 4.9% | `GROUP_BLOCKED` | this cell measures at 4.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 4.9% |
-| all_gather/world2 | medium | 30.6% | 30.6% | `GROUP_BLOCKED` | this cell measures at 30.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 30.6% |
-| all_gather/world2 | large | 5.8% | 19.7% | `GROUP_BLOCKED` | this cell measures at 19.7% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.6% run-to-run variation); this cell's own measurement is 19.7% |
-| all_reduce/world2 | tiny | 3.9% | 3.9% | `GROUP_BLOCKED` | this cell measures at 3.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9% |
-| all_reduce/world2 | small | 4.7% | 3.9% | `GROUP_BLOCKED` | this cell measures at 3.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 3.9% |
-| all_reduce/world2 | medium | 37.4% | 30.3% | `GROUP_BLOCKED` | this cell measures at 30.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 30.3% |
-| all_reduce/world2 | large | 5.6% | 18.7% | `GROUP_BLOCKED` | this cell measures at 18.7% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (30.3% run-to-run variation); this cell's own measurement is 18.7% |
-| all_reduce/world3 | tiny | 23.7% | 42.3% | `EXPENSIVE` | reachable, at 60 repeats across 1 launch(es) per point, for a cell whose run-to-run variation is 42.3% |
-| all_reduce/world3 | small | 8.8% | 32.3% | `GROUP_BLOCKED` | this cell measures at 32.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 32.3% |
-| all_reduce/world3 | medium | 21.2% | 42.3% | `EXPENSIVE` | reachable, at 60 repeats across 1 launch(es) per point, for a cell whose run-to-run variation is 42.3% |
-| all_reduce/world3 | large | 11.8% | 27.9% | `GROUP_BLOCKED` | this cell measures at 27.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its tiny regime (42.3% run-to-run variation); this cell's own measurement is 27.9% |
+| all_reduce/world3 | medium | 19.3% | 20.4% | `BUYABLE` | the residual (19.3%) is the instrument's; 6 repeats per point reaches the gate |
+| all_gather/world2 | small | 6.2% | 13.8% | `UNDETERMINED` | an algorithm-selection threshold sits here |
+| all_gather/world2 | medium | 19.5% | 21.1% | `UNDETERMINED` | an algorithm-selection threshold sits here |
+| all_reduce/world2 | tiny | 18.7% | 12.9% | `GROUP_BLOCKED` | this cell measures at 12.9% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 12.9% |
+| all_reduce/world2 | small | 18.4% | 11.6% | `GROUP_BLOCKED` | this cell measures at 11.6% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 11.6% |
+| all_reduce/world2 | medium | 37.6% | 26.3% | `GROUP_BLOCKED` | this cell measures at 26.3% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 26.3% |
+| all_reduce/world2 | large | 5.7% | 19.1% | `GROUP_BLOCKED` | this cell measures at 19.1% and could be graded; it is uncovered because no model was accepted for its group. the group has no accepted model, blocked by its medium regime (26.3% run-to-run variation); this cell's own measurement is 19.1% |
 
 ## The determination
 
-**6** buyable, **2** expensive, **10** group blocked.
+**1** buyable, **4** group blocked, **2** undetermined.
 
 The question was never whether six of six groups could be made to pass. It is whether the operating surface this subsystem needs is one that can be modelled from this machine, and the honest answer separates three things that a single coverage percentage hides: cells where more measurement would help, cells where a better model would help, and cells where neither would because the instrument cannot resolve the error being chased.

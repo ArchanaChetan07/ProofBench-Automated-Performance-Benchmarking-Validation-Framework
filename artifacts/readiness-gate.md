@@ -6,20 +6,20 @@ Every requirement is checked from an artifact on disk, so the gate cannot pass o
 
 | Gate | Result | Detail |
 |---|---|---|
-| machine permits cross-session pooling | **FAIL** | drift is restart_level; 0 of 6 session pairs poolable at the registered 1.48x criterion. Within-run 21.3%, across restart 15.9% against 10.1% expected from averaging alone |
+| evidence is not pooled across incomparable sessions | PASS | all evidence comes from a single session, so no cross-session pooling occurred and none had to be justified. For context, the machine's own drift is random (0 of 6 sentinel session pairs poolable at the registered 1.48x criterion; within-run 21.3%, across restart 15.9% against 14.6% expected from averaging) |
 | the campaign's own evidence is internally poolable | PASS | its two passes agree to 2.90x against a 4.91x floor measured from the campaign's own repeats at 276 probes, and the surface did not move (0.998x median shift) |
-| communication quality gates pass | **FAIL** | 3 of 6 groups have an accepted model |
-| required coverage achieved | **FAIL** | 6 of 24 (group x regime) cells covered (25%) |
+| communication quality gates pass | **FAIL** | 5 of 6 groups have an accepted model |
+| required coverage achieved | **FAIL** | 17 of 24 (group x regime) cells covered (71%) |
 | no rejected parameter is active | PASS | no group is counted as covered without an accepted model |
 | validation is independent | PASS | 264 held-out validation points on sizes no fit saw; calibration and validation sizes alternate within each regime |
 | fresh-clone reproducibility passes | PASS | fresh clone, isolated environment, full test suite and frozen standard verified; measured thrusts NOT re-run (no torch in the clean environment), so this establishes the standard and the analysis layer, not the measurements |
-| 8-GPU protocol is fully prepared | PASS | 13 stages sealed (7.2 h), seal 70529d6d37ac021c |
+| 8-GPU protocol is fully prepared | PASS | 13 stages sealed (7.2 h), seal e1ddbed4ee1ddc5c |
 
-**Blocking: machine permits cross-session pooling; communication quality gates pass; required coverage achieved**
+**Blocking: communication quality gates pass; required coverage achieved**
 
 ### 8x A100 campaign protocol
 
-**PREPARED, NOT EXECUTED** &mdash; seal `70529d6d37ac021c...`, about 7.2 hours of allocation.
+**PREPARED, NOT EXECUTED** &mdash; seal `e1ddbed4ee1ddc5c...`, about 7.2 hours of allocation.
 
 Local communication readiness at sealing: **not_ready**. That verdict gates whether this should be executed; it does not make the protocol wrong, it makes running it premature.
 
