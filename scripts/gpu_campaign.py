@@ -58,7 +58,68 @@ def topology() -> dict:
         out["topo_matrix"] = t.stdout
     except OSError:
         out["topo_matrix"] = ""
+    out["links"] = _parse_topo(out["topo_matrix"], out["n_gpus"])
+    out["domains"] = _domains(out["links"], out["n_gpus"])
     return out
+
+
+def _parse_topo(matrix: str, n: int) -> dict:
+    """Pairwise link class from `nvidia-smi topo -m`.
+
+    The labels are ordered: NV# is an NVLink of that many lanes, PIX/PXB/PHB a
+    PCIe path of decreasing directness, NODE within one NUMA node, SYS across
+    the interconnect between them. What matters here is only that SYS is a
+    different fabric from everything else, and NVLink from PCIe.
+    """
+    links: dict[str, str] = {}
+    for line in matrix.splitlines():
+        parts = line.split()
+        if not parts or not parts[0].startswith("GPU"):
+            continue
+        try:
+            i = int(parts[0][3:])
+        except ValueError:
+            continue
+        for j, tok in enumerate(parts[1:1 + n]):
+            if i != j and tok not in ("X", ""):
+                links[f"{i}-{j}"] = tok
+    return links
+
+
+def _class_of(tok: str) -> str:
+    if tok.startswith("NV"):
+        return "nvlink"
+    if tok == "SYS":
+        return "cross_numa"
+    return "pcie"
+
+
+def _domains(links: dict, n: int) -> list[list[int]]:
+    """Connected components under 'not cross-NUMA'.
+
+    A set of devices is one fabric only if every pair inside it avoids the
+    slowest class present. Union-find over the non-SYS pairs gives exactly that,
+    and reports the whole node as one domain when nothing is SYS -- which is
+    what an NVSwitch box should look like.
+    """
+    parent = list(range(n))
+
+    def find(a: int) -> int:
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    for key, tok in links.items():
+        i, j = (int(x) for x in key.split("-"))
+        if _class_of(tok) != "cross_numa":
+            ri, rj = find(i), find(j)
+            if ri != rj:
+                parent[ri] = rj
+    groups: dict[int, list[int]] = {}
+    for i in range(n):
+        groups.setdefault(find(i), []).append(i)
+    return sorted((sorted(v) for v in groups.values()), key=lambda g: -len(g))
 
 
 def fabrics(topo: dict) -> list[dict]:
@@ -70,29 +131,60 @@ def fabrics(topo: dict) -> list[dict]:
     labelled as such instead of being quietly averaged with one that does not.
     """
     gpus = topo["gpus"]
-    widths = {}
-    for g in gpus:
-        widths.setdefault(g["pcie_width"], []).append(g["index"])
-    majority = max(widths.values(), key=len) if widths else []
-    degraded = [g["index"] for g in gpus if g["index"] not in majority]
+    width_of = {g["index"]: g["pcie_width"] for g in gpus}
+    all_ids = [g["index"] for g in gpus]
+    domains = topo.get("domains") or [all_ids]
 
+    # Three sets, because on a split node no single one answers everything and
+    # pretending otherwise is what produced a "homogeneous" fabric whose world-4
+    # collective crossed the NUMA boundary at 1.9 GB/s while a set admitted as
+    # mixed stayed inside a quad at 4.5.
     out = []
-    if len(majority) >= 2:
+
+    # Strictest: one connectivity domain AND one link width. The cleanest
+    # parameters, and on a split node it may be too small for the larger worlds.
+    best: list[int] = []
+    for dom in domains:
+        widths: dict[str, list[int]] = {}
+        for i in dom:
+            widths.setdefault(width_of[i], []).append(i)
+        cand = max(widths.values(), key=len) if widths else []
+        if len(cand) > len(best):
+            best = cand
+    if len(best) >= 2:
         out.append({
-            "name": "homogeneous",
-            "device_ids": majority,
-            "note": (f"the {len(majority)} devices at the majority PCIe width "
-                     f"({gpus[majority[0]]['pcie_width']}x)"),
+            "name": "uniform",
+            "device_ids": sorted(best),
+            "note": (f"{len(best)} devices sharing one connectivity domain and "
+                     f"one PCIe width ({width_of[best[0]]}x)"),
         })
-    if degraded:
+
+    # One domain, whatever the widths. Usually the largest set that is still a
+    # single fabric, which is what the larger world sizes need.
+    dom = max(domains, key=len)
+    if len(dom) > len(best) and len(dom) >= 2:
+        mixed = sorted({width_of[i] for i in dom})
         out.append({
-            "name": "mixed_width",
-            "device_ids": [g["index"] for g in gpus],
-            "note": (f"all devices, including {len(degraded)} at a reduced PCIe "
-                     f"width ({degraded}); a collective spanning these crosses "
-                     "two link classes and is reported separately"),
+            "name": "one_domain",
+            "device_ids": sorted(dom),
+            "note": (f"the largest single connectivity domain ({len(dom)} "
+                     "devices)" + (f", spanning PCIe widths "
+                                   f"{', '.join(w + 'x' for w in mixed)}"
+                                   if len(mixed) > 1 else "")),
         })
-    return out or [{"name": "all", "device_ids": [g["index"] for g in gpus],
+
+    # Everything, which on a split node is deliberately more than one fabric.
+    if len(all_ids) > len(dom):
+        out.append({
+            "name": "whole_node",
+            "device_ids": all_ids,
+            "note": (f"all {len(all_ids)} devices across {len(domains)} "
+                     "connectivity domains; a collective here crosses the "
+                     "interconnect between them and is a different fabric from "
+                     "the sets above, reported separately rather than pooled"),
+        })
+
+    return out or [{"name": "all", "device_ids": all_ids,
                     "note": "every device"}]
 
 
