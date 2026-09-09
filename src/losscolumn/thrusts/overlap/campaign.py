@@ -270,7 +270,11 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     # the group deadlocks on the difference. Each rank times
                     # itself, so each would otherwise pick its own count: rank 0
                     # decides and the rest follow.
-                    shared = torch.tensor([iters], dtype=torch.int64)
+                    # On the device the collective runs on. A host tensor is
+                    # fine for gloo and invalid for nccl, which has no CPU
+                    # backend -- and this line is the deadlock fix, so it runs
+                    # on every point of every campaign.
+                    shared = torch.tensor([iters], dtype=torch.int64, device=dev)
                     dist.broadcast(shared, src=0)
                     iters = int(shared.item())
                     dist.barrier()
