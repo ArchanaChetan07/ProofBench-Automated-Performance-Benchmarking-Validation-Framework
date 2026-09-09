@@ -244,8 +244,13 @@ def _line(alpha, beta):
 
 
 def _samples(fn, sizes):
-    """all_gather at world 2 makes effective_bytes equal nbytes/2; use the
-    property rather than fighting it, and build the model to match."""
+    """Build samples whose timings match a known line exactly.
+
+    all_gather at world 2 moves (w-1) = 1 times its input on the nccl-tests
+    convention, so effective_bytes equals nbytes and the generating function
+    uses n directly. These tests therefore encode that convention: if it is ever
+    changed again, they fail here rather than silently measuring something else.
+    """
     from losscolumn.thrusts.overlap.commodel import Sample
 
     return [Sample(nbytes=n, seconds=fn(n), world=2, kind="all_gather")
@@ -262,7 +267,7 @@ def test_structure_is_chosen_on_the_same_scale_the_fits_use():
     """
     m = _line(1e-5, 1e9)
     sizes = [1 << k for k in range(10, 25)]
-    s = _samples(lambda n: 1e-5 + (n / 2) / 1e9, sizes)
+    s = _samples(lambda n: 1e-5 + n / 1e9, sizes)
     abs_r = m.residuals(s)
     rel_r = m.relative_residuals(s)
     assert np.allclose(rel_r, 0, atol=1e-9)
@@ -273,7 +278,7 @@ def test_relative_residuals_give_every_size_comparable_leverage():
     m = _line(1e-5, 1e9)
     sizes = [1 << 10, 1 << 24]
     # 20% wrong at both ends.
-    s = _samples(lambda n: (1e-5 + (n / 2) / 1e9) * 1.2, sizes)
+    s = _samples(lambda n: (1e-5 + n / 1e9) * 1.2, sizes)
     a = np.abs(m.residuals(s))
     r = np.abs(m.relative_residuals(s))
     assert a[1] / a[0] > 500, "absolute residuals are all about the big point"

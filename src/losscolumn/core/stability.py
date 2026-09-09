@@ -40,6 +40,8 @@ from typing import Any
 
 import numpy as np
 
+from losscolumn.core.collectives import effective_bytes as _effective_bytes
+
 __all__ = [
     "DriftKind",
     "SessionState",
@@ -198,9 +200,7 @@ class SentinelReading:
         m = self.median_s
         if not math.isfinite(m) or m <= 0:
             return float("nan")
-        factor = 2.0 if self.collective == "all_reduce" else 1.0
-        steps = (self.world - 1) / self.world if self.world > 1 else 1.0
-        return factor * steps * self.nbytes / m / 1e9
+        return _effective_bytes(self.collective, self.world, self.nbytes) / m / 1e9
 
     def to_dict(self) -> dict[str, Any]:
         return {

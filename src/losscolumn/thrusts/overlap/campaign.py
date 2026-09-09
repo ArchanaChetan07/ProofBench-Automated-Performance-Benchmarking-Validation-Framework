@@ -41,6 +41,7 @@ from typing import Any
 import numpy as np
 
 from losscolumn.core.bimodal import find_threshold_band
+from losscolumn.core.collectives import effective_bytes
 from losscolumn.core.coverage import (
     CommunicationCoverage,
     ParameterVerdict,
@@ -355,9 +356,7 @@ def _finalise(raw: dict[str, Any]) -> PointRecord:
     rec.median_s = float(np.median(t))
     rec.iqr_s = float(np.percentile(t, 75) - np.percentile(t, 25))
     rec.cv = float(np.std(t) / np.mean(t)) if np.mean(t) > 0 else float("nan")
-    factor = 2.0 if rec.collective == "all_reduce" else 1.0
-    steps = (rec.world - 1) / rec.world if rec.world > 1 else 1.0
-    rec.effective_bytes = factor * steps * rec.nbytes
+    rec.effective_bytes = effective_bytes(rec.collective, rec.world, rec.nbytes)
     if rec.median_s > 0:
         rec.bandwidth_gbs = rec.effective_bytes / rec.median_s / 1e9
     if rec.median_s <= 0 or not math.isfinite(rec.median_s):

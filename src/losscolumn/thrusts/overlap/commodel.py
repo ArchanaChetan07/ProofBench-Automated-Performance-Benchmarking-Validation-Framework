@@ -34,6 +34,8 @@ from typing import Any
 
 import numpy as np
 
+from losscolumn.core.collectives import effective_bytes as _effective_bytes
+
 __all__ = [
     "Sample",
     "CostModel",
@@ -60,11 +62,8 @@ class Sample:
 
     @property
     def effective_bytes(self) -> float:
-        """Bytes over the wire under the ring cost model."""
-        if self.world <= 1:
-            return float(self.nbytes)
-        factor = 2.0 if self.kind == "all_reduce" else 1.0
-        return factor * (self.world - 1) / self.world * self.nbytes
+        """Bytes over the wire, on the nccl-tests bus-bandwidth convention."""
+        return _effective_bytes(self.kind, self.world, self.nbytes)
 
 
 # --------------------------------------------------------------------------
