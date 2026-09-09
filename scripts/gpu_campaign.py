@@ -261,6 +261,24 @@ def main() -> int:
             if camp.records:
                 analyse(camp)
             results[fab["name"]] = {"fabric": fab, "campaign": camp.to_dict()}
+
+            # Checkpoint after every fabric. The first version of this wrote
+            # once, at the end, which is a poor bargain on a machine billed by
+            # the hour: a run stopped two thirds through left nothing on disk
+            # and the completed fabrics existed only in memory. A partial
+            # artifact that names what it contains is worth more than a
+            # complete one that was never written.
+            (art / "gpu-campaign.json").write_text(json.dumps({
+                "kind": "gpu-campaign-report", "standard_version": STANDARD_VERSION,
+                "generated_at": utcnow(), "protocol": seal, "topology": topo,
+                "results": results, "elapsed_s": time.time() - t0,
+                "n_evidence_sessions": 1, "session_id": "gpu-campaign-v1",
+                "complete": len(results) == len(fabs),
+                "fabrics_measured": sorted(results),
+                "fabrics_planned": [f["name"] for f in fabs],
+            }, indent=2, default=str), encoding="utf-8")
+            print(f"  checkpointed after {fab['name']} "
+                  f"({len(results)} of {len(fabs)} fabrics)", flush=True)
             cov = camp.coverage.to_dict() if camp.coverage else {}
             if cov:
                 print(f"  covered {cov['model_coverage']['n_covered_cells']} of "
