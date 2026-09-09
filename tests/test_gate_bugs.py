@@ -45,8 +45,9 @@ def test_stability_predicts_a_level_with_the_measured_exponent():
 
 
 def test_the_drift_classification_follows_the_exponent():
+    from conftest import build_session as _session  # noqa: PLC0415
+
     from losscolumn.core.stability import DriftKind, build_envelope
-    from tests.test_stability import _session  # noqa: PLC0415
 
     readings = []
     for s in range(3):

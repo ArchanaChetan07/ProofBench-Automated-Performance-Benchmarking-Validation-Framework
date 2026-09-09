@@ -23,14 +23,10 @@ from losscolumn.core.stability import (
     ComparabilityVerdict,
     DriftKind,
     SentinelReading,
-    SessionState,
     build_envelope,
     compare_sessions,
     null_from_replicates,
 )
-
-PROBES = [("all_gather", 1 << 16), ("all_gather", 1 << 20), ("all_gather", 1 << 23),
-          ("all_reduce", 1 << 16), ("all_reduce", 1 << 20), ("all_reduce", 1 << 23)]
 
 # A plausible base surface: time grows with size, all_reduce costs about double.
 BASE = {("all_gather", 1 << 16): 1.0e-4, ("all_gather", 1 << 20): 1.2e-3,
@@ -38,26 +34,11 @@ BASE = {("all_gather", 1 << 16): 1.0e-4, ("all_gather", 1 << 20): 1.2e-3,
         ("all_reduce", 1 << 20): 2.3e-3, ("all_reduce", 1 << 23): 1.8e-2}
 
 
-def _session(sid: str, *, scale=None, jitter: float = 0.0, n_restarts: int = 3,
-             repeats: int = 7, world: int = 3, probes=None,
-             state: SessionState | None = None) -> list[SentinelReading]:
-    """Build a synthetic session. `scale` may be a float or a per-probe callable."""
-    out = []
-    probes = probes if probes is not None else PROBES
-    for r in range(n_restarts):
-        for i, (kind, nb) in enumerate(probes):
-            base = BASE[(kind, nb)]
-            f = scale(kind, nb) if callable(scale) else (1.0 if scale is None else scale)
-            # Deterministic pseudo-jitter: no RNG, so a failure reproduces exactly.
-            ts = [base * f * (1.0 + jitter * math.sin(3.7 * (r + 1) + 1.9 * i + 0.6 * j))
-                  for j in range(repeats)]
-            out.append(SentinelReading(
-                session_id=sid, restart_index=r, collective=kind, world=world,
-                nbytes=nb, size_class="x", timings_s=ts,
-                state=state or SessionState(session_id=sid, restart_index=r),
-            ))
-    return out
-
+# Defined in conftest so every module can reach it however pytest is invoked.
+# A cross-module import here (`from tests.test_stability import _session`) only
+# resolves when the repository root is on sys.path, which is true from the root
+# and false from an installed copy -- a rented machine found that on its first run.
+from conftest import PROBES, build_session as _session  # noqa: E402, I001
 
 CRITERION = 1.20
 
