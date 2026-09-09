@@ -1,0 +1,162 @@
+{
+  "name": "gpu-communication-campaign-v1",
+  "question": "What are this fabric's alpha-beta parameters, and is the surface modellable at the registered gate?",
+  "topology": {
+    "n_gpus": 8,
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      },
+      {
+        "index": 2,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "8"
+      },
+      {
+        "index": 3,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      },
+      {
+        "index": 4,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      },
+      {
+        "index": 5,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      },
+      {
+        "index": 6,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "8"
+      },
+      {
+        "index": 7,
+        "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "memory_gb": 102.0,
+        "pcie_gen": "4",
+        "pcie_width": "16"
+      }
+    ],
+    "p2p": {
+      "0-1": true,
+      "0-2": true,
+      "0-3": true,
+      "0-4": true,
+      "0-5": true,
+      "0-6": true,
+      "0-7": true,
+      "1-0": true,
+      "1-2": true,
+      "1-3": true,
+      "1-4": true,
+      "1-5": true,
+      "1-6": true,
+      "1-7": true,
+      "2-0": true,
+      "2-1": true,
+      "2-3": true,
+      "2-4": true,
+      "2-5": true,
+      "2-6": true,
+      "2-7": true,
+      "3-0": true,
+      "3-1": true,
+      "3-2": true,
+      "3-4": true,
+      "3-5": true,
+      "3-6": true,
+      "3-7": true,
+      "4-0": true,
+      "4-1": true,
+      "4-2": true,
+      "4-3": true,
+      "4-5": true,
+      "4-6": true,
+      "4-7": true,
+      "5-0": true,
+      "5-1": true,
+      "5-2": true,
+      "5-3": true,
+      "5-4": true,
+      "5-6": true,
+      "5-7": true,
+      "6-0": true,
+      "6-1": true,
+      "6-2": true,
+      "6-3": true,
+      "6-4": true,
+      "6-5": true,
+      "6-7": true,
+      "7-0": true,
+      "7-1": true,
+      "7-2": true,
+      "7-3": true,
+      "7-4": true,
+      "7-5": true,
+      "7-6": true
+    },
+    "topo_matrix": "\t\u001b[4mGPU0\tGPU1\tGPU2\tGPU3\tGPU4\tGPU5\tGPU6\tGPU7\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tNODE\tNODE\tNODE\tSYS\tSYS\tSYS\tSYS\t0-31,64-95\t0\t\tN/A\nGPU1\tNODE\t X \tNODE\tNODE\tSYS\tSYS\tSYS\tSYS\t0-31,64-95\t0\t\tN/A\nGPU2\tNODE\tNODE\t X \tNODE\tSYS\tSYS\tSYS\tSYS\t0-31,64-95\t0\t\tN/A\nGPU3\tNODE\tNODE\tNODE\t X \tSYS\tSYS\tSYS\tSYS\t0-31,64-95\t0\t\tN/A\nGPU4\tSYS\tSYS\tSYS\tSYS\t X \tNODE\tNODE\tNODE\t32-63,96-127\t1\t\tN/A\nGPU5\tSYS\tSYS\tSYS\tSYS\tNODE\t X \tNODE\tNODE\t32-63,96-127\t1\t\tN/A\nGPU6\tSYS\tSYS\tSYS\tSYS\tNODE\tNODE\t X \tNODE\t32-63,96-127\t1\t\tN/A\nGPU7\tSYS\tSYS\tSYS\tSYS\tNODE\tNODE\tNODE\t X \t32-63,96-127\t1\t\tN/A\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks\n"
+  },
+  "fabrics": [
+    {
+      "name": "homogeneous",
+      "device_ids": [
+        0,
+        1,
+        3,
+        4,
+        5,
+        7
+      ],
+      "note": "the 6 devices at the majority PCIe width (16x)"
+    },
+    {
+      "name": "mixed_width",
+      "device_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "note": "all devices, including 2 at a reduced PCIe width ([2, 6]); a collective spanning these crosses two link classes and is reported separately"
+    }
+  ],
+  "grid_sizes": 46,
+  "repeats_per_point_per_pass": 21,
+  "passes": 2,
+  "backend": "nccl",
+  "declared_deviations": [
+    "world sizes are re-derived from the measured topology, as stage 2 of the sealed protocol permits and requires to be recorded",
+    "each fabric is fitted separately; no model spans two of them"
+  ],
+  "committed_before_measurement": true,
+  "seal_hash": "sha256:507571579af01369f264ca9b3ed01093b8c4dc17667848f364cc33b65178f350"
+}
