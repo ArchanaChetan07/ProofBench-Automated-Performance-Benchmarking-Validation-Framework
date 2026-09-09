@@ -199,7 +199,8 @@ MAX_ITERS = 200
 
 
 def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
-            repeats: int, pass_index: int, q: Any) -> None:
+            repeats: int, pass_index: int, q: Any,
+            backend: str = "gloo", device_ids: tuple[int, ...] = ()) -> None:
     """One rank of one pass. Records raw timings, not just a summary."""
     import time
 
@@ -209,8 +210,17 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
     os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
     os.environ.setdefault("MASTER_PORT", os.environ.get("LC_COMM_PORT", "29711"))
     os.environ.setdefault("USE_LIBUV", "0")
+
+    # With nccl the device must be selected before the process group is built,
+    # or every rank lands on device 0 and the "fabric" measured is one GPU
+    # talking to itself.
+    dev = None
+    if backend == "nccl":
+        gpu = device_ids[rank] if device_ids else rank
+        torch.cuda.set_device(gpu)
+        dev = torch.device(f"cuda:{gpu}")
     try:
-        dist.init_process_group("gloo", rank=rank, world_size=world)
+        dist.init_process_group(backend, rank=rank, world_size=world)
     except Exception as e:
         if rank == 0:
             q.put({"error": f"{type(e).__name__}: {e}"})
@@ -225,7 +235,7 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                 reason = ""
                 iters = 0   # bound before the try: the row records it either way
                 try:
-                    buf = torch.ones(elems, dtype=torch.float32)
+                    buf = torch.ones(elems, dtype=torch.float32, device=dev)
                     out = [torch.empty_like(buf) for _ in range(world)]
 
                     def once(buf=buf, out=out, kind=kind) -> None:
@@ -236,6 +246,8 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
 
                     for _ in range(2):
                         once()
+                    if dev is not None:
+                        torch.cuda.synchronize()
                     dist.barrier()
                     # Size the timed block by duration. The probe establishes
                     # only the cost of a call, which six calls can measure; it
@@ -244,6 +256,11 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     for _ in range(6):
                         tp = time.perf_counter()
                         once()
+                        # A collective on a device is asynchronous. Without the
+                        # sync this times the launch, not the transfer, and
+                        # returns a bandwidth the fabric never achieved.
+                        if dev is not None:
+                            torch.cuda.synchronize()
                         probe.append(time.perf_counter() - tp)
                     per_call = max(float(np.median(np.array(probe, dtype=float))),
                                    1e-9)
@@ -259,9 +276,13 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     dist.barrier()
                     for _ in range(repeats):
                         try:
+                            if dev is not None:
+                                torch.cuda.synchronize()
                             t0 = time.perf_counter()
                             for _ in range(iters):
                                 once()
+                            if dev is not None:
+                                torch.cuda.synchronize()
                             dist.barrier()
                             timings.append((time.perf_counter() - t0) / iters)
                         except Exception as e:
@@ -274,6 +295,9 @@ def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
                     rows.append({
                         "collective": kind, "world": world, "nbytes": elems * 4,
                         "pass_index": pass_index, "timings_s": timings,
+                        "backend": backend,
+                        "device_ids": list(device_ids[:world]) if device_ids
+                        else list(range(world)),
                         "n_failures": failures, "invalid_reason": reason,
                         "iters": iters,
                     })
@@ -341,7 +365,8 @@ def _finalise(raw: dict[str, Any]) -> PointRecord:
 def sweep_pass(
     *, sizes: Sequence[int], worlds: Sequence[int],
     collectives: Sequence[str], repeats: int, pass_index: int,
-    timeout_s: int = 3600,
+    timeout_s: int = 3600, backend: str = "gloo",
+    device_ids: Sequence[int] = (),
 ) -> tuple[list[PointRecord], dict[str, str]]:
     import multiprocessing as mp
     import sys
@@ -360,7 +385,7 @@ def sweep_pass(
         procs = [
             ctx.Process(target=_worker,
                         args=(r, world, list(sizes), list(collectives), repeats,
-                              pass_index, q))
+                              pass_index, q, backend, tuple(device_ids)))
             for r in range(world)
         ]
         for p in procs:
