@@ -205,7 +205,18 @@ labelled accepted on the strength of the fourth.
 """
 
 MIN_ITERS = 5
-MAX_ITERS = 200
+MAX_ITERS = 20000
+"""Ceiling on the iteration count, and deliberately far above where it binds.
+
+The budget is a duration, so runtime is already bounded by TARGET_BLOCK_S and a
+low cap does not protect anything -- it just stops fast calls from reaching the
+budget. At 200 it bound on half the small-end points of the rented fabric, whose
+calls take 45 microseconds: the block came out at 9 ms against a 60 ms budget,
+so those points got a sixth of the averaging every other point got, and the
+worst-measured regime was the one the harness had quietly under-sampled.
+
+A cap should catch the pathological case, not the ordinary one.
+"""
 
 
 def _worker(rank: int, world: int, sizes: list[int], kinds: list[str],
