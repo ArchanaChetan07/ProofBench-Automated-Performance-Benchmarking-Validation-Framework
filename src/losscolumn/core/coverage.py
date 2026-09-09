@@ -49,11 +49,24 @@ class ParameterVerdict(str, Enum):
     """What a quality gate decided about one fitted model."""
 
     ACCEPTED = "accepted"
+    PARTIAL = "partial"
+    """Passed its gate, on too little of the surface to be used generally.
+
+    Distinct from ACCEPTED because the number is fine and its scope is not. A
+    model can fit the one regime able to grade it while being wrong by 90% in
+    the three that cannot, and calling that accepted invites a consumer to use
+    parameters far outside where anything checked them.
+
+    Distinct from DIAGNOSTIC because nothing failed: the fit is good where it
+    was tested, and a later measurement that makes more of the surface gradable
+    may promote it without refitting.
+    """
     DIAGNOSTIC = "diagnostic"
     REJECTED = "rejected"
 
     @property
     def usable(self) -> bool:
+        """Only a model graded across enough of the surface may be consumed."""
         return self is ParameterVerdict.ACCEPTED
 
 

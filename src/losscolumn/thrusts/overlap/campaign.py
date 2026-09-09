@@ -195,6 +195,15 @@ class PointRecord:
 # the floor and the artifact records how many it got.
 TARGET_BLOCK_S = 0.060
 
+MIN_GRADABLE_REGIMES = 2
+"""How much of the surface must be able to grade a model before it is usable.
+
+Two of four. Below that the gate is reporting on a corner rather than on the
+transport, and a parameter fitted there will be consumed somewhere nothing
+checked it -- which is how a model 94.5% wrong in three regimes came to be
+labelled accepted on the strength of the fourth.
+"""
+
 MIN_ITERS = 5
 MAX_ITERS = 200
 
@@ -844,7 +853,22 @@ def analyse(campaign: Campaign) -> Campaign:
             g.detail = "the chosen family could not be refitted on all calibration data"
             continue
 
-        g.parameter_verdict = ParameterVerdict.ACCEPTED
+        # Passing the gate is necessary and not sufficient. The gate is scored
+        # over the gradable regimes only, so when few of them are gradable it is
+        # a statement about a small corner of the surface -- see MIN_GRADABLE.
+        n_gradable = len(REQUIRED_REGIMES) - len(set(ungradable))
+        if n_gradable < MIN_GRADABLE_REGIMES:
+            g.parameter_verdict = ParameterVerdict.PARTIAL
+            g.detail = (
+                f"fits the {n_gradable} regime(s) able to grade it, which is "
+                f"below the {MIN_GRADABLE_REGIMES} this protocol requires before "
+                "a parameter may be used generally. "
+                + (f"Ungradable here: {', '.join(sorted(set(ungradable)))}. "
+                   if ungradable else "")
+                + "The fit is not in question; its scope is."
+            )
+        else:
+            g.parameter_verdict = ParameterVerdict.ACCEPTED
         g.model_family, g.estimator = fam, est or "weighted"
         g.n_segments = len(getattr(final, "segments", ())) or (
             2 if fam == "piecewise" else 1)

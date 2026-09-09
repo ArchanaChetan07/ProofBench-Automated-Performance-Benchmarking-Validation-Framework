@@ -105,3 +105,41 @@ class TestEverySiteAgrees:
                 })
                 assert rec.effective_bytes == pytest.approx(
                     effective_bytes(kind, world, MiB)), (kind, world)
+
+
+class TestPartialAcceptance:
+    """A model graded on a corner of the surface is not a usable model.
+
+    The gate is scored over the regimes able to grade it, so that an
+    unmeasurable part of the surface cannot veto a family that fits the
+    measurable part. Applied where MOST regimes are ungradable, that rule
+    produces a clean pass on very little evidence: all_reduce/world4 on the
+    rented box fits `large` at 1.1% with the other three regimes bimodal, and
+    its worst-regime error across the whole surface is 94.5%.
+    """
+
+    def test_partial_is_not_usable(self):
+        from losscolumn.core.coverage import ParameterVerdict
+
+        assert not ParameterVerdict.PARTIAL.usable
+        assert ParameterVerdict.ACCEPTED.usable
+
+    def test_partial_is_distinct_from_diagnostic(self):
+        """Nothing failed. The fit is good where it was tested."""
+        from losscolumn.core.coverage import ParameterVerdict
+
+        assert ParameterVerdict.PARTIAL is not ParameterVerdict.DIAGNOSTIC
+        assert ParameterVerdict.PARTIAL is not ParameterVerdict.REJECTED
+
+    def test_the_threshold_is_more_than_one_regime(self):
+        from losscolumn.thrusts.overlap.campaign import MIN_GRADABLE_REGIMES
+
+        assert MIN_GRADABLE_REGIMES >= 2, (
+            "one gradable regime is a corner, not a transport")
+
+    def test_every_verdict_states_whether_it_may_be_consumed(self):
+        from losscolumn.core.coverage import ParameterVerdict
+
+        usable = {v for v in ParameterVerdict if v.usable}
+        assert usable == {ParameterVerdict.ACCEPTED}, (
+            "exactly one verdict licenses use, and it is the strict one")
