@@ -248,7 +248,8 @@ def main() -> int:
                 worlds = worlds[:2]
             print(f"\n=== fabric {fab['name']}: worlds {worlds} ===", flush=True)
             camp = Campaign(grid=grid, n_passes=2, repeats=repeats,
-                            device=topo["gpus"][0]["name"])
+                            device=topo["gpus"][0]["name"],
+                            backend="nccl", fabric=fab["note"])
             for p in range(2):
                 recs, errs = sweep_pass(
                     sizes=grid, worlds=worlds, collectives=REQUIRED_COLLECTIVES,

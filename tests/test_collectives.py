@@ -143,3 +143,95 @@ class TestPartialAcceptance:
         usable = {v for v in ParameterVerdict if v.usable}
         assert usable == {ParameterVerdict.ACCEPTED}, (
             "exactly one verdict licenses use, and it is the strict one")
+
+
+class TestWhatWasMeasuredGetsGraded:
+    """analyse() graded the worlds the protocol asked for, not the ones measured.
+
+    The skeleton came from REQUIRED_WORLDS, then the loop over measured groups
+    did `g = cov.groups.get(key); if g is None: continue` -- above the peak
+    detector, the threshold scan, model selection and validation. On an
+    eight-GPU box that dropped 184 world-8 records: measured, serialised with
+    their bandwidths, never examined. The report then read its uncovered column
+    from an empty dict and printed an em-dash, so the one group no gate had
+    looked at rendered as the cleanest row in the table.
+
+    Unreachable locally: the sweep list and REQUIRED_WORLDS are the same tuple,
+    so the `continue` is dead code on the development machine.
+    """
+
+    def test_a_world_outside_the_grid_is_still_graded(self):
+        from losscolumn.core.coverage import CommunicationCoverage
+
+        cov = CommunicationCoverage.empty(
+            ("all_reduce",), (2, 3), ("tiny",), extra_worlds=[2, 3, 8])
+        assert "all_reduce/world8" in cov.groups
+        assert cov.extra_worlds == (8,)
+
+    def test_but_does_not_enter_the_readiness_denominator(self):
+        """Measuring more must not improve the coverage fraction."""
+        from losscolumn.core.coverage import CommunicationCoverage
+
+        base = CommunicationCoverage.empty(("all_reduce",), (2, 3), ("tiny",))
+        more = CommunicationCoverage.empty(
+            ("all_reduce",), (2, 3), ("tiny",), extra_worlds=[2, 3, 8])
+        assert more.n_required_cells == base.n_required_cells
+        assert more.n_required_groups == base.n_required_groups
+
+    def test_extra_groups_are_named(self):
+        from losscolumn.core.coverage import CommunicationCoverage
+
+        cov = CommunicationCoverage.empty(
+            ("all_reduce", "all_gather"), (2,), ("tiny",), extra_worlds=[8])
+        assert cov.extra_group_keys == ["all_gather/world8", "all_reduce/world8"]
+
+    def test_is_required_distinguishes_them(self):
+        from losscolumn.core.coverage import CommunicationCoverage
+
+        cov = CommunicationCoverage.empty(
+            ("all_reduce",), (2,), ("tiny",), extra_worlds=[8])
+        assert cov.is_required("all_reduce/world2")
+        assert not cov.is_required("all_reduce/world8")
+
+
+class TestTheProtocolStatesItsOwnTransport:
+    """A sealed document claiming gloo inside every nccl artifact.
+
+    Campaign.protocol() emitted fixed text: "gloo over shared memory, one host",
+    and a transferability clause beginning "NOTHING measured here is a value for
+    NVLink or InfiniBand" -- content-hashed and embedded in the artifact of a
+    run whose own backend field said nccl, beside a topology block listing eight
+    GPUs. Every fitted parameter was stamped transport: gloo_shm.
+    """
+
+    def _campaign(self, **kw):
+        from losscolumn.thrusts.overlap.campaign import Campaign
+
+        return Campaign(grid=(1024,), device="x", **kw)
+
+    def test_gloo_says_gloo(self):
+        p = self._campaign().protocol()
+        assert p["transport"].startswith("gloo")
+        assert "NOTHING measured here" in p["transferability"]
+
+    def test_nccl_does_not_say_gloo(self):
+        p = self._campaign(backend="nccl", fabric="NVLink").protocol()
+        assert "gloo" not in p["transport"]
+        assert "gloo over shared memory" not in p["transferability"]
+        assert "nccl" in p["transport"]
+
+    def test_a_fabric_run_claims_only_that_fabric(self):
+        p = self._campaign(backend="nccl", fabric="PCIe 4.0 x16").protocol()
+        t = p["transferability"]
+        assert "THAT fabric and no other" in t
+        assert "connectivity domain" in t
+
+    def test_parameters_are_stamped_with_the_real_transport(self):
+        assert "gloo" in self._campaign().backend_tag
+        assert "nccl" in self._campaign(backend="nccl", fabric="NVLink").backend_tag
+
+    def test_the_seal_changes_with_the_transport(self):
+        """Two runs on different fabrics must not share a protocol hash."""
+        a = self._campaign().protocol()["seal_hash"]
+        b = self._campaign(backend="nccl", fabric="NVLink").protocol()["seal_hash"]
+        assert a != b

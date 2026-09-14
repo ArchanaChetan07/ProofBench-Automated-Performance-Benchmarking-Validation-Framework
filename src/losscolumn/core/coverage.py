@@ -229,6 +229,8 @@ class CommunicationCoverage:
     required_collectives: tuple[str, ...]
     required_worlds: tuple[int, ...]
     required_regimes: tuple[str, ...]
+    extra_worlds: tuple[int, ...] = ()
+    """World sizes graded beyond the protocol's grid, reported but not counted."""
     groups: dict[str, GroupCoverage] = field(default_factory=dict)
     notes: list[str] = field(default_factory=list)
     n_evidence_sessions: int = 1
@@ -249,21 +251,40 @@ class CommunicationCoverage:
 
     @classmethod
     def empty(cls, collectives: Iterable[str], worlds: Iterable[int],
-              regimes: Iterable[str]) -> CommunicationCoverage:
+              regimes: Iterable[str],
+              extra_worlds: Iterable[int] = ()) -> CommunicationCoverage:
+        """Build the skeleton.
+
+        `extra_worlds` are graded and reported but do not enter the readiness
+        denominator: a campaign that measures more than the protocol asks for
+        should have that work examined, and should not be able to improve its
+        coverage fraction by adding easy groups.
+        """
         cov = cls(tuple(collectives), tuple(worlds), tuple(regimes))
+        cov.extra_worlds = tuple(sorted(set(extra_worlds) - set(cov.required_worlds)))
         for c in cov.required_collectives:
-            for w in cov.required_worlds:
+            for w in tuple(cov.required_worlds) + cov.extra_worlds:
                 g = GroupCoverage(collective=c, world=w)
                 for r in cov.required_regimes:
                     g.regimes[r] = RegimeCoverage(regime=r)
                 cov.groups[g.key] = g
         return cov
 
+    def is_required(self, key: str) -> bool:
+        g = self.groups.get(key)
+        return bool(g) and g.world in self.required_worlds
+
     # ---- the three questions ---------------------------------------------
 
     @property
     def n_required_groups(self) -> int:
         return len(self.required_collectives) * len(self.required_worlds)
+
+    @property
+    def extra_group_keys(self) -> list[str]:
+        """Groups graded beyond the protocol's grid."""
+        return sorted(k for k, g in self.groups.items()
+                      if g.world not in self.required_worlds)
 
     @property
     def accepted_groups(self) -> list[GroupCoverage]:
@@ -381,6 +402,8 @@ class CommunicationCoverage:
             "required_regimes": list(self.required_regimes),
             "n_required_groups": self.n_required_groups,
             "n_required_cells": self.n_required_cells,
+            "extra_worlds": list(self.extra_worlds),
+            "extra_groups_graded": self.extra_group_keys,
             "parameter_validity": {
                 "n_accepted": len(self.accepted_groups),
                 "accepted": [g.key for g in self.accepted_groups],

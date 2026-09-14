@@ -608,6 +608,17 @@ class Campaign:
     grid: tuple[int, ...]
     records: list[PointRecord] = field(default_factory=list)
     peaks: dict[str, PeakReport] = field(default_factory=dict)
+    backend: str = "gloo"
+    """The transport actually used. Sealed into the protocol, so a campaign run
+    over nccl cannot publish a document claiming it was gloo."""
+    fabric: str = "shared memory, one host"
+
+    @property
+    def backend_tag(self) -> str:
+        """What every fitted parameter is stamped with, so a consumer can tell
+        an nccl-over-NVLink parameter from a gloo-over-shared-memory one."""
+        return (f"{self.backend}_{self.fabric}"
+                .replace(" ", "_").replace(",", "").lower()[:48])
     selections: dict[str, Any] = field(default_factory=dict)
     selections_note: dict[str, str] = field(default_factory=dict)
     thresholds: dict[str, Any] = field(default_factory=dict)
@@ -628,8 +639,9 @@ class Campaign:
             "campaign": CAMPAIGN_VERSION,
             "sealed_at": self.sealed_at,
             "collectives": list(REQUIRED_COLLECTIVES),
-            "world_sizes": list(REQUIRED_WORLDS),
-            "transport": "gloo over shared memory, one host",
+            "world_sizes": (sorted({r.world for r in self.records})
+                            or list(REQUIRED_WORLDS)),
+            "transport": f"{self.backend} over {self.fabric}",
             "message_size_range_bytes": [self.grid[0], self.grid[-1]],
             "dense_grid": list(self.grid),
             "n_grid_points": len(self.grid),
@@ -685,12 +697,22 @@ class Campaign:
                 "cell. There is no arithmetic that trades a covered group against a "
                 "missing one."
             ),
+            # Derived from the transport, not asserted. The fixed text claimed
+            # gloo-over-shared-memory inside every artifact a real fabric run
+            # produced -- a sealed document contradicting the data beside it,
+            # and contradicting its own backend field.
             "transferability": (
-                "NOTHING measured here is a value for NVLink or InfiniBand. This is "
-                "gloo over shared memory on one host. What the campaign can establish "
-                "is methodology readiness -- that the grid, the estimators, the "
-                "selection rule and the coverage criteria work -- not fabric "
-                "parameters for an A100 node."
+                "NOTHING measured here is a value for NVLink or InfiniBand. This "
+                "is gloo over shared memory on one host. What the campaign can "
+                "establish is methodology readiness -- that the grid, the "
+                "estimators, the selection rule and the coverage criteria work "
+                "-- not fabric parameters for an A100 node."
+                if self.backend == "gloo" else
+                f"Measured over {self.backend} on {self.fabric}. These are "
+                f"parameters for THAT fabric and no other: a different "
+                "interconnect, a different rank placement, or a node whose "
+                "devices span more than one connectivity domain is a different "
+                "transport and must be measured separately."
             ),
         }
         doc["seal_hash"] = content_hash(doc)
@@ -747,8 +769,18 @@ def analyse(campaign: Campaign) -> Campaign:
         fit_regime,
     )
 
+    # Grade every world that was actually measured. Building the skeleton from
+    # REQUIRED_WORLDS alone meant a group outside it hit `g is None` below and
+    # exited above the peak detector, the threshold scan, model selection and
+    # validation -- so on an eight-GPU box the world-8 records were measured,
+    # serialised with their bandwidths, and never examined by anything.
+    # Extra worlds are graded and reported; they do not enter the readiness
+    # denominator, so a campaign cannot improve its coverage fraction by
+    # measuring more than the protocol asked for.
+    measured_worlds = sorted({r.world for r in campaign.records if r.valid})
     cov = CommunicationCoverage.empty(
-        REQUIRED_COLLECTIVES, REQUIRED_WORLDS, REQUIRED_REGIMES
+        REQUIRED_COLLECTIVES, REQUIRED_WORLDS, REQUIRED_REGIMES,
+        extra_worlds=measured_worlds,
     )
     cal_sizes, val_sizes = _split_sizes(campaign.grid)
     cov.notes.append(
@@ -764,6 +796,11 @@ def analyse(campaign: Campaign) -> Campaign:
         key = f"{kind}/world{world}"
         g = cov.groups.get(key)
         if g is None:
+            # Should not happen now the skeleton follows the measurement, but a
+            # group that is dropped must say so rather than vanish.
+            campaign.errors[f"ungraded:{key}"] = (
+                "measured but absent from the coverage skeleton, so nothing "
+                "graded it")
             continue
 
         campaign.peaks[key] = analyse_peak(recs)
@@ -825,7 +862,8 @@ def analyse(campaign: Campaign) -> Campaign:
             f"{len(cal) - len(cal_fit)} of {len(cal)} calibration point(s) "
             "excluded from the fit as having two behaviours at one size"
         ) if len(cal_fit) < len(cal) else ""
-        sel = select_model(cal_fit, [], transport="gloo_shm", kind=kind, world=world,
+        sel = select_model(cal_fit, [], transport=campaign.backend_tag, kind=kind,
+                           world=world,
                            noise_floor=noise_floor, tier_fn=regime_of,
                            ungradable_tiers=ungradable,
                            max_heldout_median_err=campaign.max_worst_regime_err)
