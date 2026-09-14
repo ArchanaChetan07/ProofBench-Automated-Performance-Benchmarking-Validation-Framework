@@ -238,12 +238,93 @@ class BlockShape:
         }
 
 
+@dataclass(frozen=True)
+class CalibratedDomain:
+    """The region of shape space a model's parameters were actually fitted in.
+
+    Carried so a prediction can say whether it is interpolating or
+    extrapolating. Every term in the model is linear in tokens, hidden or
+    parameter count, so it will return a plausible number arbitrarily far
+    outside this box -- and the further out, the less any of it was checked.
+    """
+
+    device: str = ""
+    total_bytes: float = 0.0
+    hidden: tuple[int, int] = (0, 0)
+    heads: tuple[int, int] = (0, 0)
+    ffn: tuple[int, int] = (0, 0)
+    micro_batch: tuple[int, int] = (0, 0)
+    seq_len: tuple[int, int] = (0, 0)
+    n_layers: tuple[int, int] = (1, 1)
+
+    def excursions(self, shape: BlockShape) -> dict[str, float]:
+        """How far outside the fitted box a shape sits, per axis.
+
+        1.0 means at the edge; 8.0 means eight times beyond it. Axes inside the
+        box do not appear, so an empty result means the prediction is an
+        interpolation.
+        """
+        out: dict[str, float] = {}
+        for axis in ("hidden", "heads", "ffn", "micro_batch", "seq_len",
+                     "n_layers"):
+            lo, hi = getattr(self, axis)
+            if not hi:
+                continue
+            v = getattr(shape, axis)
+            if v > hi:
+                out[axis] = v / hi
+            elif v < lo and lo > 0:
+                out[axis] = lo / v if v else float("inf")
+        return out
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "device": self.device, "total_bytes": self.total_bytes,
+            "hidden": list(self.hidden), "heads": list(self.heads),
+            "ffn": list(self.ffn), "micro_batch": list(self.micro_batch),
+            "seq_len": list(self.seq_len), "n_layers": list(self.n_layers),
+        }
+
+
+# Where block-memory-v2's parameters were actually fitted. Read from
+# artifacts/calibration-thrust1-memory-v2.json, not chosen: eight calibration
+# cells at micro-batch 64/128 and sequence 2048/4096, on a 9 GB T1000, with the
+# local block fixed at hidden 1024, heads 16, ffn 4096.
+V2_DOMAIN = CalibratedDomain(
+    device="NVIDIA T1000 8GB (sm_75, 9 GB)",
+    total_bytes=8_589_606_912.0,
+    hidden=(1024, 1024), heads=(16, 16), ffn=(4096, 4096),
+    micro_batch=(64, 128), seq_len=(2048, 4096), n_layers=(1, 1),
+)
+
+
+class ExtrapolationError(RuntimeError):
+    """Raised when a prediction is demanded far outside the fitted region.
+
+    An exception rather than a warning because the failure is silent by
+    construction: the model is linear in every term, so it returns a
+    well-formed number for any shape, and a feasibility decision made on that
+    number looks exactly like one made on a validated prediction.
+    """
+
+
+MAX_SILENT_EXCURSION = 1.0
+"""Beyond the fitted box at all, a prediction is flagged rather than returned
+bare. The model was never checked outside it, and 'never checked' is the whole
+of what a reader needs to know."""
+
+MAX_EXCURSION = 4.0
+"""Beyond this, strict callers refuse rather than flag. Four times outside a
+fitted range is not a prediction, it is an extrapolation wearing one."""
+
+
 @dataclass
 class BlockMemoryModel:
     """Version 2. Component terms, and checkpointing applied to one of them."""
 
     params: ParameterSet = field(default_factory=default_parameters)
     version: str = MODEL_VERSION
+    domain: CalibratedDomain = field(default_factory=lambda: V2_DOMAIN)
 
     # ---- the model -------------------------------------------------------
 
@@ -289,11 +370,39 @@ class BlockMemoryModel:
             allocator_reserve=reserve, context=context,
         )
 
-    def predict_bytes(self, shape: BlockShape) -> float:
+    def predict_bytes(self, shape: BlockShape, *, strict: bool = False) -> float:
+        """Predicted peak bytes.
+
+        With `strict`, refuses a shape more than MAX_EXCURSION outside the
+        region the parameters were fitted in. Without it, the number is
+        returned and `excursions()` is how a caller finds out.
+        """
+        if strict:
+            far = {k: v for k, v in self.excursions(shape).items()
+                   if v > MAX_EXCURSION}
+            if far:
+                worst = max(far.items(), key=lambda kv: kv[1])
+                raise ExtrapolationError(
+                    f"{worst[0]} is {worst[1]:.1f}x outside the range "
+                    f"block-memory-v2 was fitted over "
+                    f"({getattr(self.domain, worst[0])}), on a "
+                    f"{self.domain.total_bytes / GB:.0f} GB "
+                    f"{self.domain.device}. The model is linear in every term "
+                    "so it will return a number regardless; nothing has "
+                    "checked it out here. Re-calibrate on the target hardware, "
+                    "or call without strict and record the excursion."
+                )
         return self.terms(shape).total
 
-    def predict_gb(self, shape: BlockShape) -> float:
-        return self.predict_bytes(shape) / GB
+    def excursions(self, shape: BlockShape) -> dict[str, float]:
+        """Per-axis distance outside the fitted region; empty when inside."""
+        return self.domain.excursions(shape)
+
+    def is_interpolation(self, shape: BlockShape) -> bool:
+        return not self.excursions(shape)
+
+    def predict_gb(self, shape: BlockShape, *, strict: bool = False) -> float:
+        return self.predict_bytes(shape, strict=strict) / GB
 
     # ---- the decision ----------------------------------------------------
 
