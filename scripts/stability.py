@@ -11,7 +11,12 @@ def main() -> int:
     from losscolumn.pipeline import md_to_html
     from losscolumn.report.render import render_page
     from losscolumn.thrusts.kernel.bench import MeasurementLock, device_description
-    from losscolumn.thrusts.overlap.sentinel import run_sentinel, sentinel_protocol
+    from losscolumn.thrusts.overlap.sentinel import (
+        SENTINEL_WORLDS,
+        run_sentinel,
+        sentinel_protocol,
+        uncertified_worlds,
+    )
     from losscolumn.version import STANDARD_VERSION
 
     quick = "--quick" in sys.argv
@@ -20,8 +25,11 @@ def main() -> int:
     repeats = 5 if quick else 7
     gap_s = 20.0 if quick else 300.0
 
+    # The worlds the campaign will use, not one convenient default. A verdict
+    # from three ranks does not cover a campaign that runs at eight.
+    worlds = (2, 3) if quick else SENTINEL_WORLDS
     proto = sentinel_protocol(n_sessions=n_sessions, n_restarts=n_restarts,
-                              repeats=repeats, gap_s=gap_s)
+                              repeats=repeats, gap_s=gap_s, worlds=worlds)
     out = Path("artifacts")
     (out / "prereg").mkdir(parents=True, exist_ok=True)
     (out / "prereg" / "stability-sentinel-v1.protocol.json").write_text(
@@ -40,14 +48,16 @@ def main() -> int:
                 time.sleep(gap_s)
             sid = f"S{s}"
             for r in range(n_restarts):
-                rs, errs = run_sentinel(session_id=sid, restart_index=r,
-                                        repeats=repeats,
-                                        port_offset=17 * s + 3 * r)
-                readings.extend(rs)
-                errors.update(errs)
-                ok = sum(1 for x in rs if x.valid)
-                print(f"  {sid}/r{r}: {ok}/{len(rs)} valid "
-                      f"({time.time() - t_start:.0f}s elapsed)", flush=True)
+                for wi, w in enumerate(worlds):
+                    rs, errs = run_sentinel(
+                        session_id=sid, restart_index=r, world=w,
+                        repeats=repeats,
+                        port_offset=17 * s + 3 * r + 101 * wi)
+                    readings.extend(rs)
+                    errors.update(errs)
+                    ok = sum(1 for x in rs if x.valid)
+                    print(f"  {sid}/r{r}/world{w}: {ok}/{len(rs)} valid "
+                          f"({time.time() - t_start:.0f}s elapsed)", flush=True)
 
     env = build_envelope(readings)
     sessions = sorted({r.session_id for r in readings})
@@ -71,6 +81,9 @@ def main() -> int:
         "pairs": [p.to_dict() for p in pairs],
         "readings": [r.to_dict() for r in readings],
         "errors": errors,
+        "worlds_certified": sorted({r.world for r in readings if r.valid}),
+        "worlds_requested": sorted(worlds),
+        "worlds_missing": uncertified_worlds(readings, worlds),
     }
     (out / "stability-machine.json").write_text(
         json.dumps(payload, indent=2, default=str), encoding="utf-8")

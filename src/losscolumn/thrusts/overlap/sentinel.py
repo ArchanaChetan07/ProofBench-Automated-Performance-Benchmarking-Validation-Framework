@@ -30,7 +30,8 @@ from typing import Any
 from losscolumn.core.stability import SentinelReading, SessionState
 
 __all__ = ["SENTINEL_SIZES", "SENTINEL_COLLECTIVES", "SENTINEL_WORLD",
-           "capture_state", "run_sentinel", "sentinel_protocol"]
+           "SENTINEL_WORLDS", "capture_state", "run_sentinel",
+           "sentinel_protocol", "certified_worlds", "uncertified_worlds"]
 
 # One size per regime, at the geometric centre of each so that a nearby
 # breakpoint cannot dominate the reading.
@@ -41,6 +42,16 @@ SENTINEL_SIZES: tuple[tuple[str, int], ...] = (
 )
 SENTINEL_COLLECTIVES: tuple[str, ...] = ("all_gather", "all_reduce")
 SENTINEL_WORLD: int = 3
+"""Default when only one world is asked for. Not a certification scope."""
+
+SENTINEL_WORLDS: tuple[int, ...] = (2, 3, 4)
+"""World sizes a stability run certifies unless told otherwise.
+
+A sentinel that measures one world certifies one world. Contention, memory
+pressure and -- on a split node -- which interconnect the ranks land across all
+change with the rank count, so a verdict from three ranks says nothing about
+eight. Drivers should pass the worlds the campaign will actually use.
+"""
 
 
 def capture_state(session_id: str = "", restart_index: int = 0) -> SessionState:
@@ -235,8 +246,25 @@ def _mean_state(a: SessionState, b: SessionState) -> SessionState:
     return st
 
 
+def certified_worlds(readings) -> set:
+    """World sizes a set of sentinel readings actually covers."""
+    return {r.world for r in readings if getattr(r, "valid", True)}
+
+
+def uncertified_worlds(readings, needed) -> list:
+    """Worlds a campaign will use that the sentinel never measured.
+
+    Returned rather than raised because the honest response depends on the
+    caller: a campaign may legitimately proceed and record the gap, but it may
+    not claim the stability verdict covers it.
+    """
+    have = certified_worlds(readings)
+    return sorted(w for w in needed if w not in have)
+
+
 def sentinel_protocol(*, n_sessions: int, n_restarts: int, repeats: int,
                       gap_s: float, world: int = SENTINEL_WORLD,
+                      worlds: Sequence[int] = (),
                       criterion_source: str = "derived from across-restart CV",
                       ) -> dict[str, Any]:
     """The pre-registered design, sealed before any of it runs.
@@ -258,6 +286,14 @@ def sentinel_protocol(*, n_sessions: int, n_restarts: int, repeats: int,
         "probes": [{"size_class": sc, "nbytes": n, "collective": k}
                    for k in SENTINEL_COLLECTIVES for sc, n in SENTINEL_SIZES],
         "world": world,
+        "worlds_certified": sorted(worlds) if worlds else [world],
+        "scope_rule": (
+            "A stability verdict covers the world sizes measured here and no "
+            "others. Contention and, on a split node, which interconnect the "
+            "ranks span both change with rank count, so a campaign running at "
+            "an uncertified world must record that gap rather than inherit "
+            "this verdict."
+        ),
         "levels": {
             "within_run": f"{repeats} repeats inside one process group",
             "across_restart": f"{n_restarts} process launches per session",

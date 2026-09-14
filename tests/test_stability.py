@@ -480,3 +480,59 @@ def test_restart_level_drift_is_a_named_outcome():
     """
     assert DriftKind.RESTART_LEVEL.value == "restart_level"
     assert "process launch" in DriftKind.RESTART_LEVEL.remedy
+
+
+# ----------------------------------------- a verdict states what it covers
+
+
+def test_a_stability_verdict_names_the_worlds_it_certifies():
+    """SENTINEL_WORLD was 3 and the driver never overrode it, so every
+    stability verdict this project produced described a three-rank group --
+    while licensing campaigns that ran at 2, 3, 4 and 8.
+
+    Stability is not world-independent. More ranks means more contention, more
+    memory pressure, and on a split node a transport that crosses the
+    interconnect. A machine steady at three ranks can be anything at eight.
+    """
+    from losscolumn.thrusts.overlap.sentinel import sentinel_protocol
+
+    p = sentinel_protocol(n_sessions=2, n_restarts=2, repeats=7, gap_s=300,
+                          worlds=(2, 3, 4))
+    assert p["worlds_certified"] == [2, 3, 4]
+    assert "no others" in p["scope_rule"]
+
+
+def test_a_single_world_protocol_still_states_its_scope():
+    from losscolumn.thrusts.overlap.sentinel import sentinel_protocol
+
+    p = sentinel_protocol(n_sessions=2, n_restarts=2, repeats=7, gap_s=300)
+    assert p["worlds_certified"] == [p["world"]]
+
+
+def test_uncertified_worlds_are_named_not_hidden():
+    from losscolumn.thrusts.overlap.sentinel import (
+        certified_worlds,
+        uncertified_worlds,
+    )
+
+    rs = _session("S0", world=2) + _session("S0", world=3)
+    assert certified_worlds(rs) == {2, 3}
+    assert uncertified_worlds(rs, [2, 3, 4, 8]) == [4, 8]
+
+
+def test_nothing_is_missing_when_the_sentinel_covered_it():
+    from losscolumn.thrusts.overlap.sentinel import uncertified_worlds
+
+    rs = _session("S0", world=2) + _session("S0", world=4)
+    assert uncertified_worlds(rs, [2, 4]) == []
+
+
+def test_invalid_readings_do_not_certify_a_world():
+    """A world that was attempted and failed is not a world that was checked."""
+    from losscolumn.thrusts.overlap.sentinel import uncertified_worlds
+
+    rs = _session("S0", world=2) + _session("S0", world=8)
+    for r in rs:
+        if r.world == 8:
+            r.valid = False
+    assert uncertified_worlds(rs, [2, 8]) == [8]
