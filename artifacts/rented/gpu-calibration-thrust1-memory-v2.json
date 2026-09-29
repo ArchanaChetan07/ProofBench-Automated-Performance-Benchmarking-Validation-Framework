@@ -1,0 +1,1621 @@
+{
+  "study": "thrust1-memory-v2",
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (sm_120, 102 GB)",
+  "protocol": {
+    "kind": "memory-model-protocol",
+    "study": "thrust1-memory-v2",
+    "sealed_at": "2026-09-29T20:40:00Z",
+    "memory_model_version": "block-memory-v2",
+    "model_parameters": {
+      "name": "block-memory-v2",
+      "summary": {
+        "registered": 10
+      },
+      "n_usable": 10,
+      "n_unusable": 0,
+      "n_evidence_backed": 0,
+      "parameters": [
+        {
+          "name": "activation_tensors_per_block",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "counted from the block's forward graph: the residual input, the attention output, the post-projection residual, and the FFN activation input",
+          "note": "the tensors autograd must keep between blocks for the backward pass",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "allocator_reserve_fraction",
+          "value": 0.12,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "caching-allocator fragmentation headroom; a block-structured workload does not achieve perfect packing",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "attention_workspace_tensors",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "q, k, v and the fused attention output, live simultaneously inside one block",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "autograd_overhead_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "gradient buffers autograd materialises for the residual path",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "checkpoint_retained_fraction",
+          "value": 0.25,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "a checkpointed block keeps its input boundary tensor and discards the interior; one of four saved tensors survives",
+          "note": "APPLIES ONLY to saved_activations. Weights, optimizer state and the live workspace are untouched by checkpointing, which is the structural error that made version 1 unusable",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "context_bytes",
+          "value": 750000000.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "CUDA context, kernel images and cuBLAS/cuDNN workspaces, independent of shape",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "ffn_workspace_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "the up-projection output and its activation, live simultaneously",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "gradient_bytes_per_param",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "one gradient per parameter at the model's own precision",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "optimizer_bytes_per_param",
+          "value": 0.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "zero for the local calibration harness, which holds gradients but runs no optimizer step",
+          "note": "a training run with Adam would register 12: fp32 master weights plus two moments. It is a parameter precisely so the calibration harness and the simulated trainer do not have to share a number that is only true for one of them",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "safety_margin_fraction",
+          "value": 0.1,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "uncertainty reserve, registered before validation and NOT tuned against it",
+          "note": "A model used to decide what to launch must be conservative near the boundary, because its two errors are not equally bad. Tuning this against the validation grid would be fitting on the data the model is graded by, so its value is fixed in the sealed protocol",
+          "quality": {},
+          "superseded_value": null
+        }
+      ]
+    },
+    "precision_bytes_per_element": 2,
+    "device_memory_budget_bytes": 93815612375,
+    "device_memory_budget_gb": 93.815612375,
+    "allocator_mechanism": {
+      "budget_fraction": 0.92,
+      "budget_bytes": 93815612375,
+      "total_bytes": 101973491712,
+      "device_index": 0,
+      "cap_installed": true,
+      "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+      "allocator_backend": "default caching allocator",
+      "env": {
+        "CUDA_VERSION": "13.0.2",
+        "CUDA_HOME": "/usr/local/cuda"
+      }
+    },
+    "checkpointing_policy": "activation checkpointing affects the saved-activation term only. Weights, gradients, optimizer state and the live per-block workspace are untouched, because a recomputed block still materialises its full workspace. Applying one multiplier to the whole expression is the structural error that made version 1 unusable.",
+    "grid_split": {
+      "created_at": "2026-09-29T20:40:00Z",
+      "frozen": true,
+      "frozen_at": "2026-09-29T20:40:04Z",
+      "digest": "sha256:a24fc126ad24039570e252c2d7c98939ab318aae6738cd051fcd187b1b8cdb09",
+      "n_calibration": 8,
+      "n_validation": 8,
+      "fitted_parameters": [],
+      "calibration": [
+        [
+          64,
+          2048,
+          false
+        ],
+        [
+          64,
+          2048,
+          true
+        ],
+        [
+          128,
+          2048,
+          false
+        ],
+        [
+          128,
+          2048,
+          true
+        ],
+        [
+          64,
+          4096,
+          false
+        ],
+        [
+          64,
+          4096,
+          true
+        ],
+        [
+          128,
+          4096,
+          false
+        ],
+        [
+          128,
+          4096,
+          true
+        ]
+      ],
+      "validation": [
+        [
+          256,
+          4096,
+          false
+        ],
+        [
+          256,
+          4096,
+          true
+        ],
+        [
+          256,
+          3072,
+          false
+        ],
+        [
+          192,
+          4096,
+          false
+        ],
+        [
+          256,
+          3072,
+          true
+        ],
+        [
+          192,
+          4096,
+          true
+        ],
+        [
+          8,
+          512,
+          true
+        ],
+        [
+          8,
+          512,
+          false
+        ]
+      ],
+      "rationale": {
+        "(64, 2048, False)": "the grid that diagnosed version 1",
+        "(64, 2048, True)": "the grid that diagnosed version 1",
+        "(128, 2048, False)": "the grid that diagnosed version 1",
+        "(128, 2048, True)": "the grid that diagnosed version 1",
+        "(64, 4096, False)": "the grid that diagnosed version 1",
+        "(64, 4096, True)": "the grid that diagnosed version 1",
+        "(128, 4096, False)": "the grid that diagnosed version 1",
+        "(128, 4096, True)": "the grid that diagnosed version 1",
+        "(256, 4096, False)": "boundary: |log(required/budget)| = 0.658",
+        "(256, 4096, True)": "boundary: |log(required/budget)| = 0.836",
+        "(256, 3072, False)": "boundary: |log(required/budget)| = 0.938",
+        "(192, 4096, False)": "boundary: |log(required/budget)| = 0.938",
+        "(256, 3072, True)": "boundary: |log(required/budget)| = 1.115",
+        "(192, 4096, True)": "boundary: |log(required/budget)| = 1.115",
+        "(8, 512, True)": "anchor: predicted feasible with margin",
+        "(8, 512, False)": "anchor: predicted feasible with margin"
+      }
+    },
+    "scaling": {
+      "local": {
+        "hidden": 1024,
+        "heads": 16,
+        "ffn": 4096,
+        "micro_batch": 1,
+        "seq_len": 1,
+        "n_layers": 1,
+        "bytes_per_elem": 2,
+        "checkpointing": false,
+        "tokens": 1,
+        "head_dim": 64,
+        "params": 12582912
+      },
+      "target": {
+        "hidden": 4096,
+        "heads": 32,
+        "ffn": 11008,
+        "layers": 32,
+        "bytes_per_elem": 2,
+        "shard_degree": 1
+      },
+      "width_ratio": 4.0,
+      "depth_ratio": 32.0,
+      "parameters_claimed_to_transfer": [
+        "activation_tensors_per_block",
+        "attention_workspace_tensors",
+        "ffn_workspace_tensors",
+        "autograd_overhead_tensors",
+        "checkpoint_retained_fraction",
+        "allocator_reserve_fraction"
+      ],
+      "parameters_re_registered_per_target": [
+        "context_bytes",
+        "optimizer_bytes_per_param",
+        "gradient_bytes_per_param"
+      ],
+      "caveat": "Calibrating these parameters on the local block establishes them for block-shaped workloads on this allocator. It does not establish the re-registered parameters, and it exercises no sharding at all: the local block runs on one device."
+    },
+    "metric_definitions": {
+      "false_win": "model predicts feasible, measurement says infeasible",
+      "false_loss": "model predicts infeasible, measurement says feasible",
+      "infeasible_iou": "intersection over union of the predicted and measured infeasible cell sets; undefined, not 1.0, when both are empty",
+      "false_win_rate": "false wins as a share of the cells the model cleared",
+      "false_loss_rate": "false losses as a share of the cells it rejected",
+      "dangerous_error_score": "(10 * false_wins + false_losses) / comparable cells",
+      "comparable": "both sides gave a definite FEASIBLE or INFEASIBLE; HOST_FALLBACK, INVALID and NOT_MEASURED are excluded rather than rounded"
+    },
+    "false_win_severity": {
+      "weight": 10.0,
+      "policy": "A false win kills a job launched on the model's advice; a false loss leaves capacity unused. The weight is a policy choice, fixed here before the data, and the raw counts are always reported beside the weighted score."
+    },
+    "acceptance_criteria": {
+      "primary": "zero false wins on the validation grid",
+      "secondary": "false-loss rate below 0.5, so the model is conservative without being useless",
+      "stopping": "the validation grid is fixed and measured once; there is no interim analysis and no cell is added after the seal"
+    },
+    "safety_margin_policy": "The safety margin is registered at 10% and is NOT tuned against validation results. Tuning it there would be fitting on the data the model is graded by.",
+    "seal_hash": "sha256:3e6951a14b5687ba3d9b5de313d2418abc6c48433d0da665de51da578dd2df62"
+  },
+  "preflight": {
+    "calibration": {
+      "label": "calibration grid",
+      "n_cells": 8,
+      "n_predicted_feasible": 8,
+      "n_predicted_infeasible": 0,
+      "n_boundary": 0,
+      "boundary_threshold": 0.25,
+      "informative": false,
+      "can_classify": false,
+      "reasons": [
+        "the model predicts every cell feasible, so there is no predicted infeasible region: overlap and boundary displacement will be undefined. The confusion matrix, accuracy and false-win rate remain available, and a false win here would still be a finding",
+        "no cell lies within 25% of the decision boundary; the grid tests only regimes where the answer is obvious"
+      ],
+      "cells": [
+        {
+          "cell": [
+            64,
+            2048,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 2.6041976427891163,
+          "near_boundary": false,
+          "predicted_gb": 6.308030238720001
+        },
+        {
+          "cell": [
+            64,
+            2048,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 2.7584955449223734,
+          "near_boundary": false,
+          "predicted_gb": 5.406087106559999
+        },
+        {
+          "cell": [
+            128,
+            2048,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.9847508549242425,
+          "near_boundary": false,
+          "predicted_gb": 11.71968903168
+        },
+        {
+          "cell": [
+            128,
+            2048,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 2.1518913819557453,
+          "near_boundary": false,
+          "predicted_gb": 9.91580276736
+        },
+        {
+          "cell": [
+            64,
+            4096,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.9847508549242425,
+          "near_boundary": false,
+          "predicted_gb": 11.71968903168
+        },
+        {
+          "cell": [
+            64,
+            4096,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 2.1518913819557453,
+          "near_boundary": false,
+          "predicted_gb": 9.91580276736
+        },
+        {
+          "cell": [
+            128,
+            4096,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.3305962155615008,
+          "near_boundary": false,
+          "predicted_gb": 22.5430066176
+        },
+        {
+          "cell": [
+            128,
+            4096,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.5049966815454043,
+          "near_boundary": false,
+          "predicted_gb": 18.935234088959998
+        }
+      ]
+    },
+    "validation": {
+      "label": "validation grid",
+      "n_cells": 8,
+      "n_predicted_feasible": 8,
+      "n_predicted_infeasible": 0,
+      "n_boundary": 0,
+      "boundary_threshold": 0.25,
+      "informative": false,
+      "can_classify": false,
+      "reasons": [
+        "the model predicts every cell feasible, so there is no predicted infeasible region: overlap and boundary displacement will be undefined. The confusion matrix, accuracy and false-win rate remain available, and a false win here would still be a finding",
+        "no cell lies within 25% of the decision boundary; the grid tests only regimes where the answer is obvious"
+      ],
+      "cells": [
+        {
+          "cell": [
+            256,
+            4096,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.6575306926234816,
+          "near_boundary": false,
+          "predicted_gb": 44.18964178944
+        },
+        {
+          "cell": [
+            256,
+            4096,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.8358035264400336,
+          "near_boundary": false,
+          "predicted_gb": 36.97409673216001
+        },
+        {
+          "cell": [
+            256,
+            3072,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.938473971618369,
+          "near_boundary": false,
+          "predicted_gb": 33.36632420352
+        },
+        {
+          "cell": [
+            192,
+            4096,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 0.938473971618369,
+          "near_boundary": false,
+          "predicted_gb": 33.36632420352
+        },
+        {
+          "cell": [
+            256,
+            3072,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.1154370000395348,
+          "near_boundary": false,
+          "predicted_gb": 27.95466541056
+        },
+        {
+          "cell": [
+            192,
+            4096,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 1.1154370000395348,
+          "near_boundary": false,
+          "predicted_gb": 27.95466541056
+        },
+        {
+          "cell": [
+            8,
+            512,
+            true
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 4.409399864135628,
+          "near_boundary": false,
+          "predicted_gb": 1.03730006016
+        },
+        {
+          "cell": [
+            8,
+            512,
+            false
+          ],
+          "predicted_feasible": true,
+          "boundary_distance": 4.382590276114377,
+          "near_boundary": false,
+          "predicted_gb": 1.06548578304
+        }
+      ]
+    }
+  },
+  "calibration_result": {
+    "n_total": 8,
+    "n_comparable": 8,
+    "n_excluded": 0,
+    "excluded_by_status": {},
+    "confusion": {
+      "predicted_feasible": {
+        "measured_feasible": 8,
+        "measured_infeasible": 0
+      },
+      "predicted_infeasible": {
+        "measured_feasible": 0,
+        "measured_infeasible": 0
+      }
+    },
+    "counts": {
+      "correct_feasible": 8,
+      "correct_infeasible": 0,
+      "false_win": 0,
+      "false_loss": 0
+    },
+    "rates": {
+      "accuracy": 1.0,
+      "false_win_rate": 0.0,
+      "false_loss_rate": NaN,
+      "false_win_area": 0.0,
+      "false_loss_area": 0.0
+    },
+    "infeasible_iou": NaN,
+    "dangerous_error_score": 0.0,
+    "danger_weight": 10.0,
+    "danger_weight_policy": "A false win kills a job launched on the model's advice; a false loss leaves capacity unused. The weight is a policy choice, not a measurement, and the raw counts are reported beside it so a reader who weighs them differently can do so.",
+    "safe": true,
+    "verdict": "EXACT: the model agrees with the hardware on all 8 cells.",
+    "boundary_displacement": [
+      {
+        "axis": "micro_batch",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      },
+      {
+        "axis": "seq_len",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      },
+      {
+        "axis": "checkpointing",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      }
+    ],
+    "cells": [
+      {
+        "key": [
+          64,
+          2048,
+          false
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 2048,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 6308030238,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "6.31 GB estimated + 0.63 GB margin = 6.94 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 5477763072,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 5.48 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.6207016729749739
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          2048,
+          true
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 2048,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 5406087106,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "5.41 GB estimated + 0.54 GB margin = 5.95 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 5477763072,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 5.48 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 1.3190505059901625
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          2048,
+          false
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 2048,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 11719689031,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "11.72 GB estimated + 1.17 GB margin = 12.89 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 10854860800,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 10.85 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.18950111302547157
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          2048,
+          true
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 2048,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 9915802767,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "9.92 GB estimated + 0.99 GB margin = 10.91 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 10854860800,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 10.85 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.21691957098664716
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          4096,
+          false
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 4096,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 11719689031,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "11.72 GB estimated + 1.17 GB margin = 12.89 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 10854860800,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 10.85 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.2062054899870418
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          64,
+          4096,
+          true
+        ],
+        "coords": {
+          "micro_batch": 64,
+          "seq_len": 4096,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 9915802767,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "9.92 GB estimated + 0.99 GB margin = 10.91 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 10854860800,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 10.85 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.22911735600791872
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          4096,
+          false
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 4096,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 22543006617,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "22.54 GB estimated + 2.25 GB margin = 24.80 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 21609056256,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 21.61 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.31608422298450023
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          128,
+          4096,
+          true
+        ],
+        "coords": {
+          "micro_batch": 128,
+          "seq_len": 4096,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 18935234088,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "18.94 GB estimated + 1.89 GB margin = 20.83 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 21609056256,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 21.61 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.37039635004475713
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      }
+    ]
+  },
+  "validation_result": {
+    "n_total": 8,
+    "n_comparable": 8,
+    "n_excluded": 0,
+    "excluded_by_status": {},
+    "confusion": {
+      "predicted_feasible": {
+        "measured_feasible": 8,
+        "measured_infeasible": 0
+      },
+      "predicted_infeasible": {
+        "measured_feasible": 0,
+        "measured_infeasible": 0
+      }
+    },
+    "counts": {
+      "correct_feasible": 8,
+      "correct_infeasible": 0,
+      "false_win": 0,
+      "false_loss": 0
+    },
+    "rates": {
+      "accuracy": 1.0,
+      "false_win_rate": 0.0,
+      "false_loss_rate": NaN,
+      "false_win_area": 0.0,
+      "false_loss_area": 0.0
+    },
+    "infeasible_iou": NaN,
+    "dangerous_error_score": 0.0,
+    "danger_weight": 10.0,
+    "danger_weight_policy": "A false win kills a job launched on the model's advice; a false loss leaves capacity unused. The weight is a policy choice, not a measurement, and the raw counts are reported beside it so a reader who weighs them differently can do so.",
+    "safe": true,
+    "verdict": "EXACT: the model agrees with the hardware on all 8 cells.",
+    "boundary_displacement": [
+      {
+        "axis": "micro_batch",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      },
+      {
+        "axis": "seq_len",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      },
+      {
+        "axis": "checkpointing",
+        "n_fibers_compared": 0,
+        "n_fibers_predicted_boundary_only": 0,
+        "n_fibers_measured_boundary_only": 0,
+        "mean_signed_shift": NaN,
+        "mean_abs_shift": NaN,
+        "max_abs_shift": NaN,
+        "shifts": []
+      }
+    ],
+    "cells": [
+      {
+        "key": [
+          256,
+          4096,
+          false
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 44189641789,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "44.19 GB estimated + 4.42 GB margin = 48.61 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 43117447168,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 43.12 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.5397326329839416
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          4096,
+          true
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 4096,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 36974096732,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "36.97 GB estimated + 3.70 GB margin = 40.67 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 43117447168,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 43.12 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.6495092540280893
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3072,
+          false
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3072,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 33366324203,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "33.37 GB estimated + 3.34 GB margin = 36.70 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 32363251712,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 32.36 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.41971841698978096
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          4096,
+          false
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 4096,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 33366324203,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "33.37 GB estimated + 3.34 GB margin = 36.70 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 32363251712,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 32.36 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.4358014650060795
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          256,
+          3072,
+          true
+        ],
+        "coords": {
+          "micro_batch": 256,
+          "seq_len": 3072,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 27954665410,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "27.95 GB estimated + 2.80 GB margin = 30.75 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 32363251712,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 32.36 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.4904245059587993
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          192,
+          4096,
+          true
+        ],
+        "coords": {
+          "micro_batch": 192,
+          "seq_len": 4096,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 27954665410,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "27.95 GB estimated + 2.80 GB margin = 30.75 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 32363251712,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 32.36 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.5160886149969883
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          true
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": true
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1037300060,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "1.04 GB estimated + 0.10 GB margin = 1.14 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 268699648,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.27 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.11628225597087294
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      },
+      {
+        "key": [
+          8,
+          512,
+          false
+        ],
+        "coords": {
+          "micro_batch": 8,
+          "seq_len": 512,
+          "checkpointing": false
+        },
+        "predicted": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 1065485783,
+          "budget_bytes": 93815612375,
+          "method": "model",
+          "detail": "1.07 GB estimated + 0.11 GB margin = 1.17 GB against a 93.82 GB budget (fits)",
+          "runtime_config": {},
+          "elapsed_s": null
+        },
+        "measured": {
+          "status": "feasible",
+          "throughput": null,
+          "peak_bytes": 268699648,
+          "budget_bytes": 93815612375,
+          "method": "allocator-cap+peak-check",
+          "detail": "completed with a peak of 0.27 GB inside the budget",
+          "runtime_config": {
+            "budget_fraction": 0.92,
+            "budget_bytes": 93815612375,
+            "total_bytes": 101973491712,
+            "device_index": 0,
+            "cap_installed": true,
+            "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "allocator_backend": "default caching allocator",
+            "env": {
+              "CUDA_VERSION": "13.0.2",
+              "CUDA_HOME": "/usr/local/cuda"
+            }
+          },
+          "elapsed_s": 0.1058901299838908
+        },
+        "outcome": "correct_feasible",
+        "comparable": true
+      }
+    ]
+  },
+  "fitted_parameters": [],
+  "model_after_freeze": {
+    "version": "block-memory-v2",
+    "parameters": {
+      "name": "block-memory-v2",
+      "summary": {
+        "registered": 10
+      },
+      "n_usable": 10,
+      "n_unusable": 0,
+      "n_evidence_backed": 0,
+      "parameters": [
+        {
+          "name": "activation_tensors_per_block",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "counted from the block's forward graph: the residual input, the attention output, the post-projection residual, and the FFN activation input",
+          "note": "the tensors autograd must keep between blocks for the backward pass",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "allocator_reserve_fraction",
+          "value": 0.12,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "caching-allocator fragmentation headroom; a block-structured workload does not achieve perfect packing",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "attention_workspace_tensors",
+          "value": 4.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "q, k, v and the fused attention output, live simultaneously inside one block",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "autograd_overhead_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "gradient buffers autograd materialises for the residual path",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "checkpoint_retained_fraction",
+          "value": 0.25,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "a checkpointed block keeps its input boundary tensor and discards the interior; one of four saved tensors survives",
+          "note": "APPLIES ONLY to saved_activations. Weights, optimizer state and the live workspace are untouched by checkpointing, which is the structural error that made version 1 unusable",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "context_bytes",
+          "value": 750000000.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "CUDA context, kernel images and cuBLAS/cuDNN workspaces, independent of shape",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "ffn_workspace_tensors",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "tensors",
+          "source": "the up-projection output and its activation, live simultaneously",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "gradient_bytes_per_param",
+          "value": 2.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "one gradient per parameter at the model's own precision",
+          "note": "",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "optimizer_bytes_per_param",
+          "value": 0.0,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "bytes",
+          "source": "zero for the local calibration harness, which holds gradients but runs no optimizer step",
+          "note": "a training run with Adam would register 12: fp32 master weights plus two moments. It is a parameter precisely so the calibration harness and the simulated trainer do not have to share a number that is only true for one of them",
+          "quality": {},
+          "superseded_value": null
+        },
+        {
+          "name": "safety_margin_fraction",
+          "value": 0.1,
+          "provenance": "registered",
+          "usable": true,
+          "is_evidence": false,
+          "unit": "fraction",
+          "source": "uncertainty reserve, registered before validation and NOT tuned against it",
+          "note": "A model used to decide what to launch must be conservative near the boundary, because its two errors are not equally bad. Tuning this against the validation grid would be fitting on the data the model is graded by, so its value is fixed in the sealed protocol",
+          "quality": {},
+          "superseded_value": null
+        }
+      ]
+    }
+  },
+  "notes": [
+    "No parameter was fitted. Version 2's parameters are all REGISTERED, derived from what a block allocates rather than from these measurements, so the calibration grid confirms the replacement without conferring any fit on it. That makes the validation result a stronger statement, not a weaker one: the model had no opportunity to absorb the calibration data."
+  ],
+  "provenance": {
+    "captured_at": "2026-09-29T20:40:07Z",
+    "host": "5177d3c5a0a1",
+    "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "cpu_count": 256,
+    "git": {
+      "commit": "756971cafc8b55bc40a4b613eba6af4bd58d56f5",
+      "dirty": false,
+      "dirty_scope": [
+        "src",
+        "pyproject.toml",
+        "tests",
+        "configs"
+      ],
+      "dirty_files": [],
+      "branch": "main",
+      "remote": "https://github.com/ArchanaChetan07/ProofBench-Automated-Performance-Benchmarking-Validation-Framework.git",
+      "describe": "v0.10.0-verified-22-g756971c-dirty"
+    },
+    "gpu": {
+      "available": true,
+      "devices": [
+        {
+          "index": 0,
+          "name": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "capability": "12.0",
+          "total_memory_gb": 101.973,
+          "multi_processor_count": 188
+        }
+      ],
+      "source": "torch",
+      "torch_version": "2.13.0+cu130",
+      "cuda_version": "13.0"
+    },
+    "packages": {
+      "torch": "2.13.0+cu130",
+      "triton": "3.7.1",
+      "numpy": "2.2.6",
+      "vllm": "0.30.0",
+      "sglang": null,
+      "tensorrt_llm": null,
+      "transformers": "5.17.0",
+      "flash_attn": null
+    },
+    "container_image": null,
+    "operator": null,
+    "env_overrides": {
+      "VLLM_BUILD_URL": "https://buildkite.com/vllm/release-v2/builds/7022",
+      "VLLM_TEST_ENDPOINT": "chat",
+      "TORCH_CUDA_ARCH_LIST": "7.5 8.0 8.6 8.9 9.0 10.0 12.0",
+      "VLLM_CACHE_ROOT": "/workspace/.vllm_cache",
+      "VLLM_IMAGE_TAG": "vllm/vllm-openai:v0.30.0",
+      "VLLM_USAGE_SOURCE": "production-docker-image",
+      "VLLM_ARGS": "--max-num-seqs 8 --max-model-len 32000 --enable-auto-tool-choice --tool-call-parser qwen3_coder --reasoning-parser qwen3 --download-dir /workspace/models --host 127.0.0.1 --port 18000",
+      "CUDA_VERSION": "13.0.2",
+      "VLLM_MODEL": "Qwen/Qwen3.5-9B",
+      "VLLM_ENABLE_CUDA_COMPATIBILITY": "0",
+      "VLLM_BUILD_PIPELINE": "019d130e-464e-4ff7-b84b-492992c0c06b",
+      "CUDA_HOME": "/usr/local/cuda",
+      "VLLM_BUILD_COMMIT": "ced6857afa0ea7b2e3f0846a62e1394e90f15607"
+    },
+    "notes": null,
+    "hardware_fingerprint": "c2ff9202b502aa27",
+    "hardware": "1x NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+  },
+  "kind": "calibration-report",
+  "standard_version": "LC-1.2",
+  "calibrates": "thrust1",
+  "generated_at": "2026-09-29T20:40:07Z",
+  "command": "python scripts/memcal2.py"
+}

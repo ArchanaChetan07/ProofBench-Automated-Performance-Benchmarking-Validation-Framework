@@ -156,13 +156,23 @@ class TestWithdrawnAreNotLiveClaims:
         """A withdrawn claim shares its id with the artifact that replaced it.
 
         So identity is the wrong thing to test on, and testing it that way was
-        this file's own first bug. What must hold is positional: every claim the
-        index counts lives at the top level, and none is drawn from history/.
+        this file's own first bug. What must hold is positional: none of the
+        claims the index counts is drawn from history/.
+
+        The second version of this test read "lives at the top level", which
+        conflated *not withdrawn* with *in the root directory*. Claims measured
+        on rented hardware live in artifacts/rented/ and are live evidence: a
+        claim records the device it was measured on, so one registered lattice
+        measured on two machines is two claims, not a duplicate. The invariant
+        is the exclusion, not the layout.
         """
         preserved = list((ARTIFACTS / "history").rglob("*.claim.json"))
         assert preserved, "no preserved claim to test against"
 
-        live = list(ARTIFACTS.glob("*.claim.json"))
+        history = ARTIFACTS / "history"
+        live = [p for p in ARTIFACTS.rglob("*.claim.json")
+                if history not in p.parents]
+        assert live, "no live claim to test against"
         assert index_summary(ARTIFACTS)["n_claims"] == len(live)
         assert len(live) < len(live) + len(preserved)
 

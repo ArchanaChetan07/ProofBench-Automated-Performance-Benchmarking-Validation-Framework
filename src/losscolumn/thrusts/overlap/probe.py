@@ -51,6 +51,13 @@ class ProbeConfig:
     device_index: int = 0
     cap_installed: bool = False
     total_bytes: int = 0
+    free_bytes: int = 0
+    foreign_bytes: int = 0
+    """Device memory held by another process when the cap was installed.
+
+    Recorded because a feasibility verdict taken beside a second tenant is a
+    statement about the occupancy, not about the configuration."""
+    refusal: str = ""
     allocator_backend: str = ""
     env: dict[str, str] | None = None
 
@@ -66,9 +73,18 @@ class ProbeConfig:
             "device_index": self.device_index,
             "cap_installed": self.cap_installed,
             "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+            "free_bytes": self.free_bytes,
+            "foreign_bytes": self.foreign_bytes,
+            "refusal": self.refusal,
             "allocator_backend": self.allocator_backend,
             "env": self.env or {},
         }
+
+
+FOREIGN_MEMORY_TOLERANCE = 0.05
+"""Share of the device another process may hold before measurement is refused.
+
+Enough for driver and context overhead, far below a second workload."""
 
 
 def install_budget(budget_fraction: float = 0.92, device: int = 0) -> ProbeConfig:
@@ -88,6 +104,41 @@ def install_budget(budget_fraction: float = 0.92, device: int = 0) -> ProbeConfi
         if not torch.cuda.is_available():
             return cfg
         cfg.total_bytes = int(torch.cuda.get_device_properties(device).total_memory)
+
+        # How much of the card someone else already holds. The budget is a
+        # fraction of TOTAL memory, which is the right question only on a device
+        # nobody else is using -- and a rented box is exactly where that
+        # assumption fails.
+        #
+        # It failed here. A vLLM engine left running by a previous tenant held
+        # 87 of 97 GB, so a calibration computed a 93.8 GB budget, met the
+        # allocator's refusal at around 11 GB, and recorded six cells as
+        # INFEASIBLE. The model was blamed for a verdict the machine never had
+        # room to deliver, and the artifact said dangerous-error score 7.5.
+        # Cleared of the other process the same grid scores 8 of 8 and zero.
+        try:
+            free_b, _ = torch.cuda.mem_get_info(device)
+            cfg.free_bytes = int(free_b)
+            cfg.foreign_bytes = max(cfg.total_bytes - cfg.free_bytes, 0)
+            # Anything beyond a little driver and context overhead is a second
+            # tenant, and feasibility measured beside one is not feasibility.
+            if cfg.foreign_bytes > FOREIGN_MEMORY_TOLERANCE * cfg.total_bytes:
+                cfg.cap_installed = False
+                cfg.refusal = (
+                    f"{cfg.foreign_bytes / 1e9:.1f} GB of this device's "
+                    f"{cfg.total_bytes / 1e9:.1f} GB is held by another process. "
+                    "A budget taken as a fraction of total memory would promise "
+                    "room that is not there, and every cell too large for what "
+                    "remains would be recorded as infeasible -- a property of "
+                    "the machine's occupancy reported as a property of the "
+                    "model. Free the device, or measure elsewhere."
+                )
+                return cfg
+        except Exception:
+            # No mem_get_info is a reason to say so, not to assume the device
+            # is idle.
+            cfg.free_bytes = -1
+
         cfg.allocator_backend = os.environ.get(
             "PYTORCH_CUDA_ALLOC_CONF", "default caching allocator"
         )
@@ -126,11 +177,11 @@ def probe_feasibility(
         return FeasibilityObservation(
             status=Feasibility.INVALID,
             method="none",
-            detail=(
+            detail=(cfg.refusal or (
                 "the device-memory cap could not be installed, so an over-large "
                 "allocation would be served from host memory rather than refused. "
                 "Feasibility is not measurable in that state and is not guessed at."
-            ),
+            )),
             budget_bytes=cfg.budget_bytes,
             runtime_config=cfg.to_dict(),
         )

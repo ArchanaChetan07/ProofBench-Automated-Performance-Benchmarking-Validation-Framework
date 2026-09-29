@@ -1,0 +1,16 @@
+{
+  "kind": "stages-not-run",
+  "n_gpus": 1,
+  "peer_to_peer": "n/a",
+  "skipped": [
+    {
+      "stage": "stability sentinel",
+      "reason": "stability sentinel needs 4 devices, this box has 1"
+    },
+    {
+      "stage": "communication campaign",
+      "reason": "communication campaign needs 4 devices, this box has 1"
+    }
+  ],
+  "note": "A stage this machine could not satisfy is recorded here rather than omitted. An absent artifact and a stage that was never attempted look identical afterwards, and only one of them means the measurement was not made."
+}

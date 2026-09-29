@@ -323,3 +323,62 @@ class TestMatrixRoundTrip:
         ])
         back = FeasibilityMatrix.from_dict(m.to_dict())
         assert back.cells[0].measured.status is Feasibility.HOST_FALLBACK
+
+
+class TestForeignMemory:
+    """A device someone else is using cannot answer "does this fit"."""
+
+    def test_a_second_tenant_refuses_measurement(self):
+        """The failure this prevents, from a real rental.
+
+        A vLLM engine left running by a previous tenant held 87 of 97 GB. The
+        budget is a fraction of TOTAL memory, so the calibration computed
+        93.8 GB, met the allocator's refusal near 11 GB, and recorded six cells
+        INFEASIBLE with a dangerous-error score of 7.5. Cleared of the other
+        process the identical grid scores 8 of 8 and zero.
+
+        The model was blamed for a verdict the machine never had room to give.
+        """
+        from losscolumn.thrusts.overlap.probe import (
+            FOREIGN_MEMORY_TOLERANCE,
+            ProbeConfig,
+        )
+
+        total = 97_000_000_000
+        cfg = ProbeConfig(total_bytes=total)
+        cfg.foreign_bytes = 87_000_000_000
+        assert cfg.foreign_bytes > FOREIGN_MEMORY_TOLERANCE * total, (
+            "87 of 97 GB must be over any sane tolerance")
+
+    def test_the_tolerance_admits_driver_overhead_only(self):
+        """Small enough that a context does not trip it, far below a workload."""
+        from losscolumn.thrusts.overlap.probe import FOREIGN_MEMORY_TOLERANCE
+
+        assert 0.0 < FOREIGN_MEMORY_TOLERANCE <= 0.10
+
+    def test_refusal_is_invalid_not_infeasible(self):
+        """The distinction the whole feasibility enum exists for.
+
+        A cell nobody had room to test is not a cell that does not fit.
+        """
+        from losscolumn.core.feasibility import Feasibility
+        from losscolumn.thrusts.overlap.probe import ProbeConfig, probe_feasibility
+
+        cfg = ProbeConfig(total_bytes=97_000_000_000)
+        cfg.cap_installed = False
+        cfg.refusal = "87.0 GB of this device's 97.0 GB is held by another process."
+        obs = probe_feasibility(lambda: None, cfg)
+        assert obs.status is Feasibility.INVALID
+        assert obs.status is not Feasibility.INFEASIBLE
+        assert "another process" in obs.detail
+
+    def test_the_occupancy_is_recorded_in_the_artifact(self):
+        """So a reader can tell a crowded machine from a wrong model."""
+        from losscolumn.thrusts.overlap.probe import ProbeConfig
+
+        cfg = ProbeConfig(total_bytes=97_000_000_000)
+        cfg.free_bytes = 10_000_000_000
+        cfg.foreign_bytes = 87_000_000_000
+        d = cfg.to_dict()
+        assert d["foreign_bytes"] == 87_000_000_000
+        assert d["free_bytes"] == 10_000_000_000
