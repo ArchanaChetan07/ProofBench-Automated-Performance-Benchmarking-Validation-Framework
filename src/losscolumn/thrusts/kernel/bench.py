@@ -223,6 +223,16 @@ def _lock_path() -> Path:
 def _pid_alive(pid: int) -> bool:
     import os
 
+    # Non-positive pids are not processes, and on POSIX they are worse than
+    # meaningless: kill(-1, sig) addresses every process the caller may signal
+    # and kill(0, sig) the caller's whole process group, so both return success
+    # and read as "alive". A lock file that parses but carries no pid defaults
+    # to -1, which on Linux would therefore look like a live holder and block
+    # every later measurement on the machine until someone deleted the file by
+    # hand. On Windows the same call finds nothing and returns False, which is
+    # why this only appeared when the suite first ran on Linux.
+    if pid <= 0:
+        return False
     if pid == os.getpid():
         return True
     try:

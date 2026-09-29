@@ -206,3 +206,27 @@ def test_pid_alive_says_no_for_an_impossible_pid():
     which is the failure that cost two runs.
     """
     assert bench._pid_alive(-1) is False
+
+
+@pytest.mark.parametrize("pid", [-1, 0, -999])
+def test_pid_alive_rejects_non_positive_pids(pid):
+    """Found the first time the suite ran on Linux.
+
+    On POSIX, kill(-1, sig) addresses every process the caller may signal and
+    kill(0, sig) its whole process group. Both succeed, so both read as a live
+    process. Windows asks tasklist, finds nothing, and returns False -- so the
+    development machine never showed it.
+
+    It is not academic: `held_by` falls back to -1 when a lock file parses but
+    carries no pid, so on Linux a corrupt lock would have looked like a live
+    holder and blocked every later measurement on that machine.
+    """
+    assert bench._pid_alive(pid) is False
+
+
+def test_a_lock_without_a_pid_is_treated_as_stale(_isolated_lock):
+    """The path that made the bug above reachable."""
+    _isolated_lock.write_text(json.dumps({"purpose": "no pid recorded"}),
+                              encoding="utf-8")
+    with MeasurementLock("sweep") as lk:
+        assert lk.acquired, "a lock naming no process must not block the machine"
