@@ -312,14 +312,41 @@ class MeasurementLock:
         import json
         import os
 
+        payload = json.dumps({
+            "pid": os.getpid(),
+            "purpose": self.purpose,
+            "started": _utcnow(),
+        })
+
+        # Create the lock atomically. Checking `exists()` and then writing is two
+        # operations, and between them a second process can make the same check,
+        # reach the same conclusion, and write the same file -- so both proceed
+        # believing they hold it. That is precisely the contention this class
+        # exists to prevent, and it is undetectable afterwards: two interleaved
+        # runs produce self-consistent replicates and tight intervals.
+        #
+        # O_CREAT | O_EXCL is one operation that either creates the file or
+        # fails, on every platform this runs on.
+        def _try_claim() -> bool:
+            try:
+                fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+            except FileExistsError:
+                return False
+            try:
+                os.write(fd, payload.encode("utf-8"))
+            finally:
+                os.close(fd)
+            return True
+
         holder = None
-        if self.path.exists():
+        if not _try_claim():
             try:
                 holder = json.loads(self.path.read_text(encoding="utf-8"))
             except Exception:
                 holder = None
-            if holder and _pid_alive(int(holder.get("pid", -1))) \
-                    and int(holder.get("pid", -1)) != os.getpid():
+            held_by = int(holder.get("pid", -1)) if holder else -1
+
+            if holder and held_by != os.getpid() and _pid_alive(held_by):
                 msg = (
                     f"another losscolumn measurement is running: pid {holder.get('pid')} "
                     f"({holder.get('purpose')}, started {holder.get('started')}). "
@@ -330,18 +357,29 @@ class MeasurementLock:
                 if self.strict:
                     raise RuntimeError(msg)
                 self.state["contended_by"] = holder
-            else:
-                # A stale lock from a killed run is not a reason to refuse.
-                self.path.unlink(missing_ok=True)
+                # Contended and proceeding anyway: leave the holder's file alone
+                # rather than overwriting the record of who else is running.
+                self.acquired = False
+                self.state.update({
+                    "exclusive": False,
+                    "lock": str(self.path),
+                    "competing_gpu_memory": competing_gpu_memory(),
+                })
+                return self
 
-        self.path.write_text(
-            json.dumps({
-                "pid": os.getpid(),
-                "purpose": self.purpose,
-                "started": _utcnow(),
-            }),
-            encoding="utf-8",
-        )
+            # A stale lock from a killed run is not a reason to refuse. Removing
+            # it and re-claiming keeps the claim atomic; if another process wins
+            # the race to re-create it, believe that one.
+            self.path.unlink(missing_ok=True)
+            if not _try_claim():
+                msg = (
+                    "another losscolumn measurement claimed the lock while this one "
+                    "was clearing a stale entry. Retry once it finishes."
+                )
+                if self.strict:
+                    raise RuntimeError(msg)
+                self.state["contended_by"] = {"pid": "unknown", "purpose": "raced"}
+
         self.acquired = True
         self.state.update({
             "exclusive": "contended_by" not in self.state,
