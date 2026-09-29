@@ -25,10 +25,23 @@ mkdir -p "$ART"
 say() { printf '\n=== %s ===\n' "$*" | tee -a "$LOG"; }
 note() { printf '    %s\n' "$*" | tee -a "$LOG"; }
 
-# Skip a stage whose artifact is already on disk. This is what makes the script
-# resumable: a rental that dies at stage 4 is restarted by running it again.
+# Skip a stage whose artifact THIS RUN already produced. Resumability, without
+# the failure it caused the first time: the repository ships the artifacts of
+# earlier runs, so a plain existence check matched a claim measured on the old
+# 8.6 GB development card and skipped every real stage. The script then reported
+# a complete rental in four minutes, which is less time than the measurement
+# takes, and the artifact still named a T1000.
+#
+# A marker stamped at startup separates the two. Anything newer was made here;
+# anything older came with the clone and proves nothing about this machine.
+touch "$ART/.runstart"
 done_already() {
-  if [ -f "$1" ]; then note "already present, skipping: $1"; return 0; fi
+  if [ -f "$1" ] && [ "$1" -nt "$ART/.runstart" ]; then
+    note "produced earlier in this run, skipping: $1"; return 0
+  fi
+  if [ -f "$1" ]; then
+    note "present but from an earlier run on another machine -- re-measuring"
+  fi
   return 1
 }
 
