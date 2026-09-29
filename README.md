@@ -301,23 +301,33 @@ tell truth from falsehood:
 
 This is a research instrument, not a benchmark result.
 
-**Thrust III is measured.** Both implementations were swept over the full
-registered lattice — 144 cells, 80 of them applicable configurations — at 11
-replicates, on a local sm_75 card. Both claims grade **conforming with zero
-fatal findings and zero warnings**, and both pass **80/80** correctness shapes
-against an fp64 ground truth before any timing.
+**Thrust III is measured, on two devices.** Both implementations swept over the
+full registered lattice — 144 cells, 80 of them applicable — at 11 replicates.
+The second device is the one that tests the claim, and it changes the answer.
 
-| | portable (eager ops) | Triton (fused, block-skipping) |
+| Triton kernel | T1000 (sm_75, no tensor cores) | RTX PRO 6000 (sm_120, tensor cores) |
 |---|---|---|
-| Prefill speedup, median | 0.38x | **5.76x** |
-| Decode speedup, median | 0.96x | **3.46x** |
-| Losing cells | 44 / 80 | **8 / 80** |
-| Worst case | 493x slower | 69x slower |
-| Correctness | 80/80 | 80/80 |
+| Wins | — | **44 / 80** |
+| Losses | 8 / 80 | **28 / 80** |
+| Ties | — | 8 / 80 |
+| Grade | conforming | conforming |
 
-Both lose in the same place — the **dense** pattern, where there are no blocks
-to skip and the comparison is purely code generation against a fused kernel
-that has had years of work. Everywhere sparsity is real, block-skipping wins.
+**The kernel loses more on better hardware, and that is the honest result.** On
+a card with no tensor cores the reference has none either, so the comparison was
+between two emulated paths and the hand-written kernel looked strong. Give the
+reference the units it was designed for and it gets much faster, while the
+hand-written blocking does not. The T1000 number was not wrong; it was a
+measurement of a machine where the question could not be asked.
+
+Where it loses on Blackwell is attributed, not described:
+
+- **All 16 dense cells**, median **1065%**, worst **1958%**. With no blocks to
+  skip this is hand-written code generation against a fused vendor kernel.
+- **8 decode cells** at low density. One query row is padded to a 64-wide block,
+  so 98% of every tile is wasted work a prefill-shaped kernel cannot avoid.
+
+The portable eager-ops implementation loses all 80 cells on Blackwell, which is
+what it is for: correct everywhere, portable anywhere, not fast.
 
 **Two findings from this repository's own artifacts are worth more than the
 numbers.**
@@ -326,18 +336,19 @@ numbers.**
 routed the reference through an explicit attention mask for **every** pattern,
 including dense — and an explicit mask precludes torch's fused backend. Against
 that handicapped baseline the Triton kernel reported **zero losses**: a clean
-sweep. Giving the reference the backend torch would have chosen turned that
-into **8 losses, worst case 69x**. The empty loss column was an artifact of the
+sweep. Giving the reference the backend torch would have chosen turned that into
+8 losses, worst case 69x. The empty loss column was an artifact of the
 comparator, which is the exact failure this project exists to make visible.
 
-*The device has no tensor cores, and compute capability does not say so.* The
-T1000 reports sm_75, but TU117 ships without the units: measured here, fp16
-GEMM runs at 0.33 TFLOP/s against 1.83 for fp32 — five times **slower**, on an
-emulated path. Every timing above is fp16. The comparison stays internally
-valid because both arms took the same path, but the absolute rates do not
-transfer to a tensor-core device and neither necessarily does the ordering.
-This is detected by microbenchmark and printed as the first limitation on both
-claims.
+*A model can score 8 of 8 on a grid that cannot fail.* `block-memory-v2`
+predicts feasibility correctly on all eight calibration cells on a 96 GB card,
+and its own preflight recorded `"informative": false` because every cell fits
+trivially and none lies near a decision boundary. Measured where the term is
+observable — across layer depth — the registered checkpointing fraction is
+**falsified by 36.6 percentage points**, and without checkpointing the
+prediction error *changes sign*, from +55.7% at one layer to **−42.2% at eight**.
+Under-prediction is the direction that says *this fits* about something that
+does not. See [`docs/THRUST3_RESULTS.md`](docs/THRUST3_RESULTS.md).
 
 **Thrusts I and II are simulated** and stamped `evidence_class="simulated"`,
 with a banner on their own front page. The calibration study for Thrust I ran
@@ -349,10 +360,12 @@ buried under statistics that look like agreement. What the study *does*
 establish stands: the model's flat 4/3 activation-checkpointing multiplier
 overstates the measured penalty of 1.22x.
 
-The numbers that would appear in a paper come from the funded allocation on
-Hopper, where the FA-3 mechanisms this kernel cannot express actually exist.
-The standard, the analysis and the conformance machinery are what is finished
-here.
+Thrust III now has numbers from a tensor-core device. Thrusts I and II do not,
+and the distributed claims are the ones a funded allocation would settle: the
+communication surface was measured only over PCIe, and the readiness gate stands
+at **NOT_READY**, blocking on 5 of 6 model groups accepted and 18 of 24 coverage
+cells. The standard, the analysis and the conformance machinery are finished;
+two of the three thrusts are not.
 
 If Triton fails to import under Anaconda on Windows, see
 [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md) — the cause is a stale bundled
