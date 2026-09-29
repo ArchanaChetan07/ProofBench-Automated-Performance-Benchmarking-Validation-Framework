@@ -39,19 +39,96 @@ def _require_torch() -> None:
         raise RuntimeError("this path requires torch; install losscolumn[torch]")
 
 
+MATERIALISE_BUDGET_BYTES = 2 * 1024**3
+"""Above this, ground truth streams instead of materialising the score matrix.
+
+The dense reference holds ``scores`` and ``p`` at once, so peak is about twice
+the attention matrix: at batch 1, heads 2, that is 67 MB at 2048 tokens and
+17 GB at 32768. The point of the whole thrust is what happens at long sequences,
+where attention is quadratic and memory-bound, so a ground truth that cannot
+reach those lengths cannot check the claim being made.
+"""
+
+
+def math_reference_streamed(q, k, v, *, causal: bool = False,
+                            softmax_scale: float | None = None,
+                            block_q: int = 1024, block_k: int = 1024):
+    """Exact attention in float64, streamed rather than materialised.
+
+    Same quantity as :func:`math_reference`, computed with the online-softmax
+    recurrence so that only ``block_q x block_k`` scores exist at once. Memory
+    becomes linear in sequence length instead of quadratic.
+
+    Still ground truth. Online softmax is algebraically exact -- the rescaling
+    by ``exp(m_old - m_new)`` is an identity, not an approximation -- so the two
+    paths differ only by float64 rounding, around 1e-16 relative. The kernels
+    being checked are fp16 and bf16, whose tolerances are nearer 1e-3, so the
+    difference is thirteen orders of magnitude below anything this is used to
+    decide. ``test_streamed_matches_materialised`` pins that.
+    """
+    _require_torch()
+    qd, kd, vd = (x.to(torch.float64) for x in (q, k, v))
+    scale = softmax_scale if softmax_scale is not None else 1.0 / math.sqrt(qd.shape[-1])
+    sq, sk, d = qd.shape[-2], kd.shape[-2], qd.shape[-1]
+    out = torch.empty(*qd.shape[:-1], d, dtype=torch.float64, device=qd.device)
+
+    for q0 in range(0, sq, block_q):
+        q1 = min(q0 + block_q, sq)
+        qb = qd[..., q0:q1, :]
+        m = torch.full((*qd.shape[:-2], q1 - q0), float("-inf"),
+                       dtype=torch.float64, device=qd.device)
+        lse = torch.zeros_like(m)
+        acc = torch.zeros(*qd.shape[:-2], q1 - q0, d,
+                          dtype=torch.float64, device=qd.device)
+        # Under causal masking every key beyond this query block is fully
+        # masked, so those blocks contribute nothing and are skipped.
+        k_end = min(sk, q1 + (sk - sq)) if causal else sk
+
+        for k0 in range(0, k_end, block_k):
+            k1 = min(k0 + block_k, k_end)
+            s = torch.matmul(qb, kd[..., k0:k1, :].transpose(-1, -2)) * scale
+            if causal:
+                i = torch.arange(q0, q1, device=s.device).view(-1, 1)
+                j = torch.arange(k0, k1, device=s.device).view(1, -1)
+                s = s.masked_fill(j > i + (sk - sq), float("-inf"))
+            m_new = torch.maximum(m, s.amax(-1))
+            # A fully masked block leaves m_new at -inf, and exp(-inf - -inf) is
+            # nan rather than zero. It must contribute nothing instead.
+            alpha = torch.nan_to_num(torch.exp(m - m_new), nan=0.0)
+            p = torch.nan_to_num(torch.exp(s - m_new.unsqueeze(-1)), nan=0.0)
+            acc = acc * alpha.unsqueeze(-1) + torch.matmul(p, vd[..., k0:k1, :])
+            lse = lse * alpha + p.sum(-1)
+            m = m_new
+
+        out[..., q0:q1, :] = acc / lse.clamp_min(1e-300).unsqueeze(-1)
+    return out
+
+
 def math_reference(q, k, v, *, causal: bool = False, softmax_scale: float | None = None):
     """Exact attention in float64. Ground truth, not a baseline to beat.
 
     Computed in double precision on purpose: comparing a bf16 kernel against a
     bf16 reference measures agreement between two approximations, which is not
     the same as measuring correctness, and it hides errors that both share.
+
+    Streams the computation when materialising the score matrix would be large,
+    which is the only way ground truth reaches the sequence lengths this thrust
+    exists to measure.
     """
     _require_torch()
+    sq, sk = q.shape[-2], k.shape[-2]
+    lead = 1
+    for n in q.shape[:-2]:
+        lead *= int(n)
+    # scores and p are both live at the peak.
+    if 2 * lead * sq * sk * 8 > MATERIALISE_BUDGET_BYTES:
+        return math_reference_streamed(
+            q, k, v, causal=causal, softmax_scale=softmax_scale)
+
     qd, kd, vd = (x.to(torch.float64) for x in (q, k, v))
     scale = softmax_scale if softmax_scale is not None else 1.0 / math.sqrt(qd.shape[-1])
     scores = torch.matmul(qd, kd.transpose(-1, -2)) * scale
     if causal:
-        sq, sk = scores.shape[-2], scores.shape[-1]
         i = torch.arange(sq, device=scores.device).view(-1, 1)
         j = torch.arange(sk, device=scores.device).view(1, -1)
         scores = scores.masked_fill(j > i + (sk - sq), float("-inf"))
