@@ -81,3 +81,60 @@ The stability sentinel and the communication campaign need four devices and
 this box had one. They are recorded in `stages-not-run.json` rather than
 omitted: an absent artifact and a stage nobody attempted look identical
 afterwards, and only one of them means the measurement was not made.
+
+## The checkpointing term, measured
+
+The 8-of-8 calibration result is silent about checkpointing, and depth is what
+makes the term observable. Measured at 1, 2, 4 and 8 layers with three
+predictions sealed first:
+
+| layers | measured off | measured on | measured saving | predicted saving |
+|---|---|---|---|---|
+| 1 | 1.44 GB | 1.44 GB | 0.0% | 10.0% |
+| 2 | 2.41 GB | 1.54 GB | 36.3% | 17.3% |
+| 4 | 4.35 GB | 1.72 GB | 60.4% | 27.2% |
+| 8 | 8.21 GB | 2.09 GB | 74.5% | 38.0% |
+
+**P1 held.** One layer saves nothing, to the byte. Checkpointing a single block
+discards intermediates and recomputes them, reaching the same peak.
+
+**P2 held.** The saving grows with depth, which is what the term describes.
+
+**P3 falsified by 36.6 percentage points.** At eight layers the registered
+`checkpoint_retained_fraction` of 0.25 predicts a 38.0% saving; 74.5% was
+measured. Checkpointing is worth roughly twice what the model credits it.
+
+Separating the two sides shows the error is not one mistake but two, and only
+one of them is safe:
+
+| layers | predicted off vs measured | predicted on vs measured |
+|---|---|---|
+| 1 | +55.7% | +40.1% |
+| 2 | +8.1% | +40.2% |
+| 4 | −23.6% | +40.5% |
+| 8 | **−42.2%** | +40.8% |
+
+Under checkpointing the model over-predicts by a near-constant 40% at every
+depth, which is the signature of a single wrong constant and is the *safe*
+direction: it reserves more than is needed.
+
+Without checkpointing the error **changes sign**. The model over-predicts at one
+layer and under-predicts by 42% at eight, because its per-layer growth is too
+small — measured memory rises about 0.97 GB per layer and the model's rises far
+slower. Under-prediction is the direction that says *this fits* about something
+that does not, and it gets worse the deeper the stack. A production model has
+tens of layers, not eight.
+
+None of this was visible in the calibration grid, and the grid said so: its own
+preflight recorded `"informative": false` and `"can_classify": false`, because
+every cell fits trivially on 96 GB and no cell lies near the decision boundary.
+An 8-of-8 score on a grid that cannot fail is not evidence that the model is
+right.
+
+The model's own registered domain is `n_layers: (1, 1)`, and the excursion
+detector flags eight layers as **8.0x** outside the fitted box against a
+`MAX_EXCURSION` of 4.0. The machinery was correct; the term had simply never
+been checked anywhere it could be.
+
+**No parameter was refitted.** Every version-2 parameter is registered rather
+than fitted, and a disagreement found in validation is a finding, not an input.

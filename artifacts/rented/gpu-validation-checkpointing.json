@@ -1,0 +1,134 @@
+{
+  "kind": "memory-checkpointing-validation",
+  "standard_version": "LC-1.2",
+  "generated_at": "2026-09-29T20:57:15Z",
+  "protocol": {
+    "name": "memory-v2-checkpointing-validation-v1",
+    "question": "The saved-activation term is multiplied by a registered checkpoint_retained_fraction of 0.25. Does the measured saving match, and does agreement improve with depth?",
+    "why_this_grid": "The existing calibration grid uses one layer, where checkpointing cannot save anything at the peak because backward recomputes to the same high-water mark. Its 8-of-8 result is therefore silent about this term. Depth is the axis that makes the term observable.",
+    "shape": {
+      "hidden": 1024,
+      "heads": 16,
+      "ffn": 4096,
+      "micro_batch": 16,
+      "seq_len": 2048,
+      "dtype": "bfloat16"
+    },
+    "layer_counts": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "cells": [
+      {
+        "n_layers": 1,
+        "predicted_bytes_no_checkpoint": 2249286144.0,
+        "predicted_bytes_checkpoint": 2023800360.96,
+        "predicted_saving_fraction": 0.10024770909716677
+      },
+      {
+        "n_layers": 2,
+        "predicted_bytes_no_checkpoint": 2606305300.48,
+        "predicted_bytes_checkpoint": 2155333734.4,
+        "predicted_saving_fraction": 0.17303098220954585
+      },
+      {
+        "n_layers": 4,
+        "predicted_bytes_no_checkpoint": 3320343613.44,
+        "predicted_bytes_checkpoint": 2418400481.28,
+        "predicted_saving_fraction": 0.27164150376157997
+      },
+      {
+        "n_layers": 8,
+        "predicted_bytes_no_checkpoint": 4748420239.36,
+        "predicted_bytes_checkpoint": 2944533975.04,
+        "predicted_saving_fraction": 0.37989187422112636
+      }
+    ],
+    "parameters_are_frozen": true,
+    "no_parameter_will_be_fitted": "Every version 2 parameter is REGISTERED, derived from what a block allocates. This validates; it does not calibrate, and a result that disagrees is a finding rather than an input.",
+    "predictions": [
+      {
+        "id": "P1-one-layer-saves-nothing",
+        "claim": "At n_layers=1 the measured peak is the same with and without checkpointing, within 2%, because backward recomputes what forward discarded.",
+        "falsified_if": "the measured peaks differ by more than 2%"
+      },
+      {
+        "id": "P2-saving-grows-with-depth",
+        "claim": "The measured saving fraction increases monotonically from n_layers=1 to n_layers=8, because more of the stack's activations are discarded and recomputed one block at a time.",
+        "falsified_if": "the measured saving does not increase with depth, which would mean checkpointing is not doing what the term describes"
+      },
+      {
+        "id": "P3-term-matches-at-depth",
+        "claim": "At n_layers=8 the model's predicted saving fraction is within 10 percentage points of the measured one.",
+        "falsified_if": "it is not, which would put a number on how wrong checkpoint_retained_fraction is and is the point of running this"
+      }
+    ],
+    "committed_before_measurement": true,
+    "seal_hash": "sha256:8e44277e4e5e23f00c4ea05527460e0757be8237ed672adb67f57645128b2563"
+  },
+  "device": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (sm_120, 102 GB)",
+  "runtime": {
+    "budget_fraction": 0.92,
+    "budget_bytes": 93815612375,
+    "total_bytes": 101973491712,
+    "device_index": 0,
+    "cap_installed": true,
+    "cap_mechanism": "torch.cuda.set_per_process_memory_fraction",
+    "free_bytes": 101387075584,
+    "foreign_bytes": 586416128,
+    "refusal": "",
+    "allocator_backend": "default caching allocator",
+    "env": {
+      "CUDA_VERSION": "13.0.2",
+      "CUDA_HOME": "/usr/local/cuda"
+    }
+  },
+  "cells": [
+    {
+      "n_layers": 1,
+      "no_checkpoint": {
+        "status": "ok",
+        "peak_bytes": 1444939776
+      },
+      "checkpoint": {
+        "status": "ok",
+        "peak_bytes": 1444939776
+      }
+    },
+    {
+      "n_layers": 2,
+      "no_checkpoint": {
+        "status": "ok",
+        "peak_bytes": 2411727872
+      },
+      "checkpoint": {
+        "status": "ok",
+        "peak_bytes": 1537214464
+      }
+    },
+    {
+      "n_layers": 4,
+      "no_checkpoint": {
+        "status": "ok",
+        "peak_bytes": 4345304064
+      },
+      "checkpoint": {
+        "status": "ok",
+        "peak_bytes": 1721763840
+      }
+    },
+    {
+      "n_layers": 8,
+      "no_checkpoint": {
+        "status": "ok",
+        "peak_bytes": 8212456448
+      },
+      "checkpoint": {
+        "status": "ok",
+        "peak_bytes": 2090862592
+      }
+    }
+  ]
+}
