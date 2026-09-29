@@ -17,7 +17,7 @@
 
 set -uo pipefail
 
-ART="${ART:-artifacts}"
+export ART="${ART:-artifacts}"
 LOG="${LOG:-$ART/rental.log}"
 QUICK="${QUICK:-}"
 mkdir -p "$ART"
@@ -30,6 +30,49 @@ note() { printf '    %s\n' "$*" | tee -a "$LOG"; }
 done_already() {
   if [ -f "$1" ]; then note "already present, skipping: $1"; return 0; fi
   return 1
+}
+
+# How many devices this box has, and whether they can talk to each other
+# directly. Both matter, and a stage that cannot be satisfied must be skipped
+# with a reason rather than run to produce a number about something else.
+export N_GPU=$(python3 -c "import torch;print(torch.cuda.device_count())" 2>/dev/null || echo 0)
+export P2P=$(python3 - <<'PY' 2>/dev/null || echo unknown
+import torch
+n = torch.cuda.device_count()
+if n < 2:
+    print("n/a")
+else:
+    print("yes" if torch.cuda.can_device_access_peer(0, 1) else "no")
+PY
+)
+
+SKIPPED="$ART/stages-not-run.json"
+: > "$ART/.skips"
+
+record_skip() {
+  printf '%s\t%s\n' "$1" "$2" >> "$ART/.skips"
+  note "SKIPPED: $2"
+}
+
+# A stage needing more devices than exist is not a failure of the run, and it is
+# not something to quietly omit either. Consumer cards are the sharper case:
+# NCCL works there but stages every transfer through host memory, so a
+# collective benchmark returns a plausible number about the host rather than
+# about a fabric -- which is how the first rental produced an artifact labelled
+# nccl that had measured shared memory.
+requires() {
+  local need="$1" what="$2"
+  if [ "$N_GPU" -lt "$need" ]; then
+    record_skip "$what" "$what needs $need devices, this box has $N_GPU"
+    return 1
+  fi
+  if [ "$need" -ge 2 ] && [ "$P2P" = "no" ]; then
+    record_skip "$what" "$what needs peer-to-peer between devices; this box \
+reports none, so NCCL would stage through host memory and the result would \
+describe the host rather than the interconnect"
+    return 1
+  fi
+  return 0
 }
 
 stage() {
@@ -50,6 +93,7 @@ stage() {
 }
 
 say "machine"
+note "devices: ${N_GPU:-?}   peer-to-peer: ${P2P:-?}"
 nvidia-smi --query-gpu=index,name,memory.total,compute_cap --format=csv,noheader | tee -a "$LOG"
 python3 -c "import torch;print(f'torch {torch.__version__} cuda {torch.version.cuda} nccl {torch.cuda.nccl.version()} devices {torch.cuda.device_count()}')" 2>&1 | tee -a "$LOG"
 nvidia-smi topo -m 2>/dev/null | head -12 | tee -a "$LOG"
@@ -73,8 +117,10 @@ fi
 # the campaigns because it is the thing that decides whether their sessions may
 # be pooled at all.
 # ---------------------------------------------------------------------------
-stage "stability sentinel" "$ART/stability-machine.json" \
-  python3 -W ignore -u scripts/stability.py $QUICK
+if requires 4 "stability sentinel"; then
+  stage "stability sentinel" "$ART/stability-machine.json" \
+    python3 -W ignore -u scripts/stability.py $QUICK
+fi
 
 # ---------------------------------------------------------------------------
 # The headline. The registered lattice is 144 cells at 11 replicates and has
@@ -114,6 +160,38 @@ for f in "$ART"/stability-machine.json \
     printf '    %-52s %8s\n' "$(basename "$f")" "MISSING" | tee -a "$LOG"
   fi
 done
+
+say "stages not run"
+python3 - <<'PYEOF' | tee -a "$LOG"
+import json, os, pathlib
+art = os.environ.get("ART", "artifacts")
+src = pathlib.Path(art) / ".skips"
+rows = []
+if src.exists():
+    for line in src.read_text(encoding="utf-8").splitlines():
+        if "	" in line:
+            stage, why = line.split("	", 1)
+            rows.append({"stage": stage, "reason": why})
+out = {
+    "kind": "stages-not-run",
+    "n_gpus": int(os.environ.get("N_GPU", "0") or 0),
+    "peer_to_peer": os.environ.get("P2P", "unknown"),
+    "skipped": rows,
+    "note": (
+        "A stage this machine could not satisfy is recorded here rather than "
+        "omitted. An absent artifact and a stage that was never attempted look "
+        "identical afterwards, and only one of them means the measurement was "
+        "not made."
+    ),
+}
+pathlib.Path(art, "stages-not-run.json").write_text(
+    json.dumps(out, indent=2), encoding="utf-8")
+if rows:
+    for r in rows:
+        print(f"    {r['stage']}: {r['reason']}")
+else:
+    print("    none -- every stage could run on this machine")
+PYEOF
 
 say "collect"
 note "tar the artifacts and pull them down before stopping the instance:"
