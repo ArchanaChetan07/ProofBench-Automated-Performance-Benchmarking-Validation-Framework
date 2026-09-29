@@ -146,8 +146,10 @@ stage "memory model -- recalibration in domain" \
 # local answer is already clear, so it gets whatever hours remain rather than
 # the first ones.
 # ---------------------------------------------------------------------------
-stage "communication campaign" "$ART/gpu-campaign.json" \
-  python3 -W ignore -u scripts/gpu_campaign.py $QUICK
+if requires 4 "communication campaign"; then
+  stage "communication campaign" "$ART/gpu-campaign.json" \
+    python3 -W ignore -u scripts/gpu_campaign.py $QUICK
+fi
 
 say "summary"
 for f in "$ART"/stability-machine.json \
