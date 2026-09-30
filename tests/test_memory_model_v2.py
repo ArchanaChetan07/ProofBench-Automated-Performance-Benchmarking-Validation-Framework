@@ -411,3 +411,79 @@ class TestMilestonePreserved:
         assert "another gpu" in joined
         assert "ten cells" in joined or "small grid" in joined
         assert "communication" in joined
+
+
+class TestKnownDisagreements:
+    """An excursion warning says nobody checked out here. Where somebody has,
+    the stronger statement should replace the weaker one."""
+
+    def test_the_depth_axis_carries_what_was_measured(self):
+        from losscolumn.core.memory_model import V2_DOMAIN
+
+        axes = {d[0] for d in V2_DOMAIN.known_disagreements}
+        assert "n_layers" in axes, (
+            "depth is the axis the calibration grid could not see, and the one "
+            "since measured")
+
+    def test_the_dangerous_direction_is_recorded(self):
+        """Under-prediction says a shape fits when it does not, and it is the
+        half of this finding that matters."""
+        from losscolumn.core.memory_model import V2_DOMAIN
+
+        under = [d for d in V2_DOMAIN.known_disagreements if d[2] < -0.3]
+        assert under, "the -42% under-prediction at eight layers must be here"
+        assert any("does not" in d[3] or "fits" in d[3] for d in under)
+
+    def test_extrapolating_on_depth_cites_the_measurement(self):
+        """The error message is where a caller actually meets this."""
+        from losscolumn.core.memory_model import (
+            BlockMemoryModel,
+            BlockShape,
+            ExtrapolationError,
+        )
+
+        m = BlockMemoryModel()
+        s = BlockShape(hidden=1024, heads=16, ffn=4096, micro_batch=64,
+                       seq_len=2048, n_layers=8, bytes_per_elem=2)
+        with pytest.raises(ExtrapolationError) as e:
+            m.predict_bytes(s, strict=True)
+        msg = str(e.value)
+        assert "HAS been measured" in msg
+        assert "-42" in msg
+        assert "Nothing has checked it out here" not in msg, (
+            "that is the weaker claim and it is no longer true on this axis")
+
+    def test_an_unmeasured_axis_still_says_nothing_checked_it(self):
+        """The weaker statement must survive where it is still the true one."""
+        from losscolumn.core.memory_model import (
+            BlockMemoryModel,
+            BlockShape,
+            ExtrapolationError,
+        )
+
+        m = BlockMemoryModel()
+        s = BlockShape(hidden=32768, heads=16, ffn=4096, micro_batch=64,
+                       seq_len=2048, n_layers=1, bytes_per_elem=2)
+        with pytest.raises(ExtrapolationError) as e:
+            m.predict_bytes(s, strict=True)
+        assert "Nothing has checked it out here" in str(e.value)
+
+    def test_disagreements_are_matched_to_the_shape_not_dumped(self):
+        from losscolumn.core.memory_model import BlockMemoryModel, BlockShape
+
+        m = BlockMemoryModel()
+        deep = BlockShape(hidden=1024, heads=16, ffn=4096, micro_batch=64,
+                          seq_len=2048, n_layers=8, bytes_per_elem=2)
+        flat = BlockShape(hidden=1024, heads=16, ffn=4096, micro_batch=64,
+                          seq_len=2048, n_layers=1, bytes_per_elem=2)
+        assert m.domain.disagreements_for(deep), "depth excursion, depth evidence"
+        assert not m.domain.disagreements_for(flat), (
+            "a shape inside the box on depth must not be handed depth evidence")
+
+    def test_the_domain_serialises_what_it_knows(self):
+        from losscolumn.core.memory_model import V2_DOMAIN
+
+        d = V2_DOMAIN.to_dict()
+        assert d["known_disagreements"], "an artifact must carry this too"
+        assert all({"axis", "value", "relative_error", "note"} <= set(x)
+                   for x in d["known_disagreements"])

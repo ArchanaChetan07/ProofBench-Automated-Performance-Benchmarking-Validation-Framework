@@ -257,6 +257,19 @@ class CalibratedDomain:
     seq_len: tuple[int, int] = (0, 0)
     n_layers: tuple[int, int] = (1, 1)
 
+    known_disagreements: tuple[tuple[str, float, float, str], ...] = ()
+    """Measured error at points outside the box: (axis, value, rel_error, note).
+
+    An excursion warning says nobody checked out here. That is the weaker
+    statement, and where somebody has since checked, the stronger one should
+    replace it: a reader deciding whether to trust an extrapolation is better
+    served by "measured 42% low at eight layers" than by "unverified"."""
+
+    def disagreements_for(self, shape: BlockShape) -> tuple[tuple, ...]:
+        """Measured disagreements relevant to this shape's excursions."""
+        axes = set(self.excursions(shape))
+        return tuple(d for d in self.known_disagreements if d[0] in axes)
+
     def excursions(self, shape: BlockShape) -> dict[str, float]:
         """How far outside the fitted box a shape sits, per axis.
 
@@ -283,6 +296,10 @@ class CalibratedDomain:
             "hidden": list(self.hidden), "heads": list(self.heads),
             "ffn": list(self.ffn), "micro_batch": list(self.micro_batch),
             "seq_len": list(self.seq_len), "n_layers": list(self.n_layers),
+            "known_disagreements": [
+                {"axis": a, "value": v, "relative_error": e, "note": n}
+                for a, v, e, n in self.known_disagreements
+            ],
         }
 
 
@@ -295,6 +312,25 @@ V2_DOMAIN = CalibratedDomain(
     total_bytes=8_589_606_912.0,
     hidden=(1024, 1024), heads=(16, 16), ffn=(4096, 4096),
     micro_batch=(64, 128), seq_len=(2048, 4096), n_layers=(1, 1),
+    # Measured outside the box, in artifacts/rented/gpu-validation-checkpointing
+    # .json. Depth is the axis the calibration grid could not see: its block has
+    # one layer, and checkpointing one layer saves nothing at the peak because
+    # backward recomputes what forward discarded. Both its cells measured
+    # 5477763072 bytes exactly while the model predicted a 10% saving.
+    known_disagreements=(
+        ("n_layers", 4.0, -0.236,
+         "without checkpointing, predicted 3.32 GB against 4.35 GB measured"),
+        ("n_layers", 8.0, -0.422,
+         "without checkpointing, predicted 4.75 GB against 8.21 GB measured. The "
+         "per-layer growth term is too small and the error grows with depth, in "
+         "the direction that says a shape fits when it does not"),
+        ("n_layers", 8.0, 0.408,
+         "with checkpointing, predicted 2.94 GB against 2.09 GB measured. A "
+         "near-constant 40% over-prediction at every depth, which is the safe "
+         "direction and the signature of one wrong constant: the registered "
+         "checkpoint_retained_fraction of 0.25 credits checkpointing with a 38% "
+         "saving at eight layers where 74.5% was measured"),
+    ),
 )
 
 
@@ -382,15 +418,25 @@ class BlockMemoryModel:
                    if v > MAX_EXCURSION}
             if far:
                 worst = max(far.items(), key=lambda kv: kv[1])
+                known = self.domain.disagreements_for(shape)
+                measured = ""
+                if known:
+                    w = max(known, key=lambda d: abs(d[2]))
+                    measured = (
+                        f" It HAS been measured out here, and it was wrong: at "
+                        f"{w[0]}={w[1]:.0f} the prediction was off by "
+                        f"{w[2] * 100:+.1f}% -- {w[3]}."
+                    )
                 raise ExtrapolationError(
                     f"{worst[0]} is {worst[1]:.1f}x outside the range "
                     f"block-memory-v2 was fitted over "
                     f"({getattr(self.domain, worst[0])}), on a "
                     f"{self.domain.total_bytes / GB:.0f} GB "
                     f"{self.domain.device}. The model is linear in every term "
-                    "so it will return a number regardless; nothing has "
-                    "checked it out here. Re-calibrate on the target hardware, "
-                    "or call without strict and record the excursion."
+                    "so it will return a number regardless."
+                    + (measured or " Nothing has checked it out here.")
+                    + " Re-calibrate on the target hardware, or call without "
+                    "strict and record the excursion."
                 )
         return self.terms(shape).total
 
