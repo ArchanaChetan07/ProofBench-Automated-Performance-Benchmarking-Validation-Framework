@@ -337,8 +337,34 @@ def flash_torch_sparse(
     return out
 
 
+def build_sparse_mask(q, k, layout, *, causal: bool = False):
+    """The attention mask for a layout. Built once, outside anything timed.
+
+    Vectorised rather than block-by-block. The loop this replaces issued one
+    CUDA launch per non-zero block -- 522 of them at 4096 tokens and density
+    0.25 -- and the cost scales with the layout's occupancy, which is the
+    sweep's own independent variable.
+    """
+    _require_torch()
+    sq, sk = q.shape[-2], k.shape[-2]
+    bq, bk = layout.block_q, layout.block_k
+
+    # numpy block grid -> device tensor -> expand. Two launches, not nnz.
+    grid = torch.from_numpy(layout.dense_mask()).to(q.device)
+    mask = grid.repeat_interleave(bq, 0).repeat_interleave(bk, 1)[:sq, :sk]
+    if mask.shape != (sq, sk):
+        pad = torch.zeros((sq, sk), device=q.device, dtype=torch.bool)
+        pad[:mask.shape[0], :mask.shape[1]] = mask
+        mask = pad
+    if causal:
+        i = torch.arange(sq, device=q.device).view(-1, 1)
+        j = torch.arange(sk, device=q.device).view(1, -1)
+        mask = mask & (j <= i + (sk - sq))
+    return mask.contiguous()
+
+
 def sparse_reference(q, k, v, layout, *, causal: bool = False,
-                     softmax_scale: float | None = None):
+                     softmax_scale: float | None = None, mask=None):
     """The reference for a sparse pattern: SDPA computing it densely under a mask.
 
     This is the honest comparator. It produces the same output as the sparse
@@ -346,21 +372,21 @@ def sparse_reference(q, k, v, layout, *, causal: bool = False,
     exactly what block-skipping buys -- which is the question. Comparing a
     sparse kernel against *unmasked* dense attention would instead be comparing
     two different functions.
+
+    That claim is only true when `mask` is supplied. Building it here put a
+    per-call, Python-driven fill of one CUDA launch per non-zero block inside
+    the timed region, on the baseline arm alone -- measured at 15% to 24% of
+    baseline latency, against a registered minimum effect size of 10%. Worse
+    than the magnitude, the cost scales with the layout's occupancy, so it
+    distorted the *shape* of the speedup-against-density curve rather than
+    shifting it. Callers that time this must pass a mask built by
+    `build_sparse_mask` beforehand; the fallback exists so the function is still
+    correct when called casually.
     """
     _require_torch()
-    b, h, sq, d = q.shape
-    sk = k.shape[-2]
-    mask = torch.zeros((sq, sk), device=q.device, dtype=torch.bool)
-    bq, bk = layout.block_q, layout.block_k
-    for bi in range(layout.n_q_blocks):
-        q0, q1 = bi * bq, min((bi + 1) * bq, sq)
-        for idx in range(int(layout.crow[bi]), int(layout.crow[bi + 1])):
-            kj = int(layout.cols[idx])
-            mask[q0:q1, kj * bk:min((kj + 1) * bk, sk)] = True
-    if causal:
-        i = torch.arange(sq, device=q.device).view(-1, 1)
-        j = torch.arange(sk, device=q.device).view(1, -1)
-        mask &= j <= i + (sk - sq)
+    sq, sk = q.shape[-2], k.shape[-2]
+    if mask is None:
+        mask = build_sparse_mask(q, k, layout, causal=causal)
     return torch.nn.functional.scaled_dot_product_attention(
         q, k, v, attn_mask=mask.view(1, 1, sq, sk), scale=softmax_scale
     )

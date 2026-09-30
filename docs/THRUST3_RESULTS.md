@@ -1,3 +1,18 @@
+> **The Triton numbers on this page are provisional and are expected to fall.**
+>
+> Adversarial verification of an automated audit found that the sparse baseline
+> built its attention mask *inside the timed region* -- one CUDA launch per
+> non-zero block, on the baseline arm alone. Measured at 15% to 24% of baseline
+> latency against a registered minimum effect size of 10%, and the cost scales
+> with the layout's occupancy, which is this sweep's own independent variable.
+> It therefore bent the speedup-against-density curve rather than shifting it.
+>
+> The bug is fixed and tested; these numbers were measured before the fix. The
+> portable arm is unaffected -- its own Python block loop dwarfs mask
+> construction, so it loses regardless -- but some of the Triton kernel's 44
+> wins were bought from a handicapped baseline and will not survive
+> re-measurement. **Re-measure before citing.**
+
 # Thrust III on tensor cores
 
 The measurement this project was built to make, made for the first time.

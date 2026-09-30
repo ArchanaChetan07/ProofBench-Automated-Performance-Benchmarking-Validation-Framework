@@ -53,6 +53,7 @@ from losscolumn.thrusts.kernel.bench import (
 )
 from losscolumn.thrusts.kernel.correctness import CorrectnessResult, CorrectnessSuite, ShapeSpec
 from losscolumn.thrusts.kernel.reference import (
+    build_sparse_mask,
     error_budget,
     flash_torch_sparse,
     math_reference_sparse,
@@ -335,7 +336,12 @@ def run_sparse_sweep(
             run_reference = partial(sdpa_reference, q, k, v, causal=causal)
             reference_kind = "sdpa, backend chosen by torch for this shape"
         else:
-            run_reference = partial(sparse_reference, q, k, v, layout, causal=causal)
+            # Built here, once, outside everything timed. Inside the timed
+            # callable it was one CUDA launch per non-zero block, on the
+            # baseline arm only, scaling with the occupancy the sweep varies.
+            cell_mask = build_sparse_mask(q, k, layout, causal=causal)
+            run_reference = partial(sparse_reference, q, k, v, layout,
+                                    causal=causal, mask=cell_mask)
             reference_kind = (
                 "sdpa computing the same pattern densely under an explicit mask; "
                 "an explicit mask precludes the fused backend, which is a property "
