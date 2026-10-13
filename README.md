@@ -1,18 +1,78 @@
-# losscolumn
+# losscolumn — Falsifiable Performance Benchmarking for LLM Systems
 
-**Falsifiable performance claims for LLM training and inference systems.**
+**GPU performance engineering · CUDA / Triton kernels · distributed training ·
+PyTorch · NCCL · statistical benchmarking · reproducible ML infrastructure**
 
-A reporting standard, and its reference implementation, for a field where
-performance claims are largely unfalsifiable. A paper or vendor benchmark
-reports one configuration, on one hardware target, against a baseline the
-authors had no incentive to tune, and omits the regions where the method loses.
-The reader cannot tell whether a reported 2× speedup is a contribution or an
-artifact of the comparison.
+A benchmarking framework and conformance standard that makes LLM systems
+performance claims *falsifiable*. Every result it publishes carries a **loss
+column**: a statistically supported map of where the method **loses**, printed
+above the wins, with an attributed cause for each region.
 
-This package makes the alternative concrete. Every result it produces carries a
-**loss column**: an explicit, statistically supported map of where the method
-underperforms, published above the wins, with an attributed cause for each
-region.
+Built end to end — kernel implementation, distributed measurement harness,
+statistical analysis, conformance validator, and CI — and run on real rented
+multi-GPU hardware.
+
+---
+
+## At a glance
+
+| | |
+|---|---|
+| **Scale** | 30k lines Python, 6.6k lines tests, 76 commits |
+| **Test suite** | **770 tests**, 100% passing, lint-clean, clean-clone reproducible on Windows and Linux |
+| **Measured on** | NVIDIA RTX PRO 6000 Blackwell (sm_120, 96 GB) · 8× GPU NCCL · T1000 (sm_75) |
+| **Experiment scale** | 144-cell factorial lattice × 11 replicates; 1,288 collective-communication records |
+| **Standard** | 60-rule conformance spec, 3 frozen hash-locked versions, adversarial test corpus |
+| **Integrity** | 28 defects found and fixed · 5 results withdrawn and preserved rather than deleted |
+
+## What I built
+
+**A CUDA/Triton FlashAttention kernel** with block-sparse layouts (CSR
+crow/cols, 64×64 blocks), swept over `seq_len × batch × pattern × density ×
+phase` and validated against an `float64` ground truth that streams via online
+softmax so correctness scales to 32k-token sequences.
+
+**A distributed measurement harness** for NCCL and gloo collectives —
+`all_reduce` / `all_gather` across world sizes 2–8, with NUMA- and PCIe-aware
+fabric grouping, an atomic cross-process measurement lock, and automatic
+detection of algorithm-selection thresholds and bistable regions.
+
+**A statistical analysis layer**: Benjamini–Hochberg FDR control, paired
+sign-flip permutation tests, BCa bootstrap intervals, TOST equivalence,
+stratified k-fold cross-validation, pre-registered minimum effect sizes, and
+robust estimators (Huber, log-relative, weighted least squares).
+
+**A conformance validator** that grades any JSON artifact against the frozen
+standard, shipped with an adversarial corpus carrying a deliberately broken
+example for every rule — so other implementations can be checked, not trusted.
+
+## Engineering highlights
+
+- **Found and fixed a factor-of-world-size error** in an `all_gather` bandwidth
+  formula that had survived since the first commit, in three copies, because the
+  number was only ever compared against itself rather than an external reference.
+- **Caught a contaminated baseline in my own published result**: the sparse
+  reference built its attention mask *inside the timed region*, biasing the
+  baseline 15–24% against a 10% minimum effect size — and scaling with the
+  experiment's own independent variable. Marked the affected numbers provisional.
+- **Diagnosed machine instability with a pre-registered protocol**: three nested
+  repeatability levels (within-run, across-restart, across-session), a
+  permutation test for workload-specificity, and a comparability criterion that
+  blocks pooling incomparable measurement sessions.
+- **Honoured falsified predictions.** Several hypotheses were sealed before
+  measurement and refuted by it; the corrections were withdrawn and preserved
+  under a hash-verified history rather than quietly revised.
+
+## Tech stack
+
+`Python` `PyTorch` `Triton` `CUDA` `NCCL` `NumPy` `SciPy` `pytest` `ruff`
+`Linux` `Git` `GPU benchmarking` `FlashAttention` `sparse attention`
+`distributed systems` `tensor parallelism` `performance profiling`
+`statistical inference` `experimental design` `reproducible research` `CI`
+
+---
+
+## Quick start
 
 ```bash
 pip install -e ".[torch]"
@@ -22,8 +82,6 @@ losscolumn prereg seal III       # seal the protocol BEFORE collecting data
 losscolumn run thrust3           # run it, publish a conforming artifact
 losscolumn validate artifacts/*.claim.json
 ```
-
----
 
 ## The idea in one table
 
